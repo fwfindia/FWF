@@ -45,8 +45,12 @@ async function handler(req, res) {
         return res.status(502).json({ error: "Could not connect to authentication server. Please try again later." });
       }
 
+      if (response.status === 403) {
+        console.error('[password/forgot] Internal API key rejected by backend — check INTERNAL_API_KEY env var on Vercel');
+        return res.status(503).json({ error: "Authentication service misconfigured. Contact support." });
+      }
       if (!response.ok) {
-        return res.status(404).json({ error: "Member ID not found" });
+        return res.status(404).json({ error: "Member ID not found. Please check and try again." });
       }
 
       const { email, mobile } = await response.json();
@@ -160,6 +164,10 @@ async function handler(req, res) {
         return res.status(502).json({ error: "Could not connect to authentication server. Please try again later." });
       }
 
+      if (response.status === 403) {
+        console.error('[password/reset] Internal API key rejected by backend — check INTERNAL_API_KEY env var on Vercel');
+        return res.status(503).json({ error: "Authentication service misconfigured. Contact support." });
+      }
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         return res.status(400).json({ error: error.error || "Failed to update password" });
