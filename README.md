@@ -1,4 +1,4 @@
-# FWF - Foundation for Women's Future
+﻿# FWF - Foundris Welfare Foundation
 
 > Skills to Livelihood Platform - Connecting training, projects, and earning opportunities
 
@@ -260,7 +260,7 @@ vercel dev
 
 ## 📄 License
 
-This project is private and proprietary to Foundation for Women's Future.
+This project is private and proprietary to Foundris Welfare Foundation.
 
 ## 📞 Contact
 

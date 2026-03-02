@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -759,7 +759,7 @@ app.post('/api/pay/create-donation-subscription', async (req, res) => {
         name: `FWF Monthly Donation ₹${amount}`,
         amount: amountPaise,
         currency: 'INR',
-        description: "Foundation for Women's Future — monthly donation"
+        description: "Foundris Welfare Foundation — monthly donation"
       },
       notes: { org: 'FWF', type: 'recurring_donation' }
     });
@@ -3373,7 +3373,7 @@ app.post('/api/admin/invoice/:receiptId/resend', auth('admin'), async (req, res)
           <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);padding:32px;border-radius:12px 12px 0 0;text-align:center">
             <div style="font-size:40px;margin-bottom:8px">🧾</div>
             <h1 style="color:#fff;margin:0;font-size:24px">Payment Receipt</h1>
-            <p style="color:#a0a0c0;margin:8px 0 0">Foundation for Women's Future</p>
+            <p style="color:#a0a0c0;margin:8px 0 0">Foundris Welfare Foundation</p>
           </div>
           <div style="background:#fff;padding:32px;border:1px solid #e5e7eb;border-top:none">
             <p style="color:#374151">Dear ${receipt.customer_name},</p>
@@ -3390,7 +3390,7 @@ app.post('/api/admin/invoice/:receiptId/resend', auth('admin'), async (req, res)
             </div>
             ${receipt.is_80g ? '<p style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;color:#166534;font-size:13px">✅ This receipt is eligible for <strong>80G tax deduction</strong> under the Income Tax Act, 1961.</p>' : ''}
           </div>
-          <div style="background:#f9fafb;padding:20px;text-align:center;font-size:12px;color:#9ca3af">Foundation for Women's Future (FWF) | support@fwfindia.org</div>
+          <div style="background:#f9fafb;padding:20px;text-align:center;font-size:12px;color:#9ca3af">Foundris Welfare Foundation (FWF) | support@fwfindia.org</div>
         </div>`
     });
 
@@ -4378,7 +4378,7 @@ function receiptHTML(r) {
     <div class="header">
       <div class="icon">🧾</div>
       <h1>Payment Receipt</h1>
-      <div class="sub">Foundation for Women's Future</div>
+      <div class="sub">Foundris Welfare Foundation</div>
       <div class="badge">${typeLabel}</div>
     </div>
     <div class="body">
@@ -4417,7 +4417,7 @@ function receiptHTML(r) {
       </div>
     </div>
     <div class="footer">
-      Foundation for Women's Future (FWF) &nbsp;|&nbsp; <a href="mailto:support@fwfindia.org">support@fwfindia.org</a> &nbsp;|&nbsp; <a href="https://fwfindia.org">fwfindia.org</a>
+      Foundris Welfare Foundation (FWF) &nbsp;|&nbsp; <a href="mailto:support@fwfindia.org">support@fwfindia.org</a> &nbsp;|&nbsp; <a href="https://fwfindia.org">fwfindia.org</a>
     </div>
   </div>
 </body>

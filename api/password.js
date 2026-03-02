@@ -1,4 +1,4 @@
-import { connectDB } from "../lib/db.js";
+﻿import { connectDB } from "../lib/db.js";
 import { getTransporter } from "../lib/mailer.js";
 import { sendSmsOtp } from "../lib/msg91.js";
 import PasswordReset from "../models/PasswordReset.js";
@@ -91,7 +91,7 @@ async function handler(req, res) {
                 </p>
               </div>
               <p style="color: #666; font-size: 14px; line-height: 1.6; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-                Best regards,<br><strong>Foundation for Women's Future Team</strong>
+                Best regards,<br><strong>Foundris Welfare Foundation Team</strong>
               </p>
             </div>
           </div>

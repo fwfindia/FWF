@@ -1,4 +1,4 @@
-import crypto from "crypto";
+﻿import crypto from "crypto";
 import { connectDB } from "../lib/db.js";
 import { getTransporter } from "../lib/mailer.js";
 import { sendSmsOtp } from "../lib/msg91.js";
@@ -65,7 +65,7 @@ async function handler(req, res) {
           <p style="color:#333;font-size:15px">Dear <strong>${name}</strong>,</p>
           <p style="color:#333;font-size:15px">
             You are making a donation of <strong style="color:#ff416c">₹${Number(amount).toLocaleString('en-IN')}</strong> to
-            Foundation for Women's Future.
+            Foundris Welfare Foundation.
           </p>
           <p style="color:#555;font-size:14px">
             As per FCRA / Income-Tax Act regulations, identity verification via OTP is mandatory for donations of
@@ -82,7 +82,7 @@ async function handler(req, res) {
             </p>
           </div>
           <p style="color:#999;font-size:12px;border-top:1px solid #eee;padding-top:16px;margin-top:0">
-            Foundation for Women's Future &nbsp;·&nbsp; <a href="https://www.fwfindia.org" style="color:#ff416c">www.fwfindia.org</a>
+            Foundris Welfare Foundation &nbsp;·&nbsp; <a href="https://www.fwfindia.org" style="color:#ff416c">www.fwfindia.org</a>
           </p>
         </div>
       </div>`

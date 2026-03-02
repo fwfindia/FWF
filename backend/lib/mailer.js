@@ -1,4 +1,4 @@
-import { Resend } from 'resend';
+﻿import { Resend } from 'resend';
 
 let cached = global._backendMailer;
 if (!cached) cached = global._backendMailer = { client: null };
@@ -69,14 +69,14 @@ export async function send80GReceipt({ donationId, name, email, pan, address, am
       <div style="background:linear-gradient(135deg,#ff416c,#ff4f81);padding:30px 32px 24px;border-radius:12px 12px 0 0;text-align:center">
         <div style="font-size:36px;margin-bottom:8px">🏛️</div>
         <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">80G Tax Exemption Receipt</h1>
-        <p style="color:rgba(255,255,255,0.85);margin:4px 0 0;font-size:14px">Foundation for Women's Future</p>
+        <p style="color:rgba(255,255,255,0.85);margin:4px 0 0;font-size:14px">Foundris Welfare Foundation</p>
       </div>
 
       <!-- Receipt Box -->
       <div style="padding:32px;border-left:1px solid #f0e0e0;border-right:1px solid #f0e0e0">
         <p style="color:#374151;font-size:15px;margin-bottom:24px">
           Dear <strong>${name}</strong>,<br><br>
-          Thank you for your generous contribution to Foundation for Women's Future (FWF).
+          Thank you for your generous contribution to Foundris Welfare Foundation (FWF).
           This is your official <strong>80G tax exemption receipt</strong> as per the Income Tax Act, 1961.
           Please retain this for your tax filing records.
         </p>
@@ -121,7 +121,7 @@ export async function send80GReceipt({ donationId, name, email, pan, address, am
         <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:18px 20px;margin-bottom:24px">
           <p style="color:#166534;font-size:13px;margin:0;line-height:1.6">
             <strong>📜 80G Declaration:</strong><br>
-            This receipt certifies that the above donation has been received by <strong>Foundation for Women's Future</strong>
+            This receipt certifies that the above donation has been received by <strong>Foundris Welfare Foundation</strong>
             and is eligible for tax deduction under Section 80G of the Income Tax Act, 1961.
             The organization is registered and approved for 80G exemption.
             Donors can claim <strong>50% deduction</strong> on the donated amount while computing taxable income.
@@ -143,7 +143,7 @@ export async function send80GReceipt({ donationId, name, email, pan, address, am
       <!-- Footer -->
       <div style="background:#fdf2f4;padding:20px 32px;border-radius:0 0 12px 12px;border:1px solid #f0e0e0;border-top:none;text-align:center">
         <p style="color:#9ca3af;font-size:12px;margin:0 0 4px">
-          <strong style="color:#ff416c">Foundation for Women's Future (FWF)</strong>
+          <strong style="color:#ff416c">Foundris Welfare Foundation (FWF)</strong>
         </p>
         <p style="color:#9ca3af;font-size:11px;margin:0">
           <a href="https://www.fwfindia.org" style="color:#ff416c;text-decoration:none">www.fwfindia.org</a>
