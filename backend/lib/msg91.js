@@ -1,15 +1,22 @@
 /**
- * MSG91 — SMS OTP + WhatsApp messaging
+ * MSG91 — SMS OTP + WhatsApp + Transactional SMS messaging
  *
  * Env vars required:
  *   MSG91_AUTH_KEY                  — MSG91 auth key
  *
- *   SMS OTP template IDs (register each on DLT portal separately):
- *   MSG91_OTP_TEMPLATE_FORGOT       — Forgot password OTP
+ *   SMS OTP template IDs (DLT approved):
+ *   MSG91_OTP_TEMPLATE_FORGOT       — forgot_password_otp_fwf_sms  (##name## ##otp## ##min##)
+ *   MSG91_OTP_TEMPLATE_LOGIN        — login_otp_fwf_sms            (##name## ##otp## ##minutes##)
  *   MSG91_OTP_TEMPLATE_MEMBER       — Member mobile verification OTP
  *   MSG91_OTP_TEMPLATE_SUPPORTER    — Supporter mobile verification OTP
  *   MSG91_OTP_TEMPLATE_DONATION     — High-value donation OTP (≥₹50,000)
  *   MSG91_OTP_TEMPLATE_ID           — Fallback / generic OTP (backward-compat)
+ *
+ *   Transactional SMS template IDs (MSG91 Flow API):
+ *   MSG91_SMS_QUIZ_PARTICIPATION    — Quiz_Participation_Confirmation_SMS  (##name## ##quizno##)
+ *   MSG91_SMS_QUIZ_RESULT           — Quiz_Result_Announcement              (##name## ##quizno##)
+ *   MSG91_SMS_DONATION_RECEIPT      — donation_receipt_sms                  (##name## ##amount##)
+ *   MSG91_SMS_DONATION_80G          — donation_receipt_80g_sms              (##name## ##amount##)
  *
  *   MSG91_WA_NUMBER                 — Integrated WhatsApp business number (91XXXXXXXXXX)
  *   MSG91_WA_CREDENTIALS_TEMPLATE   — WhatsApp template name for welcome/credentials
@@ -22,14 +29,16 @@
  *   Donation:    {{1}}=name, {{2}}=amount, {{3}}=donationId, {{4}}=paymentId, {{5}}=date
  *
  * sendSmsOtp type values:
- *   'forgot'    — Forgot password
+ *   'forgot'    — Forgot password OTP
+ *   'login'     — Login OTP
  *   'member'    — Member mobile verification
  *   'supporter' — Supporter mobile verification
  *   'donation'  — High-value donation OTP
  */
 
-const BASE_OTP = 'https://control.msg91.com/api/v5/otp';
-const BASE_WA  = 'https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/';
+const BASE_OTP  = 'https://control.msg91.com/api/v5/otp';
+const BASE_FLOW = 'https://control.msg91.com/api/v5/flow/';
+const BASE_WA   = 'https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/';
 
 const authKey  = () => process.env.MSG91_AUTH_KEY || '';
 const waNumber = () => process.env.MSG91_WA_NUMBER || '';
@@ -42,9 +51,10 @@ function fmtMobile(mobile) {
 
 // ─── SMS OTP ─────────────────────────────────────────────────────────────────
 
-/** Map OTP type → env var name (MSG91 fallback only) */
+/** Map OTP type → env var name */
 const OTP_TEMPLATE_MAP = {
   forgot:    'MSG91_OTP_TEMPLATE_FORGOT',
+  login:     'MSG91_OTP_TEMPLATE_LOGIN',
   member:    'MSG91_OTP_TEMPLATE_MEMBER',
   supporter: 'MSG91_OTP_TEMPLATE_SUPPORTER',
   donation:  'MSG91_OTP_TEMPLATE_DONATION',
@@ -177,7 +187,7 @@ export async function sendWhatsAppCredentials({ mobile, name, userId, password }
 }
 
 /**
- * Send donation confirmation WhatsApp.
+ * Send WhatsApp donation confirmation.
  * Template vars: {{1}}=name  {{2}}=amount  {{3}}=donationId  {{4}}=paymentId  {{5}}=date
  */
 export async function sendWhatsAppDonation({ mobile, name, amount, donationId, paymentId }) {
@@ -189,5 +199,88 @@ export async function sendWhatsAppDonation({ mobile, name, amount, donationId, p
     templateName: process.env.MSG91_WA_DONATION_TEMPLATE || 'fwf_donation_confirmation',
     contentSid:   process.env.MSG91_WA_DONATION_SID   || '',
     variables: [name, `Rs. ${formatted}`, donationId, paymentId, date]
+  });
+}
+
+// ─── Transactional SMS (Flow API) ────────────────────────────────────────────
+
+/** Internal: send transactional SMS via MSG91 Flow API using an approved DLT template */
+async function sendTransactionalSms({ mobile, templateId, variables = {} }) {
+  const key = authKey();
+  if (!key || !templateId) {
+    console.warn('⚠️ Transactional SMS skipped — MSG91_AUTH_KEY or template ID not set');
+    return null;
+  }
+  const recipient = { mobiles: fmtMobile(mobile), ...variables };
+  try {
+    const res = await fetch(BASE_FLOW, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', authkey: key },
+      body:    JSON.stringify({ template_id: templateId, short_url: 0, realTimeResponse: 1, recipients: [recipient] })
+    });
+    const data = await res.json();
+    const ok = data.type === 'success' || String(data.message || '').toLowerCase().includes('success');
+    if (ok) console.log(`✅ MSG91 SMS [${templateId.slice(-6)}] sent → ${mobile}`);
+    else    console.error(`⚠️ MSG91 SMS [${templateId.slice(-6)}] error:`, JSON.stringify(data));
+    return data;
+  } catch (e) {
+    console.error(`⚠️ MSG91 SMS failed:`, e.message);
+    return null;
+  }
+}
+
+/**
+ * Send quiz participation confirmation SMS.
+ * Template: Quiz_Participation_Confirmation_SMS
+ * Vars: ##name## ##quizno##
+ */
+export async function sendQuizParticipationSms({ mobile, name, quizId }) {
+  if (!mobile) return null;
+  return sendTransactionalSms({
+    mobile,
+    templateId: process.env.MSG91_SMS_QUIZ_PARTICIPATION,
+    variables:  { name, quizno: quizId }
+  });
+}
+
+/**
+ * Send quiz result announcement SMS.
+ * Template: Quiz_Result_Announcement
+ * Vars: ##name## ##quizno##
+ */
+export async function sendQuizResultSms({ mobile, name, quizId }) {
+  if (!mobile) return null;
+  return sendTransactionalSms({
+    mobile,
+    templateId: process.env.MSG91_SMS_QUIZ_RESULT,
+    variables:  { name, quizno: quizId }
+  });
+}
+
+/**
+ * Send donation receipt SMS.
+ * Template: donation_receipt_sms
+ * Vars: ##name## ##amount##
+ */
+export async function sendDonationReceiptSms({ mobile, name, amount }) {
+  if (!mobile) return null;
+  return sendTransactionalSms({
+    mobile,
+    templateId: process.env.MSG91_SMS_DONATION_RECEIPT,
+    variables:  { name, amount: `${Number(amount).toLocaleString('en-IN')}` }
+  });
+}
+
+/**
+ * Send 80G donation receipt SMS.
+ * Template: donation_receipt_80g_sms
+ * Vars: ##name## ##amount##
+ */
+export async function sendDonationReceipt80GSms({ mobile, name, amount }) {
+  if (!mobile) return null;
+  return sendTransactionalSms({
+    mobile,
+    templateId: process.env.MSG91_SMS_DONATION_80G,
+    variables:  { name, amount: `${Number(amount).toLocaleString('en-IN')}` }
   });
 }

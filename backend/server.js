@@ -32,7 +32,7 @@ import Receipt from './models/Receipt.js';
 import AppConfig from './models/AppConfig.js';
 import { syncReceiptToZoho, checkZohoConnection, getAuthUrl, exchangeCodeForTokens } from './lib/zoho.js';
 import { getTransporter, send80GReceipt, sendMemberWelcome, sendSupporterWelcome, sendDonationConfirmation, sendAdminAlert } from './lib/mailer.js';
-import { sendWhatsAppCredentials, sendWhatsAppDonation } from './lib/msg91.js';
+import { sendWhatsAppCredentials, sendWhatsAppDonation, sendQuizParticipationSms, sendQuizResultSms, sendDonationReceiptSms, sendDonationReceipt80GSms } from './lib/msg91.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -1166,6 +1166,16 @@ app.post('/api/pay/donation', async (req, res) => {
         donationId,
         paymentId: razorpay_payment_id
       }).catch(e => console.error('⚠️ WhatsApp donation confirmation failed:', e.message));
+
+      // Send donation receipt SMS (based on 80G eligibility)
+      const smsName = name || 'Donor';
+      if (receipt80GSent) {
+        sendDonationReceipt80GSms({ mobile, name: smsName, amount: numAmount })
+          .catch(e => console.error('⚠️ 80G receipt SMS failed:', e.message));
+      } else {
+        sendDonationReceiptSms({ mobile, name: smsName, amount: numAmount })
+          .catch(e => console.error('⚠️ Donation receipt SMS failed:', e.message));
+      }
     }
 
     // Admin alert for donation (non-blocking)
@@ -2665,6 +2675,14 @@ app.post('/api/member/quiz-enroll', auth(['member','supporter']), async (req, re
     }
 
     addBreadcrumb('quiz', 'Quiz enrollment', { memberId: user.member_id, quizId: quiz.quiz_id, enrollment: enrollmentNumber });
+
+    // Non-blocking SMS confirmation
+    const enrolledUser = await User.findById(req.user.uid).select('mobile').lean();
+    if (enrolledUser?.mobile) {
+      sendQuizParticipationSms({ mobile: enrolledUser.mobile, name: user.name, quizId: quiz.quiz_id })
+        .catch(e => console.error('\u26a0\ufe0f Quiz participation SMS failed:', e.message));
+    }
+
     res.json({
       ok: true,
       enrollment_number: enrollmentNumber,
@@ -3162,6 +3180,15 @@ app.post('/api/admin/quiz-draw/:quizId', auth('admin'), async (req, res) => {
     quiz.winners = [winner];
     quiz.status = 'result_declared';
     await quiz.save();
+
+    // Non-blocking SMS to winner
+    if (luckyOne.user_id) {
+      const winnerUser = await User.findById(luckyOne.user_id).select('mobile').lean();
+      if (winnerUser?.mobile) {
+        sendQuizResultSms({ mobile: winnerUser.mobile, name: luckyOne.name, quizId: quiz.quiz_id })
+          .catch(e => console.error('\u26a0\ufe0f Quiz result SMS failed:', e.message));
+      }
+    }
 
     res.json({ ok: true, winners: [winner], totalParticipants: participants.length });
   } catch (err) {
@@ -4438,3 +4465,4 @@ startServer().catch(err => {
   console.error('Failed to start server:', err);
   process.exit(1);
 });
+
