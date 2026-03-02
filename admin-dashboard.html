@@ -1518,33 +1518,49 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       <div class="stat-card"><div class="s-icon s-purple"><i class="fa-solid fa-users"></i></div><div class="s-label">Total Participants</div><div class="s-value" id="frStatParticipants">0</div></div>
     </div>
 
-    <!-- Tab Bar -->
-    <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:2px solid var(--brd,#e2e8f0);padding-bottom:0;flex-wrap:wrap">
+    <!-- Tab Bar (clean — actions moved into Overview) -->
+    <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid var(--brd,#e2e8f0);padding-bottom:0;flex-wrap:wrap;align-items:center">
       <button class="fr-tab fr-tab-active" onclick="switchFRTab('overview')" id="frTab-overview" style="padding:9px 18px;border:none;background:none;font-weight:700;font-size:13px;cursor:pointer;border-bottom:3px solid #3b82f6;color:#3b82f6;margin-bottom:-2px">
-        <i class="fa-solid fa-bolt"></i> Overview
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
       </button>
       <button class="fr-tab" onclick="switchFRTab('quizzes')" id="frTab-quizzes" style="padding:9px 18px;border:none;background:none;font-weight:600;font-size:13px;cursor:pointer;border-bottom:3px solid transparent;color:#64748b;margin-bottom:-2px">
         <i class="fa-solid fa-list"></i> All Quizzes
       </button>
       <button class="fr-tab" onclick="switchFRTab('results')" id="frTab-results" style="padding:9px 18px;border:none;background:none;font-weight:600;font-size:13px;cursor:pointer;border-bottom:3px solid transparent;color:#64748b;margin-bottom:-2px">
-        <i class="fa-solid fa-trophy"></i> Results History
+        <i class="fa-solid fa-trophy"></i> Results
       </button>
       <button class="fr-tab" onclick="switchFRTab('demo')" id="frTab-demo" style="padding:9px 18px;border:none;background:none;font-weight:600;font-size:13px;cursor:pointer;border-bottom:3px solid transparent;color:#f59e0b;margin-bottom:-2px">
-        <i class="fa-solid fa-flask"></i> Demo Mode
+        <i class="fa-solid fa-flask"></i> Demo &amp; Testing
       </button>
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-        <button onclick="triggerAutoCreate()" style="background:#3b82f6;border:none;color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px"><i class="fa-solid fa-plus"></i> Auto-Create</button>
-        <button onclick="triggerAutoDraw()" style="background:#f59e0b;border:none;color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px"><i class="fa-solid fa-dice"></i> Auto-Draw</button>
-        <button onclick="loadFundRaiser()" style="background:transparent;border:1px solid var(--brd,#e2e8f0);color:var(--text-muted,#64748b);padding:8px 12px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px"><i class="fa-solid fa-refresh"></i></button>
+        <button onclick="loadFundRaiser()" style="background:transparent;border:1px solid var(--brd,#e2e8f0);color:var(--text-muted,#64748b);padding:8px 12px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px" title="Refresh data"><i class="fa-solid fa-refresh"></i></button>
         <span id="frLastRefresh" style="font-size:11px;color:#94a3b8"></span>
       </div>
     </div>
 
-    <!-- TAB: OVERVIEW -->
+    <!-- TAB: DASHBOARD / OVERVIEW -->
     <div id="frSection-overview">
+
+      <!-- Quick Actions Card -->
+      <div class="content-card" style="margin-bottom:16px;background:linear-gradient(135deg,#eff6ff 0%,#f5f3ff 100%);border:1px solid #c7d2fe">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div style="flex:1;min-width:200px">
+            <h4 style="margin:0;font-size:15px;color:#1e3a5f"><i class="fa-solid fa-wand-magic-sparkles" style="color:#6366f1"></i> Quick Actions</h4>
+            <p style="margin:4px 0 0;color:#64748b;font-size:12px;line-height:1.5">
+              <b>Create Quizzes</b> — generates Monthly, Half-Yearly &amp; Annual quizzes for the current period<br>
+              <b>Draw Results</b> — picks winners for all quizzes whose result date has passed
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <button onclick="triggerAutoCreate()" style="background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;color:#fff;padding:10px 20px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;box-shadow:0 2px 8px rgba(59,130,246,.3)"><i class="fa-solid fa-plus"></i> Create Quizzes</button>
+            <button onclick="triggerAutoDraw()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#fff;padding:10px 20px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;box-shadow:0 2px 8px rgba(245,158,11,.3)"><i class="fa-solid fa-dice"></i> Draw Results</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Active Quizzes -->
       <div class="content-card" style="margin-bottom:16px">
-        <h3><i class="fa-solid fa-bolt" style="color:#3b82f6"></i> Active Quizzes</h3>
+        <h3><i class="fa-solid fa-bolt" style="color:#3b82f6"></i> Active Quizzes <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:6px">Currently running — members can participate</span></h3>
         <div class="table-wrap">
           <table class="data-table">
             <thead><tr><th>Quiz ID</th><th>Title</th><th>Type</th><th>Fee</th><th>Prize 1st</th><th>End Date</th><th>Result Date</th><th>Enrolled</th><th>Collection</th><th>Status</th><th>Actions</th></tr></thead>
@@ -1554,7 +1570,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
       <!-- Pending Draw -->
       <div class="content-card">
-        <h3><i class="fa-solid fa-clock" style="color:#f59e0b"></i> Pending Draw</h3>
+        <h3><i class="fa-solid fa-clock" style="color:#f59e0b"></i> Pending Draw <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:6px">Quiz ended — waiting for result draw</span></h3>
         <div class="table-wrap">
           <table class="data-table">
             <thead><tr><th>Quiz ID</th><th>Title</th><th>Type</th><th>Enrolled</th><th>Collection</th><th>Result Date</th><th>Actions</th></tr></thead>
@@ -1567,6 +1583,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     <!-- TAB: ALL QUIZZES -->
     <div id="frSection-quizzes" style="display:none">
       <div class="content-card">
+        <p style="margin:0 0 14px;color:#64748b;font-size:12px"><i class="fa-solid fa-info-circle" style="color:#3b82f6"></i> Complete list of all quizzes — search, filter by type/status, click any quiz for details or participants.</p>
         <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
           <input type="text" id="frQuizSearch" placeholder="Search by ID or title..." class="form-input" style="width:220px;font-size:13px" oninput="filterAllQuizzes()">
           <select id="frQuizFilterType" class="form-input" style="width:140px;font-size:13px" onchange="filterAllQuizzes()">
@@ -1596,6 +1613,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     <!-- TAB: RESULTS HISTORY -->
     <div id="frSection-results" style="display:none">
       <div class="content-card">
+        <p style="margin:0 0 14px;color:#64748b;font-size:12px"><i class="fa-solid fa-info-circle" style="color:#22c55e"></i> Past quizzes with declared results — see winners, scores, and prize payouts.</p>
         <div class="table-wrap">
           <table class="data-table">
             <thead><tr><th>Quiz ID</th><th>Title</th><th>Type</th><th>Result Date</th><th>🥇 1st Place</th><th>🥈 2nd Place</th><th>🥉 3rd Place</th><th>Total Paid Out</th><th>Actions</th></tr></thead>
@@ -1605,14 +1623,14 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
     </div>
 
-    <!-- TAB: DEMO MODE -->
+    <!-- TAB: DEMO & TESTING -->
     <div id="frSection-demo" style="display:none">
       <div class="content-card" style="border:2px dashed #f59e0b;background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);margin-bottom:20px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
           <span style="font-size:32px">🧪</span>
           <div>
-            <h3 style="margin:0;color:#fbbf24;font-size:18px">Demo / Test Mode</h3>
-            <p style="margin:0;color:#c4b5fd;font-size:13px">Create demo quizzes with fake participants for data analysis & testing</p>
+            <h3 style="margin:0;color:#fbbf24;font-size:18px">Demo &amp; Testing Lab</h3>
+            <p style="margin:0;color:#c4b5fd;font-size:13px">Create demo quizzes with fake participants for data analysis &amp; testing. All demo data is labelled <code style="color:#fbbf24;background:rgba(251,191,36,.15);padding:1px 6px;border-radius:4px">DEMO-*</code> and can be deleted anytime.</p>
           </div>
         </div>
 
@@ -1671,10 +1689,18 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         </div>
       </div>
 
-      <!-- Demo Analysis Note -->
+      <!-- Demo How-It-Works -->
       <div class="content-card" style="border-left:4px solid #0ea5e9">
-        <h4 style="margin:0 0 8px;color:#0ea5e9"><i class="fa-solid fa-chart-line"></i> 24-Hour Data Analysis Mode</h4>
-        <p style="color:#64748b;font-size:13px;margin:0">Use <strong>24-Hour</strong> mode to simulate real participant behavior over a full day. Demo quizzes appear in Active Quizzes and Pending Draw tables. You can click <strong>View Participants</strong> anytime to inspect all enrolled members, their scores, and payment status. All demo data is labelled <code>DEMO-*</code> and can be cleaned up via Stop & Cleanup.</p>
+        <h4 style="margin:0 0 10px;color:#0ea5e9"><i class="fa-solid fa-circle-question"></i> How Demo Mode Works</h4>
+        <div style="color:#475569;font-size:13px;line-height:1.7">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">
+            <div><b>1. Choose Duration</b> — Quick mode ends in 30/60/90 min, or pick a longer duration for realistic analysis.</div>
+            <div><b>2. Set Participants</b> — Adjust the slider to add 5–50 fake participants per quiz (3 quizzes created).</div>
+            <div><b>3. Start Demo</b> — Creates Monthly, Half-Yearly &amp; Annual demo quizzes with fake data.</div>
+            <div><b>4. Watch Results</b> — Winners are auto-drawn when each quiz's result time arrives. Scheduler runs automatically.</div>
+          </div>
+          <p style="margin:12px 0 0;color:#64748b;font-size:12px"><i class="fa-solid fa-trash-can" style="color:#ef4444"></i> Click <b>Stop &amp; Cleanup</b> anytime to delete all demo quizzes and participants.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -2641,8 +2667,7 @@ document.getElementById('afSubmit')?.addEventListener('click', async ()=>{
   try{
     const res = await AUTH.api('/api/admin/membership-fee', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
+      body: {
         memberId,
         amount: parseFloat(amount),
         feeType: document.getElementById('afType').value,
@@ -2684,12 +2709,11 @@ document.getElementById('ufSubmit')?.addEventListener('click', async ()=>{
   try{
     await AUTH.api('/api/admin/membership-fee/' + txnId, {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
+      body: {
         status: document.getElementById('ufStatus').value,
         paymentRef: document.getElementById('ufRef').value.trim() || undefined,
         notes: document.getElementById('ufNotes').value.trim() || undefined
-      })
+      }
     });
     notify('Transaction updated!', 'success');
     closeModal('updateFeeModal');
@@ -2703,8 +2727,7 @@ async function quickVerifyFee(txnId){
   try{
     await AUTH.api('/api/admin/membership-fee/' + txnId, {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ status: 'verified' })
+      body: { status: 'verified' }
     });
     notify('Transaction verified!', 'success');
     loadMembershipFees();
@@ -2828,12 +2851,11 @@ document.getElementById('donDetailSave')?.addEventListener('click', async ()=>{
   try{
     await AUTH.api('/api/admin/donation-kyc/' + currentDonId, {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
+      body: {
         kyc_status:      document.getElementById('donDetailKycStatus').value,
         receipt_issued:  document.getElementById('donDetailReceipt').value === 'true',
         admin_notes:     document.getElementById('donDetailNotes').value.trim()
-      })
+      }
     });
     notify('Donation KYC updated!', 'success');
     closeModal('donDetailModal');
@@ -3731,7 +3753,7 @@ function updateDemoTimingInfo(){
     const h = Number(document.getElementById('customDemoHours')?.value||24);
     minsM=h*60; minsH=(h+2)*60; minsY=(h+4)*60; resGap=60;
   }
-  const fmt = m => m >= 60 ? `${m/60}h` : `${m}min`;
+  const fmt = m => { if(m >= 60){ const h = Math.floor(m/60); const rm = m%60; return rm ? `${h}h ${rm}min` : `${h}h`; } return `${m}min`; };
   document.getElementById('demoTimingInfo').innerHTML =
     `📅 <b>Monthly:</b> Ends in <b>${fmt(minsM)}</b> • Result <b>${fmt(minsM+resGap)}</b> after start<br>` +
     `📅 <b>Half-Yearly:</b> Ends in <b>${fmt(minsH)}</b> • Result <b>${fmt(minsH+resGap)}</b> after start<br>` +
@@ -3811,7 +3833,7 @@ async function startDemo(){
   document.getElementById('btnDemoStart').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Starting...';
   document.getElementById('demoLog').innerHTML = '';
   try {
-    const data = await AUTH.api('/api/admin/quiz-demo-start', { method:'POST', body: JSON.stringify({ demoHours, fakeCount: Number(fakeCount) }) });
+    const data = await AUTH.api('/api/admin/quiz-demo-start', { method:'POST', body: { demoHours, fakeCount: Number(fakeCount) } });
     if(!data.ok) throw new Error(data.error);
     demoLog(`✅ Demo started! ${data.totalParticipants} participants added.`);
     data.quizzes.forEach(q => demoLog(`📋 ${q.type}: ends in ${q.ends_in}, result in ${q.result_in} (${q.participants} participants)`));
