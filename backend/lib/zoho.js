@@ -8,12 +8,11 @@ const ZOHO_BASE      = 'https://www.zohoapis.in/books/v3';
 const ZOHO_AUTH_URL  = 'https://accounts.zoho.in/oauth/v2/auth';
 const ZOHO_TOKEN_URL = 'https://accounts.zoho.in/oauth/v2/token';
 
-// Zoho OAuth scopes required
+// Zoho OAuth scopes required (Zoho India uses .ALL variant)
 export const ZOHO_SCOPES = [
-  'ZohoBooks.contacts.CREATE',
-  'ZohoBooks.contacts.READ',
-  'ZohoBooks.salesreceipts.CREATE',
-  'ZohoBooks.salesreceipts.READ',
+  'ZohoBooks.contacts.ALL',
+  'ZohoBooks.salesreceipts.ALL',
+  'ZohoBooks.settings.READ',
 ].join(',');
 
 // In-memory access token cache (expires in 1 hour)
@@ -113,7 +112,11 @@ async function zohoPost(endpoint, body) {
     headers: { Authorization: `Zoho-oauthtoken ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  return res.json();
+  const data = await res.json();
+  if (data.code && data.code !== 0) {
+    console.error(`❌ Zoho API error [${endpoint}]:`, JSON.stringify(data));
+  }
+  return data;
 }
 
 // ──────────────────────────────────────────────────────
@@ -183,10 +186,18 @@ export async function createZohoSalesReceipt({ contactId, receiptId, date, lineI
  * Returns { zoho_salesreceipt_id, zoho_contact_id } or null on failure.
  */
 export async function syncReceiptToZoho(receipt) {
-  if (!process.env.ZOHO_CLIENT_ID || !process.env.ZOHO_ORG_ID) return null;
+  if (!process.env.ZOHO_CLIENT_ID || !process.env.ZOHO_ORG_ID) {
+    console.warn('⚠️ Zoho: ZOHO_CLIENT_ID or ZOHO_ORG_ID env vars not set — skipping sync');
+    return null;
+  }
 
   const refreshToken = await getRefreshToken();
-  if (!refreshToken) return null; // Not connected yet — skip silently
+  if (!refreshToken) {
+    console.warn('⚠️ Zoho: No refresh token found — OAuth not completed. Go to Admin → Invoices → Connect Zoho Books');
+    return null;
+  }
+
+  console.log(`📊 Zoho: Starting sync for receipt ${receipt.receipt_id} (type: ${receipt.type}, total: ₹${receipt.total})`);
 
   const contactId = await findOrCreateContact({
     name:   receipt.customer_name,
@@ -210,6 +221,7 @@ export async function syncReceiptToZoho(receipt) {
     is80g:      receipt.is_80g,
   });
 
+  console.log(`✅ Zoho: Sales receipt created → ${sr.salesreceipt_id}`);
   return {
     zoho_salesreceipt_id: sr.salesreceipt_id,
     zoho_contact_id:      contactId,

@@ -262,8 +262,10 @@ async function createAndSendReceipt({ type, userId, memberId, customerName, cust
           $set: { zoho_salesreceipt_id: zohoResult.zoho_salesreceipt_id, zoho_synced_at: new Date() }
         }).catch(() => {});
         console.log(`📊 Zoho synced: ${receipt.receipt_id} → ${zohoResult.zoho_salesreceipt_id}`);
+      } else {
+        console.warn(`⚠️ Zoho: syncReceiptToZoho returned null for ${receipt.receipt_id}`);
       }
-    }).catch(err => console.warn('⚠️ Zoho sync skipped:', err.message));
+    }).catch(err => console.error('❌ Zoho sync error:', err.message, err.stack?.split('\n')[1]));
     return receipt;
   } catch (err) {
     console.error('⚠️ Receipt creation failed (non-fatal):', err.message);
@@ -3514,6 +3516,35 @@ app.post('/api/admin/zoho/disconnect', auth('admin'), async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Zoho debug/test — verify connection and API response
+app.get('/api/admin/zoho/test', auth('admin'), async (req, res) => {
+  const result = { env: {}, auth: {}, api: {} };
+  result.env.ZOHO_CLIENT_ID  = process.env.ZOHO_CLIENT_ID ? '✅ set' : '❌ missing';
+  result.env.ZOHO_CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET ? '✅ set' : '❌ missing';
+  result.env.ZOHO_ORG_ID     = process.env.ZOHO_ORG_ID   ? `✅ ${process.env.ZOHO_ORG_ID}` : '❌ missing';
+  result.env.ZOHO_REGION     = process.env.ZOHO_REGION   || 'not set (default: in)';
+  try {
+    const cfg = await AppConfig.findOne({ key: 'zoho_refresh_token' }).lean();
+    result.auth.refresh_token_in_db = cfg?.value ? '✅ stored' : '❌ not found';
+    result.auth.stored_at = cfg?.updated_at || null;
+  } catch (e) { result.auth.db_error = e.message; }
+  try {
+    const { getAccessToken } = await import('./lib/zoho.js');
+    const token = await getAccessToken();
+    result.auth.access_token = token ? `✅ obtained (${token.slice(0,12)}...)` : '❌ null';
+    // Test API — list contacts (1 result)
+    const { default: nodeFetch } = await import('node-fetch').catch(() => ({ default: fetch }));
+    const apiRes = await fetch(`https://www.zohoapis.in/books/v3/contacts?organization_id=${process.env.ZOHO_ORG_ID}&per_page=1`, {
+      headers: { Authorization: `Zoho-oauthtoken ${token}` }
+    });
+    const apiData = await apiRes.json();
+    result.api.contacts_test = apiData.code === 0 ? `✅ OK (${apiData.contacts?.length || 0} contacts returned)` : `❌ Error: ${JSON.stringify(apiData)}`;
+  } catch (e) {
+    result.auth.error = e.message;
+  }
+  res.json(result);
 });
 
 // Admin: get social task stats
