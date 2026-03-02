@@ -4279,6 +4279,13 @@ async function autoDrawResults() {
       quiz.winners = [winner];
       quiz.status = 'result_declared';
       await quiz.save();
+
+      // Send SMS to lucky draw winner
+      if (user?.mobile) {
+        sendQuizResultSms({ mobile: user.mobile, name: winner.name, quizId: quiz.quiz_id })
+          .catch(e => console.error('⚠️ SMS quiz result (auto-draw):', e.message));
+      }
+
       console.log(`� Quiz ${quiz.quiz_id}: Lucky draw result! Winner: ${winner.name} (₹${prizeAmount})`);
     }
 
