@@ -3949,6 +3949,10 @@ async function loadZohoStatus() {
     if (textEl) textEl.textContent = 'Could not check status';
   }
 }
+// Auto-refresh Zoho status when user returns to this tab (after OAuth in new tab)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && location.hash === '#invoices') loadZohoStatus();
+});
 
 async function zohoSync() {
   const btn = event.currentTarget;

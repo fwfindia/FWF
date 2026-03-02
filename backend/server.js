@@ -3433,12 +3433,16 @@ app.get('/api/admin/zoho/callback', async (req, res) => {
       { key: 'zoho_refresh_token', value: tokens.refresh_token, meta: { access_token: tokens.access_token, set_at: new Date() }, updated_at: new Date() },
       { upsert: true }
     );
-    console.log('✅ Zoho Books connected successfully');
+    console.log('✅ Zoho Books connected successfully. Refresh token stored.');
     res.send(`<html><body style="font-family:sans-serif;text-align:center;padding:60px">
       <h2 style="color:#16a34a">✅ Zoho Books Connected!</h2>
       <p>FWF is now syncing receipts to Zoho Books automatically.</p>
-      <script>setTimeout(()=>{ window.close(); },2000)</script>
-      <a href="https://fwfindia.org/admin-dashboard.html#invoices">Return to Dashboard</a>
+      <p style="margin-top:20px"><a href="https://fwfindia.org/admin/dashboard#invoices" style="color:#2563eb;font-weight:600">Return to Dashboard</a></p>
+      <script>
+        // Notify opener tab to refresh status
+        if (window.opener) { try { window.opener.postMessage('zoho-connected','*'); } catch(e){} }
+        setTimeout(()=>{ window.close(); }, 3000);
+      </script>
     </body></html>`);
   } catch (err) {
     captureError(err, { context: 'zoho-callback' });
