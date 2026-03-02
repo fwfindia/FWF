@@ -61,10 +61,15 @@ async function handler(req, res) {
 
       await PasswordReset.create({ memberId, email, otp, expiresAt, used: false });
 
-      // Send SMS OTP via MSG91 (non-blocking)
+      // Send SMS OTP via MSG91 (awaited so Vercel doesn't kill it early)
       if (mobile) {
-        sendSmsOtp({ mobile, otp, type: 'forgot' })
-          .catch(e => console.error('⚠️ MSG91 forgot-password SMS failed:', e.message));
+        try {
+          const smsResult = await sendSmsOtp({ mobile, otp, type: 'forgot' });
+          if (smsResult?.type === 'success') console.log(`✅ SMS OTP sent to ${mobile}`);
+          else console.warn('⚠️ MSG91 SMS OTP result:', JSON.stringify(smsResult));
+        } catch (smsErr) {
+          console.error('⚠️ MSG91 forgot-password SMS failed:', smsErr.message);
+        }
       }
 
       // Send OTP email

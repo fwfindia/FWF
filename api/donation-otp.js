@@ -46,9 +46,14 @@ async function handler(req, res) {
       expires_at: expiresAt
     });
 
-    // Send SMS OTP via MSG91 (non-blocking)
-    sendSmsOtp({ mobile, otp: generatedOtp, type: 'donation' })
-      .catch(e => console.error('⚠️ MSG91 SMS OTP failed:', e.message));
+    // Send SMS OTP via MSG91 (awaited so Vercel doesn't kill it early)
+    try {
+      const smsResult = await sendSmsOtp({ mobile, otp: generatedOtp, type: 'donation' });
+      if (smsResult?.type === 'success') console.log(`✅ SMS OTP sent to ${mobile}`);
+      else console.warn('⚠️ MSG91 SMS OTP result:', JSON.stringify(smsResult));
+    } catch (smsErr) {
+      console.error('⚠️ MSG91 donation SMS failed:', smsErr.message);
+    }
 
     // Send email with OTP
     const transporter = getTransporter();
