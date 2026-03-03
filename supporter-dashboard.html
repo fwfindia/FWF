@@ -1125,9 +1125,12 @@ textarea.form-input{ resize:vertical; min-height:80px; }
           <div id="taskHistoryList">
             <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">अभी तक कोई task पूरा नहीं किया</p>
           </div>
-          <h4 style="font-size:13px;font-weight:700;margin:14px 0 8px">🎮 Quiz History</h4>
-          <div id="quizHistoryList">
-            <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">अभी तक किसी quiz में हिस्सा नहीं लिया</p>
+          <h4 style="font-size:13px;font-weight:700;margin:14px 0 8px">🎮 My Quiz Participations</h4>
+          <div class="table-wrap" style="overflow-x:auto">
+            <table class="data-table" style="min-width:600px;font-size:12px">
+              <thead><tr><th>Date</th><th>Quiz</th><th>Participation ID</th><th>₹ Paid</th><th>Quiz Status</th><th>Result Date</th><th>Result</th></tr></thead>
+              <tbody id="quizHistoryList"><tr><td colspan="7" class="empty-state"><p>अभी तक किसी quiz में हिस्सा नहीं लिया</p></td></tr></tbody>
+            </table>
           </div>
         </div>
       </details>
@@ -1189,7 +1192,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
       <div id="sellStep2" style="display:none;padding:22px 22px 24px">
         <div style="text-align:center;margin-bottom:20px"><div style="font-size:44px;margin-bottom:8px">🎉</div><h4 style="font-weight:900;color:var(--text-primary);margin:0 0 4px">Link Ready!</h4><p style="font-size:12px;color:var(--text-muted)">Share this link with the buyer</p></div>
-        <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 16px;margin-bottom:14px;text-align:center"><div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Support ID</div><div id="sellSupportId" style="font-size:18px;font-weight:900;color:#166534;font-family:monospace;letter-spacing:1px"></div></div>
+        <div style="background:#fef9c3;border:1.5px solid #fde047;border-radius:12px;padding:10px 14px;margin-bottom:14px;text-align:center"><div style="font-size:10px;color:#92400e;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Support ID</div><div style="font-size:13px;font-weight:700;color:#78350f">⏳ Pending — generated after buyer pays &amp; submits quiz</div></div>
         <div style="background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px 16px;margin-bottom:14px"><div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Quiz Link</div><div style="display:flex;gap:8px;align-items:center"><input id="generatedSellLink" readonly style="flex:1;border:none;background:transparent;font-size:12px;color:var(--text-primary);font-family:monospace;outline:none;min-width:0" value=""><button onclick="copySellLink()" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0"><i class="fa-solid fa-copy"></i> Copy</button></div></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
           <button onclick="shareSellLink('whatsapp')" style="background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;border:none;border-radius:10px;padding:11px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
@@ -2754,7 +2757,7 @@ function renderQuizCards(quizzes){
             <div style="font-size:12px;color:#86efac;margin-top:4px">${q.enrollment?.enrollment_number || ''}</div>
           </div>
           ${q.enrollment && !q.enrollment.quiz_submitted && q.status === 'active' ?
-            `<button class="qcb-btn" style="background:${tc.gradient};color:#fff;margin-top:8px;width:100%" onclick="openQuizPlay('${q.quiz_id}')">
+            `<button class="qcb-btn" style="background:${tc.gradient};color:#fff;margin-top:8px;width:100%" onclick="openQuizPlay('${q.quiz_id}','${q.enrollment?.enrollment_number||''}')">
               <i class="fa-solid fa-play"></i> Play Quiz
             </button>` : ''}
           ${q.enrollment?.quiz_submitted ? 
@@ -2822,10 +2825,8 @@ async function enrollInQuiz(quizId, title, fee){
           }
         });
         if(enrollRes.ok){
-          document.getElementById('enrollSuccessId').textContent = enrollRes.enrollment_number || '';
-          document.getElementById('enrollSuccessPoints').textContent = enrollRes.points_earned ? `+${enrollRes.points_earned} FWF Points credited! 🌟` : '';
-          document.getElementById('quizEnrollSuccessModal').style.display = 'flex';
           eventsLoaded = false; loadEventsPage();
+          openQuizPlay(quizId, enrollRes.enrollment_number);
         } else { notify(enrollRes.error || 'Enrollment failed','error'); }
       },
       prefill: { name: memberData?.user?.name || '' }
@@ -2835,18 +2836,16 @@ async function enrollInQuiz(quizId, title, fee){
   }); // end FWF_Notify.confirm
 }
 
-async function openQuizPlay(quizId){
+async function openQuizPlay(quizId, enrollmentNum){
   try {
-    const data = await AUTH.api('/api/member/active-quizzes');
-    const quiz = data.quizzes?.find(q => q._id === quizId);
-    if(!quiz) throw new Error('Quiz not found');
-    const questions = quiz.questions || [];
-    if(!questions.length) throw new Error('No questions');
+    const data = await AUTH.api(`/api/member/quiz-questions/${quizId}`);
+    if(!data.ok) throw new Error(data.error || 'Quiz load failed');
+    const questions = data.questions || [];
+    if(!questions.length) throw new Error('No questions available');
+    const quizTitle = data.quizTitle || 'FWF Quiz';
+    const enrollNum = enrollmentNum || data.enrollmentNumber || '';
     let currentQ = 0;
     const answers = {};
-    const gameType = quiz.game_type || 'mcq';
-    const tc = tierConfig[quiz.type] || tierConfig.monthly;
-    const gt = gameTypeIcons[gameType] || gameTypeIcons.mcq;
 
     const existing = document.getElementById('quizPlayModal');
     if(existing) existing.remove();
@@ -2854,17 +2853,18 @@ async function openQuizPlay(quizId){
     const modal = document.createElement('div');
     modal.className = 'modal show';
     modal.id = 'quizPlayModal';
-    modal.style.zIndex = '600';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;display:flex;align-items:center;justify-content:center;padding:16px';
     modal.innerHTML = `
-      <div class="modal-content" style="max-width:600px;max-height:90vh;overflow-y:auto">
-        <div class="modal-header" style="background:${tc.gradient};color:#fff;padding:16px 20px">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <h3 style="color:#fff;margin:0;font-size:16px"><i class="${gt.icon}"></i> ${quiz.title}</h3>
-            <button onclick="document.getElementById('quizPlayModal').remove();" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px">&times;</button>
+      <div style="background:#fff;border-radius:20px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <div style="background:linear-gradient(135deg,#E87722,#d97706);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h3 style="color:#fff;margin:0;font-size:16px;font-weight:800">🎓 ${quizTitle}</h3>
+            ${enrollNum ? `<div style="font-size:11px;opacity:.85;margin-top:2px">ID: ${enrollNum}</div>` : ''}
           </div>
+          <button onclick="document.getElementById('quizPlayModal').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px">&times;</button>
         </div>
-        <div class="modal-body" id="quizPlayBody" style="padding:20px"></div>
-        <div class="modal-actions" id="quizPlayActions" style="padding:14px 20px;display:flex;justify-content:space-between"></div>
+        <div id="quizPlayBody" style="padding:20px"></div>
+        <div id="quizPlayActions" style="padding:14px 20px;display:flex;justify-content:space-between;border-top:1px solid #f1f5f9"></div>
       </div>`;
     document.body.appendChild(modal);
 
@@ -2873,6 +2873,7 @@ async function openQuizPlay(quizId){
       document.getElementById('quizPlayBody').innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">Q ${currentQ+1}/${questions.length}</span>
+          <span style="font-size:11px;color:var(--text-muted)">${questions.filter((_,i) => answers[i] !== undefined).length}/${questions.length} answered</span>
         </div>
         <h4 style="font-size:15px;margin-bottom:16px;line-height:1.5">${q.question}</h4>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -2885,9 +2886,9 @@ async function openQuizPlay(quizId){
         </div>`;
       document.getElementById('quizPlayActions').innerHTML = `
         ${currentQ > 0 ? `<button class="btn btn-ghost" onclick="quizPrev()"><i class="fa-solid fa-arrow-left"></i> Previous</button>` : '<span></span>'}
-        ${currentQ < questions.length-1 ? 
+        ${currentQ < questions.length-1 ?
           `<button class="btn btn-primary" onclick="quizNext()">Next <i class="fa-solid fa-arrow-right"></i></button>` :
-          `<button class="btn btn-success" onclick="submitQuizAnswers('${quizId}')"><i class="fa-solid fa-paper-plane"></i> Submit Quiz</button>`}`;
+          `<button class="btn btn-success" onclick="submitQuizAnswers('${quizId}')">✓ Submit Quiz</button>`}`;
     }
 
     window.selectQuizAnswer = (qi, ai) => { answers[qi] = ai; renderQuestion(); };
@@ -2899,8 +2900,12 @@ async function openQuizPlay(quizId){
         try {
           const formattedAnswers = questions.map((q,i) => ({ q_no: q.q_no, selected: answers[i] ?? -1 }));
           const res = await AUTH.api('/api/member/quiz-submit', { method:'POST', body:{ quiz_id: qId, answers: formattedAnswers } });
-          if(res.ok){ notify(res.message || 'Quiz submitted!', 'success'); document.getElementById('quizPlayModal').remove(); eventsLoaded = false; loadEventsPage(); }
-          else { notify(res.error, 'error'); }
+          if(res.ok){
+            document.getElementById('quizPlayModal')?.remove();
+            eventsLoaded = false; loadEventsPage();
+            showQuizResult({ score: res.score, total: res.totalQuestions, passed: res.passed,
+              enrollmentNumber: res.enrollment_number, resultDate: res.result_date });
+          } else { notify(res.error || 'Submit failed', 'error'); }
         } catch(e){ notify('Submit failed','error'); }
       };
       if(unanswered > 0){
@@ -2917,6 +2922,35 @@ async function openQuizPlay(quizId){
 
     renderQuestion();
   } catch(e){ notify(e.message || 'Quiz load failed','error'); }
+}
+
+function showQuizResult({ score, total, passed, enrollmentNumber, resultDate }) {
+  const existing = document.getElementById('quizResultModal');
+  if(existing) existing.remove();
+  const rd = resultDate ? new Date(resultDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'TBD';
+  const modal = document.createElement('div');
+  modal.id = 'quizResultModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:700;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:20px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+      <div style="background:${passed?'linear-gradient(135deg,#22c55e,#16a34a)':'linear-gradient(135deg,#f59e0b,#d97706)'};padding:28px 24px;text-align:center;color:#fff">
+        <div style="font-size:56px;margin-bottom:10px">${passed?'🎉':'📝'}</div>
+        <h3 style="margin:0 0 4px;font-size:20px;font-weight:900">${passed?'Congratulations!':'Quiz Submitted!'}</h3>
+        <p style="margin:0;font-size:13px;opacity:.9">${passed?'सभी जवाब सही हैं! 🌟':`Score: ${score}/${total}`}</p>
+      </div>
+      <div style="padding:22px;text-align:center">
+        <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:14px;margin-bottom:14px">
+          <div style="font-size:10px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Participation ID</div>
+          <div style="font-size:20px;font-weight:900;color:#166534;font-family:monospace;letter-spacing:1.5px">${enrollmentNumber||'—'}</div>
+          <div style="font-size:11px;color:#15803d;margin-top:4px">Screenshot लेकर सहेज लें!</div>
+        </div>
+        ${!passed?`<div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:10px;margin-bottom:14px;font-size:12px;color:#92400e">
+          Score: ${score}/${total} — Result: ${rd}
+        </div>`:''}
+        <button onclick="document.getElementById('quizResultModal').remove()" style="width:100%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:800;cursor:pointer">Done ✓</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
 }
 
 // ─── QUIZ SELL TICKET FUNCTIONS ───────────────────────────────
@@ -2947,7 +2981,6 @@ async function generateSellLink(){
       body: { quiz_id: _sellQuizId, buyer_name: buyerName, buyer_contact: buyerMobile, buyer_email: buyerEmail }
     });
     if(!res.ok) throw new Error(res.error || 'Link generate नहीं हो सका');
-    document.getElementById('sellSupportId').textContent = res.support_id;
     document.getElementById('generatedSellLink').value = res.link;
     document.getElementById('sellStep1').style.display = 'none';
     document.getElementById('sellStep2').style.display = 'block';
@@ -3004,20 +3037,28 @@ async function loadMyActivities(){
     const quizList = document.getElementById('quizHistoryList');
     if(quizRes.participations?.length){
       quizList.innerHTML = quizRes.participations.map(p => {
-        const statusColors = { enrolled:'#3b82f6', submitted:'#f59e0b', won:'#22c55e', lost:'#ef4444' };
-        const statusLabels = { enrolled:'Enrolled', submitted:'Submitted', won:'🏆 Won', lost:'Result Out' };
-        return `
-          <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:var(--bg-1);margin-bottom:6px">
-            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,${statusColors[p.status]||'#6b7280'},${statusColors[p.status]||'#4b5563'});display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0">
-              <i class="fa-solid fa-${p.status==='won'?'trophy':p.status==='submitted'?'check':'ticket'}"></i>
-            </div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:700">${p.quiz_details?.title || p.quiz_ref}</div>
-              <div style="font-size:11px;color:var(--text-muted)">${p.enrollment_number} • ₹${p.amount_paid}</div>
-            </div>
-            <span style="background:${statusColors[p.status]}22;color:${statusColors[p.status]};padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${statusLabels[p.status]}</span>
-          </div>`;
+        const qd = p.quiz_details;
+        const resultDate = qd?.result_date ? fmtDate(qd.result_date) : '—';
+        const quizStatus = p.quiz_submitted
+          ? '<span style="color:#16a34a;font-weight:700">✅ Submitted</span>'
+          : '<span style="color:#d97706;font-weight:700">⏳ Enrolled</span>';
+        const resultStatus = p.status === 'won'
+          ? '<span style="color:#16a34a;font-weight:700">🏆 Won</span>'
+          : p.status === 'lost'
+          ? '<span style="color:#dc2626;font-weight:700">❌ Lost</span>'
+          : '<span style="color:#6b7280">— Pending</span>';
+        return `<tr>
+          <td style="white-space:nowrap;font-size:11px">${fmtDate(p.created_at)}</td>
+          <td style="font-weight:700">${qd?.title || p.quiz_ref || '—'}<br><span style="font-size:10px;color:var(--text-muted)">${p.quiz_ref||''}</span></td>
+          <td style="font-family:monospace;font-size:11px;color:#166534;font-weight:700">${p.enrollment_number}</td>
+          <td>₹${fmtN(p.amount_paid)}</td>
+          <td>${quizStatus}</td>
+          <td style="white-space:nowrap;font-size:11px">${resultDate}</td>
+          <td>${resultStatus}</td>
+        </tr>`;
       }).join('');
+    } else {
+      quizList.innerHTML = '<tr><td colspan="7" class="empty-state"><p>अभी तक किसी quiz में हिस्सा नहीं लिया</p></td></tr>';
     }
   } catch(e){ console.error('Activities load err:', e); }
 }

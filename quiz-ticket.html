@@ -287,32 +287,52 @@
     </div>
   </div>
 
-  <!-- SUCCESS STATE -->
-  <div class="card state" id="stateSuccess" style="display:none">
-    <div class="success-header">
-      <div style="font-size:56px;margin-bottom:10px">🎓</div>
-      <h2 style="font-size:22px;font-weight:900;margin-bottom:4px">Enrollment Successful!</h2>
-      <p style="font-size:12px;opacity:.85">आपने FWF Scholarship Quiz में सफलतापूर्वक भाग लिया है</p>
+  <!-- QUIZ STATE (shown after payment) -->
+  <div class="card state" id="stateQuiz" style="display:none">
+    <div class="card-header" id="quizCardHeader" style="background:linear-gradient(135deg,#E87722,#d97706)">
+      <div class="brand"><i class="fa-solid fa-graduation-cap"></i> FWF Scholarship Quiz</div>
+      <div style="font-size:13px;opacity:.85;margin-bottom:6px" id="quizEnrollIdLine">-</div>
+      <div style="font-size:16px;font-weight:800" id="quizTitleLine">-</div>
     </div>
-    <div style="padding-bottom:26px">
+    <div class="card-body" style="padding-bottom:10px">
+      <div id="quizProgressBar" style="display:flex;gap:4px;margin-bottom:14px"></div>
+      <div id="quizQuestionBody"></div>
+    </div>
+    <div style="padding:12px 24px 20px;display:flex;justify-content:space-between;border-top:1px solid #f1f5f9" id="quizNavActions"></div>
+  </div>
+
+  <!-- RESULT STATE -->
+  <div class="card state" id="stateResult" style="display:none">
+    <div id="resultHeader" style="padding:32px 24px 24px;text-align:center;color:#fff">
+      <div style="font-size:56px;margin-bottom:10px" id="resultEmoji">📝</div>
+      <h2 style="font-size:22px;font-weight:900;margin-bottom:4px" id="resultTitle">Quiz Submitted!</h2>
+      <p style="font-size:13px;opacity:.88" id="resultScore">-</p>
+    </div>
+    <div style="padding:0 24px 28px">
+      <!-- Participation ID -->
       <div class="enroll-id-box">
         <div class="enroll-id-label">Participation ID</div>
-        <div class="enroll-id-val" id="successEnrollId">-</div>
+        <div class="enroll-id-val" id="resEnrollId">-</div>
         <div class="enroll-id-note">Screenshot लेकर सहेज लें!</div>
       </div>
-      <div class="support-id-box">
-        <div class="support-id-label">Seller Support ID</div>
-        <div class="support-id-val" id="successSupportId">-</div>
+      <!-- Support ID (seller) -->
+      <div class="support-id-box" id="resSupportBox">
+        <div class="support-id-label">Seller Support ID (Share with seller)</div>
+        <div class="support-id-val" id="resSupportId">-</div>
       </div>
-      <div style="padding:20px 24px 0;text-align:center">
-        <p style="font-size:13px;color:#4b5563;line-height:1.6;">
-          Result की जानकारी आपके seller द्वारा दी जाएगी।<br>
-          किसी सहायता के लिए WhatsApp करें:
-        </p>
-        <a href="https://wa.me/919580118412" target="_blank" style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;padding:11px 24px;border-radius:12px;font-weight:800;font-size:13px;text-decoration:none">
-          <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
-        </a>
+      <!-- Buyer account credentials (if created) -->
+      <div id="resBuyerAccount" style="display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:14px;margin-top:12px">
+        <div style="font-size:10px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Your FWF Supporter Account</div>
+        <div style="display:grid;gap:6px">
+          <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#374151;font-weight:600">User ID:</span><span id="resBuyerUserId" style="font-family:monospace;font-size:13px;font-weight:900;color:#166534"></span></div>
+          <div id="resBuyerPassRow" style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#374151;font-weight:600">Password:</span><span id="resBuyerPass" style="font-family:monospace;font-size:13px;font-weight:900;color:#166534"></span></div>
+        </div>
+        <p id="resBuyerNote" style="font-size:11px;color:#15803d;margin:8px 0 0"></p>
       </div>
+      <!-- Result date info -->
+      <div id="resDateInfo" style="display:none;background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:10px 14px;margin-top:12px;font-size:12px;color:#92400e;text-align:center"></div>
+      <!-- WhatsApp buttons -->
+      <div id="resWhatsAppBtns" style="display:none;gap:8px;margin-top:16px"></div>
     </div>
   </div>
 
@@ -328,9 +348,13 @@
 
     let ticketData = null;
     let quizData = null;
+    let _enrollmentNumber = '';
+    let _quizQuestions = [];
+    let _quizAnswers = {};
+    let _currentQ = 0;
 
     function show(id){
-      ['stateLoading','stateError','stateMain','stateSuccess'].forEach(s => {
+      ['stateLoading','stateError','stateMain','stateQuiz','stateResult'].forEach(s => {
         document.getElementById(s).style.display = s === id ? 'block' : 'none';
       });
     }
@@ -399,6 +423,7 @@
           theme: { color: '#E87722' },
           handler: async function(response){
             try {
+              btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enrolling...';
               const enrollRes = await fetch(`${API_BASE}/api/quiz-ticket/${token}/enroll`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -410,9 +435,15 @@
               });
               const enrollData = await enrollRes.json();
               if(enrollData.ok){
-                document.getElementById('successEnrollId').textContent = enrollData.enrollment_number;
-                document.getElementById('successSupportId').textContent = enrollData.support_id || '-';
-                show('stateSuccess');
+                _enrollmentNumber = enrollData.enrollment_number;
+                _quizQuestions = enrollData.questions || [];
+                _quizAnswers = {};
+                _currentQ = 0;
+                // Show quiz play state
+                document.getElementById('quizEnrollIdLine').textContent = 'ID: ' + _enrollmentNumber;
+                document.getElementById('quizTitleLine').textContent = enrollData.quiz_title || quizData.program_name;
+                renderQuizQuestion();
+                show('stateQuiz');
               } else {
                 alert('Enrollment failed: ' + (enrollData.error || 'Please contact support'));
                 btn.disabled = false;
@@ -420,6 +451,8 @@
               }
             } catch(e){
               alert('Network error during enrollment. Please contact support.');
+              btn.disabled = false;
+              btn.innerHTML = `<i class="fa-solid fa-lock"></i> Pay ₹${ticketData.ticket_price} & Enroll`;
             }
           },
           modal: {
@@ -437,6 +470,129 @@
         btn.disabled = false;
         btn.innerHTML = `<i class="fa-solid fa-lock"></i> Pay & Enroll`;
       }
+    }
+
+    function renderQuizQuestion(){
+      if(!_quizQuestions.length){ submitQuiz(); return; }
+      const q = _quizQuestions[_currentQ];
+      const total = _quizQuestions.length;
+
+      // Progress dots
+      document.getElementById('quizProgressBar').innerHTML = _quizQuestions.map((_,i) =>
+        `<div style="height:6px;flex:1;border-radius:3px;background:${i<_currentQ?'#22c55e':i===_currentQ?'#E87722':'#e5e7eb'}"></div>`
+      ).join('');
+
+      document.getElementById('quizQuestionBody').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">Q ${_currentQ+1}/${total}</span>
+          <span style="font-size:11px;color:#6b7280">${Object.keys(_quizAnswers).length}/${total} answered</span>
+        </div>
+        <h4 style="font-size:15px;margin-bottom:16px;line-height:1.5;color:#111">${q.question}</h4>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${q.options.map((opt,i) => `
+            <label style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid ${_quizAnswers[_currentQ]===i?'#10b981':'#e5e7eb'};cursor:pointer;background:${_quizAnswers[_currentQ]===i?'#ecfdf5':'#fff'}" onclick="selectAnswer(${i})">
+              <input type="radio" name="qtq" value="${i}" ${_quizAnswers[_currentQ]===i?'checked':''} style="accent-color:#10b981">
+              <span style="font-size:14px;color:#111">${opt}</span>
+            </label>
+          `).join('')}
+        </div>`;
+
+      document.getElementById('quizNavActions').innerHTML = `
+        ${_currentQ > 0 ? `<button onclick="quizTicketPrev()" style="padding:10px 20px;border:2px solid #e5e7eb;background:#fff;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px">← Previous</button>` : '<span></span>'}
+        ${_currentQ < total-1
+          ? `<button onclick="quizTicketNext()" style="padding:10px 20px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px">Next →</button>`
+          : `<button onclick="submitQuiz()" style="padding:10px 22px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:14px">✓ Submit Quiz</button>`
+        }`;
+    }
+
+    function selectAnswer(i){ _quizAnswers[_currentQ] = i; renderQuizQuestion(); }
+    function quizTicketPrev(){ if(_currentQ > 0){ _currentQ--; renderQuizQuestion(); } }
+    function quizTicketNext(){ if(_currentQ < _quizQuestions.length-1){ _currentQ++; renderQuizQuestion(); } }
+
+    async function submitQuiz(){
+      const unanswered = _quizQuestions.filter((_,i) => _quizAnswers[i] === undefined).length;
+      if(unanswered > 0 && !confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
+
+      const submitBtn = document.querySelector('#quizNavActions button:last-child');
+      if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
+
+      try {
+        const answers = _quizQuestions.map((q,i) => ({ q_no: q.q_no, selected: _quizAnswers[i] ?? -1 }));
+        const res = await fetch(`${API_BASE}/api/quiz-ticket/${token}/submit-quiz`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers })
+        });
+        const data = await res.json();
+        if(data.ok){ showResult(data); }
+        else { alert('Submit failed: ' + (data.error || 'Please contact support')); if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent='✓ Submit Quiz'; } }
+      } catch(e){
+        alert('Network error. Please try again.');
+        if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent='✓ Submit Quiz'; }
+      }
+    }
+
+    function showResult(data){
+      const passed = data.passed;
+      const score = data.score;
+      const total = data.totalQuestions;
+
+      document.getElementById('resultHeader').style.background = passed
+        ? 'linear-gradient(135deg,#22c55e,#16a34a)'
+        : 'linear-gradient(135deg,#f59e0b,#d97706)';
+      document.getElementById('resultEmoji').textContent = passed ? '🎉' : '📝';
+      document.getElementById('resultTitle').textContent = passed ? 'Congratulations!' : 'Quiz Submitted!';
+      document.getElementById('resultScore').textContent = passed
+        ? `सभी ${total} जवाब सही हैं! 🌟`
+        : `Score: ${score}/${total}`;
+
+      document.getElementById('resEnrollId').textContent = data.enrollment_number || _enrollmentNumber || '—';
+
+      if(data.support_id){
+        document.getElementById('resSupportId').textContent = data.support_id;
+      } else {
+        document.getElementById('resSupportBox').style.display = 'none';
+      }
+
+      // Buyer account
+      const ba = data.buyer_account;
+      if(ba){
+        const accDiv = document.getElementById('resBuyerAccount');
+        accDiv.style.display = 'block';
+        document.getElementById('resBuyerUserId').textContent = ba.user_id;
+        if(ba.is_new && ba.password){
+          document.getElementById('resBuyerPass').textContent = ba.password;
+          document.getElementById('resBuyerNote').textContent = '📸 Screenshot this! Login at fwfindia.org/member-login';
+        } else {
+          document.getElementById('resBuyerPassRow').style.display = 'none';
+          document.getElementById('resBuyerNote').textContent = '✅ Account already exists. Login with your existing password.';
+        }
+      }
+
+      // Result date info (if not passed show result date)
+      if(!passed && data.result_date_fmt){
+        const di = document.getElementById('resDateInfo');
+        di.style.display = 'block';
+        di.textContent = `📅 Result will be announced on: ${data.result_date_fmt}`;
+      }
+
+      // WhatsApp buttons
+      const waDiv = document.getElementById('resWhatsAppBtns');
+      waDiv.style.display = 'grid';
+      const enrollId = data.enrollment_number || _enrollmentNumber;
+      const supportId = data.support_id || '';
+      const waText = encodeURIComponent(
+        `🎓 FWF Quiz Enrollment Success!\nParticipation ID: ${enrollId}${supportId?'\nSeller Support ID: '+supportId:''}\nResult Date: ${data.result_date_fmt||'TBD'}`
+      );
+      waDiv.innerHTML = `
+        <a href="https://wa.me/?text=${waText}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;padding:12px;border-radius:12px;font-weight:800;font-size:13px;text-decoration:none">
+          <i class="fa-brands fa-whatsapp"></i> Share Details on WhatsApp
+        </a>
+        <a href="https://wa.me/919580118412" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#f1f5f9;color:#374151;padding:10px;border-radius:12px;font-weight:700;font-size:12px;text-decoration:none">
+          <i class="fa-brands fa-whatsapp" style="color:#25d366"></i> FWF WhatsApp Support
+        </a>`;
+
+      show('stateResult');
     }
 
     // Init

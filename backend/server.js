@@ -2698,7 +2698,7 @@ app.post('/api/member/quiz-enroll', auth(['member','supporter']), async (req, re
 });
 
 // Get quiz questions (only if enrolled and quiz is active)
-app.get('/api/member/quiz-questions/:quizId', auth('member'), async (req, res) => {
+app.get('/api/member/quiz-questions/:quizId', auth(['member','supporter']), async (req, res) => {
   try {
     const quiz = await Quiz.findOne({ quiz_id: req.params.quizId, status: 'active' });
     if (!quiz) return res.status(404).json({ error: 'Quiz active नहीं है' });
@@ -2750,11 +2750,19 @@ app.post('/api/member/quiz-submit', auth(['member','supporter']), async (req, re
     participation.status = 'submitted';
     await participation.save();
 
+    const totalQ = quiz.questions.length;
+    const passed = score === totalQ;
     res.json({
       ok: true,
       score,
-      totalQuestions: quiz.questions.length,
-      message: `Quiz submit हो गया! Score: ${score}/${quiz.questions.length}. Result ${quiz.result_date.toLocaleDateString('hi-IN')} को आएगा।`
+      totalQuestions: totalQ,
+      passed,
+      enrollment_number: participation.enrollment_number,
+      result_date: quiz.result_date,
+      quiz_title: quiz.title,
+      message: passed
+        ? `🎉 शानदार! सभी ${totalQ} जवाब सही हैं! Result ${quiz.result_date.toLocaleDateString('hi-IN')} को आएगा।`
+        : `Quiz submit हो गया! Score: ${score}/${totalQ}. Result ${quiz.result_date.toLocaleDateString('hi-IN')} को आएगा।`
     });
   } catch (err) {
     captureError(err, { context: 'quiz-submit' });
@@ -2815,14 +2823,11 @@ app.post('/api/member/quiz/generate-ticket', auth(['member','supporter']), async
       .select('quiz_id title type entry_fee end_date result_date prizes').lean();
     if (!quiz) return res.status(404).json({ error: 'Quiz नहीं मिला या enrollment बंद है' });
 
-    // Generate token and support ID
+    // Generate token only — support ID assigned after buyer pays + submits quiz
     const token = crypto.randomBytes(16).toString('hex');
-    const supportNum = Math.floor(10000 + Math.random() * 90000);
-    const supportId = `FWF-ST-${supportNum}`;
 
     const ticket = await QuizTicket.create({
       seller_id: req.user.uid,
-      seller_support_id: supportId,
       quiz_ref: quiz.quiz_id,
       quiz_id: quiz._id,
       token,
@@ -2839,7 +2844,6 @@ app.post('/api/member/quiz/generate-ticket', auth(['member','supporter']), async
     res.json({
       ok: true,
       ticket_id: ticket._id,
-      support_id: supportId,
       token,
       link,
       quiz_title: quiz.title,
@@ -2982,30 +2986,9 @@ app.post('/api/quiz-ticket/:token/enroll', async (req, res) => {
       $inc: { total_participants: 1, total_collection: ticket.ticket_price }
     });
 
-    // Award 10% commission points to seller
-    const commissionPoints = amountToPoints(ticket.ticket_price * (QUIZ_TICKET_POINTS_PERCENT / 100));
-    if (commissionPoints > 0) {
-      await User.updateOne({ _id: ticket.seller_id }, {
-        $inc: {
-          'wallet.points_balance': commissionPoints,
-          'wallet.points_from_quiz': commissionPoints,
-          'wallet.total_points_earned': commissionPoints
-        },
-        'wallet.updated_at': new Date()
-      });
-      await PointsLedger.create({
-        user_id: ticket.seller_id,
-        points: commissionPoints,
-        type: 'quiz',
-        description: `Quiz ticket sold to ${ticket.buyer_name} — ${quiz.title} → ${commissionPoints} pts`,
-        reference_id: ticket._id
-      });
-    }
-
-    // Mark ticket as converted
+    // Mark ticket as converted (commission points awarded after buyer submits quiz)
     await QuizTicket.updateOne({ _id: ticket._id }, {
       ticket_status: 'converted',
-      points_earned: commissionPoints,
       participation_id: participation._id,
       converted_at: new Date()
     });
@@ -3014,16 +2997,127 @@ app.post('/api/quiz-ticket/:token/enroll', async (req, res) => {
       seller: ticket.seller_id, buyer: ticket.buyer_name, quiz: quiz.quiz_id
     });
 
+    // Return questions for buyer to play quiz immediately
+    const questions = quiz.questions.map(q => ({ q_no: q.q_no, question: q.question, options: q.options }));
     res.json({
       ok: true,
       enrollment_number: enrollmentNumber,
-      support_id: ticket.seller_support_id,
       quiz_title: quiz.title,
-      message: `🎓 Enrollment successful! Participation ID: ${enrollmentNumber}`
+      questions,
+      total_questions: questions.length,
+      result_date_fmt: quiz.result_date
+        ? new Date(quiz.result_date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+        : 'TBD',
+      message: `🎓 Payment successful! Quiz शुरू करें.`
     });
   } catch (err) {
     captureError(err, { context: 'quiz-ticket-enroll' });
     res.status(500).json({ error: 'Enrollment failed: ' + err.message });
+  }
+});
+
+// Public: Buyer submits quiz answers (after enrollment)
+app.post('/api/quiz-ticket/:token/submit-quiz', async (req, res) => {
+  try {
+    const { answers } = req.body;
+    if (!answers) return res.status(400).json({ error: 'answers required' });
+
+    const ticket = await QuizTicket.findOne({ token: req.params.token, ticket_status: 'converted' });
+    if (!ticket) return res.status(404).json({ error: 'Ticket not found or quiz not started' });
+
+    const participation = await QuizParticipation.findById(ticket.participation_id);
+    if (!participation) return res.status(404).json({ error: 'Participation record not found' });
+    if (participation.quiz_submitted) return res.status(400).json({ error: 'Quiz already submitted' });
+
+    const quiz = await Quiz.findById(ticket.quiz_id);
+    if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
+
+    // Score answers
+    let score = 0;
+    const scoredAnswers = answers.map(ans => {
+      const q = quiz.questions.find(qq => qq.q_no === ans.q_no);
+      const isCorrect = q && q.correct_answer === ans.selected;
+      if (isCorrect) score += (q.points || 1);
+      return { q_no: ans.q_no, selected: ans.selected, is_correct: isCorrect };
+    });
+
+    const totalQ = quiz.questions.length;
+    const passed = score === totalQ;
+
+    participation.answers = scoredAnswers;
+    participation.score = score;
+    participation.quiz_submitted = true;
+    participation.submitted_at = new Date();
+    participation.status = 'submitted';
+    await participation.save();
+
+    // Generate seller support ID now (after buyer paid + submitted quiz)
+    let supportId = ticket.seller_support_id;
+    if (!supportId) {
+      const supportNum = Math.floor(10000 + Math.random() * 90000);
+      supportId = `FWF-ST-${supportNum}`;
+    }
+
+    // Award seller commission points
+    const commPoints = amountToPoints(ticket.ticket_price * (QUIZ_TICKET_POINTS_PERCENT / 100));
+    if (commPoints > 0 && ticket.seller_id) {
+      await User.updateOne({ _id: ticket.seller_id }, {
+        $inc: { 'wallet.points_balance': commPoints, 'wallet.points_from_quiz': commPoints, 'wallet.total_points_earned': commPoints },
+        'wallet.updated_at': new Date()
+      });
+      await PointsLedger.create({
+        user_id: ticket.seller_id, points: commPoints, type: 'quiz',
+        description: `Buyer ${ticket.buyer_name} submitted quiz (${score}/${totalQ}) — ${quiz.title} → ${commPoints} pts`,
+        reference_id: ticket._id
+      });
+    }
+
+    // Update ticket with support_id and points
+    await QuizTicket.updateOne({ _id: ticket._id }, { seller_support_id: supportId, points_earned: commPoints });
+
+    // Create or find buyer supporter account
+    let buyerAccount = null;
+    const rawContact = (ticket.buyer_contact || '').replace(/\D/g, '').slice(-10);
+    if (rawContact.length === 10) {
+      const existingUser = await User.findOne({ mobile: rawContact }).select('member_id name').lean();
+      if (existingUser) {
+        buyerAccount = { user_id: existingUser.member_id, is_new: false };
+      } else {
+        const supporterId = await nextSupporterId();
+        const plain = randPass();
+        const hash = bcrypt.hashSync(plain, 10);
+        const refCode = generateReferralCode(supporterId);
+        await User.create({
+          member_id: supporterId, name: ticket.buyer_name, mobile: rawContact,
+          password_hash: hash, role: 'supporter', membership_active: true,
+          referral_code: refCode, wallet: {}
+        });
+        sendWhatsAppCredentials({ mobile: rawContact, name: ticket.buyer_name, userId: supporterId, password: plain })
+          .catch(e => console.error('⚠️ Buyer credentials WhatsApp failed:', e.message));
+        buyerAccount = { user_id: supporterId, password: plain, is_new: true };
+      }
+    }
+
+    addBreadcrumb('quiz-ticket', 'Quiz submitted by buyer', { buyer: ticket.buyer_name, score, totalQ, passed });
+
+    res.json({
+      ok: true,
+      score,
+      totalQuestions: totalQ,
+      passed,
+      enrollment_number: participation.enrollment_number,
+      support_id: supportId,
+      buyer_account: buyerAccount,
+      result_date_fmt: quiz.result_date
+        ? new Date(quiz.result_date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+        : 'TBD',
+      message: passed
+        ? `🎉 Congratulations! All ${totalQ} answers correct!`
+        : `Quiz submitted! Score: ${score}/${totalQ}`
+    });
+  } catch (err) {
+    captureError(err, { context: 'quiz-ticket-submit-quiz' });
+    res.status(500).json({ error: 'Quiz submit failed: ' + err.message });
   }
 });
 
