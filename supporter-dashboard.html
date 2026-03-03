@@ -810,6 +810,10 @@ textarea.form-input{ resize:vertical; min-height:80px; }
   display:flex;align-items:center;justify-content:center;font-size:10px;transition:.15s;
 }
 #postThumbStrip .thumb-item .thumb-remove:hover{background:rgba(220,38,38,.9)}
+.social-tasks-grid{grid-template-columns:repeat(5,1fr)}
+@media(max-width:1000px){.social-tasks-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){.social-tasks-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.social-tasks-grid{grid-template-columns:repeat(2,1fr)}}
   </style>
 </head>
 <body>
@@ -1088,7 +1092,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </div>
 
     <div style="margin:16px 0 24px">
-      <div id="socialTasksGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px">
+      <div id="socialTasksGrid" class="social-tasks-grid" style="display:grid;gap:12px">
         <div class="skeleton-loader" style="height:160px;border-radius:16px"></div>
         <div class="skeleton-loader" style="height:160px;border-radius:16px"></div>
         <div class="skeleton-loader" style="height:160px;border-radius:16px"></div>
