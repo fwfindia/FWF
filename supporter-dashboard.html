@@ -2740,7 +2740,14 @@ function filterQuizTier(tier){
 }
 
 async function enrollInQuiz(quizId, title, fee){
-  if(!confirm(`"${title}" में enroll करें?\nEntry Fee: ₹${fee}\n\nPayment proceed करें?`)) return;
+  FWF_Notify.confirm(
+    `<div style="text-align:center">
+      <div style="font-size:36px;margin-bottom:8px">🎓</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:6px">"${title}"</div>
+      <div style="font-size:14px;color:#666;margin-bottom:12px">में enroll करें?</div>
+      <div style="display:inline-block;background:linear-gradient(135deg,#f5a623,#e87722);color:#fff;font-size:18px;font-weight:800;padding:8px 24px;border-radius:12px;margin-bottom:4px">Entry Fee: ₹${fee}</div>
+    </div>`,
+    async () => {
   try {
     const orderRes = await AUTH.api('/api/pay/create-order', {
       method: 'POST',
@@ -2779,6 +2786,7 @@ async function enrollInQuiz(quizId, title, fee){
     };
     const rzp = new Razorpay(opt); rzp.open();
   } catch(e){ notify(e.message || 'Failed','error'); }
+  }); // end FWF_Notify.confirm
 }
 
 async function openQuizPlay(quizId){
@@ -2841,13 +2849,24 @@ async function openQuizPlay(quizId){
     window.quizNext = () => { if(currentQ < questions.length-1){ currentQ++; renderQuestion(); } };
     window.submitQuizAnswers = async (qId) => {
       const unanswered = questions.filter((_,i) => answers[i] === undefined).length;
-      if(unanswered > 0 && !confirm(`${unanswered} questions unanswered! Submit anyway?`)) return;
-      try {
-        const formattedAnswers = questions.map((q,i) => ({ q_no: q.q_no, selected: answers[i] ?? -1 }));
-        const res = await AUTH.api('/api/member/quiz-submit', { method:'POST', body:{ quiz_id: qId, answers: formattedAnswers } });
-        if(res.ok){ notify(res.message || 'Quiz submitted!', 'success'); document.getElementById('quizPlayModal').remove(); eventsLoaded = false; loadEventsPage(); }
-        else { notify(res.error, 'error'); }
-      } catch(e){ notify('Submit failed','error'); }
+      const doSubmit = async () => {
+        try {
+          const formattedAnswers = questions.map((q,i) => ({ q_no: q.q_no, selected: answers[i] ?? -1 }));
+          const res = await AUTH.api('/api/member/quiz-submit', { method:'POST', body:{ quiz_id: qId, answers: formattedAnswers } });
+          if(res.ok){ notify(res.message || 'Quiz submitted!', 'success'); document.getElementById('quizPlayModal').remove(); eventsLoaded = false; loadEventsPage(); }
+          else { notify(res.error, 'error'); }
+        } catch(e){ notify('Submit failed','error'); }
+      };
+      if(unanswered > 0){
+        FWF_Notify.confirm(
+          `<div style="text-align:center">
+            <div style="font-size:36px;margin-bottom:8px">❓</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:6px">${unanswered} Question${unanswered>1?'s':''} Unanswered!</div>
+            <div style="font-size:13px;color:#666">Kya phir bhi submit karna chahte hain?</div>
+          </div>`,
+          doSubmit
+        );
+      } else { doSubmit(); }
     };
 
     renderQuestion();
@@ -3069,12 +3088,19 @@ function copyPayLink(url){
   navigator.clipboard.writeText(url).then(()=> notify('Link copied!','success')).catch(()=> notify('Could not copy','error'));
 }
 async function deletePayLink(linkId){
-  if(!confirm('Deactivate this payment link? Payments using this link will stop.')) return;
+  FWF_Notify.confirm(
+    `<div style="text-align:center">
+      <div style="font-size:36px;margin-bottom:8px">⚠️</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px">Payment Link Deactivate करें?</div>
+      <div style="font-size:13px;color:#666">इस link से payments आनी बंद हो जाएंगी।</div>
+    </div>`,
+    async () => {
   try{
     await AUTH.api(`/api/member/payment-link/${linkId}`,{method:'DELETE'});
     notify('Link deactivated','success');
     loadPaymentLinks();
   } catch(e){ notify('Could not deactivate','error'); }
+  }); // end FWF_Notify.confirm
 }
 
 /* ============================================
