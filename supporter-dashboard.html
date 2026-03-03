@@ -1034,31 +1034,13 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </div>
 
     <div id="feedContainer">
-      <div class="feed-card">
-        <div class="feed-header">
-          <div class="feed-avatar">FW</div>
-          <div style="flex:1">
-            <div class="feed-name">FWF Community</div>
-            <div class="feed-time">Today • Welfare Activity</div>
-          </div>
-        </div>
-        <div class="feed-body">
-          🌱 Tree plantation drive completed! 50 trees planted by our supporters in collaboration with local schools. 
-          Together, we're building a greener future.
-        </div>
-        <div class="feed-actions">
-          <button><i class="fa-regular fa-heart"></i> 24</button>
-          <button><i class="fa-regular fa-comment"></i> 8</button>
-          <button><i class="fa-solid fa-share"></i> Share</button>
-        </div>
-      </div>
-
-      <div class="content-card" style="text-align:center;padding:40px 20px;display:none" id="emptyFeedState">
-        <i class="fa-solid fa-book-open" style="font-size:48px;color:var(--text-muted);opacity:.5;margin-bottom:12px"></i>
-        <h4 style="font-size:16px;font-weight:800;margin-bottom:6px">No posts yet</h4>
-        <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">Be the first to share your social work story!</p>
-        <button class="btn btn-primary" onclick="openModal('postModal')"><i class="fa-solid fa-plus"></i> Create First Post</button>
-      </div>
+      <!-- skeletons shown on first load -->
+      <div class="skeleton-loader" style="height:120px;border-radius:16px;margin-bottom:12px" id="feedSkel1"></div>
+      <div class="skeleton-loader" style="height:120px;border-radius:16px;margin-bottom:12px" id="feedSkel2"></div>
+      <div class="skeleton-loader" style="height:120px;border-radius:16px;margin-bottom:12px" id="feedSkel3"></div>
+    </div>
+    <div style="text-align:center;padding:12px 0 6px" id="feedLoadMoreWrap" hidden>
+      <button class="btn" style="font-size:13px" onclick="loadFeed(true)">Load More</button>
     </div>
   </div>
 
@@ -1776,6 +1758,7 @@ function switchPage(page, updateHash = true){
   if(page === 'support')     loadMyTickets();
   if(page === 'profile')     loadProfile();
   if(page === 'events')      loadEventsPage();
+  if(page === 'feed')        loadFeed();
 }
 
 document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
@@ -1901,6 +1884,8 @@ async function loadDashboard(){
         </div>
       `).join('');
     }
+
+    _currentUserId = (u._id || '').toString();
 
     populateProfile(data);
 
@@ -2304,6 +2289,127 @@ document.getElementById('saveProfileBtn').addEventListener('click', async ()=>{
     loadDashboard();
   } catch(e){ notify(e.message||'Failed','error'); }
 });
+
+/* ============================================
+   SOCIAL BOOK FEED
+   ============================================ */
+let _feedPage = 1;
+let _feedLoading = false;
+
+async function loadFeed(loadMore = false) {
+  if (_feedLoading) return;
+  _feedLoading = true;
+  const container = document.getElementById('feedContainer');
+  const loadMoreWrap = document.getElementById('feedLoadMoreWrap');
+
+  if (!loadMore) {
+    _feedPage = 1;
+    container.innerHTML = `
+      <div class="skeleton-loader" style="height:120px;border-radius:16px;margin-bottom:12px"></div>
+      <div class="skeleton-loader" style="height:120px;border-radius:16px;margin-bottom:12px"></div>
+      <div class="skeleton-loader" style="height:120px;border-radius:16px;margin-bottom:12px"></div>`;
+  }
+
+  try {
+    const res = await AUTH.api(`/api/member/feed?page=${_feedPage}&limit=15`);
+    if (!res.ok) throw new Error(res.error || 'Feed load failed');
+
+    if (!loadMore) container.innerHTML = '';
+    else document.getElementById('feedLoadMoreSentinel')?.remove();
+
+    if (!loadMore && res.posts.length === 0) {
+      container.innerHTML = `
+        <div class="content-card" style="text-align:center;padding:40px 20px">
+          <i class="fa-solid fa-book-open" style="font-size:48px;color:var(--text-muted);opacity:.5;margin-bottom:12px"></i>
+          <h4 style="font-size:16px;font-weight:800;margin-bottom:6px">No posts yet</h4>
+          <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">Be the first to share your social work story!</p>
+          <button class="btn btn-primary" onclick="openModal('postModal')"><i class="fa-solid fa-plus"></i> Create First Post</button>
+        </div>`;
+      if (loadMoreWrap) loadMoreWrap.hidden = true;
+      return;
+    }
+
+    const typeLabels = {
+      welfare:'Welfare', health:'Health Camp', plantation:'Plantation', education:'Education',
+      donation:'Donation', awareness:'Awareness', skill:'Skill', training:'Training',
+      task_completion:'Task', other:'Activity'
+    };
+    const typeColors = {
+      welfare:'#10b981', health:'#3b82f6', plantation:'#22c55e', education:'#8b5cf6',
+      donation:'#f59e0b', awareness:'#06b6d4', skill:'#ec4899', training:'#f97316',
+      task_completion:'#14b8a6', other:'#6b7280'
+    };
+
+    res.posts.forEach(p => {
+      const initials = (p.user_name || 'S').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+      const timeAgo = (() => {
+        const diff = Date.now() - new Date(p.created_at);
+        const m = Math.floor(diff/60000), h = Math.floor(diff/3600000), d = Math.floor(diff/86400000);
+        if (d > 0) return d + 'd ago';
+        if (h > 0) return h + 'h ago';
+        if (m > 0) return m + 'm ago';
+        return 'Just now';
+      })();
+      const typeLabel = typeLabels[p.post_type] || 'Activity';
+      const typeColor = typeColors[p.post_type] || '#6b7280';
+      const imagesHtml = (p.images || []).length > 0
+        ? `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">${
+            p.images.map(img => `<img src="${img}" style="max-height:180px;border-radius:10px;object-fit:cover;max-width:100%" loading="lazy">`).join('')
+          }</div>` : '';
+      const card = document.createElement('div');
+      card.className = 'feed-card';
+      card.dataset.postId = p._id;
+      card.innerHTML = `
+        <div class="feed-header">
+          <div class="feed-avatar" style="background:var(--accent)">${p.user_avatar ? `<img src="${p.user_avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : initials}</div>
+          <div style="flex:1">
+            <div class="feed-name">${p.user_name}</div>
+            <div class="feed-time">${timeAgo} • <span style="color:${typeColor};font-weight:700">${typeLabel}</span></div>
+          </div>
+        </div>
+        <div class="feed-body" style="white-space:pre-line">${p.content.replace(/</g,'&lt;')}</div>
+        ${imagesHtml}
+        <div class="feed-actions">
+          <button onclick="toggleFeedLike('${p._id}',this)" data-liked="false"><i class="fa-regular fa-heart"></i> <span class="like-count">${p.likes_count||0}</span></button>
+          <button><i class="fa-regular fa-comment"></i> ${p.comments_count||0}</button>
+          <button onclick="shareFeedPost('${encodeURIComponent(p.user_name)}','${encodeURIComponent(p.content.slice(0,60))}')" ><i class="fa-solid fa-share"></i> Share</button>
+        </div>`;
+      container.appendChild(card);
+    });
+
+    if (res.hasMore) {
+      _feedPage++;
+      if (loadMoreWrap) loadMoreWrap.hidden = false;
+    } else {
+      if (loadMoreWrap) loadMoreWrap.hidden = true;
+    }
+  } catch(e) {
+    if (!loadMore) container.innerHTML = `<div class="content-card" style="text-align:center;padding:30px;color:var(--text-muted)"><i class="fa-solid fa-triangle-exclamation" style="font-size:32px;margin-bottom:8px"></i><br>Feed load failed. <button class="btn" style="margin-top:8px" onclick="loadFeed()">Retry</button></div>`;
+    notify('Feed load failed', 'error');
+  } finally {
+    _feedLoading = false;
+  }
+}
+
+let _currentUserId = null; // set after login
+
+async function toggleFeedLike(postId, btn) {
+  try {
+    const res = await AUTH.api('/api/member/like-post', { method:'POST', body:{ postId } });
+    if (!res.ok) throw new Error(res.error);
+    const icon = btn.querySelector('i');
+    const countEl = btn.querySelector('.like-count');
+    icon.className = res.liked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+    btn.style.color = res.liked ? 'var(--accent)' : '';
+    if (countEl) countEl.textContent = res.likes_count;
+  } catch(e) { notify('Could not update like', 'error'); }
+}
+
+function shareFeedPost(name, preview) {
+  const text = `Check out this social work post by ${decodeURIComponent(name)} on FWF Social Book!\n${decodeURIComponent(preview)}...\nhttps://fwfindia.org`;
+  if (navigator.share) navigator.share({ title: 'FWF Social Book', text });
+  else { navigator.clipboard.writeText(text); notify('Link copied!','success'); }
+}
 
 /* ============================================
    SOCIAL BOOK POST

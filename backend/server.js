@@ -2520,7 +2520,7 @@ app.post('/api/member/create-post', auth(['member','supporter']), async (req, re
 });
 
 // Like/unlike a post
-app.post('/api/member/like-post', auth('member'), async (req, res) => {
+app.post('/api/member/like-post', auth(['member','supporter']), async (req, res) => {
   try {
     const { postId } = req.body;
     const post = await SocialPost.findById(postId);
