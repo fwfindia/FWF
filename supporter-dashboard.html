@@ -2106,7 +2106,9 @@ async function startSupporterPayment(){
     const order = await AUTH.api('/api/pay/create-order', { method:'POST', body:{ amount, type:'supporter', notes:{ supporter: name } } });
     const options = {
       key: order.key, amount: order.order.amount, currency: order.order.currency,
-      name: 'FWF — Supporter Joining', description: `Supporter: ${name}`, order_id: order.order.id,
+      name: 'FWF — Supporter Joining', description: `Supporter: ${name}`,
+      image: '/assets/images/logo.png',
+      order_id: order.order.id,
       handler: async function(resp){
         try{
           const result = await AUTH.api('/api/pay/supporter', { method:'POST', body:{
@@ -2763,6 +2765,7 @@ async function enrollInQuiz(quizId, title, fee){
       currency: 'INR',
       name: 'FWF Scholarship Quiz',
       description: title,
+      image: '/assets/images/logo.png',
       order_id: orderRes.order.id,
       theme: { color: '#E87722' },
       handler: async function(response){
