@@ -2824,7 +2824,7 @@ app.post('/api/member/quiz/generate-ticket', auth(['member','supporter']), async
       seller_id: req.user.uid,
       seller_support_id: supportId,
       quiz_ref: quiz.quiz_id,
-      quiz_id: null,
+      quiz_id: quiz._id,
       token,
       buyer_name,
       buyer_contact,
@@ -2906,6 +2906,10 @@ app.post('/api/quiz-ticket/:token/create-order', async (req, res) => {
     const ticket = await QuizTicket.findOne({ token: req.params.token, ticket_status: 'pending' }).lean();
     if (!ticket) return res.status(404).json({ error: 'Invalid or already used ticket' });
 
+    if (!ticket.ticket_price || ticket.ticket_price < 1) {
+      return res.status(400).json({ error: `Invalid ticket price: ${ticket.ticket_price}` });
+    }
+
     const order = await razorpay.orders.create({
       amount: ticket.ticket_price * 100,
       currency: 'INR',
@@ -2914,8 +2918,10 @@ app.post('/api/quiz-ticket/:token/create-order', async (req, res) => {
 
     res.json({ ok: true, order, key: process.env.RAZORPAY_KEY_ID });
   } catch (err) {
+    const rzpMsg = err?.error?.description || err?.message || 'Unknown error';
+    console.error('quiz-ticket-order error:', rzpMsg, JSON.stringify(err?.error || {}));
     captureError(err, { context: 'quiz-ticket-order' });
-    res.status(500).json({ error: 'Order creation failed' });
+    res.status(500).json({ error: `Order creation failed: ${rzpMsg}` });
   }
 });
 
@@ -2938,8 +2944,8 @@ app.post('/api/quiz-ticket/:token/enroll', async (req, res) => {
       }
     }
 
-    const quiz = await Quiz.findOne({ quiz_id: ticket.quiz_ref, status: { $in: ['upcoming','active'] } });
-    if (!quiz) return res.status(404).json({ error: 'Quiz अब available नहीं है' });
+    const quiz = await Quiz.findOne({ quiz_id: ticket.quiz_ref, status: { $in: ['upcoming','active','closed'] } });
+    if (!quiz) return res.status(404).json({ error: 'Quiz enrollment closed. Please contact support.' });
 
     // Generate enrollment number for buyer
     const randomDigits = Math.floor(10000 + Math.random() * 90000);
