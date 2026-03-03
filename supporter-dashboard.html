@@ -1582,12 +1582,12 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       <!-- Referral Tracking Table -->
       <div style="padding:4px 20px 20px">
         <div style="border-top:1px solid var(--card-border);padding-top:16px;margin-top:10px">
-          <h4 style="margin-bottom:12px;font-size:14px;font-weight:800"><i class="fa-solid fa-list"></i> My Referrals</h4>
+          <h4 style="margin-bottom:12px;font-size:14px;font-weight:800"><i class="fa-solid fa-list"></i> My Referrals & Quiz Tickets</h4>
           <div class="table-wrap">
             <table class="data-table">
-              <thead><tr><th>Name</th><th>Amount</th><th>Points</th><th>Status</th><th>Date</th></tr></thead>
+              <thead><tr><th>Type</th><th>Name</th><th>Amount</th><th>Points</th><th>Status</th><th>Date</th></tr></thead>
               <tbody id="referralsBody">
-                <tr><td colspan="5" class="empty-state"><p>No referrals yet</p></td></tr>
+                <tr><td colspan="6" class="empty-state"><p>No referrals yet</p></td></tr>
               </tbody>
             </table>
           </div>
@@ -2026,26 +2026,66 @@ async function loadWallet(){
    ============================================ */
 async function loadReferral(){
   try{
-    const data = memberData || await AUTH.api('/api/member/me');
+    const [data, ticketRes] = await Promise.all([
+      memberData || AUTH.api('/api/member/me'),
+      AUTH.api('/api/member/my-quiz-tickets')
+    ]);
     memberData = data;
     document.getElementById('refCode').value = data.user?.referral_code || 'N/A';
 
-    const refs = data.referrals || [];
+    const refs = (data.referrals || []).map(r => ({
+      _type: 'referral',
+      name: r.referred_name || '—',
+      amount: r.amount || 0,
+      points: r.points_earned || 0,
+      status: r.status,
+      date: r.created_at
+    }));
+
+    const tickets = (ticketRes?.tickets || []).map(t => ({
+      _type: 'quiz_ticket',
+      name: t.buyer_name || '—',
+      amount: t.ticket_price || 0,
+      points: t.points_earned || 0,
+      status: t.ticket_status === 'converted' ? 'paid' : 'pending',
+      date: t.sold_at,
+      support_id: t.seller_support_id,
+      quiz_ref: t.quiz_ref
+    }));
+
+    const all = [...refs, ...tickets].sort((a,b) => new Date(b.date) - new Date(a.date));
+
     const refBody = document.getElementById('referralsBody');
-    if(refs.length){
-      refBody.innerHTML = refs.map(r => `<tr>
-        <td style="font-weight:700">${r.referred_name || '—'}</td>
-        <td style="font-weight:800">₹${fmtN(r.amount)}</td>
-        <td style="color:var(--success);font-weight:700">+${r.points_earned}</td>
-        <td>${statusBadge(r.status)}</td>
-        <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.created_at)}</td>
-      </tr>`).join('');
+    if(all.length){
+      refBody.innerHTML = all.map(r => {
+        const typeCell = r._type === 'quiz_ticket'
+          ? `<span style="background:#fef9c3;color:#92400e;border:1px solid #fde68a;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:800">🎫 Quiz</span>`
+          : `<span style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:800">👤 Referral</span>`;
+        const nameCell = r._type === 'quiz_ticket'
+          ? `<div style="font-weight:700">${r.name}</div><div style="font-size:10px;color:var(--text-muted)">${r.quiz_ref || ''} · ${r.support_id || ''}</div>`
+          : `<div style="font-weight:700">${r.name}</div>`;
+        const statusCell = r.status === 'paid' || r.status === 'active'
+          ? `<span style="background:#dcfce7;color:#166534;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">✅ Paid</span>`
+          : r.status === 'converted'
+          ? `<span style="background:#dcfce7;color:#166534;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">✅ Paid</span>`
+          : `<span style="background:#fef9c3;color:#92400e;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">⏳ Pending</span>`;
+        return `<tr>
+          <td>${typeCell}</td>
+          <td>${nameCell}</td>
+          <td style="font-weight:800">₹${fmtN(r.amount)}</td>
+          <td style="color:var(--success);font-weight:700">${r.points > 0 ? '+'+r.points : '—'}</td>
+          <td>${statusCell}</td>
+          <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.date)}</td>
+        </tr>`;
+      }).join('');
+    } else {
+      refBody.innerHTML = `<tr><td colspan="6" class="empty-state"><p>No referrals or quiz tickets yet</p></td></tr>`;
     }
 
     // Load payment links
     loadPaymentLinks();
 
-  } catch(e){ notify('Failed to load referral data', 'error'); }
+  } catch(e){ console.error(e); notify('Failed to load referral data', 'error'); }
 }
 
 function copyRefCode(){

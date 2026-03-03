@@ -2851,6 +2851,18 @@ app.post('/api/member/quiz/generate-ticket', auth(['member','supporter']), async
   }
 });
 
+// GET seller's own quiz tickets (for tracking in Referral & Earn tab)
+app.get('/api/member/my-quiz-tickets', auth(['member','supporter']), async (req, res) => {
+  try {
+    const tickets = await QuizTicket.find({ seller_id: req.user.uid })
+      .sort({ sold_at: -1 }).limit(100).lean();
+    res.json({ ok: true, tickets });
+  } catch(err) {
+    captureError(err, { context: 'my-quiz-tickets' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Public: Get ticket info for buyer
 app.get('/api/quiz-ticket/:token', async (req, res) => {
   try {
