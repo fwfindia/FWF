@@ -680,7 +680,7 @@ app.post('/api/pay/register-supporter', async (req, res) => {
     }).catch(() => {});
 
     addBreadcrumb('registration', 'New supporter registered', { supporterId, name, email, emailSent });
-    res.json({ ok: true, supporterId, emailSent, message: `Registration successful! Your Supporter ID is ${supporterId}.` });
+    res.json({ ok: true, supporterId, password: plain, emailSent, message: `Registration successful! Your Supporter ID is ${supporterId}.` });
   } catch (err) {
     console.error('Supporter registration error:', err);
     captureError(err, { context: 'supporter-registration' });

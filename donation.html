@@ -732,16 +732,15 @@
       <div class="fl-group"><i class="fl-icon fa-regular fa-user"></i><input class="fl-input" name="name" placeholder=" " required><label class="fl-label">Full Name</label></div>
       <div class="fl-group"><i class="fl-icon fa-solid fa-mobile-screen-button"></i><input class="fl-input" name="mobile" placeholder=" " pattern="[0-9]{10}" maxlength="10" required><label class="fl-label">Phone</label></div>
       <div class="fl-group"><i class="fl-icon fa-regular fa-envelope"></i><input class="fl-input" type="email" name="email" placeholder=" " required><label class="fl-label">Email</label></div>
-      <div class="fl-group"><i class="fl-icon fa-solid fa-diagram-project"></i>
-        <select class="fl-input" name="project" required style="padding-left:48px;">
-          <option value="" hidden selected></option>
-          <option>Teaching</option><option>Mentoring</option><option>Admin/Operations</option>
-          <option>Social Media</option><option>Fundraising</option><option>Other</option>
-        </select>
-        <label class="fl-label">Choose Project</label>
+      <!-- Donation opt-in -->
+      <label id="supDonateRow" style="display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fde68a;border-radius:14px;padding:14px 16px;cursor:pointer;margin-bottom:4px;margin-top:2px">
+        <input type="checkbox" id="supDonateChk" name="wantDonate" style="width:18px;height:18px;margin-top:2px;accent-color:#f59e0b;flex-shrink:0">
+        <span style="font-size:0.92rem;font-weight:600;color:#92400e;line-height:1.4">💛 I also want to make a donation along with my support</span>
+      </label>
+      <div id="supDonateAmtRow" style="display:none;margin-bottom:4px">
+        <div class="fl-group" style="margin-bottom:0"><i class="fl-icon fa-solid fa-indian-rupee-sign"></i><input class="fl-input" id="supDonateAmt" name="donationAmount" type="number" min="1" placeholder=" " inputmode="numeric"><label class="fl-label">Donation Amount (₹)</label></div>
       </div>
-      <div class="fl-group"><i class="fl-icon fa-regular fa-message"></i><textarea class="fl-input" name="message" placeholder=" " rows="4" style="height:120px; padding-top:18px;"></textarea><label class="fl-label">How would you like to help?</label></div>
-      <button class="btn-primary" type="submit">Submit</button>
+      <button class="btn-primary" type="submit" style="background:linear-gradient(135deg,#6153ff,#8b5cf6);margin-top:6px"><i class="fa-solid fa-user-plus"></i> Register as Supporter</button>
     </form>
   </div>
 </div>
@@ -1420,6 +1419,16 @@
   document.getElementById('openSupporter2').addEventListener('click', ()=>{ resetForm(document.getElementById('supForm')); openModal(supModal); });
   document.getElementById('closeSupporter').addEventListener('click', ()=> closeModal(supModal));
   supModal.addEventListener('click', (e)=>{ if(e.target===supModal) closeModal(supModal); });
+
+  // Toggle donation amount row
+  document.getElementById('supDonateChk').addEventListener('change', function(){
+    const row = document.getElementById('supDonateAmtRow');
+    const amtInput = document.getElementById('supDonateAmt');
+    row.style.display = this.checked ? 'block' : 'none';
+    amtInput.required = this.checked;
+    if(!this.checked) amtInput.value = '';
+  });
+
   document.getElementById('supForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const f = e.target;
@@ -1437,8 +1446,8 @@
           name: fd.get('name'),
           mobile: fd.get('mobile'),
           email: fd.get('email'),
-          project: fd.get('project'),
-          message: fd.get('message')
+          wantDonate: fd.get('wantDonate') === 'on',
+          donationAmount: fd.get('donationAmount') || null
         })
       });
       const data = await res.json();
@@ -1447,21 +1456,41 @@
         btn.disabled = false; btn.innerHTML = origLabel;
         return;
       }
+      const sid = data.supporterId;
+      const pwd = data.password || '—';
+      const shareText = encodeURIComponent(`🎉 *Welcome to FWF Supporters!*\n\nYour login credentials:\n👤 Supporter ID: ${sid}\n🔑 Password: ${pwd}\n\n🔗 Login at: https://fwfindia.org/login`);
       // Show success
       f.innerHTML = `
-        <div style="text-align:center;padding:24px 0">
-          <div style="font-size:56px;margin-bottom:12px">🎉</div>
-          <h3 style="color:#10b981;margin:0 0 8px">Welcome, Supporter!</h3>
-          <p style="color:#374151;margin:0 0 16px">Your Supporter ID is:</p>
-          <div style="background:#f0fdf4;border:2px solid #10b981;border-radius:10px;padding:16px;font-size:1.4rem;font-weight:800;color:#059669;letter-spacing:1px;margin-bottom:16px">${data.supporterId}</div>
+        <div style="text-align:center;padding:16px 0">
+          <div style="font-size:52px;margin-bottom:10px">🎉</div>
+          <h3 style="color:#10b981;margin:0 0 4px">Welcome, Supporter!</h3>
+          <p style="color:#6b7280;font-size:0.88rem;margin:0 0 18px">Save your login credentials below</p>
+
+          <div style="background:#f0fdf4;border:2px solid #10b981;border-radius:12px;padding:14px 16px;margin-bottom:10px;text-align:left">
+            <p style="margin:0 0 4px;font-size:0.75rem;font-weight:700;color:#6b7280;letter-spacing:.05em;text-transform:uppercase">Supporter ID</p>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span id="supShowId" style="font-size:1.35rem;font-weight:800;color:#059669;letter-spacing:1px;flex:1">${sid}</span>
+              <button type="button" onclick="navigator.clipboard.writeText('${sid}').then(()=>FWF_Notify.toast('ID copied!','success',2000))" style="background:#dcfce7;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.8rem;font-weight:700;color:#166534"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+          </div>
+
+          <div style="background:#eff6ff;border:2px solid #93c5fd;border-radius:12px;padding:14px 16px;margin-bottom:16px;text-align:left">
+            <p style="margin:0 0 4px;font-size:0.75rem;font-weight:700;color:#6b7280;letter-spacing:.05em;text-transform:uppercase">Password</p>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span id="supShowPwd" style="font-size:1.1rem;font-weight:800;color:#1d4ed8;letter-spacing:2px;flex:1;font-family:monospace">${pwd}</span>
+              <button type="button" onclick="navigator.clipboard.writeText('${pwd}').then(()=>FWF_Notify.toast('Password copied!','success',2000))" style="background:#dbeafe;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.8rem;font-weight:700;color:#1e3a8a"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+          </div>
+
           ${data.emailSent
-            ? `<p style="color:#6b7280;font-size:0.9rem;margin:0 0 20px"><i class="fa-solid fa-envelope" style="color:#10b981"></i> Login credentials have been sent to your email.</p>`
-            : `<div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:12px 14px;margin-bottom:16px;text-align:left">
-                <p style="margin:0 0 6px;color:#92400e;font-weight:700;font-size:0.9rem"><i class="fa-solid fa-triangle-exclamation"></i> Email could not be sent automatically.</p>
-                <p style="margin:0;color:#78350f;font-size:0.85rem">Please note your Supporter ID <strong>${data.supporterId}</strong> and contact us at <a href="mailto:info@fwfindia.org" style="color:#92400e">info@fwfindia.org</a> to receive your login credentials.</p>
-               </div>`
+            ? `<p style="color:#6b7280;font-size:0.85rem;margin:0 0 16px"><i class="fa-solid fa-envelope" style="color:#10b981"></i> Credentials also sent to your email.</p>`
+            : `<p style="color:#f59e0b;font-size:0.85rem;margin:0 0 16px"><i class="fa-solid fa-triangle-exclamation"></i> Email could not be sent. Please save credentials above.</p>`
           }
-          <a href="/login" class="btn-primary" style="display:inline-block;text-decoration:none;padding:12px 32px;border-radius:8px"><i class="fa-solid fa-right-to-bracket"></i> Login Now</a>
+
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25d366;color:#fff;text-decoration:none;padding:12px;border-radius:10px;font-weight:700;font-size:0.95rem"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.660c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.470-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.82 2.049c.106.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.907.129 1.249.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg> Share on WhatsApp</a>
+            <a href="/login" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#6153ff,#8b5cf6);color:#fff;text-decoration:none;padding:12px;border-radius:10px;font-weight:700;font-size:0.95rem"><i class="fa-solid fa-right-to-bracket"></i> Login Now</a>
+          </div>
         </div>`;
     } catch(err) {
       FWF_Notify.toast('Network error: ' + err.message, 'error');
