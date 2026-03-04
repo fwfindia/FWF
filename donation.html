@@ -569,21 +569,17 @@
         <!-- T&C Checkboxes -->
         <div class="tc-checks">
           <div class="tc-check-row" id="tcRow1">
-            <input type="checkbox" id="tcCheck1" name="tc1" disabled required>
-            <label for="tcCheck1">
-              <span class="tc-en">I have read and agree to the </span>
-              <span class="tc-hi" style="display:none">मैंने पढ़ लिया है और सहमत हूँ: </span>
-              <a class="tc-open-link" onclick="openTcModal(1)">
-                <span class="tc-en">Business Funding Agreement</span>
-                <span class="tc-hi" style="display:none">व्यवसाय वित्तीय सहायता समझौता</span>
-              </a>
+            <input type="checkbox" id="tcCheck1" name="tc1" required>
+            <label for="tcCheck1" style="cursor:pointer">
+              <span class="tc-en">I have read and agree to the <span class="tc-open-link" onclick="event.preventDefault();">Business Funding Agreement</span></span>
+              <span class="tc-hi" style="display:none">मैंने <span class="tc-open-link" onclick="event.preventDefault();">व्यवसाय वित्तीय सहायता समझौता</span> पढ़ा है और सहमत हूँ</span>
             </label>
           </div>
           <div class="tc-check-row" id="tcRow2">
             <input type="checkbox" id="tcCheck2" name="tc2" required>
             <label for="tcCheck2">
-              <span class="tc-en">I confirm all information provided is true and I take full responsibility for my business</span>
-              <span class="tc-hi" style="display:none">मैं पुष्टि करता/करती हूँ कि दी गई सभी जानकारी सत्य है और मैं अपने व्यवसाय की पूर्ण जिम्मेदारी लेता/लेती हूँ</span>
+              <span class="tc-en">I agree to pay the ₹500 per month membership fee to maintain my membership.</span>
+              <span class="tc-hi" style="display:none">मैं अपनी सदस्यता बनाए रखने के लिए ₹500 प्रति माह सदस्यता शुल्क देने के लिए सहमत हूँ।</span>
             </label>
           </div>
         </div>
@@ -624,7 +620,7 @@
     <div class="tc-card-head">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <h3 id="tcModalTitle">Business Funding Agreement</h3>
-        <button onclick="closeTcModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#64748b;line-height:1">&times;</button>
+        <button onclick="closeTcModal(false)" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#64748b;line-height:1">&times;</button>
       </div>
       <div class="tc-prog"><div class="tc-prog-fill" id="tcProgFill"></div></div>
     </div>
@@ -1209,7 +1205,7 @@
     resetForm(memberForm);
     // Reset T&C state
     const cb1=document.getElementById('tcCheck1'),cb2=document.getElementById('tcCheck2');
-    cb1.checked=false; cb1.disabled=true; document.getElementById('tcRow1').classList.remove('accepted');
+    cb1.checked=false; document.getElementById('tcRow1').classList.remove('accepted');
     cb2.checked=false; document.getElementById('tcRow2').classList.remove('accepted');
     document.getElementById('memberSubmitBtn').disabled=true;
     memberUnitGroup.style.display='none'; memberUnitSelect.required=false;
@@ -1248,30 +1244,41 @@
     _tcTargetCb = idx===1?document.getElementById('tcCheck1'):null;
     const m=document.getElementById('tcModal'); m.style.display='flex'; document.body.style.overflow='hidden';
   }
-  function closeTcModal(){
+  function closeTcModal(agreed){
+    // If closed without agreeing, uncheck tcCheck1
+    if(!agreed && _tcTargetCb){
+      _tcTargetCb.checked=false;
+      const row=_tcTargetCb.closest('.tc-check-row'); if(row) row.classList.remove('accepted');
+      updateMemberSubmitBtn();
+    }
     document.getElementById('tcModal').style.display='none';
     document.body.style.overflow='';
   }
   function tcAgree(){
     if(!document.getElementById('tcAgreeBtn').classList.contains('ready')) return;
     if(_tcTargetCb){
-      _tcTargetCb.disabled=false; _tcTargetCb.checked=true;
+      _tcTargetCb.checked=true;
       const row=_tcTargetCb.closest('.tc-check-row'); if(row) row.classList.add('accepted');
     }
-    updateMemberSubmitBtn(); closeTcModal();
+    updateMemberSubmitBtn(); closeTcModal(true);
   }
   function updateMemberSubmitBtn(){
     const btn=document.getElementById('memberSubmitBtn');
     if(btn) btn.disabled=!(document.getElementById('tcCheck1').checked && document.getElementById('tcCheck2').checked);
   }
-  document.getElementById('tcCheck1').addEventListener('change', updateMemberSubmitBtn);
+  document.getElementById('tcCheck1').addEventListener('change', function(){
+    if(this.checked){ openTcModal(1); } else {
+      this.closest('.tc-check-row').classList.remove('accepted');
+      updateMemberSubmitBtn();
+    }
+  });
   document.getElementById('tcCheck2').addEventListener('change', updateMemberSubmitBtn);
   document.getElementById('tcBody').addEventListener('scroll', function(){
     const ratio = this.scrollTop/(this.scrollHeight-this.clientHeight)||0;
     document.getElementById('tcProgFill').style.width=(ratio*100)+'%';
     if(ratio>=0.92){ document.getElementById('tcAgreeBtn').classList.add('ready'); document.getElementById('tcScrollHint').classList.add('hidden'); }
   });
-  document.getElementById('tcModal').addEventListener('click', function(e){ if(e.target===this) closeTcModal(); });
+  document.getElementById('tcModal').addEventListener('click', function(e){ if(e.target===this) closeTcModal(false); });
 
   const memberProjectSelect = document.getElementById('memberProjectSelect');
   const memberUnitGroup = document.getElementById('memberUnitGroup');
@@ -1480,7 +1487,7 @@
   if(window.location.hash === '#memberModal') {
     resetForm(memberForm);
     const cb1=document.getElementById('tcCheck1'),cb2=document.getElementById('tcCheck2');
-    cb1.checked=false; cb1.disabled=true; document.getElementById('tcRow1').classList.remove('accepted');
+    cb1.checked=false; document.getElementById('tcRow1').classList.remove('accepted');
     cb2.checked=false; document.getElementById('tcRow2').classList.remove('accepted');
     document.getElementById('memberSubmitBtn').disabled=true;
     memberUnitGroup.style.display='none'; memberUnitSelect.required=false;
