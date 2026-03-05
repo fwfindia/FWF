@@ -592,17 +592,6 @@
     <div id="memberStep2" style="display:none;">
       <h2 class="payTitle">Complete Payment</h2>
       <div style="text-align:center;margin:16px 0">
-        <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;border-radius:14px;padding:16px;margin-bottom:14px">
-          <p style="margin:0 0 2px;font-weight:700;color:#15803d;font-size:0.95rem"><i class="fa-solid fa-rotate" style="margin-right:6px"></i>Monthly Auto-Debit (UPI AutoPay)</p>
-          <p style="margin:0;font-size:0.8rem;color:#166534">Your first payment of ₹500 will be charged now.<br>A UPI AutoPay mandate will be set up for monthly auto-debit.</p>
-        </div>
-        <div style="background:linear-gradient(135deg,#eef2ff,#e0e7ff);border:2px solid #c7d2fe;border-radius:14px;padding:12px;margin-bottom:14px">
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-            <span style="background:#fff;padding:6px 12px;border-radius:8px;font-size:0.85rem;font-weight:700;color:#334155"><i class="fas fa-mobile-alt" style="color:#22c55e"></i> UPI AutoPay</span>
-            <span style="background:#fff;padding:6px 12px;border-radius:8px;font-size:0.85rem;font-weight:700;color:#334155"><i class="fas fa-credit-card" style="color:#3b82f6"></i> Card</span>
-            <span style="background:#fff;padding:6px 12px;border-radius:8px;font-size:0.85rem;font-weight:700;color:#334155"><i class="fas fa-university" style="color:#8b5cf6"></i> Net Banking</span>
-          </div>
-        </div>
         <p style="font-weight:900;font-size:1.4rem;color:#0f172a;margin:8px 0">Membership Fee: ₹<span style="color:#15803d">500</span>/month</p>
       </div>
       <button id="razorpayMemberBtn" class="btn-solid" style="background:linear-gradient(135deg,#6153ff,#8b5cf6);font-size:1.05rem;padding:14px 0"><i class="fa-solid fa-lock"></i> Pay ₹500 &amp; Enable AutoPay</button>
@@ -1291,6 +1280,10 @@
         opt.value = u; opt.textContent = u;
         memberUnitSelect.appendChild(opt);
       });
+      // Always add Other as last option
+      const otherOpt = document.createElement('option');
+      otherOpt.value = 'Other'; otherOpt.textContent = 'Other';
+      memberUnitSelect.appendChild(otherOpt);
       memberUnitGroup.style.display = '';
       memberUnitSelect.required = true;
     } else {
