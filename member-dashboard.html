@@ -4107,7 +4107,7 @@ function generateMemberLink() {
   if (mobile.length !== 10 || !/^\d{10}$/.test(mobile)) return notify('Enter valid 10-digit mobile', 'warning');
   if (!/\S+@\S+\.\S+/.test(email)) return notify('Enter valid email', 'warning');
   const ref = memberData?.user?.referral_code || '';
-  const url = `${location.origin}/join?ref=${encodeURIComponent(ref)}&n=${encodeURIComponent(name)}&m=${encodeURIComponent(mobile)}&e=${encodeURIComponent(email)}&src=member`;
+  const url = `${location.origin}/donation?ref=${encodeURIComponent(ref)}&n=${encodeURIComponent(name)}&m=${encodeURIComponent(mobile)}&e=${encodeURIComponent(email)}&src=member#memberModal`;
   document.getElementById('amGeneratedLink').value = url;
   document.getElementById('amLinkForName').textContent = `Share this link with ${name}`;
   document.getElementById('amStep1').style.display = 'none';
@@ -4132,7 +4132,7 @@ function generateSupporterLink() {
   if (mobile.length !== 10 || !/^\d{10}$/.test(mobile)) return notify('Enter valid 10-digit mobile', 'warning');
   if (!/\S+@\S+\.\S+/.test(email)) return notify('Enter valid email', 'warning');
   const ref = memberData?.user?.referral_code || '';
-  const url = `${location.origin}/join?ref=${encodeURIComponent(ref)}&n=${encodeURIComponent(name)}&m=${encodeURIComponent(mobile)}&e=${encodeURIComponent(email)}&src=supporter`;
+  const url = `${location.origin}/donation?ref=${encodeURIComponent(ref)}&n=${encodeURIComponent(name)}&m=${encodeURIComponent(mobile)}&e=${encodeURIComponent(email)}&src=supporter#memberModal`;
   document.getElementById('spGeneratedLink').value = url;
   document.getElementById('spLinkForName').textContent = `Share this link with ${name}`;
   document.getElementById('spStep1').style.display = 'none';

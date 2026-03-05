@@ -1518,6 +1518,14 @@
     document.getElementById('memberSubmitBtn').disabled=true;
     memberUnitGroup.style.display='none'; memberUnitSelect.required=false;
     memberStep2.style.display='none'; memberStep1.style.display='block'; openModal(memberModal);
+    // Pre-fill from referral link params (?n=Name&m=Mobile&e=Email&ref=CODE)
+    (function(){
+      const p = new URLSearchParams(location.search);
+      if(p.get('n')) document.getElementById('memberName').value   = p.get('n');
+      if(p.get('m')) document.getElementById('memberMobile').value = p.get('m');
+      if(p.get('e')) document.getElementById('memberEmail').value  = decodeURIComponent(p.get('e'));
+      if(p.get('ref')) sessionStorage.setItem('fwfRefCode', p.get('ref'));
+    })();
   }
   // Auto-open supporterModal when navigated via URL hash
   if(window.location.hash === '#supporterModal') {
