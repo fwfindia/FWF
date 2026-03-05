@@ -1941,7 +1941,7 @@ async function loadDashboard(){
     populateProfile(data);
 
   } catch(e){
-    if(e.status === 401 || e.status === 403){
+    if(e.status === 401 || e.status === 403 || e.status === 404){
       notify('Session expired. Redirecting to login...', 'error');
       setTimeout(() => location.href = '/login', 2000);
     } else {

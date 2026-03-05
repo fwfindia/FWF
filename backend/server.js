@@ -1350,7 +1350,7 @@ app.post('/api/auth/update-password', internalAuth, async (req, res) => {
 app.get('/api/member/me', auth(['member','supporter']), async (req, res) => {
   const u = await User.findById(req.user.uid)
     .select('member_id name mobile email created_at first_login_done referral_code avatar_url bio wallet member_project').lean();
-  if (!u) return res.status(404).json({ error: 'User not found' });
+  if (!u) return res.status(401).json({ error: 'Session expired. Please login again.' });
 
   const w = u.wallet || { balance_inr: 0, lifetime_earned_inr: 0, lifetime_applied_inr: 0, points_balance: 0, points_from_donations: 0, points_from_referrals: 0, points_from_quiz: 0, total_points_earned: 0 };
   const p = u.member_project || null;
