@@ -1563,15 +1563,15 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 
           <div id="rtab-members" class="rtab-body">
             <div class="table-wrap"><table class="data-table">
-              <thead><tr><th>Name</th><th>Member ID</th><th>Amount</th><th>Points</th><th>Status</th><th>Date</th></tr></thead>
-              <tbody id="rtbMembers"><tr><td colspan="6" class="empty-state"><p>No referrals yet</p></td></tr></tbody>
+              <thead><tr><th>Name</th><th>Mobile</th><th>Email</th><th>Member ID</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+              <tbody id="rtbMembers"><tr><td colspan="7" class="empty-state"><p>No referrals yet</p></td></tr></tbody>
             </table></div>
           </div>
 
           <div id="rtab-supporters" class="rtab-body" style="display:none">
             <div class="table-wrap"><table class="data-table">
-              <thead><tr><th>Name</th><th>Member ID</th><th>Amount</th><th>Points</th><th>Status</th><th>Date</th></tr></thead>
-              <tbody id="rtbSupporters"><tr><td colspan="6" class="empty-state"><p>No referrals yet</p></td></tr></tbody>
+              <thead><tr><th>Name</th><th>Mobile</th><th>Email</th><th>Member ID</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+              <tbody id="rtbSupporters"><tr><td colspan="7" class="empty-state"><p>No referrals yet</p></td></tr></tbody>
             </table></div>
           </div>
 
@@ -1598,7 +1598,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
       <div style="background:linear-gradient(135deg,#f97316,#E87722);padding:20px 24px 16px;position:relative">
         <h3 style="color:#fff;margin:0;font-size:17px;font-weight:800"><i class="fa-solid fa-user-plus"></i> Add Member</h3>
-        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Generate a referral link — earn <strong>250 points</strong> when they register!</p>
+        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Fill their details → generate a pre-filled registration link</p>
         <button onclick="closeActionModal('addMember')" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
       </div>
       <div style="padding:22px 24px 24px">
@@ -1608,10 +1608,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
             <div class="form-group" style="margin:0"><label>Mobile Number *</label><input type="tel" class="form-input" id="amMobile" placeholder="10-digit mobile" maxlength="10"></div>
             <div class="form-group" style="margin:0"><label>Email Address *</label><input type="email" class="form-input" id="amEmail" placeholder="name@example.com"></div>
           </div>
-          <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;margin-top:14px;font-size:12px;color:#7c2d12">
-            <i class="fa-solid fa-circle-info"></i> A pre-filled registration link will be generated. Share it via WhatsApp — when the person pays ₹500, you earn <strong>250 points</strong>.
-          </div>
-          <button onclick="generateMemberLink()" style="width:100%;margin-top:16px;background:linear-gradient(135deg,#f97316,#E87722);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer">
+          <button id="amGenBtn" onclick="generateMemberLink()" style="width:100%;margin-top:16px;background:linear-gradient(135deg,#f97316,#E87722);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer">
             <i class="fa-solid fa-link"></i> Generate Registration Link
           </button>
         </div>
@@ -1635,7 +1632,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
       <div style="background:linear-gradient(135deg,#34d366,#0a8f3f);padding:20px 24px 16px;position:relative">
         <h3 style="color:#fff;margin:0;font-size:17px;font-weight:800"><i class="fa-solid fa-hands-helping"></i> Add Supporter</h3>
-        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Generate a referral link — earn <strong>10% back</strong> as reward points!</p>
+        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Fill their details → generate a pre-filled registration link</p>
         <button onclick="closeActionModal('addSupporter')" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
       </div>
       <div style="padding:22px 24px 24px">
@@ -1645,10 +1642,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
             <div class="form-group" style="margin:0"><label>Mobile Number *</label><input type="tel" class="form-input" id="spMobile" placeholder="10-digit mobile" maxlength="10"></div>
             <div class="form-group" style="margin:0"><label>Email Address *</label><input type="email" class="form-input" id="spEmail" placeholder="name@example.com"></div>
           </div>
-          <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 14px;margin-top:14px;font-size:12px;color:#166534">
-            <i class="fa-solid fa-circle-info"></i> A pre-filled registration link will be generated. Share it via WhatsApp — when the person pays, you earn <strong>10%</strong> as reward points.
-          </div>
-          <button onclick="generateSupporterLink()" style="width:100%;margin-top:16px;background:linear-gradient(135deg,#34d366,#0a8f3f);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer">
+          <button id="spGenBtn" onclick="generateSupporterLink()" style="width:100%;margin-top:16px;background:linear-gradient(135deg,#34d366,#0a8f3f);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer">
             <i class="fa-solid fa-link"></i> Generate Registration Link
           </button>
         </div>
@@ -2077,8 +2071,9 @@ async function loadReferral(){
       status: t.ticket_status === 'converted' ? 'paid' : 'pending', created_at: t.sold_at
     }));
 
-    document.getElementById('rtbMembers').innerHTML    = members.length    ? members.map(refRow).join('')    : emptyRow;
-    document.getElementById('rtbSupporters').innerHTML = supporters.length ? supporters.map(refRow).join('') : emptyRow;
+    document.getElementById('rtbMembers').innerHTML    = '';
+    document.getElementById('rtbSupporters').innerHTML = '';
+    renderReferralTables(refs);
     document.getElementById('rtbDonations').innerHTML  = donations.length  ? donations.map(refRow).join('')  : emptyRow;
     document.getElementById('rtbTickets').innerHTML    = rawTickets.length ? rawTickets.map(refRow).join('') : emptyRow;
 
@@ -2088,6 +2083,69 @@ async function loadReferral(){
 function copyRefCode(){
   const code = document.getElementById('refCode').value;
   navigator.clipboard.writeText(code).then(() => notify('Referral code copied!', 'success')).catch(() => {});
+}
+
+/* ============ PENDING LINKS — localStorage helpers ============ */
+function savePendingLink(entry) {
+  const key = 'fwf_pending_links_' + (memberData?.user?.referral_code || 'unknown');
+  let list = []; try { list = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+  const idx = list.findIndex(l => l.mobile === entry.mobile);
+  if (idx >= 0) list[idx] = entry; else list.unshift(entry);
+  localStorage.setItem(key, JSON.stringify(list));
+}
+function getPendingLinks() {
+  const key = 'fwf_pending_links_' + (memberData?.user?.referral_code || 'unknown');
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; }
+}
+function isLinkExpired(generated_at) {
+  if (!generated_at) return false;
+  return (Date.now() - new Date(generated_at).getTime()) > 30 * 24 * 60 * 60 * 1000;
+}
+function copyPendingLink(btn) {
+  const link = btn.getAttribute('data-link');
+  navigator.clipboard.writeText(link).then(() => notify('Link copied!', 'success')).catch(() => {});
+}
+function renderReferralTables(refs) {
+  const pending = getPendingLinks();
+  const backendMobiles = new Set(refs.map(r => r.mobile || r.referred_mobile || '').filter(Boolean));
+  const pendingMembers    = pending.filter(l => l.type === 'member'    && !backendMobiles.has(l.mobile));
+  const pendingSupporters = pending.filter(l => l.type === 'supporter' && !backendMobiles.has(l.mobile));
+  const backendMembers    = refs.filter(r => !r.type || r.type === 'member');
+  const backendSupporters = refs.filter(r => r.type === 'supporter');
+  function pendingRow(l) {
+    const expired = isLinkExpired(l.generated_at);
+    const badge = expired
+      ? '<span style="background:#f1f5f9;color:#64748b;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700">&#x23F0; Link Expired</span>'
+      : '<span style="background:#fff7ed;color:#c2410c;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700">&#x1F4E4; Link Sent</span>';
+    const action = expired
+      ? '<span style="color:#94a3b8;font-size:11px">—</span>'
+      : `<button onclick="copyPendingLink(this)" data-link="${l.link}" style="background:var(--accent,#6153ff);color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer"><i class="fa-solid fa-copy"></i> Copy</button>`;
+    return `<tr>
+      <td style="font-weight:700">${l.name}</td>
+      <td style="font-size:12px">${l.mobile}</td>
+      <td style="font-size:12px;color:#64748b">${l.email}</td>
+      <td style="font-family:monospace;font-size:12px;color:#94a3b8">—</td>
+      <td>${badge}</td>
+      <td style="color:var(--text-muted);font-size:12px">${fmtDate(l.generated_at)}</td>
+      <td>${action}</td>
+    </tr>`;
+  }
+  function backendRow(r) {
+    return `<tr>
+      <td style="font-weight:700">${r.referred_name || r.name || '—'}</td>
+      <td style="font-size:12px">—</td>
+      <td style="font-size:12px;color:#64748b">—</td>
+      <td style="font-family:monospace;font-size:12px">${r.referred_member_id || '—'}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.created_at)}</td>
+      <td></td>
+    </tr>`;
+  }
+  const empty7 = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:18px;font-size:13px">No records yet</td></tr>`;
+  const allMembers    = [...pendingMembers.map(pendingRow), ...backendMembers.map(backendRow)];
+  const allSupporters = [...pendingSupporters.map(pendingRow), ...backendSupporters.map(backendRow)];
+  document.getElementById('rtbMembers').innerHTML    = allMembers.length    ? allMembers.join('')    : empty7;
+  document.getElementById('rtbSupporters').innerHTML = allSupporters.length ? allSupporters.join('') : empty7;
 }
 
 /* ============================================
@@ -2133,19 +2191,32 @@ Object.values(actionModalMap).forEach(id => {
 /* ============================================
    GENERATE REFERRAL LINK — ADD MEMBER
    ============================================ */
-function generateMemberLink() {
+async function generateMemberLink() {
   const name   = document.getElementById('amName').value.trim();
   const mobile = document.getElementById('amMobile').value.trim();
   const email  = document.getElementById('amEmail').value.trim();
   if (!name || !mobile || !email) return notify('Please fill all fields', 'warning');
   if (mobile.length !== 10 || !/^\d{10}$/.test(mobile)) return notify('Enter valid 10-digit mobile', 'warning');
   if (!/\S+@\S+\.\S+/.test(email)) return notify('Enter valid email', 'warning');
+  const btn = document.getElementById('amGenBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Checking...'; }
+  try {
+    const res = await fetch('/api/pay/check-member', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile, email })
+    });
+    const chk = await res.json();
+    if (!chk.ok) { notify(chk.error || 'Mobile/email already registered', 'error'); return; }
+  } catch(e) { /* network err — allow */ }
+  finally { if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-link"></i> Generate Registration Link'; } }
   const ref = memberData?.user?.referral_code || '';
   const url = `${location.origin}/donation?ref=${encodeURIComponent(ref)}&n=${encodeURIComponent(name)}&m=${encodeURIComponent(mobile)}&e=${encodeURIComponent(email)}&src=member#memberModal`;
+  savePendingLink({ name, mobile, email, link: url, type: 'member', generated_at: new Date().toISOString() });
   document.getElementById('amGeneratedLink').value = url;
   document.getElementById('amLinkForName').textContent = `Share this link with ${name}`;
   document.getElementById('amStep1').style.display = 'none';
   document.getElementById('amStep2').style.display = 'block';
+  renderReferralTables(memberData?.referrals || []);
 }
 function resetMemberLinkModal() {
   document.getElementById('amStep1').style.display = 'block';
@@ -2158,19 +2229,32 @@ function resetMemberLinkModal() {
 /* ============================================
    GENERATE REFERRAL LINK — ADD SUPPORTER
    ============================================ */
-function generateSupporterLink() {
+async function generateSupporterLink() {
   const name   = document.getElementById('spName').value.trim();
   const mobile = document.getElementById('spMobile').value.trim();
   const email  = document.getElementById('spEmail').value.trim();
   if (!name || !mobile || !email) return notify('Please fill all fields', 'warning');
   if (mobile.length !== 10 || !/^\d{10}$/.test(mobile)) return notify('Enter valid 10-digit mobile', 'warning');
   if (!/\S+@\S+\.\S+/.test(email)) return notify('Enter valid email', 'warning');
+  const btn = document.getElementById('spGenBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Checking...'; }
+  try {
+    const res = await fetch('/api/pay/check-member', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile, email })
+    });
+    const chk = await res.json();
+    if (!chk.ok) { notify(chk.error || 'Mobile/email already registered', 'error'); return; }
+  } catch(e) { /* network err — allow */ }
+  finally { if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-link"></i> Generate Registration Link'; } }
   const ref = memberData?.user?.referral_code || '';
   const url = `${location.origin}/donation?ref=${encodeURIComponent(ref)}&n=${encodeURIComponent(name)}&m=${encodeURIComponent(mobile)}&e=${encodeURIComponent(email)}&src=supporter#memberModal`;
+  savePendingLink({ name, mobile, email, link: url, type: 'supporter', generated_at: new Date().toISOString() });
   document.getElementById('spGeneratedLink').value = url;
   document.getElementById('spLinkForName').textContent = `Share this link with ${name}`;
   document.getElementById('spStep1').style.display = 'none';
   document.getElementById('spStep2').style.display = 'block';
+  renderReferralTables(memberData?.referrals || []);
 }
 function resetSupporterLinkModal() {
   document.getElementById('spStep1').style.display = 'block';
