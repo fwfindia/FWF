@@ -362,6 +362,27 @@ body::before{
     </button>
   </form>
 
+  <!-- Login OTP Step (shown after password verified) -->
+  <div id="loginOtpSection" style="display:none">
+    <p style="text-align:center;color:#64748b;font-size:14px;margin-bottom:16px">
+      OTP sent to <strong id="loginMaskedMobile"></strong>. Enter it below to continue.
+    </p>
+    <div class="otp-inputs" id="loginOtpInputs">
+      <input type="text" class="otp-input login-otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="0">
+      <input type="text" class="otp-input login-otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="1">
+      <input type="text" class="otp-input login-otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="2">
+      <input type="text" class="otp-input login-otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="3">
+      <input type="text" class="otp-input login-otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="4">
+      <input type="text" class="otp-input login-otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="5">
+    </div>
+    <button class="login-btn" id="verifyOtpBtn" style="margin-top:16px" onclick="verifyLoginOtp()">
+      <span id="verifyOtpBtnText"><i class="fa-solid fa-check"></i> Verify OTP</span>
+    </button>
+    <a href="#" style="display:block;text-align:center;margin-top:12px;font-size:13px;color:#667eea" onclick="cancelLoginOtp(event)">
+      <i class="fa-solid fa-arrow-left"></i> Back to Login
+    </a>
+  </div>
+
   <div class="divider">New to FWF?</div>
 
   <div class="signup-link">
@@ -510,6 +531,63 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+// ── Login OTP 2FA ──────────────────────────────────────────
+let loginOtpMemberId = '';
+
+function showLoginOtpStep(maskedMobile) {
+  document.getElementById('loginForm').style.display = 'none';
+  document.querySelector('.divider').style.display = 'none';
+  document.querySelector('.signup-link').style.display = 'none';
+  document.getElementById('loginOtpSection').style.display = 'block';
+  document.getElementById('loginMaskedMobile').textContent = maskedMobile;
+  // Setup auto-focus for login OTP inputs
+  const inputs = document.querySelectorAll('.login-otp-input');
+  inputs.forEach((inp, i) => {
+    inp.addEventListener('input', () => {
+      if (inp.value.length === 1 && i < inputs.length - 1) inputs[i+1].focus();
+    });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i-1].focus();
+    });
+  });
+  inputs[0].focus();
+}
+
+function cancelLoginOtp(e) {
+  e.preventDefault();
+  document.getElementById('loginOtpSection').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+  document.querySelector('.divider').style.display = '';
+  document.querySelector('.signup-link').style.display = '';
+  document.querySelectorAll('.login-otp-input').forEach(i => i.value = '');
+  const btnText = document.getElementById('btnText');
+  btnText.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Login to Dashboard';
+  document.querySelector('#loginForm .login-btn').disabled = false;
+  loginOtpMemberId = '';
+}
+
+async function verifyLoginOtp() {
+  const btn = document.getElementById('verifyOtpBtn');
+  const btnText = document.getElementById('verifyOtpBtnText');
+  const otp = Array.from(document.querySelectorAll('.login-otp-input')).map(i => i.value).join('');
+  if (otp.length !== 6) { FWF_Notify.toast('Please enter the 6-digit OTP', 'error'); return; }
+  btn.disabled = true;
+  btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+  try {
+    const res = await AUTH.api('/api/auth/verify-login-otp', { method: 'POST', body: { memberId: loginOtpMemberId, otp } });
+    btnText.innerHTML = '<i class="fa-solid fa-check"></i> Verified!';
+    setTimeout(() => {
+      if (res.role === 'admin') location.href = '/admin/dashboard';
+      else if (res.role === 'supporter') location.href = '/supporter/dashboard';
+      else location.href = '/member/dashboard';
+    }, 500);
+  } catch(err) {
+    FWF_Notify.toast(err.message || 'Incorrect OTP', 'error');
+    btnText.innerHTML = '<i class="fa-solid fa-check"></i> Verify OTP';
+    btn.disabled = false;
+  }
+}
 
 // Request OTP
 document.getElementById('requestOtpForm').addEventListener('submit', async (e) => {
@@ -675,6 +753,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       res.role = 'admin';
     } else {
       res = await AUTH.api('/api/auth/login', {method:'POST', body:{memberId, password}});
+    }
+    // OTP 2FA required
+    if (res.otpRequired) {
+      loginOtpMemberId = memberId;
+      btnText.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Login to Dashboard';
+      showLoginOtpStep(res.maskedMobile);
+      return;
     }
     btnText.innerHTML = '<i class="fa-solid fa-check"></i> Success!';
     setTimeout(() => {
