@@ -2950,7 +2950,8 @@ const tierConfig = {
     label: 'Half-Yearly', emoji: '📅', fee: 500,
     programName: 'Saksham Program',
     scholarshipAmount: 25000,
-    purpose: 'To support women leadership and professional development.',
+    rewardLabel: 'Business Support',
+    purpose: 'To support leadership and professional development.',
     fallbackEndDate: '30 Sep 2026',
     fallbackResultDate: '15 Oct 2026'
   },
@@ -2959,6 +2960,7 @@ const tierConfig = {
     label: 'Yearly', emoji: '🏆', fee: 1000,
     programName: 'Divya Yatra Sahyog',
     scholarshipAmount: 50000,
+    rewardLabel: 'Divya Yatra',
     purpose: 'To support enterprise setup and life transformation journey.',
     fallbackEndDate: '31 Dec 2026',
     fallbackResultDate: '15 Jan 2027'
@@ -3081,7 +3083,7 @@ function renderQuizCards(quizzes){
           <div class="qcb-reward-icon">🎓</div>
           <div>
             <div class="qcb-reward-amount">₹${schAmt.toLocaleString('en-IN')}</div>
-            <div class="qcb-reward-label">Scholarship Amount</div>
+            <div class="qcb-reward-label">${tc.rewardLabel || 'Scholarship Amount'}</div>
           </div>
         </div>
         <div class="qcb-bottom">
