@@ -1297,55 +1297,9 @@ app.post('/api/auth/login', rateLimit(60000, 5), async (req, res) => {
     console.log(`Login failed: wrong password for "${memberId}"`);
     return res.status(400).json({ error: 'Invalid Member ID or password' });
   }
-
-  // If member has a mobile number — send OTP for 2FA
-  if (u.mobile) {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    await LoginOtp.deleteMany({ memberId: u.member_id }); // clear old OTPs
-    await LoginOtp.create({ memberId: u.member_id, otp, expiresAt: new Date(Date.now() + 10 * 60 * 1000) });
-    try {
-      await sendSmsOtp({ mobile: u.mobile, otp, type: 'login' });
-    } catch (e) {
-      console.error('Login OTP SMS failed:', e.message);
-    }
-    const maskedMobile = String(u.mobile).replace(/\D/g,'').slice(-10).replace(/(\d{2})(\d+)(\d{2})/, '$1***$3');
-    return res.json({ ok: true, otpRequired: true, maskedMobile });
-  }
-
-  // No mobile — log in directly
   const token = signToken({ uid: u._id.toString(), role: u.role, memberId: u.member_id, name: u.name });
   res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
   addBreadcrumb('auth', 'Member logged in', { memberId: u.member_id });
-  res.json({ ok: true, role: u.role });
-});
-
-app.post('/api/auth/verify-login-otp', rateLimit(60000, 10), async (req, res) => {
-  const { memberId, otp } = req.body;
-  if (!memberId || !otp) return res.status(400).json({ error: 'Member ID and OTP are required' });
-
-  const record = await LoginOtp.findOne({ memberId });
-  if (!record) return res.status(400).json({ error: 'OTP expired or not found. Please login again.' });
-  if (new Date() > record.expiresAt) {
-    await LoginOtp.deleteOne({ memberId });
-    return res.status(400).json({ error: 'OTP has expired. Please login again.' });
-  }
-  if (record.attempts >= 3) {
-    await LoginOtp.deleteOne({ memberId });
-    return res.status(400).json({ error: 'Too many incorrect attempts. Please login again.' });
-  }
-  if (record.otp !== String(otp)) {
-    await LoginOtp.updateOne({ memberId }, { $inc: { attempts: 1 } });
-    const left = 2 - record.attempts;
-    return res.status(400).json({ error: `Incorrect OTP. ${left} attempt(s) remaining.` });
-  }
-
-  await LoginOtp.deleteOne({ memberId });
-  const u = await User.findOne({ member_id: memberId });
-  if (!u) return res.status(404).json({ error: 'User not found.' });
-
-  const token = signToken({ uid: u._id.toString(), role: u.role, memberId: u.member_id, name: u.name });
-  res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
-  addBreadcrumb('auth', 'Member logged in (OTP 2FA)', { memberId: u.member_id });
   res.json({ ok: true, role: u.role });
 });
 
