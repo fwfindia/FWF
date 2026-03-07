@@ -16,6 +16,11 @@
     /* Hindi typography */
     [data-lang="hi"] body { font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif; }
 
+    /* Language pill − override fwf-app.css to match home.html style */
+    .lang-pill { gap:2px; background:rgba(255,255,255,0.08); border-radius:8px; padding:3px; border:none; overflow:visible; }
+    .lang-pill button { padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; color:rgba(255,255,255,0.65); }
+    .lang-pill button.active { background:var(--primary); color:#fff; border-radius:6px; }
+
     /* â”€â”€ Base: dark night theme (matches desktop) â”€â”€ */
     body {
       background: linear-gradient(180deg, #0b1220 0%, #0c1f21 45%, #132a3a 100%);

@@ -2687,6 +2687,8 @@
 
       updateUI();
     }
+
+    function createProductPage(product, unit, pageNum) {
       const page = document.createElement('div');
       page.className = 'page unit-detail prod-detail-page';
       page.setAttribute('data-page', pageNum);
@@ -3175,6 +3177,12 @@
       if (container) {
         container.querySelectorAll('.prod-detail-page, .cta-page').forEach(p => p.remove());
       }
+      // Reset all active states, restore cover as active, go to page 0
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const coverEl = document.querySelector('.page.cover');
+      if (coverEl) coverEl.classList.add('active');
+      currentPage = 0;
+      isAnimating = false;
       init();
     }
 
