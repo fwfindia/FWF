@@ -1475,7 +1475,7 @@ body.modal-open{
 
   <!-- Redeem Modal -->
   <div class="modal" id="redeemModal">
-    <div class="modal-content" style="max-width:540px;max-height:90vh;display:flex;flex-direction:column">
+    <div class="modal-content" style="max-width:540px;width:100%;height:min(90dvh,760px);display:flex;flex-direction:column">
       <div class="modal-header" style="flex-shrink:0">
         <h3><i class="fa-solid fa-gift"></i> Redeem Points</h3>
         <button class="modal-close" onclick="closeModal('redeemModal')">&times;</button>
@@ -2121,6 +2121,7 @@ async function uploadToCloudinary(file){
 function lockPageScroll(){
   if(document.body.dataset.scrollLocked === 'true') return;
   const scrollY = window.scrollY || window.pageYOffset || 0;
+  const main = document.querySelector('.main');
   document.body.dataset.scrollLocked = 'true';
   document.body.dataset.scrollY = String(scrollY);
   document.documentElement.classList.add('modal-open');
@@ -2130,11 +2131,16 @@ function lockPageScroll(){
   document.body.style.left = '0';
   document.body.style.right = '0';
   document.body.style.width = '100%';
+  if(main){
+    main.dataset.prevOverflow = main.style.overflow || '';
+    main.style.overflow = 'hidden';
+  }
 }
 
 function unlockPageScroll(){
   if(document.body.dataset.scrollLocked !== 'true') return;
   const scrollY = Number(document.body.dataset.scrollY || 0);
+  const main = document.querySelector('.main');
   document.documentElement.classList.remove('modal-open');
   document.body.classList.remove('modal-open');
   document.body.style.position = '';
@@ -2142,6 +2148,10 @@ function unlockPageScroll(){
   document.body.style.left = '';
   document.body.style.right = '';
   document.body.style.width = '';
+  if(main){
+    main.style.overflow = main.dataset.prevOverflow || '';
+    delete main.dataset.prevOverflow;
+  }
   document.body.dataset.scrollLocked = 'false';
   delete document.body.dataset.scrollY;
   window.scrollTo(0, scrollY);
