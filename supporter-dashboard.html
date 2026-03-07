@@ -1467,8 +1467,8 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 
   <!-- Redeem Modal -->
   <div class="modal" id="redeemModal">
-    <div class="modal-content" style="max-width:540px">
-      <div class="modal-header">
+    <div class="modal-content" style="max-width:540px;max-height:90vh;display:flex;flex-direction:column">
+      <div class="modal-header" style="flex-shrink:0">
         <h3><i class="fa-solid fa-gift"></i> Redeem Points</h3>
         <button class="modal-close" onclick="closeModal('redeemModal')">&times;</button>
       </div>
@@ -1485,8 +1485,8 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
 
       <!-- Form screen -->
-      <div id="redeemFormScreen">
-        <div class="modal-body">
+      <div id="redeemFormScreen" style="display:flex;flex-direction:column;overflow:hidden;min-height:0">
+        <div class="modal-body" style="overflow-y:auto;flex:1">
           <div style="background:var(--accent-soft);padding:14px;border-radius:10px;margin-bottom:16px;text-align:center">
             <div style="font-size:12px;color:var(--text-muted);font-weight:700">Available Points</div>
             <div style="font-size:32px;font-weight:900;color:var(--accent)" id="availPointsDisplay">0</div>
@@ -1554,7 +1554,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
             </select>
           </div>
         </div>
-        <div class="modal-actions">
+        <div class="modal-actions" style="flex-shrink:0">
           <button class="btn btn-ghost" onclick="closeModal('redeemModal')">Cancel</button>
           <button class="btn btn-success" id="submitRedeemBtn" onclick="submitRedeemRequest()"><i class="fa-solid fa-check"></i> Submit Request</button>
         </div>
