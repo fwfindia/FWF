@@ -13,9 +13,10 @@ const FAIL        = '\x1b[31m❌ FAIL\x1b[0m';
 const SEP         = '─'.repeat(55);
 
 function log(label, data) {
-  const ok = data && (data.type === 'success' || String(data.message || '').toLowerCase().includes('success') || data.request_id);
+  const ok = data && (data.type === 'success' || data.status === 'success' || String(data.message || data.data || '').toLowerCase().includes('success') || data.request_id);
   console.log(`${ok ? PASS : FAIL}  ${label}`);
-  if (!ok) console.log('     Response:', JSON.stringify(data, null, 2));
+  // Always print full response for debugging
+  console.log('     Raw response:', JSON.stringify(data, null, 2));
   return ok;
 }
 

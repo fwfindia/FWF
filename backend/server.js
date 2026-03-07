@@ -990,6 +990,90 @@ app.post('/api/pay/membership', async (req, res) => {
   }
 });
 
+// Upgrade Supporter → Member via Razorpay payment
+app.post('/api/pay/upgrade-to-member', auth('supporter'), async (req, res) => {
+  try {
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature)
+      return res.status(400).json({ error: 'Payment details missing' });
+
+    // Verify Razorpay signature
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    const generated_signature = crypto
+      .createHmac('sha256', keySecret)
+      .update(razorpay_order_id + '|' + razorpay_payment_id)
+      .digest('hex');
+    if (generated_signature !== razorpay_signature)
+      return res.status(400).json({ ok: false, error: 'Payment verification failed' });
+
+    // Load current supporter
+    const supporter = await User.findById(req.user.uid).lean();
+    if (!supporter) return res.status(404).json({ error: 'Account not found' });
+    if (supporter.role === 'member') return res.status(400).json({ error: 'Already a member' });
+
+    // Generate new member ID and password
+    const memberId = await nextMemberId();
+    const plain = randPass();
+    const hash = bcrypt.hashSync(plain, 10);
+    const refCode = generateReferralCode(memberId);
+
+    // Upgrade the account in-place
+    await User.updateOne({ _id: supporter._id }, {
+      role: 'member',
+      member_id: memberId,
+      password_hash: hash,
+      membership_active: true,
+      referral_code: refCode,
+      upgraded_from_supporter: supporter.member_id,
+      upgraded_at: new Date()
+    });
+
+    // Record membership fee
+    await MembershipFee.create({
+      txn_id:       razorpay_payment_id,
+      member_id:    memberId,
+      member_name:  supporter.name,
+      amount:       500,
+      fee_type:     'joining',
+      payment_mode: 'razorpay',
+      payment_ref:  razorpay_order_id,
+      status:       'verified',
+      verified_at:  new Date(),
+      notes:        `Upgraded from Supporter (${supporter.member_id}) via Razorpay order`
+    });
+
+    // Issue new JWT cookie with updated role
+    const newToken = signToken({ uid: supporter._id.toString(), role: 'member', memberId, name: supporter.name });
+    res.cookie('token', newToken, { httpOnly: true, sameSite: 'none', secure: true });
+
+    // Send member welcome email (non-blocking)
+    sendMemberWelcome({ name: supporter.name, email: supporter.email, memberId, password: plain, mobile: supporter.mobile })
+      .then(() => console.log(`✅ Upgrade welcome email sent → ${supporter.email}`))
+      .catch(e => console.error('⚠️ Upgrade welcome email failed:', e.message));
+
+    // Admin alert (non-blocking)
+    sendAdminAlert({
+      subject: `Supporter Upgraded to Member: ${memberId} — ${supporter.name}`,
+      rows: [
+        ['New Member ID', memberId],
+        ['Old Supporter ID', supporter.member_id],
+        ['Name', supporter.name],
+        ['Mobile', supporter.mobile],
+        ['Email', supporter.email],
+        ['Amount', '₹500'],
+        ['Payment ID', razorpay_payment_id]
+      ]
+    }).catch(() => {});
+
+    addBreadcrumb('payment', 'Supporter upgraded to member', { memberId, oldId: supporter.member_id, paymentId: razorpay_payment_id });
+    res.json({ ok: true, memberId, password: plain, paymentId: razorpay_payment_id });
+  } catch (err) {
+    console.error('Upgrade-to-member error:', err);
+    captureError(err, { context: 'upgrade-to-member' });
+    res.status(500).json({ error: 'Upgrade failed: ' + err.message });
+  }
+});
+
 // Razorpay Donation Payment: verify + record donation
 app.post('/api/pay/donation', async (req, res) => {
   try {
