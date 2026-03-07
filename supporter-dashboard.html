@@ -1467,36 +1467,97 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 
   <!-- Redeem Modal -->
   <div class="modal" id="redeemModal">
-    <div class="modal-content" style="max-width:520px">
+    <div class="modal-content" style="max-width:540px">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-gift"></i> Redeem Points for Social Cause</h3>
+        <h3><i class="fa-solid fa-gift"></i> Redeem Points</h3>
         <button class="modal-close" onclick="closeModal('redeemModal')">&times;</button>
       </div>
-      <div class="modal-body">
-        <div style="background:var(--accent-soft);padding:14px;border-radius:10px;margin-bottom:16px;text-align:center">
-          <div style="font-size:12px;color:var(--text-muted);font-weight:700">Available Points</div>
-          <div style="font-size:32px;font-weight:900;color:var(--accent)" id="availPointsDisplay">0</div>
+
+      <!-- Success screen (shown after submit) -->
+      <div id="redeemSuccessScreen" style="display:none;padding:32px 24px;text-align:center">
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#10b981,#059669);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:32px;color:#fff">
+          <i class="fa-solid fa-check"></i>
         </div>
-        <div class="form-group">
-          <label>Points to Redeem</label>
-          <input type="number" class="form-input" id="redeemPointsInput" placeholder="Enter points" min="1">
-        </div>
-        <div class="form-group">
-          <label>Social Cause</label>
-          <select class="form-input" id="socialCauseSelect">
-            <option value="">Select a cause</option>
-            <option value="Scholarship">Scholarship Program</option>
-            <option value="Tree Plantation">Tree Plantation Drive</option>
-            <option value="Food Distribution">Food Distribution</option>
-            <option value="Health Camp">Health Camp Support</option>
-            <option value="Women Empowerment">Women Empowerment Fund</option>
-            <option value="Clean Water">Clean Water Initiative</option>
-          </select>
-        </div>
+        <h3 style="color:#059669;margin-bottom:10px">Request Submitted Successfully!</h3>
+        <p style="color:var(--text-muted);margin-bottom:6px">Your redeem request for <strong id="redeemSuccessAmt">₹0</strong> has been submitted.</p>
+        <p style="color:var(--text-muted);font-size:14px">Amount will be credited to your payment account within <strong>24 hours</strong>.</p>
+        <button class="btn btn-success" onclick="closeModal('redeemModal')" style="margin-top:20px">OK, Got it!</button>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeModal('redeemModal')">Cancel</button>
-        <button class="btn btn-success" id="submitRedeemBtn" onclick="submitRedeemRequest()"><i class="fa-solid fa-check"></i> Submit Request</button>
+
+      <!-- Form screen -->
+      <div id="redeemFormScreen">
+        <div class="modal-body">
+          <div style="background:var(--accent-soft);padding:14px;border-radius:10px;margin-bottom:16px;text-align:center">
+            <div style="font-size:12px;color:var(--text-muted);font-weight:700">Available Points</div>
+            <div style="font-size:32px;font-weight:900;color:var(--accent)" id="availPointsDisplay">0</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">1 point = ₹10</div>
+          </div>
+          <div class="form-group">
+            <label>Points to Redeem</label>
+            <input type="number" class="form-input" id="redeemPointsInput" placeholder="Enter points" min="1" oninput="updateRedeemAmount()">
+            <div id="redeemAmountPreview" style="margin-top:6px;font-size:14px;color:var(--accent);font-weight:700;display:none">
+              = ₹<span id="redeemAmountValue">0</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select class="form-input" id="redeemPaymentMethod" onchange="toggleRedeemPaymentFields()">
+              <option value="">Select payment method</option>
+              <option value="upi">UPI ID</option>
+              <option value="phonepe_gpay">PhonePe / Google Pay Number</option>
+              <option value="bank">Bank Account</option>
+            </select>
+          </div>
+
+          <!-- UPI fields -->
+          <div id="redeemUpiFields" style="display:none">
+            <div class="form-group">
+              <label>UPI ID</label>
+              <input type="text" class="form-input" id="redeemUpiId" placeholder="e.g. yourname@upi">
+            </div>
+          </div>
+
+          <!-- PhonePe / GPay fields -->
+          <div id="redeemPhoneFields" style="display:none">
+            <div class="form-group">
+              <label>PhonePe / Google Pay Number</label>
+              <input type="tel" class="form-input" id="redeemPhoneNumber" placeholder="10-digit mobile number">
+            </div>
+          </div>
+
+          <!-- Bank account fields -->
+          <div id="redeemBankFields" style="display:none">
+            <div class="form-group">
+              <label>Account Number</label>
+              <input type="text" class="form-input" id="redeemBankAccount" placeholder="Bank account number">
+            </div>
+            <div class="form-group">
+              <label>IFSC Code</label>
+              <input type="text" class="form-input" id="redeemIfsc" placeholder="e.g. SBIN0001234">
+            </div>
+            <div class="form-group">
+              <label>Bank Name</label>
+              <input type="text" class="form-input" id="redeemBankName" placeholder="e.g. State Bank of India">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Social Cause (Optional)</label>
+            <select class="form-input" id="socialCauseSelect">
+              <option value="">Select a cause</option>
+              <option value="Scholarship">Scholarship Program</option>
+              <option value="Tree Plantation">Tree Plantation Drive</option>
+              <option value="Food Distribution">Food Distribution</option>
+              <option value="Health Camp">Health Camp Support</option>
+              <option value="Women Empowerment">Women Empowerment Fund</option>
+              <option value="Clean Water">Clean Water Initiative</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal('redeemModal')">Cancel</button>
+          <button class="btn btn-success" id="submitRedeemBtn" onclick="submitRedeemRequest()"><i class="fa-solid fa-check"></i> Submit Request</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2621,21 +2682,70 @@ async function submitTicket(){
 function openRedeemModal(){
   const pts = memberData?.wallet?.points_balance || memberData?.wallet?.total_points_earned || 0;
   document.getElementById('availPointsDisplay').textContent = pts;
+  // Reset form
+  document.getElementById('redeemPointsInput').value = '';
+  document.getElementById('redeemPaymentMethod').value = '';
+  document.getElementById('socialCauseSelect').value = '';
+  document.getElementById('redeemUpiId') && (document.getElementById('redeemUpiId').value = '');
+  document.getElementById('redeemPhoneNumber') && (document.getElementById('redeemPhoneNumber').value = '');
+  document.getElementById('redeemBankAccount') && (document.getElementById('redeemBankAccount').value = '');
+  document.getElementById('redeemIfsc') && (document.getElementById('redeemIfsc').value = '');
+  document.getElementById('redeemBankName') && (document.getElementById('redeemBankName').value = '');
+  document.getElementById('redeemAmountPreview').style.display = 'none';
+  toggleRedeemPaymentFields();
+  // Show form, hide success
+  document.getElementById('redeemFormScreen').style.display = '';
+  document.getElementById('redeemSuccessScreen').style.display = 'none';
   openModal('redeemModal');
+}
+function updateRedeemAmount(){
+  const pts = parseFloat(document.getElementById('redeemPointsInput').value) || 0;
+  const preview = document.getElementById('redeemAmountPreview');
+  if(pts > 0){
+    document.getElementById('redeemAmountValue').textContent = (pts * 10).toFixed(0);
+    preview.style.display = '';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+function toggleRedeemPaymentFields(){
+  const method = document.getElementById('redeemPaymentMethod').value;
+  document.getElementById('redeemUpiFields').style.display    = method === 'upi' ? '' : 'none';
+  document.getElementById('redeemPhoneFields').style.display  = method === 'phonepe_gpay' ? '' : 'none';
+  document.getElementById('redeemBankFields').style.display   = method === 'bank' ? '' : 'none';
 }
 async function submitRedeemRequest(){
   const points = parseFloat(document.getElementById('redeemPointsInput').value);
+  const payment_method = document.getElementById('redeemPaymentMethod').value;
   const cause  = document.getElementById('socialCauseSelect').value;
   if(!points || points <= 0) return notify('Enter valid points amount', 'warning');
   const availPts = memberData?.wallet?.points_balance || memberData?.wallet?.total_points_earned || 0;
   if(points > availPts) return notify(`Insufficient points! You have ${availPts} points`, 'warning');
-  if(!cause) return notify('Select a social cause', 'warning');
+  if(!payment_method) return notify('Select a payment method', 'warning');
+
+  const body = { points, payment_method, cause };
+  if(payment_method === 'upi'){
+    body.upi_id = document.getElementById('redeemUpiId').value.trim();
+    if(!body.upi_id) return notify('Enter UPI ID', 'warning');
+  } else if(payment_method === 'phonepe_gpay'){
+    body.phone_number = document.getElementById('redeemPhoneNumber').value.trim();
+    if(!body.phone_number) return notify('Enter PhonePe / Google Pay number', 'warning');
+  } else if(payment_method === 'bank'){
+    body.bank_account = document.getElementById('redeemBankAccount').value.trim();
+    body.ifsc         = document.getElementById('redeemIfsc').value.trim().toUpperCase();
+    body.bank_name    = document.getElementById('redeemBankName').value.trim();
+    if(!body.bank_account || !body.ifsc || !body.bank_name)
+      return notify('Enter all bank account details', 'warning');
+  }
+
   const btn = document.getElementById('submitRedeemBtn');
   btn.disabled = true;
   try{
-    await AUTH.api('/api/member/redeem-points', { method:'POST', body:{ points, cause } });
-    notify('Redemption request submitted!', 'success');
-    closeModal('redeemModal');
+    const result = await AUTH.api('/api/supporter/redeem-points', { method:'POST', body });
+    // Show success screen
+    document.getElementById('redeemSuccessAmt').textContent = '₹' + (result.amount_inr || points * 10);
+    document.getElementById('redeemFormScreen').style.display = 'none';
+    document.getElementById('redeemSuccessScreen').style.display = '';
     memberData = null; loadWallet();
   } catch(e){ notify(e.message || 'Redemption failed', 'error'); }
   finally { btn.disabled = false; }

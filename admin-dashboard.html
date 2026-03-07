@@ -1046,6 +1046,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       <button class="tab-btn active" data-tab="donations-tab">Donations</button>
       <button class="tab-btn" data-tab="referrals-tab">Referrals</button>
       <button class="tab-btn" data-tab="tickets-tab">Quiz Tickets</button>
+      <button class="tab-btn" data-tab="redeem-tab" onclick="loadRedeemRequests()">Redeem Requests</button>
     </div>
 
     <div class="tab-content active" id="donations-tab">
@@ -1084,6 +1085,50 @@ textarea.form-input{ resize:vertical; min-height:80px; }
             <thead><tr><th>Seller</th><th>Buyer</th><th>Price</th><th>Points Earned</th><th>Date</th></tr></thead>
             <tbody id="ticketsBody">
               <tr><td colspan="5" class="empty-state"><p>No tickets sold yet</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="redeem-tab">
+      <!-- Stats row -->
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
+        <div class="stat-card">
+          <div class="s-icon s-amber"><i class="fa-solid fa-clock"></i></div>
+          <div class="s-label">Pending Requests</div>
+          <div class="s-value" id="redeemStatPending">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon s-amber"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+          <div class="s-label">Pending Amount</div>
+          <div class="s-value" id="redeemStatPendingAmt">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon s-green"><i class="fa-solid fa-check-circle"></i></div>
+          <div class="s-label">Approved Amount</div>
+          <div class="s-value" id="redeemStatApproved">₹0</div>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <h3 style="margin:0"><i class="fa-solid fa-coins"></i> Redeem Requests</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="form-input" id="redeemStatusFilter" onchange="loadRedeemRequests()" style="width:auto;padding:6px 12px;font-size:13px">
+              <option value="">All</option>
+              <option value="pending" selected>Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <button class="btn btn-sm" onclick="loadRedeemRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Supporter ID</th><th>Name</th><th>Points</th><th>Amount</th><th>Payment Method</th><th>Payment Details</th><th>Cause</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="redeemRequestsBody">
+              <tr><td colspan="10" class="empty-state"><p>No redeem requests yet</p></td></tr>
             </tbody>
           </table>
         </div>
@@ -3223,6 +3268,60 @@ async function activateReferral(referredMemberId){
     await AUTH.api('/api/member/activate-referral',{method:'POST',body:{referredMemberId, paymentAmount: parseFloat(amount)||500}});
     notify('Referral activated! Points credited.','success');
     loadPointsActivity();
+  } catch(e){ notify(e.message||'Failed','error'); }
+}
+
+async function loadRedeemRequests(){
+  const status = document.getElementById('redeemStatusFilter')?.value || 'pending';
+  try{
+    const data = await AUTH.api('/api/admin/redeem-requests' + (status ? '?status='+status : ''));
+    // Update stats
+    document.getElementById('redeemStatPending').textContent    = data.stats.pending;
+    document.getElementById('redeemStatPendingAmt').textContent = '₹' + fmtN(data.stats.pendingAmt);
+    document.getElementById('redeemStatApproved').textContent   = '₹' + fmtN(data.stats.approvedAmt);
+
+    const body = document.getElementById('redeemRequestsBody');
+    if(!data.requests.length){
+      body.innerHTML = `<tr><td colspan="10" class="empty-state"><p>No ${status||''} redeem requests</p></td></tr>`;
+      return;
+    }
+
+    const methodLabel = { upi:'UPI', phonepe_gpay:'PhonePe/GPay', bank:'Bank Account' };
+    body.innerHTML = data.requests.map(r => {
+      let paymentDetails = '—';
+      if(r.payment_method === 'upi')         paymentDetails = r.upi_id || '—';
+      else if(r.payment_method === 'phonepe_gpay') paymentDetails = r.phone_number || '—';
+      else if(r.payment_method === 'bank')   paymentDetails = `${r.bank_account||''} | ${r.ifsc||''} | ${r.bank_name||''}`;
+
+      const actions = r.status === 'pending' ? `
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-success" onclick="processRedeemRequest('${r._id}','approved')"><i class="fa-solid fa-check"></i> Approve</button>
+          <button class="btn btn-sm btn-danger"  onclick="processRedeemRequest('${r._id}','rejected')"><i class="fa-solid fa-xmark"></i> Reject</button>
+        </div>` : statusBadge(r.status);
+
+      return `<tr>
+        <td style="font-weight:700">${r.supporter_id}</td>
+        <td>${r.name||'—'}</td>
+        <td style="font-weight:800;color:var(--accent)">${fmtN(r.points)} pts</td>
+        <td style="font-weight:800">₹${fmtN(r.amount_inr)}</td>
+        <td>${methodLabel[r.payment_method]||r.payment_method}</td>
+        <td style="font-size:12px;max-width:200px;word-break:break-all">${paymentDetails}</td>
+        <td style="font-size:12px">${r.cause||'—'}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td style="color:var(--text-muted)">${fmtDate(r.created_at)}</td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join('');
+  } catch(e){ notify('Failed to load redeem requests','error'); }
+}
+
+async function processRedeemRequest(id, status){
+  const notes = status === 'rejected' ? (prompt('Reason for rejection (optional):') ?? '') : '';
+  if(status === 'rejected' && notes === null) return; // user cancelled
+  try{
+    await AUTH.api(`/api/admin/redeem-request/${id}`, { method:'PATCH', body:{ status, admin_notes: notes } });
+    notify(`Request ${status} successfully!`, 'success');
+    loadRedeemRequests();
   } catch(e){ notify(e.message||'Failed','error'); }
 }
 

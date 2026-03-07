@@ -31,6 +31,7 @@ import LoginOtp from './models/LoginOtp.js';
 import PaymentLink from './models/PaymentLink.js';
 import Receipt from './models/Receipt.js';
 import AppConfig from './models/AppConfig.js';
+import RedeemRequest from './models/RedeemRequest.js';
 import { syncReceiptToZoho, checkZohoConnection, getAuthUrl, exchangeCodeForTokens } from './lib/zoho.js';
 import { getTransporter, send80GReceipt, sendMemberWelcome, sendSupporterWelcome, sendDonationConfirmation, sendAdminAlert } from './lib/mailer.js';
 import { sendWhatsAppCredentials, sendWhatsAppDonation, sendQuizParticipationSms, sendQuizResultSms, sendDonationReceiptSms, sendDonationReceipt80GSms, sendSmsOtp } from './lib/msg91.js';
@@ -1071,6 +1072,73 @@ app.post('/api/pay/upgrade-to-member', auth('supporter'), async (req, res) => {
     console.error('Upgrade-to-member error:', err);
     captureError(err, { context: 'upgrade-to-member' });
     res.status(500).json({ error: 'Upgrade failed: ' + err.message });
+  }
+});
+
+// Supporter: Submit redeem request
+app.post('/api/supporter/redeem-points', auth('supporter'), async (req, res) => {
+  try {
+    const { points, payment_method, upi_id, phone_number, bank_account, ifsc, bank_name, cause } = req.body;
+    if (!points || points <= 0) return res.status(400).json({ error: 'Invalid points amount' });
+    if (!payment_method || !['upi', 'phonepe_gpay', 'bank'].includes(payment_method))
+      return res.status(400).json({ error: 'Invalid payment method' });
+
+    // Validate payment details
+    if (payment_method === 'upi' && !upi_id)
+      return res.status(400).json({ error: 'UPI ID is required' });
+    if (payment_method === 'phonepe_gpay' && !phone_number)
+      return res.status(400).json({ error: 'Phone number is required' });
+    if (payment_method === 'bank' && (!bank_account || !ifsc || !bank_name))
+      return res.status(400).json({ error: 'Bank account number, IFSC and bank name are required' });
+
+    const user = await User.findById(req.user.uid);
+    if (!user) return res.status(404).json({ error: 'Account not found' });
+
+    const availablePoints = user.wallet?.points_balance || 0;
+    if (points > availablePoints)
+      return res.status(400).json({ error: `Insufficient points. Available: ${availablePoints}` });
+
+    const amount_inr = points * POINT_VALUE;
+
+    // Deduct points from wallet
+    await User.updateOne({ _id: user._id }, {
+      $inc: { 'wallet.points_balance': -points }
+    });
+
+    // Create redeem request
+    await RedeemRequest.create({
+      user_id:        user._id,
+      supporter_id:   user.member_id,
+      name:           user.name,
+      mobile:         user.mobile,
+      points,
+      amount_inr,
+      payment_method,
+      upi_id:         payment_method === 'upi' ? upi_id : undefined,
+      phone_number:   payment_method === 'phonepe_gpay' ? phone_number : undefined,
+      bank_account:   payment_method === 'bank' ? bank_account : undefined,
+      ifsc:           payment_method === 'bank' ? ifsc : undefined,
+      bank_name:      payment_method === 'bank' ? bank_name : undefined,
+      cause,
+      status: 'pending'
+    });
+
+    // Record in points ledger (debit)
+    await PointsLedger.create({
+      user_id:     user._id,
+      member_id:   user.member_id,
+      type:        'redeem',
+      points:      -points,
+      description: `Redeem request: ${points} pts = ₹${amount_inr}`,
+      created_at:  new Date()
+    });
+
+    addBreadcrumb('redeem', 'Points redeem request submitted', { supporterId: user.member_id, points, amount_inr });
+    res.json({ ok: true, points_redeemed: points, amount_inr });
+  } catch (err) {
+    console.error('Redeem-points error:', err);
+    captureError(err, { context: 'redeem-points' });
+    res.status(500).json({ error: 'Redeem request failed: ' + err.message });
   }
 });
 
@@ -2148,6 +2216,60 @@ app.post('/api/admin/membership-fee/:txnId', auth('admin'), async (req, res) => 
 app.get('/api/admin/membership-fees/:memberId', auth('admin'), async (req, res) => {
   const fees = await MembershipFee.find({ member_id: req.params.memberId }).sort({ created_at: -1 }).lean();
   res.json({ ok: true, fees });
+});
+
+// Admin: list all redeem requests
+app.get('/api/admin/redeem-requests', auth('admin'), async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = status ? { status } : {};
+    const requests = await RedeemRequest.find(filter).sort({ created_at: -1 }).lean();
+    const pending   = requests.filter(r => r.status === 'pending').length;
+    const approved  = requests.filter(r => r.status === 'approved').length;
+    const rejected  = requests.filter(r => r.status === 'rejected').length;
+    const pendingAmt = requests.filter(r => r.status === 'pending').reduce((s, r) => s + r.amount_inr, 0);
+    const approvedAmt = requests.filter(r => r.status === 'approved').reduce((s, r) => s + r.amount_inr, 0);
+    res.json({ ok: true, requests, stats: { pending, approved, rejected, pendingAmt, approvedAmt, total: requests.length } });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: approve or reject a redeem request
+app.patch('/api/admin/redeem-request/:id', auth('admin'), async (req, res) => {
+  try {
+    const { status, admin_notes } = req.body;
+    if (!['approved', 'rejected'].includes(status))
+      return res.status(400).json({ error: 'Status must be approved or rejected' });
+    const req_ = await RedeemRequest.findById(req.params.id);
+    if (!req_) return res.status(404).json({ error: 'Request not found' });
+    if (req_.status !== 'pending') return res.status(400).json({ error: 'Request already processed' });
+
+    // If rejecting, refund the points back to supporter
+    if (status === 'rejected') {
+      await User.updateOne({ _id: req_.user_id }, { $inc: { 'wallet.points_balance': req_.points } });
+      // Add refund entry to points ledger
+      await PointsLedger.create({
+        user_id:     req_.user_id,
+        member_id:   req_.supporter_id,
+        type:        'redeem_refund',
+        points:      req_.points,
+        description: `Redeem request rejected - points refunded`,
+        created_at:  new Date()
+      });
+    }
+
+    req_.status = status;
+    req_.admin_notes = admin_notes || '';
+    req_.processed_by = req.user.memberId || 'admin';
+    req_.processed_at = new Date();
+    req_.updated_at = new Date();
+    await req_.save();
+
+    res.json({ ok: true, status, message: `Request ${status} successfully` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ===== MARKETPLACE / PRODUCTS SYSTEM =====
