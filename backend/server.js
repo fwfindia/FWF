@@ -1665,7 +1665,7 @@ app.post('/api/member/apply-wallet', auth('member'), async (req, res) => {
 
 // Admin overview
 app.get('/api/admin/overview', auth('admin'), async (req, res) => {
-  const [members, activeMembers, walletAgg, donationsCount, donationsSum, referralsTotal, referralsActive, ticketsSold, supportersCount] = await Promise.all([
+  const [members, activeMembers, walletAgg, donationsCount, donationsSum, referralsTotal, referralsActive, ticketsSold, supportersCount, upgradedCount] = await Promise.all([
     User.countDocuments({ role: 'member' }),
     User.countDocuments({ role: 'member', membership_active: true }),
     User.aggregate([{ $match: { role: 'member' } }, { $group: { _id: null, total: { $sum: '$wallet.total_points_earned' } } }]),
@@ -1674,7 +1674,8 @@ app.get('/api/admin/overview', auth('admin'), async (req, res) => {
     Referral.countDocuments(),
     Referral.countDocuments({ status: 'active' }),
     QuizTicket.countDocuments(),
-    User.countDocuments({ role: 'supporter' })
+    User.countDocuments({ role: 'supporter' }),
+    User.countDocuments({ role: 'member', upgraded_from_supporter: { $exists: true, $ne: null } })
   ]);
 
   let csrPartners = 0, supportTickets = 0, pendingFees = 0, totalFeeCollected = 0;
@@ -1690,6 +1691,7 @@ app.get('/api/admin/overview', auth('admin'), async (req, res) => {
     members,
     active_members: activeMembers,
     supporters: supportersCount,
+    upgraded_to_member: upgradedCount,
     total_points: walletAgg[0]?.total || 0,
     total_donations_count: donationsCount,
     total_donations_amount: donationsSum[0]?.total || 0,
@@ -1711,7 +1713,7 @@ app.get('/api/admin/overview', auth('admin'), async (req, res) => {
 // Admin: get all members
 app.get('/api/admin/members', auth('admin'), async (req, res) => {
   const members = await User.find({ role: 'member' }).sort({ created_at: -1 })
-    .select('member_id name mobile email membership_active referral_code created_at wallet').lean();
+    .select('member_id name mobile email membership_active referral_code created_at wallet upgraded_from_supporter upgraded_at').lean();
   const mapped = members.map(m => ({
     id: m._id, member_id: m.member_id, name: m.name, mobile: m.mobile, email: m.email,
     membership_active: m.membership_active, referral_code: m.referral_code, created_at: m.created_at,
@@ -1719,9 +1721,34 @@ app.get('/api/admin/members', auth('admin'), async (req, res) => {
     total_points_earned: m.wallet?.total_points_earned || 0,
     points_from_donations: m.wallet?.points_from_donations || 0,
     points_from_referrals: m.wallet?.points_from_referrals || 0,
-    points_from_quiz: m.wallet?.points_from_quiz || 0
+    points_from_quiz: m.wallet?.points_from_quiz || 0,
+    upgraded_from_supporter: m.upgraded_from_supporter || null,
+    upgraded_at: m.upgraded_at || null
   }));
   res.json({ ok: true, members: mapped });
+});
+
+// Admin: get all supporter → member upgrades
+app.get('/api/admin/upgrades', auth('admin'), async (req, res) => {
+  try {
+    const upgraded = await User.find({ role: 'member', upgraded_from_supporter: { $exists: true, $ne: null } })
+      .sort({ upgraded_at: -1 })
+      .select('member_id name mobile email membership_active upgraded_from_supporter upgraded_at created_at wallet').lean();
+    const mapped = upgraded.map(u => ({
+      member_id: u.member_id,
+      name: u.name,
+      mobile: u.mobile,
+      email: u.email,
+      membership_active: u.membership_active,
+      old_supporter_id: u.upgraded_from_supporter,
+      upgraded_at: u.upgraded_at,
+      joined_at: u.created_at,
+      points_balance: u.wallet?.points_balance || 0
+    }));
+    res.json({ ok: true, upgrades: mapped, total: mapped.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Admin: get single member detail

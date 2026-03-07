@@ -692,7 +692,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
     </div>
 
-    <div class="stats-row" style="grid-template-columns:repeat(2,1fr)">
+    <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat-card" style="cursor:pointer" onclick="switchPage('payments')">
         <div class="s-icon s-green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
         <div class="s-label">Fee Collected</div>
@@ -702,6 +702,11 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <div class="s-icon s-amber"><i class="fa-solid fa-clock"></i></div>
         <div class="s-label">Pending Fee Verifications</div>
         <div class="s-value" id="hFeePending">0</div>
+      </div>
+      <div class="stat-card" style="cursor:pointer" onclick="switchPage('supporters');setTimeout(()=>switchUpgradeTab('upgraded'),200)">
+        <div class="s-icon s-purple"><i class="fa-solid fa-arrow-up-right-dots"></i></div>
+        <div class="s-label">Supporter → Member Upgrades</div>
+        <div class="s-value" id="hUpgrades">0</div>
       </div>
     </div>
 
@@ -784,15 +789,40 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
     </div>
 
-    <div class="content-card">
-      <h3><i class="fa-solid fa-people-group"></i> Supporter Volunteers <span style="font-weight:500;color:var(--text-muted);font-size:12px;margin-left:8px" id="supporterCountLabel">(0)</span></h3>
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Email</th><th>Project / Message</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
-          <tbody id="supportersBody">
-            <tr><td colspan="8" class="empty-state"><p>Loading...</p></td></tr>
-          </tbody>
-        </table>
+    <!-- Supporters tabs -->
+    <div style="display:flex;gap:4px;margin-bottom:14px">
+      <button id="supTab-active" onclick="switchUpgradeTab('active')" style="padding:8px 18px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">Current Supporters</button>
+      <button id="supTab-upgraded" onclick="switchUpgradeTab('upgraded')" style="padding:8px 18px;border-radius:8px;border:1.5px solid var(--card-border);background:#fff;color:var(--text-secondary);font-size:13px;font-weight:700;cursor:pointer">Upgraded to Member <span id="upgradeBadgeCount" style="background:#8b5cf6;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">0</span></button>
+    </div>
+
+    <!-- Current Supporters list -->
+    <div id="supPanel-active">
+      <div class="content-card">
+        <h3><i class="fa-solid fa-people-group"></i> Supporter Volunteers <span style="font-weight:500;color:var(--text-muted);font-size:12px;margin-left:8px" id="supporterCountLabel">(0)</span></h3>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Email</th><th>Project / Message</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="supportersBody">
+              <tr><td colspan="8" class="empty-state"><p>Loading...</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upgraded to Member list -->
+    <div id="supPanel-upgraded" style="display:none">
+      <div class="content-card">
+        <h3><i class="fa-solid fa-arrow-up-right-dots" style="color:#8b5cf6"></i> Upgraded to Member <span style="font-weight:500;color:var(--text-muted);font-size:12px;margin-left:8px" id="upgradedCountLabel">(0)</span></h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">इन supporters ने ₹500 pay कर Full Membership ले ली।</p>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>New Member ID</th><th>Name</th><th>Mobile</th><th>Email</th><th>Old Supporter ID</th><th>Points</th><th>Status</th><th>Upgraded On</th></tr></thead>
+            <tbody id="upgradedBody">
+              <tr><td colspan="8" class="empty-state"><p>Loading...</p></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -2140,6 +2170,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 const pageTitles = {
   home: '<i class="fa-solid fa-chart-pie"></i> Dashboard Overview',
   members: '<i class="fa-solid fa-users"></i> Members Management',
+  supporters: '<i class="fa-solid fa-hand-holding-heart"></i> Supporters Management',
   csr: '<i class="fa-solid fa-handshake"></i> CSR Partners',
   posts: '<i class="fa-solid fa-newspaper"></i> Social Posts Approval',
   support: '<i class="fa-solid fa-headset"></i> Support Tickets',
@@ -2192,7 +2223,7 @@ function switchPage(page, updateHash = true){
 
   if(page === 'posts')       loadSocialPosts();
   if(page === 'members')     loadMembers();
-  if(page === 'supporters')  loadSupporters();
+  if(page === 'supporters')  { loadSupporters(); loadUpgrades(); }
   if(page === 'csr')         loadCSRPartners();
   if(page === 'support')     loadSupportTickets();
   if(page === 'payments')    { loadMembershipFees(); loadDonations(); }
@@ -2300,6 +2331,8 @@ async function loadDashboard(){
     const t = data.totals;
     document.getElementById('hSupporters').textContent = fmtN(t.supporters || 0);
     document.getElementById('hMembers').textContent = fmtN(t.members);
+    document.getElementById('hUpgrades').textContent = fmtN(t.upgraded_to_member || 0);
+    document.getElementById('upgradeBadgeCount').textContent = t.upgraded_to_member || 0;
     document.getElementById('hActive').textContent = fmtN(t.active_members);
     document.getElementById('hPoints').textContent = fmtN(t.total_points);
     document.getElementById('hDonations').textContent = '₹' + fmtN(t.total_donations_amount);
@@ -2562,6 +2595,55 @@ async function deleteSupporter(memberId, name){
     notify(`Supporter ${memberId} deleted`, 'success');
     loadSupporters();
   } catch(e){ notify(e.message||'Delete failed','error'); }
+}
+
+/* ============================================
+   SUPPORTER → MEMBER UPGRADES
+   ============================================ */
+let allUpgrades = [];
+
+function switchUpgradeTab(tab) {
+  document.getElementById('supPanel-active').style.display    = tab === 'active'   ? '' : 'none';
+  document.getElementById('supPanel-upgraded').style.display  = tab === 'upgraded' ? '' : 'none';
+  const btnActive   = document.getElementById('supTab-active');
+  const btnUpgraded = document.getElementById('supTab-upgraded');
+  if (tab === 'active') {
+    btnActive.style.background   = 'var(--accent)';   btnActive.style.color   = '#fff';   btnActive.style.borderColor   = 'var(--accent)';
+    btnUpgraded.style.background = '#fff';             btnUpgraded.style.color = 'var(--text-secondary)'; btnUpgraded.style.borderColor = 'var(--card-border)';
+  } else {
+    btnUpgraded.style.background = '#8b5cf6';          btnUpgraded.style.color = '#fff';   btnUpgraded.style.borderColor = '#8b5cf6';
+    btnActive.style.background   = '#fff';             btnActive.style.color   = 'var(--text-secondary)'; btnActive.style.borderColor   = 'var(--card-border)';
+  }
+}
+
+async function loadUpgrades() {
+  try {
+    const d = await AUTH.api('/api/admin/upgrades');
+    allUpgrades = d.upgrades || [];
+    document.getElementById('upgradedCountLabel').textContent = `(${allUpgrades.length})`;
+    document.getElementById('upgradeBadgeCount').textContent  = allUpgrades.length;
+    renderUpgrades(allUpgrades);
+  } catch(e) {
+    document.getElementById('upgradedBody').innerHTML = '<tr><td colspan="8" class="empty-state"><p>Failed to load upgrades</p></td></tr>';
+  }
+}
+
+function renderUpgrades(list) {
+  const tbody = document.getElementById('upgradedBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fa-solid fa-arrow-up-right-dots"></i><p>अभी तक किसी supporter ने upgrade नहीं किया</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(u => `<tr>
+    <td><span class="member-link" onclick="viewMember('${u.member_id}')">${u.member_id}</span></td>
+    <td style="font-weight:700">${u.name || '—'}</td>
+    <td>${u.mobile || '—'}</td>
+    <td>${u.email || '—'}</td>
+    <td style="color:#7c3aed;font-weight:700">${u.old_supporter_id || '—'}</td>
+    <td style="font-weight:800;color:var(--accent)">${fmtN(u.points_balance || 0)}</td>
+    <td>${u.membership_active ? statusBadge('active') : statusBadge('inactive')}</td>
+    <td style="color:var(--text-muted)">${fmtDate(u.upgraded_at)}</td>
+  </tr>`).join('');
 }
 
 /* ============================================
