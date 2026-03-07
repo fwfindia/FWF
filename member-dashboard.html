@@ -1452,79 +1452,8 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </div>
 
     <div class="tab-content active" id="available-courses">
-      <div class="grid-3">
-        <div class="course-card">
-          <div class="course-thumb" style="background:#E87722"><i class="fa-solid fa-scissors"></i></div>
-          <div class="course-info">
-            <h4>Tailoring & Stitching</h4>
-            <p>Learn complete tailoring from basic to advanced level</p>
-            <div class="course-status">
-              <span style="color:var(--success)"><i class="fa-solid fa-clock"></i> 4 Weeks</span>
-              <span class="badge b-active">Free</span>
-            </div>
-            <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center">Enroll Now</button>
-          </div>
-        </div>
-        <div class="course-card">
-          <div class="course-thumb" style="background:#0a8f3f"><i class="fa-solid fa-laptop-code"></i></div>
-          <div class="course-info">
-            <h4>Basic Computer Skills</h4>
-            <p>MS Office, Internet, Email & Digital basics</p>
-            <div class="course-status">
-              <span style="color:var(--success)"><i class="fa-solid fa-clock"></i> 6 Weeks</span>
-              <span class="badge b-active">Free</span>
-            </div>
-            <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center">Enroll Now</button>
-          </div>
-        </div>
-        <div class="course-card">
-          <div class="course-thumb" style="background:#d97706"><i class="fa-solid fa-utensils"></i></div>
-          <div class="course-info">
-            <h4>Food Processing & Packaging</h4>
-            <p>Start your own food business from home</p>
-            <div class="course-status">
-              <span style="color:var(--success)"><i class="fa-solid fa-clock"></i> 3 Weeks</span>
-              <span class="badge b-active">Free</span>
-            </div>
-            <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center">Enroll Now</button>
-          </div>
-        </div>
-        <div class="course-card">
-          <div class="course-thumb" style="background:#c2185b"><i class="fa-solid fa-palette"></i></div>
-          <div class="course-info">
-            <h4>Handicraft & Mehndi Art</h4>
-            <p>Traditional & modern designs for business</p>
-            <div class="course-status">
-              <span style="color:var(--success)"><i class="fa-solid fa-clock"></i> 3 Weeks</span>
-              <span class="badge b-active">Free</span>
-            </div>
-            <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center">Enroll Now</button>
-          </div>
-        </div>
-        <div class="course-card">
-          <div class="course-thumb" style="background:#0097a7"><i class="fa-solid fa-chart-bar"></i></div>
-          <div class="course-info">
-            <h4>Digital Marketing</h4>
-            <p>Social media, SEO & online business skills</p>
-            <div class="course-status">
-              <span style="color:var(--success)"><i class="fa-solid fa-clock"></i> 5 Weeks</span>
-              <span class="badge b-active">Free</span>
-            </div>
-            <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center">Enroll Now</button>
-          </div>
-        </div>
-        <div class="course-card">
-          <div class="course-thumb" style="background:#00897b"><i class="fa-solid fa-seedling"></i></div>
-          <div class="course-info">
-            <h4>Organic Farming</h4>
-            <p>Kitchen garden & organic produce business</p>
-            <div class="course-status">
-              <span style="color:var(--success)"><i class="fa-solid fa-clock"></i> 4 Weeks</span>
-              <span class="badge b-active">Free</span>
-            </div>
-            <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center">Enroll Now</button>
-          </div>
-        </div>
+      <div class="grid-3" id="coursesGrid">
+        <!-- Rendered by JS -->
       </div>
     </div>
 
@@ -5454,7 +5383,419 @@ document.getElementById('logoutBtn').addEventListener('click', ()=>{
    INIT
    ============================================ */
 loadDashboard();
+
+/* ============================================
+   COURSES DATA & RENDERER
+   ============================================ */
+const COURSES_DATA = [
+  {
+    id: 'tailoring',
+    title: 'Tailoring & Stitching',
+    desc: 'Basic se advanced level tak poori tailoring seekhein',
+    icon: 'fa-scissors', color: '#E87722', weeks: 4,
+    chapters: [
+      { title: 'Chapter 1 – Sewing Machine Basics', links: [
+        { label: 'Sewing Machine Parts & Threading (YouTube)', url: 'https://www.youtube.com/watch?v=gCLyq0dBxPw' },
+        { label: 'How to Thread a Sewing Machine (YouTube)', url: 'https://www.youtube.com/watch?v=mW_EzwSL3lc' }
+      ]},
+      { title: 'Chapter 2 – Fabric & Measurements', links: [
+        { label: 'Types of Fabric for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=BMQBbRAlCeA' },
+        { label: 'Body Measurements for Stitching (YouTube)', url: 'https://www.youtube.com/watch?v=cJ_f2REIjgU' }
+      ]},
+      { title: 'Chapter 3 – Basic Stitching Patterns', links: [
+        { label: 'Basic Hand Stitching Techniques (YouTube)', url: 'https://www.youtube.com/watch?v=XZzS66i-f54' },
+        { label: 'Beginners Sewing Stitches Guide (YouTube)', url: 'https://www.youtube.com/watch?v=ZFBgZ2bBCSg' }
+      ]},
+      { title: 'Chapter 4 – Cutting a Blouse/Kurti', links: [
+        { label: 'Kurti Cutting for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=SZeAKNWHFNg' },
+        { label: 'Simple Blouse Cutting Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=W4LIzFVhsUE' }
+      ]},
+      { title: 'Chapter 5 – Salwar & Churidar Stitching', links: [
+        { label: 'Churidar Cutting and Stitching (YouTube)', url: 'https://www.youtube.com/watch?v=Lnfm9ZFHWV0' },
+        { label: 'Salwar Stitching Full Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=NTQFeyXKQ6Q' }
+      ]},
+      { title: 'Chapter 6 – Starting Your Own Business', links: [
+        { label: 'How to Start a Tailoring Business (Article)', url: 'https://www.entrepreneurindia.co/news/how-to-start-a-tailoring-business' },
+        { label: 'Pricing Your Tailoring Work (YouTube)', url: 'https://www.youtube.com/watch?v=6QzGnmq8LHY' }
+      ]}
+    ]
+  },
+  {
+    id: 'computer',
+    title: 'Basic Computer Skills',
+    desc: 'MS Office, Internet, Email aur Digital basics',
+    icon: 'fa-laptop-code', color: '#0a8f3f', weeks: 6,
+    chapters: [
+      { title: 'Chapter 1 – Computer Basics', links: [
+        { label: 'Computer Basics in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=FnJkYJKmYsw' },
+        { label: 'Introduction to Computers (PMKVY Free)', url: 'https://www.skillindiadigital.gov.in/' }
+      ]},
+      { title: 'Chapter 2 – MS Word', links: [
+        { label: 'MS Word Complete Tutorial in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=NnGxqemB3AY' },
+        { label: 'Word for Beginners – GCFLearnFree', url: 'https://edu.gcfglobal.org/en/word/' }
+      ]},
+      { title: 'Chapter 3 – MS Excel', links: [
+        { label: 'Excel Basic Tutorial Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=VBU5wjUDrJ0' },
+        { label: 'Excel Basics – GCFLearnFree', url: 'https://edu.gcfglobal.org/en/excel/' }
+      ]},
+      { title: 'Chapter 4 – Internet & Email', links: [
+        { label: 'Gmail Full Tutorial Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=5KRNnGE7xV0' },
+        { label: 'Internet Safety Basics – Google', url: 'https://grow.google/intl/en_in/programs/' }
+      ]},
+      { title: 'Chapter 5 – Google & Smartphone Skills', links: [
+        { label: 'Google Search Tips Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=2dJlQK8DUoY' },
+        { label: 'India Skills – Free Digital Literacy (Govt)', url: 'https://www.delhiknowledgecorridor.in/' }
+      ]},
+      { title: 'Chapter 6 – Online Payments & Safety', links: [
+        { label: 'UPI / PhonePe Tutorial Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=JnJeAYEZv-0' },
+        { label: 'Online Safety for Women – Google (Free)', url: 'https://grow.google/intl/en_in/programs/' }
+      ]}
+    ]
+  },
+  {
+    id: 'food',
+    title: 'Food Processing & Packaging',
+    desc: 'Ghar se apna food business shuru karein',
+    icon: 'fa-utensils', color: '#d97706', weeks: 3,
+    chapters: [
+      { title: 'Chapter 1 – Food Safety & Hygiene', links: [
+        { label: 'Food Safety Basics (FSSAI Free)', url: 'https://foscos.fssai.gov.in/' },
+        { label: 'Basic Food Hygiene Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=6TDfXOoilfM' }
+      ]},
+      { title: 'Chapter 2 – Pickling & Preserves', links: [
+        { label: 'Achar / Pickle Business Guide (YouTube)', url: 'https://www.youtube.com/watch?v=i6oo3lEOuqI' },
+        { label: 'Home Pickle Making Business (Article)', url: 'https://www.smallbusinessideas.in/pickle-making-business/' }
+      ]},
+      { title: 'Chapter 3 – Packaging & Labelling', links: [
+        { label: 'Food Packaging for Small Business (YouTube)', url: 'https://www.youtube.com/watch?v=1vz2a8Ezmkk' },
+        { label: 'FSSAI Label Requirements (Official)', url: 'https://www.fssai.gov.in/home/fss-legislation/food-labelling' }
+      ]},
+      { title: 'Chapter 4 – Selling & Pricing', links: [
+        { label: 'How to Price Homemade Food Products', url: 'https://www.youtube.com/watch?v=Sn2cTKxeZqU' },
+        { label: 'Sell on Amazon / Meesho Guide (YouTube)', url: 'https://www.youtube.com/watch?v=Kfn3kv5TveA' }
+      ]}
+    ]
+  },
+  {
+    id: 'mehndi',
+    title: 'Handicraft & Mehndi Art',
+    desc: 'Traditional & modern designs for business',
+    icon: 'fa-palette', color: '#c2185b', weeks: 3,
+    chapters: [
+      { title: 'Chapter 1 – Basic Mehndi Patterns', links: [
+        { label: 'Easy Mehndi Designs for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=OlV-0zXGGDQ' },
+        { label: 'Arabic Mehndi for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=oFsMGGpYCHs' }
+      ]},
+      { title: 'Chapter 2 – Bridal & Festive Mehndi', links: [
+        { label: 'Full Hand Bridal Mehndi Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=dVixoCW7SZ0' },
+        { label: 'Feet Mehndi Designs (YouTube)', url: 'https://www.youtube.com/watch?v=kxPMnQBU4U0' }
+      ]},
+      { title: 'Chapter 3 – Candle & Soap Making', links: [
+        { label: 'Candle Making Business at Home Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=L9z8cjL3t3U' },
+        { label: 'Handmade Soap Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=OE00Ru5_dLk' }
+      ]},
+      { title: 'Chapter 4 – Selling Handicrafts Online', links: [
+        { label: 'Sell Handicrafts on Etsy (YouTube – English)', url: 'https://www.youtube.com/watch?v=qCr-8WBhTaU' },
+        { label: 'Handicraft Seller on IndiaMart (YouTube)', url: 'https://www.youtube.com/watch?v=7GVmXhMJRRw' }
+      ]}
+    ]
+  },
+  {
+    id: 'digital-marketing',
+    title: 'Digital Marketing',
+    desc: 'Social media, SEO aur online business skills',
+    icon: 'fa-chart-bar', color: '#0097a7', weeks: 5,
+    chapters: [
+      { title: 'Chapter 1 – Social Media Basics', links: [
+        { label: 'Facebook Business Page Tutorial Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=Rl04dGTfHmw' },
+        { label: 'Instagram for Business (Free Course – Meta)', url: 'https://www.facebook.com/business/learn' }
+      ]},
+      { title: 'Chapter 2 – WhatsApp Business', links: [
+        { label: 'WhatsApp Business Full Guide Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=VW79yTtW7M4' },
+        { label: 'WhatsApp Business Official Help', url: 'https://business.whatsapp.com/resources/' }
+      ]},
+      { title: 'Chapter 3 – Google My Business', links: [
+        { label: 'Google My Business Setup Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=ZGaWBpAFMoc' },
+        { label: 'Google Skillshop Free Courses', url: 'https://skillshop.withgoogle.com/' }
+      ]},
+      { title: 'Chapter 4 – Basic SEO & Content', links: [
+        { label: 'SEO for Beginners Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=ERGkppX8w1w' },
+        { label: 'Content Writing Basics (Free – HubSpot)', url: 'https://academy.hubspot.com/courses/content-marketing' }
+      ]},
+      { title: 'Chapter 5 – Online Ads (Meta/Google)', links: [
+        { label: 'Facebook Ads Tutorial Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=vFYmG-jGEqI' },
+        { label: 'Google Ads Free Course – Skillshop', url: 'https://skillshop.withgoogle.com/google-ads' }
+      ]}
+    ]
+  },
+  {
+    id: 'farming',
+    title: 'Organic Farming',
+    desc: 'Kitchen garden aur organic produce business',
+    icon: 'fa-seedling', color: '#00897b', weeks: 4,
+    chapters: [
+      { title: 'Chapter 1 – Soil & Composting', links: [
+        { label: 'Vermi Composting at Home Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=C6W9_ERdmj4' },
+        { label: 'Soil Health Basics – KVK Free Resource', url: 'https://nhm.nic.in/index1.php?lang=1&level=0&linkid=221&lid=273' }
+      ]},
+      { title: 'Chapter 2 – Kitchen Garden Setup', links: [
+        { label: 'Kitchen Garden in Pots Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=WNFd2u62IH4' },
+        { label: 'Terrace Garden Basics (YouTube)', url: 'https://www.youtube.com/watch?v=hbOEFnp1FNY' }
+      ]},
+      { title: 'Chapter 3 – Natural Pesticides', links: [
+        { label: 'Neem Spray DIY Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=6MpNiqxEDnM' },
+        { label: 'Organic Pest Control Guide (icar.org.in)', url: 'https://icar.org.in/' }
+      ]},
+      { title: 'Chapter 4 – Selling to Local Market', links: [
+        { label: 'Selling Organic Vegetables Locally (YouTube)', url: 'https://www.youtube.com/watch?v=iC5n8NLnNtA' },
+        { label: 'eNAM – National Agriculture Market (Govt)', url: 'https://www.enam.gov.in/' }
+      ]}
+    ]
+  },
+  {
+    id: 'beauty',
+    title: 'Beauty & Wellness',
+    desc: 'Parlour se ghar tak – beauty services business',
+    icon: 'fa-spa', color: '#d946ef', weeks: 4,
+    chapters: [
+      { title: 'Chapter 1 – Skincare Basics', links: [
+        { label: 'Basic Skincare Routine Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=uqTcJcqUPbA' },
+        { label: 'Natural Homemade Face Pack (YouTube)', url: 'https://www.youtube.com/watch?v=p5zW3Z_GUa0' }
+      ]},
+      { title: 'Chapter 2 – Facial & Cleanup', links: [
+        { label: 'Step-by-Step Facial at Home Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=F5LiRiCuIcc' },
+        { label: 'D-Tan & Bleach Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=zJdl_2h8F68' }
+      ]},
+      { title: 'Chapter 3 – Threading & Waxing', links: [
+        { label: 'Eyebrow Threading Tutorial for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=s2oAUoMOGO0' },
+        { label: 'Waxing Tutorial for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=o5jHcS3M060' }
+      ]},
+      { title: 'Chapter 4 – Hair Care & Styling', links: [
+        { label: 'Hair Spa at Home Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=I-tT_yt1iBM' },
+        { label: 'Simple Hairstyle Tutorials (YouTube)', url: 'https://www.youtube.com/watch?v=IStEKJX2A8Y' }
+      ]},
+      { title: 'Chapter 5 – Start Your Parlour', links: [
+        { label: 'How to Open a Beauty Parlour (YouTube)', url: 'https://www.youtube.com/watch?v=VzKkYnBaHEI' },
+        { label: 'Beauty Parlour Business Plan (Article)', url: 'https://www.entrepreneurindia.co/news/beauty-parlour' }
+      ]}
+    ]
+  },
+  {
+    id: 'accounting',
+    title: 'Basic Accounting & GST',
+    desc: 'Chote business ke liye accounts aur GST samjhein',
+    icon: 'fa-calculator', color: '#4f46e5', weeks: 4,
+    chapters: [
+      { title: 'Chapter 1 – Basic Accounting Concepts', links: [
+        { label: 'Accounting Basics Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=yYX4bvQSqbo' },
+        { label: 'Debit Credit Explanation Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=PAy4AynJkUA' }
+      ]},
+      { title: 'Chapter 2 – Tally Prime Basics', links: [
+        { label: 'Tally Prime Basic Tutorial Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=VR5FBMI7WRQ' },
+        { label: 'Free Tally Course – Tally Official', url: 'https://tallysolutions.com/learning-centre/' }
+      ]},
+      { title: 'Chapter 3 – GST Basics', links: [
+        { label: 'GST for Small Business Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=cHjkZgIjHsQ' },
+        { label: 'GST Help Center (Official GSTN)', url: 'https://www.gst.gov.in/' }
+      ]},
+      { title: 'Chapter 4 – Filing Returns & Invoicing', links: [
+        { label: 'GST Return Filing Step by Step (YouTube)', url: 'https://www.youtube.com/watch?v=4OtRv20JnuY' },
+        { label: 'Free Invoice Maker – Vyapar App', url: 'https://vyaparapp.in/' }
+      ]}
+    ]
+  },
+  {
+    id: 'communication',
+    title: 'Spoken English & Communication',
+    desc: 'Rozana ki English aur communication skills',
+    icon: 'fa-comments', color: '#7c3aed', weeks: 5,
+    chapters: [
+      { title: 'Chapter 1 – Alphabet & Pronunciation', links: [
+        { label: 'English Pronunciation Basics Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=b7bHON56TJo' },
+        { label: 'Free Spoken English Course – BBC', url: 'https://www.bbc.co.uk/learningenglish/english/features/the-english-we-speak' }
+      ]},
+      { title: 'Chapter 2 – Daily Conversations', links: [
+        { label: '50 Common English Sentences Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=7o9rVUJRE5Q' },
+        { label: 'Duolingo – Free English Learning App', url: 'https://www.duolingo.com/course/en/hi/Learn-English' }
+      ]},
+      { title: 'Chapter 3 – Workplace English', links: [
+        { label: 'Office/Workplace English Phrases (YouTube)', url: 'https://www.youtube.com/watch?v=zOQ6QYTGXT4' },
+        { label: 'Coursera English for Career Success (Free Audit)', url: 'https://www.coursera.org/learn/careerdevelopment' }
+      ]},
+      { title: 'Chapter 4 – Writing Emails & Letters', links: [
+        { label: 'How to Write a Professional Email (YouTube)', url: 'https://www.youtube.com/watch?v=OqKkJrDaVqs' },
+        { label: 'Email Writing Tips – GCFLearnFree', url: 'https://edu.gcfglobal.org/en/gmail/' }
+      ]},
+      { title: 'Chapter 5 – Interview Preparation', links: [
+        { label: 'Job Interview English Phrases (YouTube)', url: 'https://www.youtube.com/watch?v=DHDzxSo-ZRE' },
+        { label: 'Mock Interview Tips – Indeed Free Guide', url: 'https://www.indeed.com/career-advice/interviewing/common-interview-questions' }
+      ]}
+    ]
+  },
+  {
+    id: 'yoga',
+    title: 'Yoga & Health Educator',
+    desc: 'Ghar pe yoga sikhein aur dusron ko sikhaaein',
+    icon: 'fa-person-praying', color: '#059669', weeks: 3,
+    chapters: [
+      { title: 'Chapter 1 – Basics of Yoga & Pranayam', links: [
+        { label: 'Beginner Yoga in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE' },
+        { label: 'Pranayam Basics Hindi – Baba Ramdev (YouTube)', url: 'https://www.youtube.com/watch?v=q1GXj1e_fH0' }
+      ]},
+      { title: 'Chapter 2 – Asanas for Women\'s Health', links: [
+        { label: 'Yoga for Women Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=GcfYIH_kzsc' },
+        { label: 'Yoga for PCOD/PCOS (YouTube)', url: 'https://www.youtube.com/watch?v=V2cZKgJVBcA' }
+      ]},
+      { title: 'Chapter 3 – Meditation & Mental Health', links: [
+        { label: 'Guided Meditation in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=1vx8iUvfyCY' },
+        { label: 'Free Meditation Course – NIMHANS', url: 'https://nimhans.ac.in/' }
+      ]},
+      { title: 'Chapter 4 – Become a Yoga Instructor', links: [
+        { label: 'How to Become Yoga Teacher India (YouTube)', url: 'https://www.youtube.com/watch?v=jd0TmAkUmSs' },
+        { label: 'Yoga Certification – Ministry of AYUSH', url: 'https://yoga.ayush.gov.in/' }
+      ]}
+    ]
+  },
+  {
+    id: 'financial',
+    title: 'Financial Literacy',
+    desc: 'Paisa manage karna, savings aur investment samjhein',
+    icon: 'fa-piggy-bank', color: '#0891b2', weeks: 3,
+    chapters: [
+      { title: 'Chapter 1 – Budgeting & Savings', links: [
+        { label: 'How to Save Money – Simple Methods Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=ZRqI38eGSPQ' },
+        { label: 'Personal Finance Basics – ClearTax', url: 'https://cleartax.in/guide/personal-finance' }
+      ]},
+      { title: 'Chapter 2 – Bank Account & Schemes', links: [
+        { label: 'PM Jan Dhan Yojana Guide (YouTube)', url: 'https://www.youtube.com/watch?v=xq4m1JLHF1c' },
+        { label: 'Women Government Schemes India – Official', url: 'https://wcd.nic.in/schemes-listing/' }
+      ]},
+      { title: 'Chapter 3 – Mutual Funds & SIP Basics', links: [
+        { label: 'Mutual Fund Basics in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=ngS8RzAmCEI' },
+        { label: 'AMFI Investor Education (Free)', url: 'https://www.amfiindia.com/investor-corner/knowledge-center' }
+      ]},
+      { title: 'Chapter 4 – Insurance & Emergency Fund', links: [
+        { label: 'Term Insurance Explained Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=Ij_3aaJvVdI' },
+        { label: 'Pradhan Mantri Suraksha Bima Yojana', url: 'https://financialservices.gov.in/insurance-divisions/Government-Sponsored-Socially-Oriented-Insurance-Schemes/Pradhan-Mantri-Suraksha-Bima-Yojana(PMSBY)' }
+      ]}
+    ]
+  },
+  {
+    id: 'childcare',
+    title: 'Child Care & Early Education',
+    desc: 'Bachchon ki dekhbhal aur padhane ke tarike',
+    icon: 'fa-child-reaching', color: '#f97316', weeks: 3,
+    chapters: [
+      { title: 'Chapter 1 – Child Development Basics', links: [
+        { label: 'Early Childhood Development Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=Ow1oHgqETYU' },
+        { label: 'UNICEF Child Development Free Resource', url: 'https://www.unicef.org/early-childhood-development' }
+      ]},
+      { title: 'Chapter 2 – Nutrition & Health', links: [
+        { label: 'Child Nutrition Guide Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=s7JyiynSGIs' },
+        { label: 'Poshan Abhiyaan (Govt Nutrition Portal)', url: 'https://poshan.gov.in/' }
+      ]},
+      { title: 'Chapter 3 – Play-Based Learning Activities', links: [
+        { label: 'Creative Learning for Kids at Home (YouTube)', url: 'https://www.youtube.com/watch?v=8F6p7tE_bsM' },
+        { label: 'Free Activity Ideas – NCERT Curriculum', url: 'https://ncert.nic.in/ecce.php' }
+      ]},
+      { title: 'Chapter 4 – Running a Creche / Anganwadi', links: [
+        { label: 'Anganwadi Worker Guide (YouTube)', url: 'https://www.youtube.com/watch?v=cVQCM9Vp3PY' },
+        { label: 'WCD Childcare Schemes (Official)', url: 'https://wcd.nic.in/childcare' }
+      ]}
+    ]
+  }
+];
+
+function renderCourses(){
+  const grid = document.getElementById('coursesGrid');
+  if(!grid) return;
+  grid.innerHTML = COURSES_DATA.map((c,i) => `
+    <div class="course-card">
+      <div class="course-thumb" style="background:${c.color}"><i class="fa-solid ${c.icon}"></i></div>
+      <div class="course-info">
+        <h4>${c.title}</h4>
+        <p>${c.desc}</p>
+        <div class="course-status">
+          <span style="color:var(--success)"><i class="fa-solid fa-clock"></i> ${c.weeks} Weeks</span>
+          <span class="badge b-active">Free</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center" onclick="openCourseModal(${i})"><i class="fa-solid fa-book-open"></i> View Chapters</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openCourseModal(idx){
+  const c = COURSES_DATA[idx];
+  document.getElementById('courseModalTitle').textContent = c.title;
+  document.getElementById('courseModalDesc').textContent = c.desc;
+  document.getElementById('courseModalMeta').innerHTML = `
+    <span style="background:${c.color}22;color:${c.color};padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700">
+      <i class="fa-solid fa-clock"></i> ${c.weeks} Weeks
+    </span>
+    <span style="background:#dcfce7;color:#16a34a;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700">
+      <i class="fa-solid fa-tag"></i> Free
+    </span>
+    <span style="background:#f0f9ff;color:#0369a1;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700">
+      <i class="fa-solid fa-list-ol"></i> ${c.chapters.length} Chapters
+    </span>`;
+  document.getElementById('courseChaptersList').innerHTML = c.chapters.map((ch, ci) => `
+    <div style="border:1px solid var(--card-border,#e5e7eb);border-radius:12px;overflow:hidden">
+      <div style="background:var(--bg-1,#f8fafc);padding:12px 16px;font-weight:800;font-size:13px;border-bottom:1px solid var(--card-border,#e5e7eb);display:flex;align-items:center;gap:8px">
+        <span style="background:${c.color};color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">${ci+1}</span>
+        ${ch.title}
+      </div>
+      <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+        ${ch.links.map(l => `
+          <a href="${l.url}" target="_blank" rel="noopener noreferrer"
+             style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-0,#fff);border:1px solid var(--card-border,#e5e7eb);border-radius:8px;text-decoration:none;color:inherit;font-size:12px;font-weight:600;transition:background .15s">
+            <i class="fa-solid fa-play-circle" style="color:${c.color};font-size:16px;flex-shrink:0"></i>
+            <span>${l.label}</span>
+            <i class="fa-solid fa-arrow-up-right-from-square" style="margin-left:auto;font-size:11px;color:var(--text-muted,#9ca3af)"></i>
+          </a>`).join('')}
+      </div>
+    </div>`).join('');
+  const modal = document.getElementById('courseDetailModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCourseModal(){
+  document.getElementById('courseDetailModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('click', e => {
+  if(e.target.id === 'courseDetailModal') closeCourseModal();
+});
+
+/* ============================================
+   INIT
+   ============================================ */
+loadDashboard();
 loadStoreCategories();
+renderCourses();
 </script>
+
+<!-- ===== Course Detail Modal ===== -->
+<div id="courseDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
+  <div style="background:var(--card-bg,#fff);border-radius:16px;width:100%;max-width:680px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">
+    <div id="courseModalHeader" style="padding:24px 24px 18px;border-bottom:1px solid var(--card-border,#e5e7eb)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+        <div>
+          <h2 id="courseModalTitle" style="margin:0 0 6px;font-size:20px;font-weight:900"></h2>
+          <p id="courseModalDesc" style="margin:0;font-size:13px;color:var(--text-muted,#6b7280)"></p>
+          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap" id="courseModalMeta"></div>
+        </div>
+        <button onclick="closeCourseModal()" style="background:none;border:1px solid var(--card-border,#e5e7eb);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px;flex-shrink:0;display:grid;place-items:center;color:var(--text-muted)">&times;</button>
+      </div>
+    </div>
+    <div style="padding:20px 24px 28px">
+      <h3 style="font-size:14px;font-weight:800;margin:0 0 14px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)"><i class="fa-solid fa-list-check" style="color:var(--accent)"></i> Chapter-wise Free Resources</h3>
+      <div id="courseChaptersList" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
