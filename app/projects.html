@@ -2,7 +2,7 @@
 <html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#0b1220">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,207 +12,188 @@
   <link rel="icon" href="/assets/images/logo.png">
   <link rel="apple-touch-icon" href="/assets/images/logo.png">
   <link href="/assets/css/fwf-app.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Mukta:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <style>
-    [data-lang="hi"] body { font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif; }
-    body { animation: pageIn .3s ease; }
-    @keyframes pageIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+    [data-lang="hi"] body { font-family:'Mukta','Noto Sans Devanagari',sans-serif; }
+    body { padding-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom)); animation:fadeUp .35s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .app-tabs { padding-bottom:env(safe-area-inset-bottom); height:calc(var(--tab-h) + env(safe-area-inset-bottom)); }
 
-    .lang-pill{gap:2px;background:rgba(255,255,255,0.08);border-radius:8px;padding:3px;border:none;overflow:visible;}
-    .lang-pill button{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.65);background:none;border:none;cursor:pointer;transition:all .15s;}
-    .lang-pill button.active{background:var(--primary);color:#fff;}
+    .lang-pill { display:flex; background:rgba(255,255,255,.1); border-radius:9px; padding:3px; border:none; }
+    .lang-pill button { padding:5px 11px; border-radius:7px; font-size:11px; font-weight:800; color:rgba(255,255,255,.5); background:none; border:none; cursor:pointer; transition:.15s; font-family:inherit; }
+    .lang-pill button.on { background:var(--primary); color:#fff; }
 
-    .filter-row{display:flex;gap:8px;overflow-x:auto;padding:12px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.07);-webkit-overflow-scrolling:touch;}
-    .filter-row::-webkit-scrollbar{display:none;}
-    .chip{flex-shrink:0;padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;font-size:12px;font-weight:600;color:#d1d5db;cursor:pointer;transition:all .18s;white-space:nowrap;}
-    .chip.active{background:#f97316;border-color:#f97316;color:#fff;}
+    /* Page header */
+    .page-hdr { padding:20px 16px 8px; }
+    .page-hdr h1 { font-size:22px; font-weight:900; color:var(--text); margin-bottom:4px; }
+    .page-hdr p  { font-size:13px; color:var(--text2); }
 
-    .projects-list{padding:16px;}
-    .project-card{background:rgba(255,255,255,.07);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.12);margin-bottom:16px;backdrop-filter:blur(8px);box-shadow:0 8px 32px rgba(0,0,0,.3);}
-    .card-header{padding:16px 16px 12px;display:flex;align-items:center;gap:14px;}
-    .card-icon{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.35);}
-    .card-title{font-size:16px;font-weight:800;color:#f1f5f9;margin:0 0 3px;}
-    .card-subtitle{font-size:12px;color:#94a3b8;line-height:1.4;margin:0;}
-    .impact-row{padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:6px;}
-    .impact-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(134,239,172,.12);color:#86efac;border:1px solid rgba(134,239,172,.22);}
-    .impact-tag i{font-size:9px;}
-    .card-meta{padding:10px 16px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.18);}
-    .meta-item{flex:1;}
-    .meta-label{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
-    .meta-value{font-size:13px;font-weight:700;color:#e2e8f0;}
-    .card-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);}
-    .btn-view{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px 12px;border:none;border-radius:10px;font-size:12px;font-weight:700;text-align:center;text-decoration:none;cursor:pointer;transition:opacity .18s,transform .15s;color:#fff;}
-    .btn-view:active{opacity:.82;transform:scale(.98);}
+    /* Filter chips */
+    .chips-wrap { padding:0 16px 14px; overflow-x:auto; white-space:nowrap; scrollbar-width:none; }
+    .chips-wrap::-webkit-scrollbar { display:none; }
+    .chip { display:inline-block; padding:7px 14px; border-radius:20px; font-size:12px; font-weight:700; background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.12); color:var(--text2); cursor:pointer; margin-right:6px; transition:all .15s; font-family:inherit; }
+    .chip.active { background:var(--primary); border-color:var(--primary); color:#fff; }
 
-    .cta-card{margin:0 16px 24px;background:linear-gradient(135deg,#1e3a8a,#2563eb);border-radius:16px;padding:22px 20px;text-align:center;color:#fff;border:1px solid rgba(255,255,255,.15);box-shadow:0 8px 32px rgba(37,99,235,.25);}
-    .cta-card h3{font-size:16px;font-weight:800;margin:0 0 8px;color:#fff;}
-    .cta-card p{font-size:13px;opacity:.88;margin:0 0 16px;}
-    .btn-cta{display:inline-block;padding:11px 28px;background:#fff;color:#1e3a8a;border-radius:10px;font-size:13px;font-weight:800;text-decoration:none;}
+    /* Project grid */
+    .proj-grid { padding:0 16px 12px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
-    body{padding-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom));}
-    .app-tabs{padding-bottom:env(safe-area-inset-bottom);height:calc(var(--tab-h) + env(safe-area-inset-bottom));}
+    .pcard { border-radius:18px; overflow:hidden; position:relative; cursor:pointer; text-decoration:none; display:block; transition:transform .15s; }
+    .pcard:active { transform:scale(.97); }
+    .pcard-inner { padding:18px 14px 14px; height:100%; box-sizing:border-box; min-height:160px; display:flex; flex-direction:column; justify-content:space-between; }
+    .pcard-emoji { font-size:30px; margin-bottom:8px; display:block; line-height:1; }
+    .pcard-cat { font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; opacity:.8; }
+    .pcard-name { font-size:14px; font-weight:800; color:#fff; line-height:1.25; }
+    .pcard-name-hi { font-size:12px; color:rgba(255,255,255,.7); margin-top:2px; }
+    .pcard-cta { font-size:11px; font-weight:700; color:rgba(255,255,255,.9); display:flex; align-items:center; gap:4px; margin-top:10px; }
+    .pcard-cta i { font-size:10px; }
+
+    /* Gradient themes */
+    .pb { background:linear-gradient(135deg,#1d4ed8,#3b82f6); }
+    .pg { background:linear-gradient(135deg,#15803d,#22c55e); }
+    .py { background:linear-gradient(135deg,#b45309,#f59e0b); }
+    .pp { background:linear-gradient(135deg,#7c3aed,#a78bfa); }
+    .pr { background:linear-gradient(135deg,#be123c,#f43f5e); }
+    .pc { background:linear-gradient(135deg,#0e7490,#22d3ee); }
+    .po { background:linear-gradient(135deg,#c2410c,#fb923c); }
+    .pn { background:linear-gradient(135deg,#1e3a5f,#3b7dd8); }
+    .pk { background:linear-gradient(135deg,#166534,#4ade80); }
+    .pm { background:linear-gradient(135deg,#4c1d95,#8b5cf6); }
+    .pe { background:linear-gradient(135deg,#0c4a6e,#38bdf8); }
+
+    /* Empty state */
+    .empty-state { text-align:center; padding:48px 20px; color:var(--text3); }
+    .empty-state i { font-size:36px; margin-bottom:12px; display:block; opacity:.4; }
+
+    /* Summary banner */
+    .proj-summary { margin:0 16px 14px; padding:14px 16px; background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(249,115,22,.06)); border:1px solid rgba(249,115,22,.2); border-radius:16px; display:flex; align-items:center; gap:12px; }
+    .proj-summary-icon { width:40px; height:40px; background:var(--primary); border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .proj-summary-icon i { color:#fff; font-size:18px; }
+    .proj-summary-text strong { display:block; font-size:14px; font-weight:800; color:var(--text); }
+    .proj-summary-text span { font-size:12px; color:var(--text2); }
   </style>
 </head>
 <body>
+
   <header class="app-topbar">
     <div class="brand">
-      <img src="/assets/images/logo.png" alt="FWF Logo" loading="eager">
-      <div><div class="brand-text">FWF</div><div class="brand-sub">Projects</div></div>
+      <img src="/assets/images/logo.png" alt="FWF" loading="eager">
+      <div><div class="brand-text">FWF</div><div class="brand-sub">Livelihood Projects</div></div>
     </div>
     <div class="lang-pill">
-      <button id="langEN" class="active" onclick="setLanguage('en')">EN</button>
-      <button id="langHI" onclick="setLanguage('hi')">HI</button>
+      <button id="lEN" class="on" onclick="setLang('en')">EN</button>
+      <button id="lHI" onclick="setLang('hi')">हि</button>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="app-hero">
-    <div class="hero-inner">
-      <h1 data-i18n="hero.title">Livelihood Projects</h1>
-      <p data-i18n="hero.sub">Choose a project, get trained, and start earning your own income.</p>
-      <div class="hero-btns">
-        <a href="https://www.fwfindia.org/join" class="btn-hero-primary" data-i18n="hero.join">Start Your Journey</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Filter chips -->
-  <div class="filter-row">
-    <div class="chip active" onclick="filterProjects('all',this)">🎯 <span data-i18n="chips.all">All</span></div>
-    <div class="chip" onclick="filterProjects('health',this)">🏥 <span data-i18n="chips.health">Health</span></div>
-    <div class="chip" onclick="filterProjects('food',this)">🍲 <span data-i18n="chips.food">Food</span></div>
-    <div class="chip" onclick="filterProjects('energy',this)">⚡ <span data-i18n="chips.energy">Energy</span></div>
-    <div class="chip" onclick="filterProjects('craft',this)">🎨 <span data-i18n="chips.craft">Craft</span></div>
-    <div class="chip" onclick="filterProjects('apparel',this)">👗 <span data-i18n="chips.apparel">Apparel</span></div>
-    <div class="chip" onclick="filterProjects('green',this)">🌱 <span data-i18n="chips.green">Green</span></div>
-    <div class="chip" onclick="filterProjects('puja',this)">🪔 <span data-i18n="chips.puja">Puja</span></div>
-    <div class="chip" onclick="filterProjects('education',this)">📚 <span data-i18n="chips.education">Education</span></div>
+  <div class="page-hdr">
+    <h1 data-i18n="p.h1">Our Projects</h1>
+    <p data-i18n="p.sub">Sustainable livelihood programs for rural women</p>
   </div>
 
-  <div class="projects-list" id="projectsList"></div>
-
-  <div class="cta-card">
-    <h3 data-i18n="cta.title">Want to Join a Project?</h3>
-    <p data-i18n="cta.sub">Become a member and get access to all livelihood projects</p>
-    <a href="https://www.fwfindia.org/join" class="btn-cta"><i class="fas fa-user-plus"></i> <span data-i18n="cta.btn">Join Now</span></a>
+  <div class="proj-summary">
+    <div class="proj-summary-icon"><i class="fas fa-layer-group"></i></div>
+    <div class="proj-summary-text">
+      <strong data-i18n="p.sum1">11 Skills &amp; Livelihood Programs</strong>
+      <span data-i18n="p.sum2">Across Health, Food, Energy, Crafts &amp; more</span>
+    </div>
   </div>
 
-  <footer class="app-footer">
-    <div class="footer-top">
-      <div class="footer-logo-wrap">
-        <img src="/assets/images/logo.png" alt="FWF">
-        <div><div class="footer-brand-name">Foundris Welfare Foundation</div><div class="footer-brand-tagline">Skills → Livelihood → Aatmnirbharta</div></div>
-      </div>
-      <div class="footer-socials">
-        <a href="https://www.facebook.com/fwfindia" target="_blank" class="fs-fb"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/fwfindia" target="_blank" class="fs-ig"><i class="fab fa-instagram"></i></a>
-        <a href="https://wa.me/919580118412" target="_blank" class="fs-wa"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://youtube.com/@fwf_india" target="_blank" class="fs-yt"><i class="fab fa-youtube"></i></a>
-      </div>
-    </div>
-    <div class="footer-divider"></div>
-    <div class="footer-bar">
-      <span class="footer-bar-copy">&copy; <span id="yr">2025</span> FWF</span>
-      <div class="footer-bar-links"><a href="https://www.fwfindia.org/privacy">Privacy</a><a href="https://www.fwfindia.org/terms">Terms</a></div>
-    </div>
-  </footer>
+  <div class="chips-wrap" id="chipsWrap"></div>
+  <div class="proj-grid" id="projGrid"></div>
+
+  <div style="height:8px;"></div>
 
   <nav class="app-tabs">
-    <a href="/app/home"     class="tab-item" id="tab-home"><i class="fas fa-home"></i><span>Home</span></a>
-    <a href="/app/projects" class="tab-item" id="tab-projects"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+    <a href="/app/home"     class="tab-item" id="t-h"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/app/projects" class="tab-item" id="t-p"><i class="fas fa-briefcase"></i><span>Projects</span></a>
     <a href="https://www.fwfindia.org/join" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
-    <a href="/app/donate"   class="tab-item" id="tab-donate"><i class="fas fa-heart"></i><span>Donate</span></a>
-    <a href="/app/login"    class="tab-item" id="tab-login"><i class="fas fa-user"></i><span>Login</span></a>
+    <a href="/app/donate"   class="tab-item" id="t-d"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/login"    class="tab-item" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
   </nav>
 
   <script>
-    document.getElementById('yr').textContent = new Date().getFullYear();
-    (function(){const map={'/app/home':'tab-home','/app/projects':'tab-projects','/app/donate':'tab-donate','/app/login':'tab-login'};const el=document.getElementById(map[location.pathname]);if(el)el.classList.add('active');})();
-
-    const PROJECTS = [
-      {key:'suraksha',cat:'health',icon:'fa-shield-heart',grad:'linear-gradient(135deg,#22c55e,#16a34a)',name:'Suraksha',nameHi:'सुरक्षा',sub:'Health & hygiene products for safer communities.',subHi:'स्वास्थ्य व स्वच्छता उत्पाद।',impacts:['Employment','Health'],impactsHi:['रोज़गार','स्वास्थ्य'],setup:'₹1.2–1.8L',working:'₹0.30–0.50L'},
-      {key:'swachh-bharat',cat:'health',icon:'fa-soap',grad:'linear-gradient(135deg,#3b82f6,#1d4ed8)',name:'Swachh Bharat',nameHi:'स्वच्छ भारत',sub:'Home & surface care units for cleaner cities.',subHi:'घर व सतह की सफाई।',impacts:['Employment','Sustainability'],impactsHi:['रोज़गार','पर्यावरण'],setup:'₹1.0–1.8L',working:'₹0.25–0.45L'},
-      {key:'happy-meal',cat:'food',icon:'fa-bowl-food',grad:'linear-gradient(135deg,#f59e0b,#d97706)',name:'Happy Meal',nameHi:'हैप्पी मील',sub:'Safe & value-added foods made locally.',subHi:'सुरक्षित खाद्य उत्पाद।',impacts:['Nutrition','Employment'],impactsHi:['पोषण','रोज़गार'],setup:'₹1.3–1.8L',working:'₹0.25–0.45L'},
-      {key:'green-energy',cat:'energy',icon:'fa-solar-panel',grad:'linear-gradient(135deg,#eab308,#ca8a04)',name:'Green Energy',nameHi:'ग्रीन एनर्जी',sub:'Affordable clean-tech assembly & services.',subHi:'स्वच्छ तकनीक असेंबली।',impacts:['Green Energy','Employment'],impactsHi:['हरित ऊर्जा','रोज़गार'],setup:'₹2.4–6.0L',working:'₹0.60–1.50L'},
-      {key:'diy-crafts',cat:'craft',icon:'fa-gem',grad:'linear-gradient(135deg,#ec4899,#be185d)',name:'DIY Crafts',nameHi:'DIY क्राफ्ट्स',sub:'Creative & custom products with strong margins.',subHi:'क्रिएटिव और कस्टम उत्पाद।',impacts:['Skill Building','Employment'],impactsHi:['कौशल विकास','रोज़गार'],setup:'₹0.9–1.3L',working:'₹0.15–0.30L'},
-      {key:'swachh-jal',cat:'health',icon:'fa-droplet',grad:'linear-gradient(135deg,#06b6d4,#0e7490)',name:'Swachh Jal',nameHi:'स्वच्छ जल',sub:'Water purification & services for safe drinking.',subHi:'सुरक्षित पेयजल सेवाएं।',impacts:['Health','Sustainability'],impactsHi:['स्वास्थ्य','पर्यावरण'],setup:'₹1.7–6.0L',working:'₹0.50–1.50L'},
-      {key:'samman',cat:'apparel',icon:'fa-shirt',grad:'linear-gradient(135deg,#8b5cf6,#6d28d9)',name:'Samman',nameHi:'सम्मान',sub:'Apparel manufacturing for steady livelihoods.',subHi:'परिधान निर्माण।',impacts:['Employment','Community'],impactsHi:['रोज़गार','समुदाय'],setup:'₹1.6–2.7L',working:'₹0.30–0.60L'},
-      {key:'sweet-home',cat:'apparel',icon:'fa-house-chimney',grad:'linear-gradient(135deg,#f97316,#ea580c)',name:'Sweet Home',nameHi:'स्वीट होम',sub:'Home utility products — stitched & assembled.',subHi:'घरेलू उपयोगी उत्पाद।',impacts:['Employment','Local Economy'],impactsHi:['रोज़गार','स्थानीय अर्थव्यवस्था'],setup:'₹1.1–2.2L',working:'₹0.25–0.50L'},
-      {key:'hariyali',cat:'green',icon:'fa-seedling',grad:'linear-gradient(135deg,#84cc16,#65a30d)',name:'Hariyali',nameHi:'हरियाली',sub:'Green livelihoods with compost & small agri tools.',subHi:'खाद और कृषि उपकरणों से आजीविका।',impacts:['Sustainability','Local Economy'],impactsHi:['पर्यावरण','स्थानीय अर्थव्यवस्था'],setup:'₹0.6–2.4L',working:'₹0.15–0.45L'},
-      {key:'worship',cat:'puja',icon:'fa-hands-praying',grad:'linear-gradient(135deg,#e11d48,#be123c)',name:'Worship',nameHi:'वर्शिप',sub:'Puja samagri & incense products with local branding.',subHi:'पूजा सामग्री और अगरबत्ती।',impacts:['Local Economy','Community'],impactsHi:['स्थानीय अर्थव्यवस्था','समुदाय'],setup:'₹0.96–1.5L',working:'₹0.15–0.35L'},
-      {key:'shiksha',cat:'education',icon:'fa-pen-ruler',grad:'linear-gradient(135deg,#0ea5e9,#0284c7)',name:'Shiksha',nameHi:'शिक्षा',sub:'Affordable stationery & learning essentials.',subHi:'किफायती स्टेशनरी।',impacts:['Education','Employment'],impactsHi:['शिक्षा','रोज़गार'],setup:'₹1.2–1.6L',working:'₹0.25–0.40L'}
-    ];
+    (function(){ const m={'/app/home':'t-h','/app/projects':'t-p','/app/donate':'t-d','/app/login':'t-l'}; const el=document.getElementById(m[location.pathname]); if(el) el.classList.add('active'); })();
 
     const T = {
-      en: { hero:{title:'Livelihood Projects',sub:'Choose a project, get trained, and start earning your own income.',join:'Start Your Journey'}, chips:{all:'All',health:'Health',food:'Food',energy:'Energy',craft:'Craft',apparel:'Apparel',green:'Green',puja:'Puja',education:'Education'}, card:{setup:'Setup Cost',working:'Working Capital',view:'View Booklet'}, cta:{title:'Want to Join a Project?',sub:'Become a member and get access to all livelihood projects',btn:'Join Now'} },
-      hi: { hero:{title:'आजीविका प्रोजेक्ट्स',sub:'एक प्रोजेक्ट चुनें, प्रशिक्षण लें, और खुद कमाई शुरू करें।',join:'अपनी यात्रा शुरू करें'}, chips:{all:'सभी',health:'स्वास्थ्य',food:'खाद्य',energy:'ऊर्जा',craft:'क्राफ्ट',apparel:'परिधान',green:'हरित',puja:'पूजा',education:'शिक्षा'}, card:{setup:'सेटअप लागत',working:'वर्किंग कैपिटल',view:'बुकलेट देखें'}, cta:{title:'किसी प्रोजेक्ट में जुड़ना है?',sub:'सदस्य बनें और सभी आजीविका प्रोजेक्ट तक पहुंच पाएं',btn:'अभी जुड़ें'} }
+      en: {
+        'p.h1':'Our Projects', 'p.sub':'Sustainable livelihood programs for rural women',
+        'p.sum1':'11 Skills & Livelihood Programs', 'p.sum2':'Across Health, Food, Energy, Crafts & more',
+        'p.all':'All', 'p.health':'Health', 'p.food':'Food', 'p.energy':'Energy',
+        'p.craft':'Crafts', 'p.apparel':'Apparel', 'p.water':'Water', 'p.green':'Green',
+        'p.puja':'Puja', 'p.edu':'Education','p.viewbooklet':'View Booklet'
+      },
+      hi: {
+        'p.h1':'हमारी परियोजनाएं', 'p.sub':'ग्रामीण महिलाओं के लिए स्थायी आजीविका कार्यक्रम',
+        'p.sum1':'11 कौशल और आजीविका कार्यक्रम', 'p.sum2':'स्वास्थ्य, खाद्य, ऊर्जा, शिल्प और अधिक',
+        'p.all':'सभी', 'p.health':'स्वास्थ्य', 'p.food':'खाद्य', 'p.energy':'ऊर्जा',
+        'p.craft':'शिल्प', 'p.apparel':'वेशभूषा', 'p.water':'जल', 'p.green':'हरित',
+        'p.puja':'पूजा', 'p.edu':'शिक्षा','p.viewbooklet':'बुकलेट देखें'
+      }
     };
 
-    let curLang = localStorage.getItem('fwfLang') || 'en';
+    const PROJECTS = [
+      { key:'suraksha',    cat:'health',   color:'pb', emoji:'🩺', en:'Suraksha Kit',    hi:'सुरक्षा किट',    desc_en:'Hygiene & wellness kits for rural families', desc_hi:'ग्रामीण परिवारों के लिए स्वच्छता किट' },
+      { key:'swachhbharat',cat:'water',    color:'pc', emoji:'💧', en:'Swachh Bharat',  hi:'स्वच्छ भारत',    desc_en:'Water purification & sanitation units',       desc_hi:'जल शुद्धिकरण और स्वच्छता इकाइयां' },
+      { key:'happymeal',   cat:'food',     color:'py', emoji:'🍱', en:'Happy Meal',      hi:'खुशहाल भोजन',   desc_en:'Healthy school meal & nutrition services',     desc_hi:'स्वस्थ स्कूल भोजन और पोषण सेवाएं' },
+      { key:'greenenergy', cat:'energy',   color:'pg', emoji:'☀️', en:'Green Energy',    hi:'हरित ऊर्जा',     desc_en:'Solar lighting & clean fuel solutions',        desc_hi:'सौर प्रकाश और स्वच्छ ईंधन समाधान' },
+      { key:'diycrafts',   cat:'craft',    color:'pm', emoji:'🧵', en:'DIY Crafts',      hi:'DIY शिल्प',      desc_en:'Handmade craft production & market linkage',   desc_hi:'हस्तनिर्मित शिल्प उत्पादन एवं बाजार' },
+      { key:'swachhajal',  cat:'water',    color:'pc', emoji:'🚿', en:'Swachha Jal',     hi:'स्वच्छ जल',      desc_en:'Drinking water access for remote villages',    desc_hi:'दूरस्थ गांवों में पेयजल पहुंच' },
+      { key:'samman',      cat:'apparel',  color:'pp', emoji:'👗', en:'Samman',          hi:'सम्मान',         desc_en:'School uniform & dignified apparel program',   desc_hi:'स्कूल यूनिफॉर्म और वस्त्र कार्यक्रम' },
+      { key:'sweethome',   cat:'craft',    color:'pr', emoji:'🏡', en:'Sweet Home',      hi:'स्वीट होम',      desc_en:'Agarbatti & home décor production units',      desc_hi:'अगरबत्ती और गृह सज्जा उत्पादन इकाइयां' },
+      { key:'hariyali',    cat:'green',    color:'pk', emoji:'🌿', en:'Hariyali',        hi:'हरियाली',        desc_en:'Tree planting & organic farming initiative',   desc_hi:'वृक्षारोपण और जैविक खेती पहल' },
+      { key:'worship',     cat:'puja',     color:'po', emoji:'🪔', en:'Worship Unit',    hi:'पूजा इकाई',      desc_en:'Handcrafted puja accessories & incense',      desc_hi:'हस्तनिर्मित पूजा सामग्री और धूप' },
+      { key:'shiksha',     cat:'edu',      color:'pe', emoji:'📚', en:'Shiksha',         hi:'शिक्षा',         desc_en:'Skill development & vocational education',    desc_hi:'कौशल विकास और व्यावसायिक शिक्षा' }
+    ];
 
-    function renderCards() {
-      const list = document.getElementById('projectsList');
-      const hi = curLang === 'hi';
-      const t = T[curLang];
-      list.innerHTML = PROJECTS.map(p => `
-        <div class="project-card" data-cat="${p.cat}">
-          <div class="card-header">
-            <div class="card-icon" style="background:${p.grad}"><i class="fa-solid ${p.icon}"></i></div>
-            <div><div class="card-title">${hi?p.nameHi:p.name}</div><p class="card-subtitle">${hi?p.subHi:p.sub}</p></div>
-          </div>
-          <div class="impact-row">${(hi?p.impactsHi:p.impacts).map(i=>`<span class="impact-tag"><i class="fa-solid fa-circle-check"></i> ${i}</span>`).join('')}</div>
-          <div class="card-meta">
-            <div class="meta-item"><div class="meta-label">${t.card.setup}</div><div class="meta-value">${p.setup}</div></div>
-            <div class="meta-item"><div class="meta-label">${t.card.working}</div><div class="meta-value">${p.working}</div></div>
-          </div>
-          <div class="card-footer">
-            <a href="https://www.fwfindia.org/project-booklet?project=${p.key}" class="btn-view" style="background:${p.grad}">
-              <i class="fa-solid fa-book-open"></i> ${t.card.view}
-            </a>
-          </div>
-        </div>`).join('');
-      // re-apply current filter
-      const active = document.querySelector('.chip.active');
-      const cat = active ? active.getAttribute('data-filter') : 'all';
-      applyFilter(cat);
-    }
+    const CATS = ['all','health','food','energy','craft','apparel','water','green','puja','edu'];
+    let activeCat = 'all';
+    let lang = localStorage.getItem('fwfLang') || 'en';
 
-    function applyFilter(cat) {
-      document.querySelectorAll('.project-card').forEach(c => {
-        c.style.display = (cat === 'all' || c.dataset.cat === cat) ? 'block' : 'none';
-      });
-    }
-
-    function filterProjects(cat, el) {
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      el.setAttribute('data-filter', cat);
-      applyFilter(cat);
-    }
-    // Set data-filter on chips
-    document.querySelectorAll('.chip').forEach((c, i) => {
-      const cats = ['all','health','food','energy','craft','apparel','green','puja','education'];
-      c.setAttribute('data-filter', cats[i] || 'all');
-    });
-
-    function setLanguage(lang) {
-      curLang = lang;
-      document.documentElement.setAttribute('data-lang', lang);
-      document.getElementById('langEN').classList.toggle('active', lang === 'en');
-      document.getElementById('langHI').classList.toggle('active', lang === 'hi');
-      localStorage.setItem('fwfLang', lang);
+    function renderChips() {
       const t = T[lang];
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const keys = el.getAttribute('data-i18n').split('.');
-        let v = t; for (const k of keys) v = v?.[k];
-        if (v !== undefined) el.textContent = v;
-      });
-      renderCards();
+      const w = document.getElementById('chipsWrap');
+      w.innerHTML = CATS.map(c =>
+        `<button class="chip${activeCat===c?' active':''}" onclick="filterCat('${c}')">${t['p.'+c]||c}</button>`
+      ).join('');
     }
 
-    setLanguage(curLang);
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' }).catch(()=>{});
+    function renderGrid() {
+      const t = T[lang];
+      const filtered = activeCat === 'all' ? PROJECTS : PROJECTS.filter(p => p.cat === activeCat);
+      const g = document.getElementById('projGrid');
+      if (!filtered.length) { g.innerHTML='<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i>No projects in this category</div>'; return; }
+      g.innerHTML = filtered.map(p =>
+        `<a class="pcard ${p.color}" href="https://www.fwfindia.org/project-booklet?project=${encodeURIComponent(p.key)}">
+          <div class="pcard-inner">
+            <div>
+              <span class="pcard-emoji">${p.emoji}</span>
+              <div class="pcard-cat">${(t['p.'+p.cat]||p.cat).toUpperCase()}</div>
+              <div class="pcard-name">${lang==='hi'?p.hi:p.en}</div>
+              <div class="pcard-name-hi">${lang==='hi'?p.en:p.hi}</div>
+            </div>
+            <div class="pcard-cta">${t['p.viewbooklet']} <i class="fas fa-arrow-right"></i></div>
+          </div>
+        </a>`
+      ).join('');
+    }
+
+    function filterCat(c) { activeCat = c; renderChips(); renderGrid(); }
+
+    function setLang(l) {
+      lang = l;
+      document.documentElement.setAttribute('data-lang', l);
+      document.getElementById('lEN').classList.toggle('on', l==='en');
+      document.getElementById('lHI').classList.toggle('on', l==='hi');
+      localStorage.setItem('fwfLang', l);
+      const t = T[l];
+      document.querySelectorAll('[data-i18n]').forEach(el => { const v=t[el.getAttribute('data-i18n')]; if(v!==undefined) el.textContent=v; });
+      renderChips(); renderGrid();
+    }
+
+    setLang(lang);
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
   </script>
 </body>
 </html>
