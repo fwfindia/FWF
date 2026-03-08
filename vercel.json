@@ -6,6 +6,18 @@
     { "source": "/app", "destination": "/app/home", "permanent": false },
     {
       "source": "/",
+      "has": [{ "type": "host", "value": "m.fwfindia.org" }],
+      "destination": "/m/home",
+      "permanent": false
+    },
+    {
+      "source": "/((?!m/).*)",
+      "has": [{ "type": "host", "value": "m.fwfindia.org" }],
+      "destination": "/m/home",
+      "permanent": false
+    },
+    {
+      "source": "/",
       "has": [{ "type": "host", "value": "app.fwfindia.org" }],
       "destination": "/app/home",
       "permanent": false
