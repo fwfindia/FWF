@@ -15,6 +15,15 @@
       "has": [{ "type": "host", "value": "app.fwfindia.org" }],
       "destination": "/app/home",
       "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        { "type": "host", "value": "(?:www\\.)?fwfindia\\.org" },
+        { "type": "header", "key": "user-agent", "value": "(?i).*(mobile|android|iphone|ipad|ipod|phone).*" }
+      ],
+      "destination": "https://app.fwfindia.org/app/home",
+      "permanent": false
     }
   ],
   "rewrites": [
