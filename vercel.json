@@ -19,8 +19,17 @@
     {
       "source": "/",
       "has": [
-        { "type": "host", "value": "(?:www\\.)?fwfindia\\.org" },
-        { "type": "header", "key": "user-agent", "value": "(?i).*(mobile|android|iphone|ipad|ipod|phone).*" }
+        { "type": "host", "value": "www.fwfindia.org" },
+        { "type": "header", "key": "user-agent", "value": ".*(Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini).*" }
+      ],
+      "destination": "https://app.fwfindia.org/app/home",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        { "type": "host", "value": "fwfindia.org" },
+        { "type": "header", "key": "user-agent", "value": ".*(Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini).*" }
       ],
       "destination": "https://app.fwfindia.org/app/home",
       "permanent": false
