@@ -3,7 +3,19 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/m",   "destination": "/m/home",   "permanent": false },
-    { "source": "/app", "destination": "/app/home", "permanent": false }
+    { "source": "/app", "destination": "/app/home", "permanent": false },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "app.fwfindia.org" }],
+      "destination": "/app/home",
+      "permanent": false
+    },
+    {
+      "source": "/((?!app/).*)",
+      "has": [{ "type": "host", "value": "app.fwfindia.org" }],
+      "destination": "/app/home",
+      "permanent": false
+    }
   ],
   "rewrites": [
     { "source": "/terms",                  "destination": "/terms-conditions" },
