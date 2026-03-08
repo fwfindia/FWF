@@ -2,7 +2,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/m", "destination": "/m/home", "permanent": false }
+    { "source": "/m",   "destination": "/m/home",   "permanent": false },
+    { "source": "/app", "destination": "/app/home", "permanent": false }
   ],
   "rewrites": [
     { "source": "/terms",                  "destination": "/terms-conditions" },

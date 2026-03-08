@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Login — FWF</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/logo.png">
+  <link href="/assets/css/fwf-app.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Mukta:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+    [data-lang="hi"] body { font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif; }
+    body { animation: pageIn .3s ease; }
+    @keyframes pageIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    .lang-pill { gap:2px; background:rgba(255,255,255,0.08); border-radius:8px; padding:3px; border:none; overflow:visible; }
+    .lang-pill button { padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; color:rgba(255,255,255,0.65); background:none; border:none; cursor:pointer; transition:all .15s; }
+    .lang-pill button.active { background:var(--primary); color:#fff; }
+
+    .login-wrap { min-height:calc(100vh - var(--topbar-h) - var(--tab-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)); display:flex; flex-direction:column; justify-content:center; padding:24px 16px; }
+    .login-logo { text-align:center; margin-bottom:28px; }
+    .login-logo img { width:72px; height:72px; border-radius:20px; background:#fff; padding:8px; object-fit:contain; margin:0 auto 12px; box-shadow:0 8px 28px rgba(0,0,0,.35); }
+    .login-logo h1 { font-size:22px; color:var(--text); margin-bottom:4px; }
+    .login-logo p  { font-size:13px; color:var(--text2); }
+    .pass-wrap { position:relative; }
+    .pass-wrap input { padding-right:44px; }
+    .pass-toggle { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text3); font-size:16px; padding:4px; }
+    .forgot-link { display:block; text-align:right; font-size:12px; color:var(--primary); margin-top:6px; text-decoration:none; }
+    .divider-text { display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--text3); font-size:12px; }
+    .divider-text::before, .divider-text::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    body { padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom)); }
+    .app-tabs { padding-bottom: env(safe-area-inset-bottom); height: calc(var(--tab-h) + env(safe-area-inset-bottom)); }
+  </style>
+</head>
+<body>
+
+  <header class="app-topbar">
+    <div class="brand">
+      <img src="/assets/images/logo.png" alt="FWF Logo" loading="eager">
+      <div>
+        <div class="brand-text">FWF</div>
+        <div class="brand-sub">Foundris Welfare Foundation</div>
+      </div>
+    </div>
+    <div class="lang-pill">
+      <button id="langEN" class="active" onclick="setLanguage('en')">EN</button>
+      <button id="langHI" onclick="setLanguage('hi')">HI</button>
+    </div>
+  </header>
+
+  <main class="login-wrap">
+    <div class="login-logo">
+      <img src="/assets/images/logo.png" alt="FWF Logo">
+      <h1 data-i18n="login.title">Welcome Back</h1>
+      <p data-i18n="login.sub">Sign in to your member account</p>
+    </div>
+
+    <div id="alertBox" class="app-alert mb-16"></div>
+
+    <div class="glass-card">
+      <form id="loginForm" autocomplete="on">
+        <div class="form-group">
+          <label class="form-label" data-i18n="login.id_label">Member ID or Mobile</label>
+          <input class="form-input" type="text" name="login" required
+            placeholder="FWF-000001 or 10-digit mobile" autofocus autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="login.pass_label">Password</label>
+          <div class="pass-wrap">
+            <input class="form-input" type="password" name="password" id="passInput"
+              required placeholder="Your password" autocomplete="current-password">
+            <button type="button" class="pass-toggle" id="passToggle" aria-label="Toggle visibility">
+              <i class="fas fa-eye" id="passIcon"></i>
+            </button>
+          </div>
+          <a href="https://www.fwf.org.in/forgot-password" class="forgot-link" data-i18n="login.forgot">Forgot Password?</a>
+        </div>
+        <label class="check-row mb-16">
+          <input type="checkbox" name="remember">
+          <span data-i18n="login.remember">Remember me on this device</span>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+          <i class="fas fa-sign-in-alt"></i> <span data-i18n="login.btn">Sign In</span>
+        </button>
+      </form>
+      <div class="divider-text" data-i18n="login.or">or</div>
+      <a href="https://www.fwf.org.in/join" class="btn btn-secondary btn-block">
+        <i class="fas fa-user-plus"></i> <span data-i18n="login.create">Create New Account</span>
+      </a>
+    </div>
+
+    <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:16px;">
+      <i class="fas fa-lock" style="color:var(--green);margin-right:4px;"></i>
+      <span data-i18n="login.secure">Secure login · Data encrypted</span>
+    </p>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-top">
+      <div class="footer-logo-wrap">
+        <img src="/assets/images/logo.png" alt="FWF">
+        <div>
+          <div class="footer-brand-name">Foundris Welfare Foundation</div>
+          <div class="footer-brand-tagline">Skills &rarr; Livelihood &rarr; Aatmnirbharta</div>
+        </div>
+      </div>
+      <div class="footer-socials">
+        <a href="https://www.facebook.com/fwfindia" target="_blank" class="fs-fb"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/fwfindia" target="_blank" class="fs-ig"><i class="fab fa-instagram"></i></a>
+        <a href="https://wa.me/919580118412" target="_blank" class="fs-wa"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://youtube.com/@fwf_india" target="_blank" class="fs-yt"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-divider"></div>
+    <div class="footer-bar">
+      <span class="footer-bar-copy">&copy; <span id="yr">2025</span> FWF</span>
+      <div class="footer-bar-links">
+        <a href="https://www.fwf.org.in/privacy">Privacy</a>
+        <a href="https://www.fwf.org.in/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bottom Tab Bar -->
+  <nav class="app-tabs">
+    <a href="/app/home"     class="tab-item" id="tab-home"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/app/projects" class="tab-item" id="tab-projects"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+    <a href="https://www.fwf.org.in/join" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
+    <a href="/app/donate"   class="tab-item" id="tab-donate"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/login"    class="tab-item" id="tab-login"><i class="fas fa-user"></i><span>Login</span></a>
+  </nav>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Active tab
+    (function() {
+      const map = { '/app/home':'tab-home', '/app/projects':'tab-projects', '/app/donate':'tab-donate', '/app/login':'tab-login' };
+      const el = document.getElementById(map[location.pathname]);
+      if (el) el.classList.add('active');
+    })();
+
+    // Pass toggle
+    document.getElementById('passToggle').onclick = function() {
+      const inp = document.getElementById('passInput');
+      const ico = document.getElementById('passIcon');
+      if (inp.type === 'password') { inp.type = 'text'; ico.className = 'fas fa-eye-slash'; }
+      else { inp.type = 'password'; ico.className = 'fas fa-eye'; }
+    };
+
+    // Login form
+    document.getElementById('loginForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      const alert = document.getElementById('alertBox');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+      const fd = new FormData(e.target);
+      try {
+        const res = await fetch('https://fwf-production.up.railway.app/api/auth/login', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login: fd.get('login'), password: fd.get('password'), remember: fd.get('remember') === 'on' })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert.className = 'app-alert app-alert-success mb-16';
+          alert.textContent = 'Login successful! Redirecting...';
+          setTimeout(() => { window.location.href = 'https://www.fwf.org.in/member-dashboard'; }, 800);
+        } else {
+          alert.className = 'app-alert app-alert-error mb-16';
+          alert.textContent = data.error || 'Invalid credentials. Please try again.';
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        }
+      } catch {
+        alert.className = 'app-alert app-alert-error mb-16';
+        alert.textContent = 'Connection error. Please try again.';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+      }
+    };
+
+    // i18n
+    const T = {
+      en: { login: { title:'Welcome Back', sub:'Sign in to your member account', id_label:'Member ID or Mobile', pass_label:'Password', forgot:'Forgot Password?', remember:'Remember me on this device', btn:'Sign In', create:'Create New Account', or:'or', secure:'Secure login · Data encrypted' } },
+      hi: { login: { title:'वापस स्वागत है', sub:'अपने सदस्य खाते में साइन इन करें', id_label:'सदस्य ID या मोबाइल', pass_label:'पासवर्ड', forgot:'पासवर्ड भूल गए?', remember:'इस डिवाइस पर याद रखें', btn:'साइन इन करें', create:'नया खाता बनाएं', or:'या', secure:'सुरक्षित लॉगिन · डेटा एन्क्रिप्टेड' } }
+    };
+    function setLanguage(lang) {
+      document.documentElement.setAttribute('data-lang', lang);
+      document.getElementById('langEN').classList.toggle('active', lang === 'en');
+      document.getElementById('langHI').classList.toggle('active', lang === 'hi');
+      localStorage.setItem('fwfLang', lang);
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const val = el.getAttribute('data-i18n').split('.').reduce((o, k) => o?.[k], T[lang]);
+        if (val) el.textContent = val;
+      });
+    }
+    setLanguage(localStorage.getItem('fwfLang') || 'en');
+
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' }).catch(() => {});
+  </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "FWF — Skills to Livelihood",
+  "short_name": "FWF",
+  "description": "Skill development, livelihood building & Atmanirbhar programs for unemployed people",
+  "start_url": "/app/home",
+  "scope": "/app/",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "lang": "en-IN",
+  "dir": "auto",
+  "categories": ["education", "social", "nonprofit"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "/assets/images/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/images/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Home",     "short_name": "Home",    "url": "/app/home",     "icons": [{ "src": "/assets/images/logo.png", "sizes": "96x96" }] },
+    { "name": "Login",    "short_name": "Login",   "url": "/app/login",    "icons": [{ "src": "/assets/images/logo.png", "sizes": "96x96" }] },
+    { "name": "Projects", "short_name": "Projects","url": "/app/projects", "icons": [{ "src": "/assets/images/logo.png", "sizes": "96x96" }] },
+    { "name": "Donate",   "short_name": "Donate",  "url": "/app/donate",   "icons": [{ "src": "/assets/images/logo.png", "sizes": "96x96" }] }
+  ],
+  "screenshots": [
+    { "src": "/assets/images/logo.png", "sizes": "540x720", "type": "image/png", "form_factor": "narrow" }
+  ]
+}

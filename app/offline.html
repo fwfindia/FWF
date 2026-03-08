@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#0b1220">
+  <title>Offline — FWF</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link href="/assets/css/fwf-app.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:32px 24px; text-align:center; }
+    .offline-icon { font-size:72px; margin-bottom:24px; opacity:.6; }
+    .offline-title { font-size:24px; font-weight:900; color:var(--text); margin-bottom:10px; }
+    .offline-sub { font-size:14px; color:var(--text2); line-height:1.6; max-width:280px; margin-bottom:32px; }
+    .btn-retry { display:inline-flex; align-items:center; gap:8px; background:var(--primary); color:#fff; font-size:14px; font-weight:800; padding:13px 28px; border-radius:14px; border:none; cursor:pointer; font-family:inherit; transition:opacity .15s; }
+    .btn-retry:active { opacity:.85; }
+    .offline-links { margin-top:24px; display:flex; flex-direction:column; gap:10px; }
+    .offline-links a { font-size:13px; color:var(--primary); text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="offline-icon">📡</div>
+  <div class="offline-title">You're Offline</div>
+  <p class="offline-sub">No internet connection detected. Please check your network and try again.</p>
+  <button class="btn-retry" onclick="location.reload()">
+    <i class="fas fa-rotate-right"></i> Try Again
+  </button>
+  <div class="offline-links">
+    <a href="/app/home"><i class="fas fa-home"></i> Go to Home</a>
+  </div>
+</body>
+</html>
