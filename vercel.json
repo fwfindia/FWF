@@ -11,7 +11,7 @@
       "permanent": false
     },
     {
-      "source": "/((?!m/).*)",
+      "source": "/((?!m/|assets/|api/|manifest\.json|service-worker\.js).*)",
       "has": [{ "type": "host", "value": "m.fwfindia.org" }],
       "destination": "/m/home",
       "permanent": false
@@ -23,7 +23,7 @@
       "permanent": false
     },
     {
-      "source": "/((?!app/).*)",
+      "source": "/((?!app/|assets/|api/|manifest\.json|service-worker\.js).*)",
       "has": [{ "type": "host", "value": "app.fwfindia.org" }],
       "destination": "/app/home",
       "permanent": false
