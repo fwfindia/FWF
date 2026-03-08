@@ -2,12 +2,12 @@
 <html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#0b1220">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Get Involved — FWF</title>
+  <title>Donate — FWF</title>
   <link rel="manifest" href="/app/manifest.json">
   <link rel="icon" href="/assets/images/logo.png">
   <link rel="apple-touch-icon" href="/assets/images/logo.png">
@@ -16,49 +16,83 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <style>
-    [data-lang="hi"] body{font-family:'Mukta','Noto Sans Devanagari',sans-serif}
-    body{padding-bottom:calc(var(--tab-h)+env(safe-area-inset-bottom));animation:fadeUp .35s ease}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    .app-tabs{padding-bottom:env(safe-area-inset-bottom);height:calc(var(--tab-h)+env(safe-area-inset-bottom))}
+    [data-lang="hi"] body { font-family:'Mukta','Noto Sans Devanagari',sans-serif; }
+    body { padding-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom)); animation:fadeUp .35s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .app-tabs { padding-bottom:env(safe-area-inset-bottom); height:calc(var(--tab-h) + env(safe-area-inset-bottom)); }
+
+    .lang-pill { display:flex; background:rgba(255,255,255,.1); border-radius:9px; padding:3px; border:none; }
+    .lang-pill button { padding:5px 11px; border-radius:7px; font-size:11px; font-weight:800; color:rgba(255,255,255,.5); background:none; border:none; cursor:pointer; transition:.15s; font-family:inherit; }
+    .lang-pill button.on { background:var(--primary); color:#fff; }
+
+    .donate-wrap { padding:16px; max-width:480px; margin:0 auto; }
 
     /* Hero */
-    .don-hero{margin:12px 16px 0;border-radius:22px;padding:24px 20px;background:linear-gradient(135deg,#be123c,#f43f5e);position:relative;overflow:hidden;text-align:center}
-    .don-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);border-radius:50%}
-    .don-hero img{width:48px;height:48px;border-radius:12px;background:#fff;padding:4px;object-fit:contain;margin:0 auto 10px;display:block;position:relative;z-index:1}
-    .don-hero .badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);font-size:11px;font-weight:800;color:#fff;padding:4px 12px;border-radius:50px;margin-bottom:10px;position:relative;z-index:1}
-    .don-hero h1{font-size:22px;font-weight:900;color:#fff;position:relative;z-index:1;margin-bottom:6px}
-    .don-hero p{font-size:13px;color:rgba(255,255,255,.85);position:relative;z-index:1;margin:0;line-height:1.5}
+    .donate-hero { background:linear-gradient(135deg,#be123c,#f43f5e); border-radius:22px; padding:22px 20px; margin-bottom:20px; text-align:center; }
+    .donate-hero i { font-size:36px; color:rgba(255,255,255,.9); margin-bottom:10px; display:block; }
+    .donate-hero h1 { font-size:22px; font-weight:900; color:#fff; margin-bottom:4px; }
+    .donate-hero p  { font-size:13px; color:rgba(255,255,255,.8); margin:0; }
 
-    /* Tabs */
-    .tab-bar{display:flex;gap:0;margin:16px 16px 0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-    .tab-btn{flex:1;padding:10px 6px;font-size:11.5px;font-weight:800;text-align:center;border:none;background:transparent;color:var(--text3);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
-    .tab-btn.on{background:var(--primary);color:#fff}
+    /* Impact tiles */
+    .impact-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
+    .impact-tile { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 10px; text-align:center; }
+    .impact-tile .ia { font-size:16px; font-weight:900; color:var(--primary); margin-bottom:4px; }
+    .impact-tile .id { font-size:11px; color:var(--text2); line-height:1.35; }
 
-    /* Section cards */
-    .sec-card{margin:16px 16px 0;border-radius:22px;padding:24px 20px;position:relative;overflow:hidden}
-    .sc-donate{background:linear-gradient(145deg,rgba(239,68,68,.15),rgba(239,68,68,.05));border:1.5px solid rgba(239,68,68,.25)}
-    .sc-member{background:linear-gradient(145deg,rgba(168,85,247,.15),rgba(168,85,247,.05));border:1.5px solid rgba(168,85,247,.25)}
-    .sc-supporter{background:linear-gradient(145deg,rgba(34,197,94,.15),rgba(34,197,94,.05));border:1.5px solid rgba(34,197,94,.25)}
-    .sc-csr{background:linear-gradient(145deg,rgba(6,182,212,.15),rgba(6,182,212,.05));border:1.5px solid rgba(6,182,212,.25)}
-    .sec-card .sc-icon{font-size:36px;margin-bottom:14px;display:block}
-    .sec-card h2{font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px}
-    .sec-card .sc-desc{font-size:13.5px;color:var(--text2);line-height:1.6;margin-bottom:14px}
-    .sec-card .sc-feat{list-style:none;padding:0;margin:0 0 18px}
-    .sec-card .sc-feat li{font-size:13px;color:var(--text2);padding:5px 0;padding-left:22px;position:relative}
-    .sec-card .sc-feat li::before{content:'✓';position:absolute;left:0;color:var(--primary);font-weight:800}
-    .sc-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:13px;font-size:14px;font-weight:800;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:transform .15s}
-    .sc-btn:active{transform:scale(.96)}
-    .sc-btn-red{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 4px 16px rgba(239,68,68,.3)}
-    .sc-btn-purple{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.3)}
-    .sc-btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 4px 16px rgba(34,197,94,.3)}
-    .sc-btn-cyan{background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;box-shadow:0 4px 16px rgba(6,182,212,.3)}
+    /* Amount section */
+    .sec-label { font-size:12px; font-weight:800; color:var(--text3); text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; }
+    .amt-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
+    .amt-btn { padding:12px 8px; background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.12); border-radius:12px; color:var(--text2); font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; transition:all .15s; }
+    .amt-btn.sel { background:rgba(249,115,22,.15); border-color:var(--primary); color:var(--primary); }
+    .custom-inp { width:100%; padding:13px 14px; background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.12); border-radius:12px; color:var(--text); font-size:15px; font-family:inherit; outline:none; transition:border-color .18s; box-sizing:border-box; display:none; margin-bottom:4px; }
+    .custom-inp::placeholder { color:var(--text3); }
+    .custom-inp:focus { border-color:var(--primary); background:rgba(249,115,22,.06); }
+    .custom-inp.show { display:block; }
 
-    .sec-hidden{display:none}
+    /* Form */
+    .form-sec { margin-bottom:20px; }
+    .inp-wrap { position:relative; margin-bottom:12px; }
+    .inp-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:14px; pointer-events:none; }
+    .inp-field { width:100%; padding:13px 14px 13px 42px; background:rgba(255,255,255,.06); border:1.5px solid var(--border); border-radius:12px; color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color .18s; box-sizing:border-box; }
+    .inp-field::placeholder { color:var(--text3); }
+    .inp-field:focus { border-color:var(--primary); background:rgba(249,115,22,.06); }
+    .inp-opt { font-size:11px; color:var(--text3); margin-top:-8px; margin-bottom:12px; padding-left:14px; }
 
-    /* Footer */
-    .app-ft{padding:20px 16px 12px;margin-top:20px;border-top:1px solid var(--border);text-align:center}
-    .ft-copy{font-size:11px;color:var(--text3)}
-    .ft-copy a{color:var(--text3);text-decoration:none;margin:0 6px}
+    /* Payment method */
+    .pay-methods { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+    .pay-method { padding:12px 6px; background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.12); border-radius:12px; text-align:center; cursor:pointer; transition:all .15s; }
+    .pay-method.sel { background:rgba(249,115,22,.12); border-color:var(--primary); }
+    .pay-method i { font-size:20px; display:block; margin-bottom:6px; color:var(--text2); }
+    .pay-method.sel i { color:var(--primary); }
+    .pay-method span { font-size:11px; font-weight:700; color:var(--text2); }
+    .pay-method.sel span { color:var(--primary); }
+
+    /* Payment info box */
+    .pay-info { padding:14px 16px; border-radius:14px; margin-bottom:16px; display:none; }
+    .pay-info.show { display:block; }
+    .pay-info.upi { background:rgba(99,102,241,.12); border:1px solid rgba(99,102,241,.25); }
+    .pay-info.bank { background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.25); }
+    .pay-info.cash { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); }
+    .pay-info h4 { font-size:13px; font-weight:800; color:var(--text); margin-bottom:8px; }
+    .pay-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .pay-row label { font-size:12px; color:var(--text3); }
+    .pay-row .val { font-size:13px; font-weight:700; color:var(--text); }
+    .copy-btn { padding:4px 10px; background:rgba(255,255,255,.1); border:none; border-radius:7px; color:var(--text2); font-size:11px; cursor:pointer; font-family:inherit; }
+
+    /* Submit */
+    .donate-btn { width:100%; padding:16px; background:linear-gradient(135deg,#be123c,#f43f5e); color:#fff; border:none; border-radius:14px; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit; transition:opacity .15s,transform .15s; box-shadow:0 4px 18px rgba(244,63,94,.3); display:flex; align-items:center; justify-content:center; gap:8px; }
+    .donate-btn:active { transform:scale(.97); opacity:.9; }
+    .donate-btn:disabled { opacity:.6; }
+
+    /* Alert */
+    .donate-alert { padding:12px 14px; border-radius:11px; font-size:13px; display:none; margin-bottom:14px; }
+    .donate-alert.show { display:block; }
+    .donate-alert.err { background:rgba(239,68,68,.15); border:1px solid rgba(239,68,68,.3); color:#fca5a5; }
+    .donate-alert.ok  { background:rgba(34,197,94,.15);  border:1px solid rgba(34,197,94,.3);  color:#86efac; }
+
+    /* Tax note */
+    .tax-note { text-align:center; font-size:12px; color:var(--text3); margin-top:14px; line-height:1.5; }
+    .tax-note strong { color:var(--text2); }
   </style>
 </head>
 <body>
@@ -66,130 +100,155 @@
   <header class="app-topbar">
     <div class="brand">
       <img src="/assets/images/logo.png" alt="FWF" loading="eager">
-      <div><div class="brand-text">FWF</div><div class="brand-sub">Get Involved</div></div>
+      <div><div class="brand-text">FWF</div><div class="brand-sub">Donate</div></div>
     </div>
-    <a href="/app/home" class="topbar-action"><i class="fas fa-home"></i></a>
+    <div class="lang-pill">
+      <button id="lEN" class="on" onclick="setLang('en')">EN</button>
+      <button id="lHI" onclick="setLang('hi')">हि</button>
+    </div>
   </header>
 
-  <!-- Hero -->
-  <div class="don-hero">
-    <img src="/assets/images/logo.png" alt="FWF">
-    <div class="badge"><i class="fas fa-heart"></i> <span data-i18n="d.badge">Small gift. Big livelihood.</span></div>
-    <h1 data-i18n="d.h1">You can be the reason a family smiles 😊</h1>
-    <p data-i18n="d.sub">Your small contribution is a new ray of hope for the unemployed.</p>
-  </div>
+  <div class="donate-wrap">
+    <div class="donate-hero">
+      <i class="fas fa-hand-holding-heart"></i>
+      <h1 data-i18n="d.h1">Make a Difference</h1>
+      <p data-i18n="d.sub">Your donation empowers rural women to earn a livelihood</p>
+    </div>
 
-  <!-- Tab Bar -->
-  <div class="tab-bar">
-    <button class="tab-btn on" onclick="showTab('donate',this)" data-i18n="d.tab1">Donate</button>
-    <button class="tab-btn" onclick="showTab('member',this)" data-i18n="d.tab2">Rojgar</button>
-    <button class="tab-btn" onclick="showTab('supporter',this)" data-i18n="d.tab3">Supporter</button>
-    <button class="tab-btn" onclick="showTab('csr',this)" data-i18n="d.tab4">CSR Tie-up</button>
-  </div>
+    <!-- Impact tiles -->
+    <div class="impact-row">
+      <div class="impact-tile"><div class="ia">₹500</div><div class="id" data-i18n="d.i1">Feeds a family for a month</div></div>
+      <div class="impact-tile"><div class="ia">₹1K</div><div class="id" data-i18n="d.i2">Seeds a micro-business unit</div></div>
+      <div class="impact-tile"><div class="ia">₹5K</div><div class="id" data-i18n="d.i3">Supports a project for 60 days</div></div>
+    </div>
 
-  <!-- Donate Section -->
-  <div class="sec-card sc-donate" id="s-donate">
-    <div class="sc-icon">❤️</div>
-    <h2 data-i18n="d.don.h">Make a Donation</h2>
-    <div class="sc-desc" data-i18n="d.don.desc">Every ₹ you give helps train skills, fund real projects & open a livelihood door.</div>
-    <ul class="sc-feat">
-      <li data-i18n="d.don.f1">80G receipt support</li>
-      <li data-i18n="d.don.f2">Direct impact tracking</li>
-      <li data-i18n="d.don.f3">UPI / Bank transfer</li>
-    </ul>
-    <a href="https://www.fwfindia.org/donation#donateModal" class="sc-btn sc-btn-red"><i class="fas fa-heart"></i> <span data-i18n="d.don.btn">Donate Now</span></a>
-  </div>
+    <!-- Amount picker -->
+    <div class="sec-label" data-i18n="d.chooseAmt">Choose Amount</div>
+    <div class="amt-grid" id="amtGrid">
+      <button class="amt-btn" onclick="pickAmt(500,this)">₹500</button>
+      <button class="amt-btn" onclick="pickAmt(1000,this)">₹1,000</button>
+      <button class="amt-btn" onclick="pickAmt(2500,this)">₹2,500</button>
+      <button class="amt-btn" onclick="pickAmt(5000,this)">₹5,000</button>
+      <button class="amt-btn" onclick="pickAmt(10000,this)">₹10,000</button>
+      <button class="amt-btn" onclick="pickAmt('custom',this)" data-i18n="d.custom">Custom</button>
+    </div>
+    <input class="custom-inp" id="customAmt" type="number" min="100" data-i18n-p="d.customPh" placeholder="Enter amount (₹)" oninput="customChange()">
 
-  <!-- Member Section -->
-  <div class="sec-card sc-member sec-hidden" id="s-member">
-    <div class="sc-icon">👤</div>
-    <h2 data-i18n="d.mem.h">Membership Program</h2>
-    <div class="sc-desc" data-i18n="d.mem.desc">Skill training, micro-enterprise support & livelihood opportunities.</div>
-    <ul class="sc-feat">
-      <li data-i18n="d.mem.f1">Hands-on skill training</li>
-      <li data-i18n="d.mem.f2">Micro-enterprise project funding</li>
-      <li data-i18n="d.mem.f3">Market linkage & self-employment</li>
-    </ul>
-    <a href="https://www.fwfindia.org/donation#memberModal" class="sc-btn sc-btn-purple"><i class="fas fa-user-plus"></i> <span data-i18n="d.mem.btn">Join Now</span></a>
-  </div>
+    <!-- Donor details -->
+    <div class="form-sec">
+      <div class="sec-label" data-i18n="d.yourDet">Your Details</div>
+      <div class="inp-wrap"><i class="fas fa-user inp-icon"></i><input class="inp-field" id="dName" type="text" data-i18n-p="d.name" placeholder="Full Name" required></div>
+      <div class="inp-wrap"><i class="fas fa-mobile-alt inp-icon"></i><input class="inp-field" id="dMob" type="tel" maxlength="10" data-i18n-p="d.mob" placeholder="Mobile Number" required></div>
+      <div class="inp-wrap"><i class="fas fa-envelope inp-icon"></i><input class="inp-field" id="dEmail" type="email" data-i18n-p="d.email" placeholder="Email (optional)"></div>
+      <div class="inp-opt" data-i18n="d.emailOpt">For receipt &amp; tax certificate</div>
+      <div class="inp-wrap"><i class="fas fa-id-card inp-icon"></i><input class="inp-field" id="dPan" type="text" maxlength="10" data-i18n-p="d.pan" placeholder="PAN (optional)" style="text-transform:uppercase"></div>
+      <div class="inp-opt" data-i18n="d.panOpt">Required for 80G tax exemption</div>
+    </div>
 
-  <!-- Supporter Section -->
-  <div class="sec-card sc-supporter sec-hidden" id="s-supporter">
-    <div class="sc-icon">🤝</div>
-    <h2 data-i18n="d.sup.h">Supporter Program</h2>
-    <div class="sc-desc" data-i18n="d.sup.desc">Teach, mentor & help set up micro-business.</div>
-    <ul class="sc-feat">
-      <li data-i18n="d.sup.f1">Flexible time</li>
-      <li data-i18n="d.sup.f2">Teach real skills</li>
-      <li data-i18n="d.sup.f3">Community reach</li>
-    </ul>
-    <a href="https://www.fwfindia.org/donation#supporterModal" class="sc-btn sc-btn-green"><i class="fas fa-hands-helping"></i> <span data-i18n="d.sup.btn">Sign Up</span></a>
-  </div>
+    <!-- Payment method -->
+    <div class="sec-label" data-i18n="d.payMethod">Payment Method</div>
+    <div class="pay-methods">
+      <div class="pay-method sel" onclick="pickMethod('upi',this)" id="pm-upi"><i class="fas fa-qrcode"></i><span>UPI</span></div>
+      <div class="pay-method" onclick="pickMethod('bank',this)" id="pm-bank"><i class="fas fa-building-columns"></i><span data-i18n="d.bank">Bank</span></div>
+      <div class="pay-method" onclick="pickMethod('cash',this)" id="pm-cash"><i class="fas fa-money-bill-wave"></i><span data-i18n="d.cash">Cash</span></div>
+    </div>
 
-  <!-- CSR Section -->
-  <div class="sec-card sc-csr sec-hidden" id="s-csr">
-    <div class="sc-icon">🏢</div>
-    <h2 data-i18n="d.csr.h">CSR Tie-up / Corporate Partnership</h2>
-    <div class="sc-desc" data-i18n="d.csr.desc">Projects, internships, hiring या CSR से sustainable impact.</div>
-    <ul class="sc-feat">
-      <li data-i18n="d.csr.f1">CSR alignment</li>
-      <li data-i18n="d.csr.f2">Project outsourcing</li>
-      <li data-i18n="d.csr.f3">Direct placements</li>
-    </ul>
-    <a href="/app/csr" class="sc-btn sc-btn-cyan"><i class="fas fa-building"></i> <span data-i18n="d.csr.btn">Partner</span></a>
-  </div>
+    <div class="pay-info upi show" id="pi-upi">
+      <h4 data-i18n="d.upiTitle">Pay via UPI</h4>
+      <div class="pay-row"><label>UPI ID</label><div style="display:flex;align-items:center;gap:8px"><span class="val">fwfindia@upi</span><button class="copy-btn" onclick="copy('fwfindia@upi')"><i class="fas fa-copy"></i></button></div></div>
+      <div class="pay-row"><label data-i18n="d.orScan">Or scan QR</label><span class="val">🔲</span></div>
+    </div>
+    <div class="pay-info bank" id="pi-bank">
+      <h4 data-i18n="d.bankTitle">Bank Transfer (NEFT/IMPS)</h4>
+      <div class="pay-row"><label data-i18n="d.accName">Account Name</label><span class="val">Foundris Welfare Foundation</span></div>
+      <div class="pay-row"><label data-i18n="d.accNo">Account No.</label><div style="display:flex;align-items:center;gap:8px"><span class="val">XXXXXX</span><button class="copy-btn" onclick="copy('XXXXXX')"><i class="fas fa-copy"></i></button></div></div>
+      <div class="pay-row"><label>IFSC</label><span class="val">XXXXXX</span></div>
+    </div>
+    <div class="pay-info cash" id="pi-cash">
+      <h4 data-i18n="d.cashTitle">Cash Donation</h4>
+      <p style="font-size:12px;color:var(--text2);margin:0" data-i18n="d.cashDesc">Submit this form and our team will contact you to arrange the collection. Receipt issued immediately.</p>
+    </div>
 
-  <div class="app-ft">
-    <div class="ft-copy">&copy; <span id="yr"></span> FWF · <a href="https://www.fwfindia.org/privacy">Privacy</a> · <a href="https://www.fwfindia.org/terms">Terms</a></div>
+    <div id="donateAlert" class="donate-alert"></div>
+
+    <button class="donate-btn" id="donateBtn" onclick="doDonate()">
+      <i class="fas fa-heart" id="dbIcon"></i>
+      <span id="dbTxt" data-i18n="d.btn">Donate Now</span>
+    </button>
+
+    <div class="tax-note" data-i18n-html="d.taxNote">Donations are eligible for <strong>80G tax exemption</strong>. Receipt sent to your email.</div>
   </div>
 
   <nav class="app-tabs">
-    <a href="/app/home" class="tab-item" id="t-h"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/app/home"     class="tab-item" id="t-h"><i class="fas fa-home"></i><span>Home</span></a>
     <a href="/app/projects" class="tab-item" id="t-p"><i class="fas fa-briefcase"></i><span>Projects</span></a>
-    <a href="https://www.fwfindia.org/donation#memberModal" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
-    <a href="/app/donate" class="tab-item active" id="t-d"><i class="fas fa-heart"></i><span>Donate</span></a>
-    <a href="/app/login" class="tab-item" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
+    <a href="https://www.fwfindia.org/join" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
+    <a href="/app/donate"   class="tab-item active" id="t-d"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/login"    class="tab-item" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
   </nav>
 
   <script>
-    document.getElementById('yr').textContent=new Date().getFullYear();
+    (function(){ const m={'/app/home':'t-h','/app/projects':'t-p','/app/donate':'t-d','/app/login':'t-l'}; const el=document.getElementById(m[location.pathname]); if(el) el.classList.add('active'); })();
 
-    function showTab(id,btn){
-      document.querySelectorAll('.sec-card').forEach(s=>s.classList.add('sec-hidden'));
-      document.getElementById('s-'+id).classList.remove('sec-hidden');
-      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
-      btn.classList.add('on');
+    let selAmt = null, selMethod = 'upi';
+
+    function pickAmt(amt, btn) {
+      document.querySelectorAll('.amt-btn').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      const ci = document.getElementById('customAmt');
+      if(amt === 'custom') { selAmt = null; ci.classList.add('show'); ci.focus(); }
+      else { selAmt = amt; ci.classList.remove('show'); ci.value = ''; }
+    }
+    function customChange() { selAmt = parseInt(document.getElementById('customAmt').value) || null; }
+
+    function pickMethod(m, el) {
+      document.querySelectorAll('.pay-method').forEach(e=>e.classList.remove('sel'));
+      el.classList.add('sel');
+      selMethod = m;
+      ['upi','bank','cash'].forEach(k=>{ const pi=document.getElementById('pi-'+k); pi.className='pay-info '+k+(k===m?' show':''); });
     }
 
-    /* Check hash for direct tab */
-    const hash=location.hash.replace('#','');
-    if(hash){const map={donateModal:'donate',memberModal:'member',supporterModal:'supporter',csrModal:'csr'};const tab=map[hash];if(tab){const btns=document.querySelectorAll('.tab-btn');const idx={donate:0,member:1,supporter:2,csr:3}[tab];if(btns[idx])showTab(tab,btns[idx])}}
+    function copy(txt) {
+      if(navigator.clipboard) { navigator.clipboard.writeText(txt).then(()=>{ showAlert('Copied!','ok'); setTimeout(()=>{ const a=document.getElementById('donateAlert'); a.className='donate-alert'; },1500); }); }
+    }
 
-    const T={
-      en:{
-        'd.badge':'Small gift. Big livelihood.','d.h1':'You can be the reason a family smiles 😊','d.sub':'Your small contribution is a new ray of hope for the unemployed.',
-        'd.tab1':'Donate','d.tab2':'Rojgar','d.tab3':'Supporter','d.tab4':'CSR Tie-up',
-        'd.don.h':'Make a Donation','d.don.desc':'Every ₹ you give helps train skills, fund real projects & open a livelihood door.','d.don.f1':'80G receipt support','d.don.f2':'Direct impact tracking','d.don.f3':'UPI / Bank transfer','d.don.btn':'Donate Now',
-        'd.mem.h':'Membership Program','d.mem.desc':'Skill training, micro-enterprise support & livelihood opportunities.','d.mem.f1':'Hands-on skill training','d.mem.f2':'Micro-enterprise project funding','d.mem.f3':'Market linkage & self-employment','d.mem.btn':'Join Now',
-        'd.sup.h':'Supporter Program','d.sup.desc':'Teach, mentor & help set up micro-business.','d.sup.f1':'Flexible time','d.sup.f2':'Teach real skills','d.sup.f3':'Community reach','d.sup.btn':'Sign Up',
-        'd.csr.h':'CSR Tie-up / Corporate Partnership','d.csr.desc':'Projects, internships, hiring or CSR for sustainable impact.','d.csr.f1':'CSR alignment','d.csr.f2':'Project outsourcing','d.csr.f3':'Direct placements','d.csr.btn':'Partner'
-      },
-      hi:{
-        'd.badge':'छोटा दान। बड़ी आजीविका।','d.h1':'आप किसी परिवार की मुस्कान का कारण बन सकते हैं 😊','d.sub':'आपका छोटा योगदान बेरोज़गारों के लिए एक नई उम्मीद की किरण है।',
-        'd.tab1':'दान','d.tab2':'रोज़गार','d.tab3':'सपोर्टर','d.tab4':'CSR टाई-अप',
-        'd.don.h':'दान करें','d.don.desc':'आपका हर रुपया स्किल ट्रेनिंग, प्रोजेक्ट और आजीविका का दरवाज़ा खोलता है।','d.don.f1':'80G रसीद सपोर्ट','d.don.f2':'डायरेक्ट इम्पैक्ट ट्रैकिंग','d.don.f3':'UPI / बैंक ट्रांसफर','d.don.btn':'अभी दान करें',
-        'd.mem.h':'सदस्यता कार्यक्रम','d.mem.desc':'स्किल ट्रेनिंग, माइक्रो-एंटरप्राइज सपोर्ट और आजीविका के अवसर।','d.mem.f1':'प्रैक्टिकल स्किल ट्रेनिंग','d.mem.f2':'माइक्रो-एंटरप्राइज प्रोजेक्ट फंडिंग','d.mem.f3':'मार्केट लिंकेज और स्व-रोज़गार','d.mem.btn':'अभी जुड़ें',
-        'd.sup.h':'सपोर्टर कार्यक्रम','d.sup.desc':'पढ़ाएं, मेंटर करें और माइक्रो-बिज़नेस शुरू करने में मदद करें।','d.sup.f1':'फ्लेक्सिबल समय','d.sup.f2':'असली स्किल सिखाएं','d.sup.f3':'समुदाय तक पहुंच','d.sup.btn':'साइन अप',
-        'd.csr.h':'CSR टाई-अप / कॉर्पोरेट पार्टनरशिप','d.csr.desc':'प्रोजेक्ट, इंटर्नशिप, हायरिंग या CSR से स्थायी प्रभाव।','d.csr.f1':'CSR अलाइनमेंट','d.csr.f2':'प्रोजेक्ट आउटसोर्सिंग','d.csr.f3':'डायरेक्ट प्लेसमेंट','d.csr.btn':'पार्टनर'
-      }
+    async function doDonate() {
+      const btn=document.getElementById('donateBtn'); const btxt=document.getElementById('dbTxt'); const bico=document.getElementById('dbIcon');
+      const name=document.getElementById('dName').value.trim();
+      const mobile=document.getElementById('dMob').value.trim();
+      const email=document.getElementById('dEmail').value.trim();
+      const pan=document.getElementById('dPan').value.trim().toUpperCase();
+      const amount = selAmt || parseInt(document.getElementById('customAmt').value) || 0;
+      if(!name){ showAlert('Please enter your full name','err'); return; }
+      if(!/^\d{10}$/.test(mobile)){ showAlert('Please enter a valid 10-digit mobile number','err'); return; }
+      if(!amount || amount < 100){ showAlert('Minimum donation amount is ₹100','err'); return; }
+      btn.disabled=true; btxt.textContent='Processing…'; bico.className='fas fa-spinner fa-spin';
+      try {
+        const r = await fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ type:'donation', name, mobile, email, pan, amount, paymentMethod:selMethod, message:`Donation of ₹${amount} via ${selMethod}` }) });
+        const d = await r.json();
+        if(r.ok && d.ok) { showAlert('Thank you! Our team will reach out to you shortly.','ok'); document.getElementById('loginForm') && document.getElementById('loginForm').reset(); }
+        else { showAlert(d.error||'Something went wrong. Please try again.','err'); }
+      } catch { showAlert('Connection error. Please check your internet.','err'); }
+      btn.disabled=false; btxt.textContent=T[localStorage.getItem('fwfLang')||'en']['d.btn']; bico.className='fas fa-heart';
+    }
+    function showAlert(msg, type) { const a=document.getElementById('donateAlert'); a.textContent=msg; a.className='donate-alert show '+type; }
+
+    const T = {
+      en: { 'd.h1':'Make a Difference', 'd.sub':'Your donation empowers rural women to earn a livelihood', 'd.i1':'Feeds a family for a month', 'd.i2':'Seeds a micro-business unit', 'd.i3':'Supports a project for 60 days', 'd.chooseAmt':'Choose Amount', 'd.custom':'Custom', 'd.customPh':'Enter amount (₹)', 'd.yourDet':'Your Details', 'd.name':'Full Name', 'd.mob':'Mobile Number', 'd.email':'Email (optional)', 'd.emailOpt':'For receipt & tax certificate', 'd.pan':'PAN (optional)', 'd.panOpt':'Required for 80G tax exemption', 'd.payMethod':'Payment Method', 'd.bank':'Bank', 'd.cash':'Cash', 'd.upiTitle':'Pay via UPI', 'd.orScan':'Or scan QR', 'd.bankTitle':'Bank Transfer (NEFT/IMPS)', 'd.accName':'Account Name', 'd.accNo':'Account No.', 'd.cashTitle':'Cash Donation', 'd.cashDesc':'Submit this form and our team will contact you to arrange the collection. Receipt issued immediately.', 'd.btn':'Donate Now', 'd.taxNote':'Donations are eligible for <strong>80G tax exemption</strong>. Receipt sent to your email.' },
+      hi: { 'd.h1':'फर्क करें', 'd.sub':'आपका दान ग्रामीण महिलाओं को आजीविका कमाने में सशक्त करता है', 'd.i1':'एक परिवार को एक महीने का भोजन', 'd.i2':'एक माइक्रो-बिज़नेस इकाई शुरू करें', 'd.i3':'60 दिनों के लिए एक प्रोजेक्ट सपोर्ट', 'd.chooseAmt':'राशि चुनें', 'd.custom':'अन्य', 'd.customPh':'राशि दर्ज करें (₹)', 'd.yourDet':'आपकी जानकारी', 'd.name':'पूरा नाम', 'd.mob':'मोबाइल नंबर', 'd.email':'ईमेल (वैकल्पिक)', 'd.emailOpt':'रसीद और कर प्रमाण पत्र के लिए', 'd.pan':'PAN (वैकल्पिक)', 'd.panOpt':'80G कर छूट के लिए आवश्यक', 'd.payMethod':'भुगतान विधि', 'd.bank':'बैंक', 'd.cash':'नकद', 'd.upiTitle':'UPI से भुगतान करें', 'd.orScan':'या QR स्कैन करें', 'd.bankTitle':'बैंक ट्रांसफर (NEFT/IMPS)', 'd.accName':'खाता नाम', 'd.accNo':'खाता नंबर', 'd.cashTitle':'नकद दान', 'd.cashDesc':'यह फ़ॉर्म भरें, हमारी टीम आपसे संपर्क करेगी।', 'd.btn':'अभी दान करें', 'd.taxNote':'दान <strong>80G कर छूट</strong> के लिए पात्र है। रसीद आपके ईमेल पर भेजी जाएगी।' }
     };
-    function setLang(l){
-      document.documentElement.setAttribute('data-lang',l);localStorage.setItem('fwfLang',l);
+    function setLang(l) {
+      document.documentElement.setAttribute('data-lang',l);
+      document.getElementById('lEN').classList.toggle('on',l==='en');
+      document.getElementById('lHI').classList.toggle('on',l==='hi');
+      localStorage.setItem('fwfLang',l);
       const t=T[l];
-      document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.getAttribute('data-i18n')];if(v!==undefined)el.textContent=v});
+      document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.getAttribute('data-i18n')];if(v!==undefined)el.textContent=v;});
+      document.querySelectorAll('[data-i18n-html]').forEach(el=>{const v=t[el.getAttribute('data-i18n-html')];if(v!==undefined)el.innerHTML=v;});
+      document.querySelectorAll('[data-i18n-p]').forEach(el=>{const v=t[el.getAttribute('data-i18n-p')];if(v!==undefined)el.placeholder=v;});
     }
     setLang(localStorage.getItem('fwfLang')||'en');
-    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
   </script>
 </body>
 </html>
