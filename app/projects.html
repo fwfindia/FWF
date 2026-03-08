@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#E87722" />
   <title>Our Projects - FWF</title>
 
-  <link rel="manifest" href="/app/manifest.json">
+  <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Unbounded:wght@700;900&family=Noto+Sans+Devanagari:wght@400;700&family=Mukta:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
@@ -16,12 +16,7 @@
     /* Hindi typography */
     [data-lang="hi"] body { font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif; }
 
-    /* Language pill - override fwf-app.css to match home.html style */
-    .lang-pill { gap:2px; background:rgba(255,255,255,0.08); border-radius:8px; padding:3px; border:none; overflow:visible; }
-    .lang-pill button { padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; color:rgba(255,255,255,0.65); }
-    .lang-pill button.active { background:var(--primary); color:#fff; border-radius:6px; }
-
-    /* ── Base: dark night theme (matches desktop) ── */
+    /* â”€â”€ Base: dark night theme (matches desktop) â”€â”€ */
     body {
       background: linear-gradient(180deg, #0b1220 0%, #0c1f21 45%, #132a3a 100%);
       min-height: 100vh;
@@ -30,7 +25,7 @@
 
 
 
-    /* ── Hero (matches desktop) ── */
+    /* â”€â”€ Hero (matches desktop) â”€â”€ */
     .hero-wrap { padding: 22px 14px 18px; display: flex; justify-content: center; }
     .hero-content {
       background: rgba(255,255,255,0.07);
@@ -63,7 +58,7 @@
     .kick.modern .T2 { color: #06b6d4; } .kick.modern .H  { color: #3b82f6; }
     .kick.modern .E2 { color: #8b5cf6; } .kick.modern .R  { color: #ec4899; }
 
-    /* ── Filter chips ── */
+    /* â”€â”€ Filter chips â”€â”€ */
     .filter-row {
       display: flex; gap: 8px; overflow-x: auto;
       padding: 12px 16px;
@@ -81,7 +76,7 @@
     }
     .chip.active { background: #f97316; border-color: #f97316; color: #fff; }
 
-    /* ── Cards ── */
+    /* â”€â”€ Cards â”€â”€ */
     .projects-list { padding: 16px; }
 
     .project-card {
@@ -135,7 +130,7 @@
     .btn-view:active { opacity: .82; transform: scale(0.98); }
     .btn-view:hover  { opacity: .88; }
 
-    /* ── Join CTA card ── */
+    /* â”€â”€ Join CTA card â”€â”€ */
     .cta-card {
       margin: 0 16px 24px;
       background: linear-gradient(135deg, #1e3a8a, #2563eb);
@@ -151,7 +146,7 @@
       font-weight: 800; text-decoration: none;
     }
 
-    /* ── Rich Footer ── */
+    /* â”€â”€ Rich Footer â”€â”€ */
     .site-footer {
       background: rgba(255,255,255,0.04);
       border-top: 1px solid rgba(255,255,255,0.09);
@@ -229,7 +224,7 @@
     </div>
   </header>
 
-  <!-- Hero — same as desktop -->
+  <!-- Hero â€” same as desktop -->
   <div class="hero-wrap">
     <div class="hero-content">
       <h1 class="hero-title">
@@ -239,7 +234,7 @@
           <span class="L E2">E</span><span class="L R">R</span>
         </span>, <span data-i18n="hero.tagline">We Turn Skills into Livelihoods</span>
       </h1>
-      <p class="hero-sub" data-i18n="hero.sub">From learning to earning — we're with you every step of the way.</p>
+      <p class="hero-sub" data-i18n="hero.sub">From learning to earning â€” we're with you every step of the way.</p>
       <div class="hero-btns">
         <a href="../join.html" class="btn-hero-primary" data-i18n="hero.join">Start Your Journey</a>
         <button class="btn-hero-outline" data-i18n="hero.explore" onclick="document.getElementById('projectsList').scrollIntoView({behavior:'smooth'})">Explore Projects</button>
@@ -249,15 +244,15 @@
 
   <!-- Filter chips -->
   <div class="filter-row">
-    <div class="chip active"  onclick="filterProjects('all',this)" data-i18n-chip="all">🎯 All</div>
-    <div class="chip" onclick="filterProjects('health',this)" data-i18n-chip="health">🏥 Health</div>
-    <div class="chip" onclick="filterProjects('food',this)" data-i18n-chip="food">🍲 Food</div>
-    <div class="chip" onclick="filterProjects('energy',this)" data-i18n-chip="energy">⚡ Energy</div>
-    <div class="chip" onclick="filterProjects('craft',this)" data-i18n-chip="craft">🎨 Craft</div>
-    <div class="chip" onclick="filterProjects('apparel',this)" data-i18n-chip="apparel">👗 Apparel</div>
-    <div class="chip" onclick="filterProjects('green',this)" data-i18n-chip="green">🌱 Green</div>
-    <div class="chip" onclick="filterProjects('puja',this)" data-i18n-chip="puja">🪔 Puja</div>
-    <div class="chip" onclick="filterProjects('education',this)" data-i18n-chip="education">📚 Education</div>
+    <div class="chip active"  onclick="filterProjects('all',this)" data-i18n-chip="all">ðŸŽ¯ All</div>
+    <div class="chip" onclick="filterProjects('health',this)" data-i18n-chip="health">ðŸ¥ Health</div>
+    <div class="chip" onclick="filterProjects('food',this)" data-i18n-chip="food">ðŸ² Food</div>
+    <div class="chip" onclick="filterProjects('energy',this)" data-i18n-chip="energy">âš¡ Energy</div>
+    <div class="chip" onclick="filterProjects('craft',this)" data-i18n-chip="craft">ðŸŽ¨ Craft</div>
+    <div class="chip" onclick="filterProjects('apparel',this)" data-i18n-chip="apparel">ðŸ‘— Apparel</div>
+    <div class="chip" onclick="filterProjects('green',this)" data-i18n-chip="green">ðŸŒ± Green</div>
+    <div class="chip" onclick="filterProjects('puja',this)" data-i18n-chip="puja">ðŸª” Puja</div>
+    <div class="chip" onclick="filterProjects('education',this)" data-i18n-chip="education">ðŸ“š Education</div>
   </div>
 
   <!-- Project cards (JS-rendered) -->
@@ -308,100 +303,100 @@
   </footer>
 
   <script>
-    /* -- Projects data with Hindi fields -- */
+    /* ── Projects data with Hindi fields ── */
     const PROJECTS = [
       { key:'suraksha',     cat:'health',    icon:'fa-shield-heart',   grad:'linear-gradient(135deg,#22c55e,#16a34a)',
-        name:'Suraksha',     nameHi:'???????',
+        name:'Suraksha',     nameHi:'सुरक्षा',
         subtitle:'Health &amp; hygiene products for safer communities.',
-        subtitleHi:'????????? ? ???????? ??????, ?????? ?? ??????? ?? ????',
+        subtitleHi:'स्वास्थ्य व स्वच्छता उत्पाद, समुदाय की सुरक्षा के लिए।',
         impacts:['Employment','Community Development','Health'],
-        impactsHi:['???????','????????? ?????','?????????'],
-        setup:'?1.2�1.8L', working:'?0.30�0.50L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['रोज़गार','सामुदायिक विकास','स्वास्थ्य'],
+        setup:'₹1.2–1.8L', working:'₹0.30–0.50L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'swachh-bharat', cat:'health',   icon:'fa-soap',            grad:'linear-gradient(135deg,#3b82f6,#1d4ed8)',
-        name:'Swachh Bharat', nameHi:'?????? ????',
+        name:'Swachh Bharat', nameHi:'स्वच्छ भारत',
         subtitle:'Home &amp; surface care units for cleaner cities.',
-        subtitleHi:'?? ? ??? ?? ????, ?????? ????? ?? ????',
+        subtitleHi:'घर व सतह की सफाई, स्वच्छ शहरों के लिए।',
         impacts:['Employment','Sustainability'],
-        impactsHi:['???????','????????'],
-        setup:'?1.0�1.8L', working:'?0.25�0.45L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['रोज़गार','पर्यावरण'],
+        setup:'₹1.0–1.8L', working:'₹0.25–0.45L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'happy-meal',   cat:'food',      icon:'fa-bowl-food',       grad:'linear-gradient(135deg,#f59e0b,#d97706)',
-        name:'Happy Meal',   nameHi:'?????? ???',
+        name:'Happy Meal',   nameHi:'हैप्पी मील',
         subtitle:'Safe &amp; value-added foods made locally.',
-        subtitleHi:'???????? ?? ???? ????? ???? ????? ??????, ??????? ??? ???',
+        subtitleHi:'सुरक्षित और उच्च मूल्य वाले खाद्य उत्पाद, स्थानीय रूप से।',
         impacts:['Nutrition','Local Economy','Employment'],
-        impactsHi:['????','??????? ????????????','???????'],
-        setup:'?1.3�1.8L', working:'?0.25�0.45L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['पोषण','स्थानीय अर्थव्यवस्था','रोज़गार'],
+        setup:'₹1.3–1.8L', working:'₹0.25–0.45L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'green-energy', cat:'energy',    icon:'fa-solar-panel',     grad:'linear-gradient(135deg,#eab308,#ca8a04)',
-        name:'Green Energy', nameHi:'????? ??????',
+        name:'Green Energy', nameHi:'ग्रीन एनर्जी',
         subtitle:'Affordable clean-tech assembly &amp; services.',
-        subtitleHi:'??????? ?????? ????? ??????? ? ???????',
+        subtitleHi:'किफायती स्वच्छ तकनीक असेंबली व सेवाएं।',
         impacts:['Green Energy','Employment','Innovation'],
-        impactsHi:['???? ?????','???????','??????'],
-        setup:'?2.4�6.0L', working:'?0.60�1.50L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['हरित ऊर्जा','रोज़गार','नवाचार'],
+        setup:'₹2.4–6.0L', working:'₹0.60–1.50L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'diy-crafts',   cat:'craft',     icon:'fa-gem',             grad:'linear-gradient(135deg,#ec4899,#be185d)',
-        name:'DIY Crafts',   nameHi:'DIY ?????????',
+        name:'DIY Crafts',   nameHi:'DIY क्राफ्ट्स',
         subtitle:'Creative &amp; custom products with strong margins.',
-        subtitleHi:'???????? ?? ????? ??????, ????? ??????? ?? ????',
+        subtitleHi:'क्रिएटिव और कस्टम उत्पाद, अच्छे मार्जिन के साथ।',
         impacts:['Community Development','Skill Building'],
-        impactsHi:['????????? ?????','???? ?????'],
-        setup:'?0.9�1.3L', working:'?0.15�0.30L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['सामुदायिक विकास','कौशल विकास'],
+        setup:'₹0.9–1.3L', working:'₹0.15–0.30L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'swachh-jal',   cat:'health',    icon:'fa-droplet',         grad:'linear-gradient(135deg,#06b6d4,#0e7490)',
-        name:'Swachh Jal',   nameHi:'?????? ??',
+        name:'Swachh Jal',   nameHi:'स्वच्छ जल',
         subtitle:'Water purification &amp; services for safe drinking.',
-        subtitleHi:'???????? ????? ?? ??? ?? ?????? ? ???????',
+        subtitleHi:'सुरक्षित पेयजल के लिए जल शुद्धि व सेवाएं।',
         impacts:['Health','Sustainability'],
-        impactsHi:['?????????','????????'],
-        setup:'?1.7�6.0L', working:'?0.50�1.50L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['स्वास्थ्य','पर्यावरण'],
+        setup:'₹1.7–6.0L', working:'₹0.50–1.50L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'samman',       cat:'apparel',   icon:'fa-shirt',           grad:'linear-gradient(135deg,#8b5cf6,#6d28d9)',
-        name:'Samman',       nameHi:'??????',
+        name:'Samman',       nameHi:'सम्मान',
         subtitle:'Apparel manufacturing for steady livelihoods.',
-        subtitleHi:'????? ??????? ?? ??? ?????? ????????',
+        subtitleHi:'स्थिर आजीविका के लिए परिधान निर्माण।',
         impacts:['Employment','Community Development'],
-        impactsHi:['???????','????????? ?????'],
-        setup:'?1.6�2.7L', working:'?0.30�0.60L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['रोज़गार','सामुदायिक विकास'],
+        setup:'₹1.6–2.7L', working:'₹0.30–0.60L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'sweet-home',   cat:'apparel',   icon:'fa-house-chimney',   grad:'linear-gradient(135deg,#f97316,#ea580c)',
-        name:'Sweet Home',   nameHi:'????? ???',
-        subtitle:'Home utility products � stitched &amp; assembled.',
-        subtitleHi:'????? ?????? ?????? � ???? ?? ?????? ??? ???',
+        name:'Sweet Home',   nameHi:'स्वीट होम',
+        subtitle:'Home utility products — stitched &amp; assembled.',
+        subtitleHi:'घरेलू उपयोगी उत्पाद — सिले और असेंबल किए गए।',
         impacts:['Employment','Local Economy'],
-        impactsHi:['???????','??????? ????????????'],
-        setup:'?1.1�2.2L', working:'?0.25�0.50L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['रोज़गार','स्थानीय अर्थव्यवस्था'],
+        setup:'₹1.1–2.2L', working:'₹0.25–0.50L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'hariyali',     cat:'green',     icon:'fa-seedling',        grad:'linear-gradient(135deg,#84cc16,#65a30d)',
-        name:'Hariyali',     nameHi:'???????',
+        name:'Hariyali',     nameHi:'हरियाली',
         subtitle:'Green livelihoods with compost &amp; small agri tools.',
-        subtitleHi:'??? ?? ???? ???? ??????? ?? ???? ????????',
+        subtitleHi:'खाद और छोटे कृषि उपकरणों से हरित आजीविका।',
         impacts:['Sustainability','Local Economy'],
-        impactsHi:['????????','??????? ????????????'],
-        setup:'?0.6�2.4L', working:'?0.15�0.45L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['पर्यावरण','स्थानीय अर्थव्यवस्था'],
+        setup:'₹0.6–2.4L', working:'₹0.15–0.45L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'worship',      cat:'puja',      icon:'fa-hands-praying',   grad:'linear-gradient(135deg,#e11d48,#be123c)',
-        name:'Worship',      nameHi:'??????',
+        name:'Worship',      nameHi:'वर्शिप',
         subtitle:'Puja samagri &amp; incense products with local branding.',
-        subtitleHi:'???? ??????? ?? ???????? ??????, ??????? ????????? ?? ????',
+        subtitleHi:'पूजा सामग्री और अगरबत्ती उत्पाद, स्थानीय ब्रांडिंग के साथ।',
         impacts:['Local Economy','Community Development'],
-        impactsHi:['??????? ????????????','????????? ?????'],
-        setup:'?0.96�1.5L', working:'?0.15�0.35L', units:'8 types', unitsHi:'8 ??????' },
+        impactsHi:['स्थानीय अर्थव्यवस्था','सामुदायिक विकास'],
+        setup:'₹0.96–1.5L', working:'₹0.15–0.35L', units:'8 types', unitsHi:'8 प्रकार' },
       { key:'shiksha',      cat:'education', icon:'fa-pen-ruler',       grad:'linear-gradient(135deg,#0ea5e9,#0284c7)',
-        name:'Shiksha',      nameHi:'??????',
+        name:'Shiksha',      nameHi:'शिक्षा',
         subtitle:'Affordable stationery &amp; learning essentials.',
-        subtitleHi:'??????? ???????? ?? ?????? ????????',
+        subtitleHi:'किफायती स्टेशनरी और शिक्षण सामग्री।',
         impacts:['Education','Employment'],
-        impactsHi:['??????','???????'],
-        setup:'?1.2�1.6L', working:'?0.25�0.40L', units:'8 types', unitsHi:'8 ??????' }
+        impactsHi:['शिक्षा','रोज़गार'],
+        setup:'₹1.2–1.6L', working:'₹0.25–0.40L', units:'8 types', unitsHi:'8 प्रकार' }
     ];
 
-    /* -- Translations -- */
+    /* ── Translations ── */
     const T = {
       en: {
-        hero: { tagline:'We Turn Skills into Livelihoods', sub:"From learning to earning � we're with you every step of the way.", join:'Start Your Journey', explore:'Explore Projects' },
-        chips: { all:'?? All', health:'?? Health', food:'?? Food', energy:'? Energy', craft:'?? Craft', apparel:'?? Apparel', green:'?? Green', puja:'?? Puja', education:'?? Education' },
+        hero: { tagline:'We Turn Skills into Livelihoods', sub:"From learning to earning — we're with you every step of the way.", join:'Start Your Journey', explore:'Explore Projects' },
+        chips: { all:'🎯 All', health:'🏥 Health', food:'🍲 Food', energy:'⚡ Energy', craft:'🎨 Craft', apparel:'👗 Apparel', green:'🌱 Green', puja:'🪔 Puja', education:'📚 Education' },
         card: { setup:'Setup Cost', working:'Working Capital', units:'Units', view:'View Project Booklet' },
         cta: { title:'Want to Join a Project?', sub:'Become a member and get access to all livelihood projects', btn:'Join Now' }
       },
       hi: {
-        hero: { tagline:'?? ???? ?? ??????? ??? ????? ???', sub:'????? ?? ????? ?? � ?? ?? ??? ???? ??? ????', join:'???? ?????? ???? ????', explore:'????????? ?????' },
-        chips: { all:'?? ???', health:'?? ?????????', food:'?? ?????', energy:'? ?????', craft:'?? ???????', apparel:'?? ??????', green:'?? ????', puja:'?? ????', education:'?? ??????' },
-        card: { setup:'????? ????', working:'??????? ??????', units:'?????', view:'????????? ?????? ?????' },
-        cta: { title:'???? ????????? ??? ?????? ???', sub:'????? ???? ?? ??? ??????? ????????? ?? ????? ????', btn:'??? ??????' }
+        hero: { tagline:'हम कौशल को आजीविका में बदलते हैं', sub:'सीखने से कमाने तक — हम हर कदम आपके साथ हैं।', join:'अपनी यात्रा शुरू करें', explore:'प्रोजेक्ट देखें' },
+        chips: { all:'🎯 सभी', health:'🏥 स्वास्थ्य', food:'🍲 खाद्य', energy:'⚡ ऊर्जा', craft:'🎨 क्राफ्ट', apparel:'👗 परिधान', green:'🌱 हरित', puja:'🪔 पूजा', education:'📚 शिक्षा' },
+        card: { setup:'सेटअप लागत', working:'वर्किंग कैपिटल', units:'यूनिट', view:'प्रोजेक्ट बुकलेट देखें' },
+        cta: { title:'किसी प्रोजेक्ट में जुड़ना है?', sub:'सदस्य बनें और सभी आजीविका प्रोजेक्ट तक पहुंच पाएं', btn:'अभी जुड़ें' }
       }
     };
 
@@ -436,7 +431,7 @@
             <div class="meta-item"><div class="meta-label">${t.card.units}</div><div class="meta-value">${hi ? p.unitsHi : p.units}</div></div>
           </div>
           <div class="card-footer">
-            <a href="../project-booklet.html?project=${p.key}" class="btn-view" style="background:${p.grad}">
+            <a href="https://www.fwfindia.org/project-booklet.html?project=${p.key}" class="btn-view" style="background:${p.grad}">
               <i class="fa-solid fa-book-open"></i> ${t.card.view}
             </a>
           </div>`;
