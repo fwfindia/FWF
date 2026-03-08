@@ -2,205 +2,330 @@
 <html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#06060d">
-  <meta name="description" content="Sign in to your FWF member account">
-  <title>Sign In â€“ FWF</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Member Login — FWF</title>
   <link rel="manifest" href="/app/manifest.json">
   <link rel="icon" href="/assets/images/logo.png">
   <link rel="apple-touch-icon" href="/assets/images/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <style>
-    body { padding-bottom: 0; }
-    .login-wrap {
-      min-height: 100vh;
-      min-height: -webkit-fill-available;
-      display: flex;
-      flex-direction: column;
-      padding: calc(var(--topbar-h) + 16px) 0 32px;
-    }
-    .login-glow {
-      position: fixed; top: 0; left: 0; right: 0; height: 40vh;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 70%);
-      pointer-events: none; z-index: 0;
-    }
-    .login-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 20px 24px;
-      position: relative; z-index: 1;
-    }
-    .login-logo-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 36px;
-    }
-    .login-logo {
-      width: 76px; height: 76px;
-      border-radius: 24px;
-      background: #fff;
-      padding: 11px;
-      object-fit: contain;
-      box-shadow: 0 12px 50px rgba(124,58,237,0.4);
-      margin-bottom: 18px;
-    }
-    .login-logo-wrap h1 {
-      font-size: 24px;
-      letter-spacing: -0.4px;
-      margin-bottom: 6px;
-    }
-    .login-logo-wrap p { font-size: 14px; color: var(--t3); }
-    .form-card {
-      background: var(--s2);
-      border: 1px solid var(--b2);
-      border-radius: var(--r-lg);
-      padding: 24px 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .form-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--purple-d), var(--orange));
-    }
-    .forgot-link {
-      display: block;
-      text-align: right;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--purple-l);
-      margin-top: -10px;
-      margin-bottom: 20px;
-    }
+    [data-lang="hi"] body{font-family:'Mukta','Noto Sans Devanagari',sans-serif}
+    body{padding-bottom:calc(var(--tab-h)+env(safe-area-inset-bottom));animation:fadeUp .35s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .app-tabs{padding-bottom:env(safe-area-inset-bottom);height:calc(var(--tab-h)+env(safe-area-inset-bottom))}
+
+    /* Login Card */
+    .login-wrap{padding:16px;margin-top:8px}
+    .login-card{background:var(--surface);border:1.5px solid var(--border);border-radius:22px;padding:32px 24px;position:relative;overflow:hidden}
+    .login-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(139,92,246,.1) 0%,transparent 70%);border-radius:50%}
+
+    .logo-box{text-align:center;margin-bottom:28px;position:relative;z-index:1}
+    .logo-img{width:72px;height:72px;border-radius:18px;background:#fff;padding:5px;box-shadow:0 8px 24px rgba(139,92,246,.2);margin:0 auto 14px;display:block;object-fit:contain;animation:float 3s ease-in-out infinite}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .logo-title{font-size:22px;font-weight:900;background:linear-gradient(135deg,#8b5cf6,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .logo-subtitle{color:var(--text3);font-size:13px;font-weight:600;margin-top:3px}
+
+    .input-group{position:relative;margin-bottom:18px}
+    .input-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#8b5cf6;font-size:16px;pointer-events:none;z-index:1}
+    .input-field{width:100%;padding:14px 16px 14px 46px;border:2px solid var(--border);border-radius:13px;background:var(--bg);font-size:14px;font-weight:600;color:var(--text);font-family:inherit;transition:all .2s}
+    .input-field:focus{outline:none;border-color:#8b5cf6;background:var(--surface);box-shadow:0 0 0 3px rgba(139,92,246,.1)}
+    .input-field::placeholder{color:var(--text3);font-weight:500}
+    .has-toggle .input-field{padding-right:46px}
+    .toggle-pwd{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:0;border:0;cursor:pointer;padding:6px;color:#8b5cf6;font-size:16px;z-index:2}
+
+    .forgot-link{display:inline-block;font-size:12.5px;font-weight:700;color:#8b5cf6;text-decoration:none;margin-bottom:14px}
+    .forgot-link i{margin-right:3px;font-size:11px}
+
+    .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;border:none;border-radius:13px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(139,92,246,.3);transition:transform .15s;font-family:inherit;position:relative;overflow:hidden}
+    .login-btn:active{transform:scale(.97)}
+    .login-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#7c3aed,#6d28d9);opacity:0;transition:opacity .2s}
+    .login-btn:active::before{opacity:1}
+    .login-btn span{position:relative;z-index:1}
+
+    .divider{display:flex;align-items:center;gap:10px;margin:22px 0;color:var(--text3);font-size:12px;font-weight:600}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    .signup-link{text-align:center;font-size:13.5px;color:var(--text2);font-weight:600}
+    .signup-link a{color:#8b5cf6;text-decoration:none;font-weight:800}
+
+    /* Forgot Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+    .modal-overlay.active{display:flex}
+    .modal-box{background:var(--surface);border:1.5px solid var(--border);border-radius:22px;width:100%;max-width:380px;padding:28px 22px;position:relative;animation:slideUp .35s ease}
+    .modal-close{position:absolute;top:12px;right:12px;background:0;border:0;font-size:22px;color:var(--text3);cursor:pointer;width:34px;height:34px;border-radius:50%;display:grid;place-items:center}
+    .modal-close:active{background:rgba(255,255,255,.05)}
+    .modal-title{font-size:19px;font-weight:900;background:linear-gradient(135deg,#8b5cf6,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+    .modal-sub{color:var(--text3);font-size:13px;margin-bottom:22px;line-height:1.5}
+    .modal-step{display:none}
+    .modal-step.active{display:block;animation:fadeUp .3s ease}
+
+    .otp-row{display:flex;gap:8px;justify-content:center;margin:18px 0}
+    .otp-input{width:42px;height:48px;border:2px solid var(--border);border-radius:10px;text-align:center;font-size:20px;font-weight:800;color:var(--text);background:var(--bg);font-family:inherit}
+    .otp-input:focus{outline:none;border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.1)}
+
+    .resend-link{display:block;text-align:center;margin-top:12px;font-size:12px;color:#8b5cf6;text-decoration:none;font-weight:700}
+    .resend-link.disabled{color:var(--text3);pointer-events:none}
+
+    .success-icon{width:64px;height:64px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:50%;display:grid;place-items:center;color:#fff;font-size:28px;margin:16px auto;animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes scaleIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+    .toast{position:fixed;top:calc(var(--topbar-h)+8px);left:16px;right:16px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:700;color:#fff;z-index:10000;text-align:center;animation:slideDown .3s ease;display:none}
+    .toast.show{display:block}
+    .toast.error{background:#ef4444}
+    .toast.success{background:#22c55e}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+    .app-ft{padding:16px;margin-top:16px;border-top:1px solid var(--border);text-align:center}
+    .ft-copy{font-size:11px;color:var(--text3)}
   </style>
 </head>
 <body>
 
-<header class="app-topbar">
-  <a href="/app/home" class="tb-btn" style="font-size:20px">&#8592;</a>
-  <div class="brand" style="justify-content:center">
-    <span style="font-size:16px;font-weight:800;color:var(--t1)">Sign In</span>
-  </div>
-  <a href="/join" style="font-size:12px;font-weight:800;color:var(--purple-l);padding:8px 14px;background:var(--purple-g);border:1px solid rgba(167,139,250,0.25);border-radius:10px;text-decoration:none">Join</a>
-</header>
+  <div id="toast" class="toast"></div>
 
-<div class="login-glow"></div>
-<div id="toast-container"></div>
-
-<div class="login-wrap">
-  <div class="login-body">
-    <div class="login-logo-wrap fade-up">
-      <img class="login-logo" src="/assets/images/logo.png" alt="FWF"
-           onerror="this.src='/assets/images/logo.png'">
-      <h1>Welcome Back ðŸ‘‹</h1>
-      <p>Login to your FWF account</p>
+  <header class="app-topbar">
+    <div class="brand">
+      <img src="/assets/images/logo.png" alt="FWF" loading="eager">
+      <div><div class="brand-text">FWF</div><div class="brand-sub">Member Login</div></div>
     </div>
+    <a href="/app/home" class="topbar-action"><i class="fas fa-home"></i></a>
+  </header>
 
-    <div class="form-card fade-up-2">
-      <form id="login-form">
-        <div class="form-group">
-          <label class="form-label">Mobile / Member ID <span>*</span></label>
-          <div class="input-wrap">
-            <span class="input-icon">ðŸ“±</span>
-            <input type="text" id="login-id" class="form-input"
-                   placeholder="Mobile or FWF-000001"
-                   autocomplete="username" required>
-          </div>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="logo-box">
+        <img src="/assets/images/logo.png" alt="FWF" class="logo-img">
+        <h1 class="logo-title" data-i18n="l.title">Member Login</h1>
+        <p class="logo-subtitle" data-i18n="l.sub">Access your dashboard</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <input id="mid" class="input-field" type="text" placeholder="FWF-000001" required autocomplete="username">
+          <i class="input-icon fas fa-id-card"></i>
         </div>
-        <div class="form-group" style="margin-bottom:8px">
-          <label class="form-label">Password <span>*</span></label>
-          <div class="input-wrap has-action">
-            <span class="input-icon">ðŸ”’</span>
-            <input type="password" id="login-pass" class="form-input"
-                   placeholder="Enter your password"
-                   autocomplete="current-password" required>
-            <button type="button" class="input-action" onclick="togglePass()" id="pass-toggle">ðŸ‘</button>
-          </div>
+
+        <div class="input-group has-toggle">
+          <input id="pwd" class="input-field" type="password" placeholder="••••••••" required autocomplete="current-password">
+          <i class="input-icon fas fa-lock"></i>
+          <button type="button" class="toggle-pwd" onclick="togglePwd('pwd','togIcon')" aria-label="Toggle password">
+            <i class="fas fa-eye" id="togIcon"></i>
+          </button>
         </div>
-        <a href="/app/forgot-password" class="forgot-link">Forgot Password?</a>
-        <button type="submit" class="btn btn-primary btn-lg btn-block" id="login-btn">
-          ðŸ”“ Sign In
+
+        <a href="#" class="forgot-link" onclick="openForgot(event)" data-i18n="l.forgot"><i class="fas fa-key"></i> Forgot Password?</a>
+
+        <button type="submit" class="login-btn">
+          <span id="btnText"><i class="fas fa-arrow-right-to-bracket"></i> <span data-i18n="l.btn">Login to Dashboard</span></span>
         </button>
       </form>
-    </div>
 
-    <p style="text-align:center;margin-top:24px;font-size:13px;color:var(--t3)">
-      New to FWF? <a href="/join" style="color:var(--purple-l);font-weight:700">Join as Member â†’</a>
-    </p>
+      <div class="divider" data-i18n="l.new">New to FWF?</div>
 
-    <div class="alert alert-info" style="margin-top:18px">
-      <i>â„¹ï¸</i>
-      <span>Use your registered mobile number or Member ID (e.g. FWF-000001) as username.</span>
+      <div class="signup-link">
+        <a href="https://www.fwfindia.org/donation#memberModal"><i class="fas fa-user-plus"></i> <span data-i18n="l.join">Join &amp; Get Member ID</span></a>
+      </div>
     </div>
   </div>
-</div>
 
-<nav class="app-tabs">
-  <a href="/app/home"     class="tab-item"><span class="tab-icon">ðŸ </span><span class="tab-label">Home</span></a>
-  <a href="/app/projects" class="tab-item"><span class="tab-icon">ðŸŒ¿</span><span class="tab-label">Projects</span></a>
-  <a href="/app/donate"   class="tab-fab"><div class="fab-circle">ðŸ’š</div><span class="fab-label">Donate</span></a>
-  <a href="/app/quiz"     class="tab-item"><span class="tab-icon">ðŸŽ²</span><span class="tab-label">Quiz</span></a>
-  <a href="/app/profile"  class="tab-item active"><span class="tab-icon">ðŸ‘¤</span><span class="tab-label">Account</span></a>
-</nav>
+  <div class="app-ft">
+    <div class="ft-copy">&copy; <span id="yr"></span> FWF</div>
+  </div>
 
-<script>
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForgot()">&times;</button>
 
-function showToast(msg, type='info') {
-  const icons = {success:'&#9989;', error:'&#10060;', info:'&#8505;&#65039;', warning:'&#9888;&#65039;'};
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
-  const c = document.getElementById('toast-container');
-  if (c) c.appendChild(t);
-  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
-}
-function togglePass() {
-  const inp = document.getElementById('login-pass');
-  const btn = document.getElementById('pass-toggle');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '&#128064;'; }
-  else { inp.type = 'password'; btn.innerHTML = '&#128065;'; }
-}
-document.getElementById('login-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn = document.getElementById('login-btn');
-  const id = document.getElementById('login-id').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  if (!id || !pass) { showToast('Please fill all fields', 'error'); return; }
-  btn.classList.add('loading');
-  btn.textContent = '';
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST', credentials: 'include',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ mobile: id, password: pass })
+      <!-- Step 1: Enter Member ID -->
+      <div class="modal-step active" id="step1">
+        <h2 class="modal-title" data-i18n="f.s1.h">Forgot Password?</h2>
+        <p class="modal-sub" data-i18n="f.s1.sub">Enter your Member ID to receive an OTP on your registered email.</p>
+        <form id="requestOtpForm">
+          <div class="input-group">
+            <input id="resetMid" class="input-field" type="text" placeholder="FWF-000001" required>
+            <i class="input-icon fas fa-id-card"></i>
+          </div>
+          <button type="submit" class="login-btn">
+            <span id="otpBtnText"><i class="fas fa-paper-plane"></i> <span data-i18n="f.s1.btn">Send OTP</span></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Step 2: OTP + New Password -->
+      <div class="modal-step" id="step2">
+        <h2 class="modal-title" data-i18n="f.s2.h">Verify OTP</h2>
+        <p class="modal-sub">Enter the 6-digit OTP sent to <strong id="maskedEmail"></strong><span id="maskedMobWrap" style="display:none"> &amp; <strong id="maskedMob"></strong></span></p>
+        <form id="resetForm">
+          <div class="otp-row">
+            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-idx="0">
+            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-idx="1">
+            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-idx="2">
+            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-idx="3">
+            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-idx="4">
+            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-idx="5">
+          </div>
+          <a href="#" class="resend-link disabled" id="resendBtn" onclick="resendOTP(event)">
+            <i class="fas fa-rotate-right"></i> Resend OTP (<span id="timer">60</span>s)
+          </a>
+          <div class="input-group has-toggle" style="margin-top:18px">
+            <input id="newPwd" class="input-field" type="password" placeholder="New Password (min 8 chars)" required minlength="8">
+            <i class="input-icon fas fa-lock"></i>
+            <button type="button" class="toggle-pwd" onclick="togglePwd('newPwd','togNew')" aria-label="Toggle password">
+              <i class="fas fa-eye" id="togNew"></i>
+            </button>
+          </div>
+          <button type="submit" class="login-btn" style="margin-top:6px">
+            <span id="resetBtnText"><i class="fas fa-check"></i> <span data-i18n="f.s2.btn">Reset Password</span></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Step 3: Success -->
+      <div class="modal-step" id="step3">
+        <div class="success-icon"><i class="fas fa-check"></i></div>
+        <h2 class="modal-title" style="text-align:center" data-i18n="f.s3.h">Password Reset Successful!</h2>
+        <p class="modal-sub" style="text-align:center" data-i18n="f.s3.sub">Your password has been updated. Redirecting to login...</p>
+      </div>
+    </div>
+  </div>
+
+  <nav class="app-tabs">
+    <a href="/app/home" class="tab-item" id="t-h"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/app/projects" class="tab-item" id="t-p"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+    <a href="https://www.fwfindia.org/donation#memberModal" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
+    <a href="/app/donate" class="tab-item" id="t-d"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/login" class="tab-item active" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
+  </nav>
+
+  <script>
+    document.getElementById('yr').textContent=new Date().getFullYear();
+    const API=window.location.hostname==='localhost'?'http://localhost:3000':'https://fwf-production.up.railway.app';
+
+    function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000)}
+    function togglePwd(fid,iid){const f=document.getElementById(fid),i=document.getElementById(iid);if(f.type==='password'){f.type='text';i.className='fas fa-eye-slash'}else{f.type='password';i.className='fas fa-eye'}}
+
+    /* Login */
+    document.getElementById('loginForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const btn=document.getElementById('btnText');
+      const memberId=document.getElementById('mid').value.trim();
+      const password=document.getElementById('pwd').value.trim();
+      btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Logging in...';
+      try{
+        let url=API+'/api/auth/login',body={memberId,password};
+        if(memberId.includes('@')){url=API+'/api/admin/login';body={username:memberId,password}}
+        const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(body)});
+        const d=await r.json();
+        if(!r.ok)throw new Error(d.error||'Invalid credentials');
+        btn.innerHTML='<i class="fas fa-check"></i> Success!';
+        toast('Logged in!','success');
+        setTimeout(()=>{
+          if(d.role==='admin')location.href='https://www.fwfindia.org/admin-dashboard';
+          else if(d.role==='supporter')location.href='https://www.fwfindia.org/supporter-dashboard';
+          else location.href='https://www.fwfindia.org/member-dashboard';
+        },600);
+      }catch(er){
+        btn.innerHTML='<i class="fas fa-xmark"></i> Failed';
+        toast(er.message||'Login failed','error');
+        setTimeout(()=>{btn.innerHTML='<i class="fas fa-arrow-right-to-bracket"></i> Login to Dashboard'},2000);
+      }
     });
-    const data = await res.json();
-    if (data.ok || data.token) {
-      if (data.token) localStorage.setItem('fwf-token', data.token);
-      if (data.user) localStorage.setItem('fwf-user', JSON.stringify(data.user));
-      showToast('Login successful!', 'success');
-      setTimeout(() => { window.location.href = '/app/dashboard'; }, 800);
-    } else {
-      showToast(data.error || 'Login failed. Check your credentials.', 'error');
-      btn.classList.remove('loading');
-      btn.innerHTML = '&#128275; Sign In';
+
+    /* Forgot Password */
+    let timerInt,curMid='';
+    function openForgot(e){e.preventDefault();document.getElementById('forgotModal').classList.add('active');showStep(1)}
+    function closeForgot(){document.getElementById('forgotModal').classList.remove('active');resetModal()}
+    function resetModal(){showStep(1);document.getElementById('resetMid').value='';document.getElementById('newPwd').value='';document.querySelectorAll('.otp-input').forEach(i=>i.value='');if(timerInt)clearInterval(timerInt);curMid=''}
+    function showStep(n){document.querySelectorAll('.modal-step').forEach(s=>s.classList.remove('active'));document.getElementById('step'+n).classList.add('active')}
+
+    document.getElementById('requestOtpForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const btn=document.getElementById('otpBtnText');
+      const mid=document.getElementById('resetMid').value.trim();
+      if(!mid){toast('Enter your Member ID','error');return}
+      btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';
+      try{
+        const r=await fetch('/api/password?action=forgot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({memberId:mid})});
+        const d=await r.json();
+        if(!r.ok)throw new Error(d.error||'Failed');
+        curMid=mid;
+        document.getElementById('maskedEmail').textContent=d.email||'';
+        if(d.mobile){document.getElementById('maskedMob').textContent=d.mobile;document.getElementById('maskedMobWrap').style.display='inline'}
+        else{document.getElementById('maskedMobWrap').style.display='none'}
+        toast(d.message||'OTP sent','success');showStep(2);startTimer();
+      }catch(er){toast(er.message,'error')}
+      finally{btn.innerHTML='<i class="fas fa-paper-plane"></i> Send OTP'}
+    });
+
+    document.getElementById('resetForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const btn=document.getElementById('resetBtnText');
+      const otp=Array.from(document.querySelectorAll('.otp-input')).map(i=>i.value).join('');
+      const np=document.getElementById('newPwd').value;
+      if(otp.length!==6){toast('Enter complete OTP','error');return}
+      if(np.length<8){toast('Password min 8 characters','error');return}
+      btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Resetting...';
+      try{
+        const r=await fetch('/api/password?action=reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({memberId:curMid,otp,newPassword:np})});
+        const d=await r.json();
+        if(!r.ok)throw new Error(d.error||'Failed');
+        showStep(3);toast(d.message||'Password reset!','success');
+        setTimeout(()=>{closeForgot();location.reload()},3000);
+      }catch(er){toast(er.message,'error');btn.innerHTML='<i class="fas fa-check"></i> Reset Password'}
+    });
+
+    async function resendOTP(e){
+      e.preventDefault();
+      try{
+        const r=await fetch('/api/password?action=forgot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({memberId:curMid})});
+        const d=await r.json();
+        if(!r.ok)throw new Error(d.error||'Failed');
+        toast('OTP resent','success');startTimer();
+      }catch(er){toast(er.message,'error')}
     }
-  } catch(err) {
-    showToast('Network error. Please try again.', 'error');
-    btn.classList.remove('loading');
-    btn.innerHTML = '&#128275; Sign In';
-  }
-});
-// Redirect if already logged in
-if (localStorage.getItem('fwf-token')) window.location.href = '/app/dashboard';
-</script>
+
+    function startTimer(){
+      let t=60;const el=document.getElementById('timer'),btn=document.getElementById('resendBtn');
+      btn.classList.add('disabled');
+      if(timerInt)clearInterval(timerInt);
+      timerInt=setInterval(()=>{t--;el.textContent=t;if(t<=0){clearInterval(timerInt);btn.classList.remove('disabled')}},1000);
+    }
+
+    /* OTP auto-focus */
+    document.querySelectorAll('.otp-input').forEach((inp,i,all)=>{
+      inp.addEventListener('input',e=>{if(e.target.value.length===1&&i<all.length-1)all[i+1].focus()});
+      inp.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!e.target.value&&i>0)all[i-1].focus()});
+    });
+
+    /* i18n */
+    const T={
+      en:{
+        'l.title':'Member Login','l.sub':'Access your dashboard','l.forgot':'🔑 Forgot Password?','l.btn':'Login to Dashboard','l.new':'New to FWF?','l.join':'Join & Get Member ID',
+        'f.s1.h':'Forgot Password?','f.s1.sub':'Enter your Member ID to receive an OTP on your registered email.','f.s1.btn':'Send OTP',
+        'f.s2.h':'Verify OTP','f.s2.btn':'Reset Password',
+        'f.s3.h':'Password Reset Successful!','f.s3.sub':'Your password has been updated. Redirecting to login...'
+      },
+      hi:{
+        'l.title':'सदस्य लॉगिन','l.sub':'अपना डैशबोर्ड एक्सेस करें','l.forgot':'🔑 पासवर्ड भूल गए?','l.btn':'डैशबोर्ड में लॉगिन','l.new':'FWF में नए हैं?','l.join':'जुड़ें और Member ID पाएं',
+        'f.s1.h':'पासवर्ड भूल गए?','f.s1.sub':'अपनी रजिस्टर्ड ईमेल पर OTP पाने के लिए Member ID डालें।','f.s1.btn':'OTP भेजें',
+        'f.s2.h':'OTP वेरिफाई करें','f.s2.btn':'पासवर्ड रीसेट',
+        'f.s3.h':'पासवर्ड रीसेट सफल!','f.s3.sub':'आपका पासवर्ड अपडेट हो गया। लॉगिन पर रीडायरेक्ट हो रहा है...'
+      }
+    };
+    function setLang(l){
+      document.documentElement.setAttribute('data-lang',l);localStorage.setItem('fwfLang',l);
+      const t=T[l];document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.getAttribute('data-i18n')];if(v!==undefined)el.textContent=v});
+    }
+    setLang(localStorage.getItem('fwfLang')||'en');
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
+  </script>
 </body>
 </html>

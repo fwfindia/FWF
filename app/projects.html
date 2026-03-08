@@ -2,153 +2,168 @@
 <html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#06060d">
-  <meta name="description" content="FWF livelihood projects - skill development, micro-enterprises for women">
-  <title>Projects â€“ FWF</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>FWF Projects – Skill Development & Livelihood Programs</title>
   <link rel="manifest" href="/app/manifest.json">
   <link rel="icon" href="/assets/images/logo.png">
   <link rel="apple-touch-icon" href="/assets/images/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+    [data-lang="hi"] body{font-family:'Mukta','Noto Sans Devanagari',sans-serif}
+    body{padding-bottom:calc(var(--tab-h)+env(safe-area-inset-bottom));animation:fadeUp .35s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .app-tabs{padding-bottom:env(safe-area-inset-bottom);height:calc(var(--tab-h)+env(safe-area-inset-bottom))}
+
+    /* Hero */
+    .proj-hero{margin:12px 16px 0;border-radius:22px;padding:24px 20px;background:linear-gradient(135deg,#1e3a8a,#7c3aed);position:relative;overflow:hidden;text-align:center}
+    .proj-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);border-radius:50%}
+    .proj-hero img{width:48px;height:48px;border-radius:12px;background:#fff;padding:4px;object-fit:contain;margin:0 auto 12px;display:block;position:relative;z-index:1}
+    .proj-hero h1{font-size:22px;font-weight:900;color:#fff;position:relative;z-index:1;margin-bottom:6px}
+    .proj-hero p{font-size:13px;color:rgba(255,255,255,.8);position:relative;z-index:1;margin:0;line-height:1.5}
+
+    /* Subtitle */
+    .proj-desc{padding:16px 16px 0;font-size:13px;color:var(--text2);line-height:1.6}
+
+    /* Filter chips */
+    .chips{padding:14px 16px 10px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;display:flex;gap:7px}
+    .chips::-webkit-scrollbar{display:none}
+    .chip{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s}
+    .chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+
+    /* Project grid */
+    .pgrid{padding:0 16px 12px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .pc{border-radius:18px;overflow:hidden;text-decoration:none;display:block;transition:transform .15s;position:relative}
+    .pc:active{transform:scale(.97)}
+    .pc-in{padding:18px 14px 14px;min-height:175px;display:flex;flex-direction:column;justify-content:space-between}
+    .pc-emoji{font-size:32px;margin-bottom:8px;line-height:1}
+    .pc-cat{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;opacity:.85;color:rgba(255,255,255,.9)}
+    .pc-name{font-size:14px;font-weight:800;color:#fff;line-height:1.25}
+    .pc-desc{font-size:11.5px;color:rgba(255,255,255,.7);margin-top:4px;line-height:1.45}
+    .pc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+    .pc-tag{font-size:9px;font-weight:700;padding:3px 7px;border-radius:8px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8)}
+    .pc-cta{font-size:11px;font-weight:700;color:rgba(255,255,255,.9);display:flex;align-items:center;gap:4px;margin-top:10px}
+    .pc-cta i{font-size:10px}
+
+    /* Gradient themes */
+    .tb{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+    .tg{background:linear-gradient(135deg,#15803d,#22c55e)}
+    .ty{background:linear-gradient(135deg,#b45309,#f59e0b)}
+    .tp{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+    .tr{background:linear-gradient(135deg,#be123c,#f43f5e)}
+    .tc{background:linear-gradient(135deg,#0e7490,#22d3ee)}
+    .to{background:linear-gradient(135deg,#c2410c,#fb923c)}
+    .tn{background:linear-gradient(135deg,#1e3a5f,#3b7dd8)}
+    .tk{background:linear-gradient(135deg,#166534,#4ade80)}
+    .tm{background:linear-gradient(135deg,#4c1d95,#8b5cf6)}
+    .te{background:linear-gradient(135deg,#0c4a6e,#38bdf8)}
+
+    .empty{text-align:center;padding:48px 20px;color:var(--text3);grid-column:1/-1}
+    .empty i{font-size:36px;display:block;margin-bottom:12px;opacity:.4}
+
+    /* Footer */
+    .app-ft{padding:20px 16px 12px;margin-top:20px;border-top:1px solid var(--border)}
+    .ft-copy{font-size:11px;color:var(--text3);text-align:center}
+    .ft-copy a{color:var(--text3);text-decoration:none;margin:0 6px}
+  </style>
 </head>
 <body>
-<header class="app-topbar">
-  <a href="/app/home" class="brand"><img class="brand-logo" src="/assets/images/logo.png" alt="FWF"><div><div class="brand-text">Projects</div><div class="brand-sub">Livelihood Opportunities</div></div></a>
-  <div class="topbar-right">
-    <a href="/app/profile" class="tb-btn" id="topbar-user">&#128100;</a>
-  </div>
-</header>
-<div id="toast-container"></div>
 
-<div class="page">
-  <div class="chip-strip" style="padding-top:8px">
-    <button class="chip chip-orange active-filter" onclick="filterProjects('all')" id="f-all">All</button>
-    <button class="chip" onclick="filterProjects('food')" id="f-food">&#127815; Food</button>
-    <button class="chip" onclick="filterProjects('craft')" id="f-craft">&#129526; Craft</button>
-    <button class="chip" onclick="filterProjects('agri')" id="f-agri">&#127807; Agriculture</button>
-    <button class="chip" onclick="filterProjects('beauty')" id="f-beauty">&#128167; Beauty</button>
-    <button class="chip" onclick="filterProjects('textile')" id="f-text">&#129513; Textile</button>
+  <header class="app-topbar">
+    <div class="brand">
+      <img src="/assets/images/logo.png" alt="FWF" loading="eager">
+      <div><div class="brand-text">FWF</div><div class="brand-sub">Projects</div></div>
+    </div>
+    <a href="/app/home" class="topbar-action"><i class="fas fa-home"></i></a>
+  </header>
+
+  <div class="proj-hero">
+    <img src="/assets/images/logo.png" alt="FWF">
+    <h1 data-i18n="p.h1">FWF Projects</h1>
+    <p data-i18n="p.sub">Skill Development & Livelihood Programs</p>
   </div>
 
-  <div class="section" id="projects-container">
-    <div class="project-card skeleton" style="height:200px"></div>
-    <div class="project-card skeleton" style="height:200px"></div>
-    <div class="project-card skeleton" style="height:200px"></div>
+  <div class="proj-desc" data-i18n="p.desc">FWF runs multiple livelihood micro-enterprise projects including Agarbatti Unit, Tailoring, Green Energy, and more to build livelihoods across India.</div>
+
+  <div class="chips" id="chips"></div>
+  <div class="pgrid" id="pgrid"></div>
+
+  <div class="app-ft">
+    <div class="ft-copy">&copy; <span id="yr"></span> FWF – All Rights Reserved · <a href="https://www.fwfindia.org/privacy">Privacy</a> · <a href="https://www.fwfindia.org/terms">Terms</a></div>
   </div>
-</div>
 
-<nav class="app-tabs">
-  <a href="/app/home" class="tab-item"><span class="tab-icon">&#127968;</span><span class="tab-label">Home</span></a>
-  <a href="/app/projects" class="tab-item active"><span class="tab-icon">&#127807;</span><span class="tab-label">Projects</span></a>
-  <a href="/app/donate" class="tab-fab"><div class="fab-circle">&#128152;</div><span class="fab-label">Donate</span></a>
-  <a href="/app/quiz" class="tab-item"><span class="tab-icon">&#127922;</span><span class="tab-label">Quiz</span></a>
-  <a href="/app/profile" class="tab-item"><span class="tab-icon">&#128100;</span><span class="tab-label">Account</span></a>
-</nav>
+  <nav class="app-tabs">
+    <a href="/app/home" class="tab-item" id="t-h"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/app/projects" class="tab-item active" id="t-p"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+    <a href="https://www.fwfindia.org/donation#memberModal" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
+    <a href="/app/donate" class="tab-item" id="t-d"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/login" class="tab-item" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
+  </nav>
 
-<script>
+  <script>
+    document.getElementById('yr').textContent=new Date().getFullYear();
 
-function showToast(msg, type='info') {
-  const icons = {success:'&#9989;', error:'&#10060;', info:'&#8505;&#65039;', warning:'&#9888;&#65039;'};
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
-  const c = document.getElementById('toast-container');
-  if (c) c.appendChild(t);
-  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
-}
+    const PROJECTS=[
+      {key:'suraksha',cat:'health',color:'tb',emoji:'🛡️',en:'Suraksha',hi:'सुरक्षा',desc_en:'Security & safety products for households',desc_hi:'घरों के लिए सुरक्षा उत्पाद',tags:['🌱 Sustainable','👥 Community','💰 Income']},
+      {key:'swachhbharat',cat:'water',color:'tc',emoji:'💧',en:'Swachh Bharat',hi:'स्वच्छ भारत',desc_en:'Water purification & sanitation solutions',desc_hi:'जल शुद्धिकरण और स्वच्छता समाधान',tags:['🌱 Sustainable','💧 Water','👥 Community']},
+      {key:'happymeal',cat:'food',color:'ty',emoji:'🍱',en:'Happy Meal',hi:'हैप्पी मील',desc_en:'Nutritious food processing & distribution',desc_hi:'पौष्टिक खाद्य प्रसंस्करण और वितरण',tags:['🍱 Nutrition','👥 Community','💰 Income']},
+      {key:'greenenergy',cat:'energy',color:'tg',emoji:'☀️',en:'Green Energy',hi:'ग्रीन एनर्जी',desc_en:'Solar lighting & clean energy solutions',desc_hi:'सौर प्रकाश और स्वच्छ ऊर्जा समाधान',tags:['☀️ Solar','🌱 Green','💰 Income']},
+      {key:'diycrafts',cat:'craft',color:'tp',emoji:'🎨',en:'DIY Crafts',hi:'DIY क्राफ्ट',desc_en:'Handmade artisan craft production & sales',desc_hi:'हस्तनिर्मित शिल्प उत्पादन और बिक्री',tags:['🎨 Craft','👥 Women','💰 Income']},
+      {key:'swachhjal',cat:'water',color:'tc',emoji:'🚿',en:'Swachh Jal',hi:'स्वच्छ जल',desc_en:'Clean drinking water access for villages',desc_hi:'गांवों के लिए स्वच्छ पेयजल',tags:['💧 Water','🌱 Sustainable','👥 Community']},
+      {key:'samman',cat:'apparel',color:'tm',emoji:'👗',en:'Samman',hi:'सम्मान',desc_en:'School uniform & dignified apparel program',desc_hi:'स्कूल यूनिफॉर्म और सम्मानजनक वस्त्र',tags:['👗 Apparel','👥 Women','💰 Income']},
+      {key:'sweethome',cat:'craft',color:'tr',emoji:'🏡',en:'Sweet Home',hi:'स्वीट होम',desc_en:'Agarbatti & home décor production units',desc_hi:'अगरबत्ती और गृह सज्जा उत्पादन',tags:['🏠 Home','🌱 Sustainable','💰 Income']},
+      {key:'hariyali',cat:'green',color:'tk',emoji:'🌿',en:'Hariyali',hi:'हरियाली',desc_en:'Tree planting & organic farming initiative',desc_hi:'वृक्षारोपण और जैविक खेती पहल',tags:['🌿 Green','🌱 Organic','👥 Community']},
+      {key:'worship',cat:'puja',color:'to',emoji:'🪔',en:'Worship',hi:'पूजा',desc_en:'Handcrafted puja accessories & incense',desc_hi:'हस्तनिर्मित पूजा सामग्री और धूप',tags:['🪔 Puja','🌱 Sustainable','💰 Income']},
+      {key:'shiksha',cat:'edu',color:'te',emoji:'📚',en:'Shiksha',hi:'शिक्षा',desc_en:'Skill development & vocational education',desc_hi:'कौशल विकास और व्यावसायिक शिक्षा',tags:['📚 Education','💼 Skill','👥 Community']}
+    ];
 
-const API = 'https://fwf-production.up.railway.app';
-function getToken() { return localStorage.getItem('fwf-token'); }
-function getUser()  { return JSON.parse(localStorage.getItem('fwf-user') || 'null'); }
-function isLoggedIn() { return !!getToken(); }
-async function apiCall(url, opts={}) {
-  const token = getToken();
-  const headers = { 'Content-Type':'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) };
-  const res = await fetch(url, { credentials: 'include', ...opts, headers: { ...headers, ...(opts.headers||{}) } });
-  if (res.status === 401) { logout(); return null; }
-  return res.json();
-}
-function logout() {
-  localStorage.removeItem('fwf-token');
-  localStorage.removeItem('fwf-user');
-  window.location.href = '/app/login';
-}
-function updateTopbarUser() {
-  const user = getUser();
-  const btn = document.getElementById('topbar-user');
-  if (!btn) return;
-  if (user) {
-    btn.href = '/app/dashboard';
-    btn.innerHTML = '<span style="font-size:13px;font-weight:800;line-height:1">' + (user.name||'U').charAt(0).toUpperCase() + '</span>';
-    btn.style.cssText = 'background:linear-gradient(135deg,var(--orange),var(--orange-d));color:#fff;border-radius:50%;width:36px;height:36px;border:2px solid rgba(255,255,255,.2)';
-  }
-}
+    const CATS=['all','health','food','energy','craft','apparel','water','green','puja','edu'];
+    const CAT_LABELS={en:{all:'All',health:'Health',food:'Food',energy:'Energy',craft:'Crafts',apparel:'Apparel',water:'Water',green:'Green',puja:'Puja',edu:'Education'},hi:{all:'सभी',health:'स्वास्थ्य',food:'खाद्य',energy:'ऊर्जा',craft:'शिल्प',apparel:'वेशभूषा',water:'जल',green:'हरित',puja:'पूजा',edu:'शिक्षा'}};
+    let activeCat='all',lang=localStorage.getItem('fwfLang')||'en';
 
-const PROJECTS = [
-  { id:'agarbatti', name:'Agarbatti Making Unit', nameHi:'à¤…à¤—à¤°à¤¬à¤¤à¥à¤¤à¥€ à¤¨à¤¿à¤°à¥à¤®à¤¾à¤£ à¤‡à¤•à¤¾à¤ˆ', category:'craft', icon:'&#127807;', tag:'Manufacturing', cost:'â‚¹25,000', funded:'60%', members:142, desc:'Set up a complete agarbatti manufacturing unit with raw material supply chain and retail distribution support.', color:'orange' },
-  { id:'tailoring', name:'Tailoring & Garments', nameHi:'à¤¸à¤¿à¤²à¤¾à¤ˆ à¤”à¤° à¤µà¤¸à¥à¤¤à¥à¤°', category:'textile', icon:'&#129513;', tag:'Textile', cost:'â‚¹18,000', funded:'55%', members:89, desc:'Start a home-based tailoring business with modern sewing machines, training, and bulk order support.', color:'blue' },
-  { id:'papad-unit', name:'Papad & Snacks Unit', nameHi:'à¤ªà¤¾à¤ªà¤¡à¤¼ à¤”à¤° à¤¨à¤¾à¤¶à¥à¤¤à¤¾ à¤‡à¤•à¤¾à¤ˆ', category:'food', icon:'&#127815;', tag:'Food Processing', cost:'â‚¹22,000', funded:'65%', members:113, desc:'Launch a papad, namkeen, and snacks manufacturing unit with packaging and local market connectivity.', color:'yellow' },
-  { id:'beauty-parlor', name:'Beauty Parlor', nameHi:'à¤¬à¥à¤¯à¥‚à¤Ÿà¥€ à¤ªà¤¾à¤°à¥à¤²à¤°', category:'beauty', icon:'&#128167;', tag:'Services', cost:'â‚¹30,000', funded:'50%', members:76, desc:'Open a professional beauty parlor with training in latest techniques, product supply, and customer base building.', color:'purple' },
-  { id:'vermi-compost', name:'Vermi Compost Unit', nameHi:'à¤µà¤°à¥à¤®à¥€ à¤•à¤®à¥à¤ªà¥‹à¤¸à¥à¤Ÿ à¤‡à¤•à¤¾à¤ˆ', category:'agri', icon:'&#127807;', tag:'Agriculture', cost:'â‚¹15,000', funded:'70%', members:95, desc:'Start an organic vermi-composting unit to supply fertilizer to local farmers with guaranteed buy-back.', color:'green' },
-  { id:'pickle-unit', name:'Pickle & Preserve Unit', nameHi:'à¤…à¤šà¤¾à¤° à¤”à¤° à¤¸à¤‚à¤°à¤•à¥à¤·à¤£ à¤‡à¤•à¤¾à¤ˆ', category:'food', icon:'&#127827;', tag:'Food Processing', cost:'â‚¹12,000', funded:'60%', members:108, desc:'Traditional pickle and seasonal preserve business with branding support and online marketplace listing.', color:'orange' },
-  { id:'candle-making', name:'Candle & Diya Making', nameHi:'à¤®à¥‹à¤®à¤¬à¤¤à¥à¤¤à¥€ à¤”à¤° à¤¦à¥€à¤¯à¤¾ à¤¨à¤¿à¤°à¥à¤®à¤¾à¤£', category:'craft', icon:'&#128367;', tag:'Handicraft', cost:'â‚¹10,000', funded:'75%', members:134, desc:'Handmade candles and decorative diyas business targeting festive markets, corporate gifting, and online sales.', color:'yellow' },
-  { id:'diy-craft', name:'DIY Crafts & Gifts', nameHi:'à¤¸à¥à¤µà¤¨à¤¿à¤°à¥à¤®à¤¿à¤¤ à¤¶à¤¿à¤²à¥à¤ª à¤”à¤° à¤‰à¤ªà¤¹à¤¾à¤°', category:'craft', icon:'&#127912;', tag:'Handicraft', cost:'â‚¹8,000', funded:'80%', members:158, desc:'Create handmade gifts, home decor, and craft items for online and offline markets with packaging support.', color:'purple' },
-];
+    const T={
+      en:{'p.h1':'FWF Projects','p.sub':'Skill Development & Livelihood Programs','p.desc':'FWF runs multiple livelihood micro-enterprise projects including Agarbatti Unit, Tailoring, Green Energy, and more to build livelihoods across India.','p.view':'View Details','p.seed':'See Seeding'},
+      hi:{'p.h1':'FWF प्रोजेक्ट्स','p.sub':'कौशल विकास और आजीविका कार्यक्रम','p.desc':'FWF कई आजीविका माइक्रो-एंटरप्राइज प्रोजेक्ट चलाता है जैसे अगरबत्ती यूनिट, सिलाई, ग्रीन एनर्जी और भी बहुत कुछ।','p.view':'विवरण देखें','p.seed':'सीडिंग देखें'}
+    };
 
-let currentFilter = 'all';
-
-function renderProjects(filter) {
-  const list = filter === 'all' ? PROJECTS : PROJECTS.filter(p => p.category === filter);
-  const container = document.getElementById('projects-container');
-  const lang = document.documentElement.getAttribute('data-lang') || 'en';
-  if (!list.length) {
-    container.innerHTML = '<div class="empty-state"><div class="es-icon">&#127807;</div><h3>No projects in this category</h3><p>Check back soon!</p></div>';
-    return;
-  }
-  container.innerHTML = list.map(p => {
-    const colors = { orange:'rgba(249,115,22,.2)',blue:'rgba(59,130,246,.2)',green:'rgba(16,185,129,.2)',purple:'rgba(139,92,246,.2)',yellow:'rgba(245,158,11,.2)' };
-    const textColors = { orange:'var(--orange)',blue:'var(--blue)',green:'var(--green)',purple:'var(--purple)',yellow:'var(--yellow)' };
-    const fundedPct = parseInt(p.funded);
-    return `<a href="/projects/${p.id}" class="project-card fade-up" style="text-decoration:none">
-      <div class="pc-top">
-        <div class="pc-tag" style="background:${colors[p.color]||colors.orange};color:${textColors[p.color]||textColors.orange}">${p.icon} ${p.tag}</div>
-        <div class="pc-name">${lang==='hi'&&p.nameHi ? p.nameHi : p.name}</div>
-        <div class="pc-desc">${p.desc}</div>
-        <div class="pc-stats">
-          <div class="pc-stat"><div class="psv">${p.cost}</div><div class="psl">Project Cost</div></div>
-          <div class="pc-stat"><div class="psv" style="color:var(--green)">${p.funded}</div><div class="psl">Subsidized</div></div>
-          <div class="pc-stat"><div class="psv">${p.members}+</div><div class="psl">Members</div></div>
+    function renderChips(){
+      const cl=CAT_LABELS[lang];
+      document.getElementById('chips').innerHTML=CATS.map(c=>`<button class="chip${activeCat===c?' on':''}" onclick="filterCat('${c}')">${cl[c]}</button>`).join('');
+    }
+    function renderGrid(){
+      const t=T[lang];
+      const filtered=activeCat==='all'?PROJECTS:PROJECTS.filter(p=>p.cat===activeCat);
+      const g=document.getElementById('pgrid');
+      if(!filtered.length){g.innerHTML='<div class="empty"><i class="fas fa-box-open"></i>No projects in this category</div>';return}
+      g.innerHTML=filtered.map(p=>`<a class="pc ${p.color}" href="https://www.fwfindia.org/project-booklet?project=${encodeURIComponent(p.key)}">
+        <div class="pc-in">
+          <div>
+            <div class="pc-emoji">${p.emoji}</div>
+            <div class="pc-cat">${(CAT_LABELS[lang][p.cat]||p.cat).toUpperCase()}</div>
+            <div class="pc-name">${lang==='hi'?p.hi:p.en}</div>
+            <div class="pc-desc">${lang==='hi'?p.desc_hi:p.desc_en}</div>
+            <div class="pc-tags">${p.tags.map(t=>`<span class="pc-tag">${t}</span>`).join('')}</div>
+          </div>
+          <div class="pc-cta">${t['p.view']} <i class="fas fa-arrow-right"></i></div>
         </div>
-        <div class="progress-wrap">
-          <div class="progress-label"><span>Funding Progress</span><span style="color:var(--green)">${p.funded}</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${fundedPct}%"></div></div>
-        </div>
-      </div>
-      <div class="pc-bottom">
-        <span style="font-size:12px;color:var(--t3)">FWF Member Project</span>
-        <span class="pc-btn-link">View Details &#8594;</span>
-      </div>
-    </a>`;
-  }).join('');
-}
+      </a>`).join('');
+    }
+    function filterCat(c){activeCat=c;renderChips();renderGrid()}
 
-function filterProjects(cat) {
-  document.querySelectorAll('.chip-strip .chip').forEach(c => { c.style.background = ''; c.style.color = ''; c.style.borderColor = ''; });
-  const activeMap = { orange: 'rgba(249,115,22,.18)', blue: 'rgba(59,130,246,.15)', green: 'rgba(16,185,129,.15)', all: 'rgba(249,115,22,.18)' };
-  const btn = document.getElementById('f-' + cat);
-  if (btn) { btn.style.background = 'rgba(249,115,22,.18)'; btn.style.color = 'var(--orange-l)'; btn.style.borderColor = 'rgba(249,115,22,.3)'; }
-  currentFilter = cat;
-  renderProjects(cat);
-}
-
-(function() {
-  renderProjects('all');
-  filterProjects('all');
-  updateTopbarUser();
-})();
-</script>
+    function setLang(l){
+      lang=l;document.documentElement.setAttribute('data-lang',l);localStorage.setItem('fwfLang',l);
+      const t=T[l];
+      document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.getAttribute('data-i18n')];if(v!==undefined)el.textContent=v});
+      renderChips();renderGrid();
+    }
+    setLang(lang);
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
+  </script>
 </body>
 </html>

@@ -2,279 +2,408 @@
 <html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#06060d">
-  <meta name="description" content="Join 5000+ women building sustainable livelihoods through skill development, micro-projects & community support.">
-  <title>FWF Ã¢â‚¬â€œ Skills to Livelihood</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FWF">
+  <title>FWF – Skills to Livelihood</title>
   <link rel="manifest" href="/app/manifest.json">
   <link rel="icon" href="/assets/images/logo.png">
   <link rel="apple-touch-icon" href="/assets/images/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+    [data-lang="hi"] body{font-family:'Mukta','Noto Sans Devanagari',sans-serif}
+    body{padding-bottom:calc(var(--tab-h)+env(safe-area-inset-bottom));animation:fadeUp .35s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .app-tabs{padding-bottom:env(safe-area-inset-bottom);height:calc(var(--tab-h)+env(safe-area-inset-bottom))}
+
+    /* ── Install Banner ── */
+    .inst-bar{display:none;align-items:center;gap:10px;margin:10px 16px 0;padding:12px 14px;background:linear-gradient(135deg,rgba(249,115,22,.16),rgba(234,88,12,.06));border:1px solid rgba(249,115,22,.3);border-radius:16px}
+    .inst-bar.show{display:flex}
+    .inst-bar .it{flex:1} .inst-bar .it strong{font-size:13px;color:var(--text);display:block} .inst-bar .it span{font-size:11px;color:var(--text2)}
+    .ib-btn{background:var(--primary);color:#fff;border:none;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0;font-family:inherit}
+    .ib-x{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0 4px}
+
+    /* ── Hero ── */
+    .hero{margin:12px 16px 0;border-radius:24px;padding:28px 22px 24px;background:linear-gradient(135deg,#1e3a8a 0%,#0f766e 100%);position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;inset:0;background:url('/assets/images/bg-madhubani.png') center/cover;opacity:.12}
+    .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(11,18,32,.7) 100%)}
+    .hero-inner{position:relative;z-index:1}
+    .hero-logo{width:52px;height:52px;border-radius:14px;background:#fff;padding:5px;object-fit:contain;margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+    .hero-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);font-size:11px;font-weight:800;color:rgba(255,255,255,.9);padding:4px 12px;border-radius:50px;margin-bottom:10px;letter-spacing:.3px}
+    .hero h1{font-size:24px;font-weight:900;color:#fff;line-height:1.22;margin-bottom:10px}
+    .hero .lead{font-size:13.5px;color:rgba(255,255,255,.82);line-height:1.6;margin-bottom:18px}
+    .hero .lead b{color:#fff}
+    .hero-btns{display:flex;gap:10px}
+    .hb{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 10px;border-radius:13px;font-size:13px;font-weight:800;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:transform .15s}
+    .hb:active{transform:scale(.96)}
+    .hb-p{background:#fff;color:#1e3a8a;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+    .hb-s{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff}
+
+    /* ── Section ── */
+    .sec{padding:22px 16px 0}
+    .sec-title{font-size:18px;font-weight:900;color:var(--text);margin-bottom:4px}
+    .sec-sub{font-size:13px;color:var(--text2)}
+
+    /* ── How It Works ── */
+    .steps{display:flex;flex-direction:column;padding:0 16px}
+    .step{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    .step:last-child{border-bottom:none}
+    .sn{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .step h4{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px}
+    .step p{font-size:12.5px;color:var(--text2);margin:0}
+
+    /* ── CTA Cards ── */
+    .cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px}
+    .cta-card{border-radius:20px;padding:20px 16px 16px;text-decoration:none;display:flex;flex-direction:column;gap:6px;min-height:150px;position:relative;overflow:hidden;border:1.5px solid transparent;transition:transform .18s}
+    .cta-card:active{transform:scale(.96)}
+    .cc-d{background:linear-gradient(145deg,rgba(239,68,68,.18),rgba(239,68,68,.06));border-color:rgba(239,68,68,.32)}
+    .cc-m{background:linear-gradient(145deg,rgba(6,182,212,.18),rgba(6,182,212,.06));border-color:rgba(6,182,212,.32)}
+    .cc-s{background:linear-gradient(145deg,rgba(34,197,94,.18),rgba(34,197,94,.06));border-color:rgba(34,197,94,.28)}
+    .cc-p{background:linear-gradient(145deg,rgba(139,92,246,.18),rgba(139,92,246,.06));border-color:rgba(139,92,246,.28)}
+    .cc-ico{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px}
+    .cc-d .cc-ico{background:rgba(239,68,68,.18);color:#f87171}
+    .cc-m .cc-ico{background:rgba(6,182,212,.18);color:#22d3ee}
+    .cc-s .cc-ico{background:rgba(34,197,94,.18);color:#4ade80}
+    .cc-p .cc-ico{background:rgba(139,92,246,.18);color:#a78bfa}
+    .cc-name{font-size:14px;font-weight:800;color:var(--text)}
+    .cc-desc{font-size:11.5px;color:var(--text2);line-height:1.5}
+    .cc-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;margin-top:auto;padding-top:8px}
+    .cc-d .cc-btn{color:#f87171} .cc-m .cc-btn{color:#22d3ee} .cc-s .cc-btn{color:#4ade80} .cc-p .cc-btn{color:#a78bfa}
+
+    /* ── Focus Areas ── */
+    .focus-scroll{display:flex;gap:10px;padding:4px 16px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .focus-scroll::-webkit-scrollbar{display:none}
+    .focus-chip{flex-shrink:0;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;white-space:nowrap}
+    .focus-chip strong{font-size:13px;color:var(--text);display:block}
+    .focus-chip span{font-size:11px;color:var(--text3)}
+
+    /* ── About Cards ── */
+    .about-cards{display:flex;flex-direction:column;gap:12px;padding:0 16px}
+    .acard{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 16px}
+    .acard h3{font-size:15px;font-weight:800;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+    .acard ul{list-style:none;padding:0;margin:0}
+    .acard li{font-size:13px;color:var(--text2);padding:5px 0;padding-left:18px;position:relative;line-height:1.5}
+    .acard li::before{content:'→';position:absolute;left:0;color:var(--primary);font-weight:700}
+
+    /* ── Success Stories ── */
+    .stories-scroll{display:flex;gap:12px;padding:4px 16px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .stories-scroll::-webkit-scrollbar{display:none}
+    .scard{flex-shrink:0;width:270px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 16px}
+    .scard-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .scard-emo{font-size:28px}
+    .scard-name{font-size:14px;font-weight:800;color:var(--text)}
+    .scard-role{font-size:11px;color:var(--text3)}
+    .scard p{font-size:13px;color:var(--text2);line-height:1.6;font-style:italic;margin:0}
+
+    /* ── Footer ── */
+    .app-ft{padding:24px 16px 12px;margin-top:24px;border-top:1px solid var(--border)}
+    .ft-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .ft-top img{width:44px;height:44px;border-radius:12px;background:#fff;padding:4px;object-fit:contain}
+    .ft-brand{font-size:15px;font-weight:800;color:var(--text)}
+    .ft-tagline{font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.5}
+    .ft-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .ft-link{font-size:12px;color:var(--text2);text-decoration:none;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+    .ft-socials{display:flex;gap:10px;margin-bottom:14px}
+    .ft-socials a{width:36px;height:36px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:15px;text-decoration:none}
+    .ft-contact{font-size:12px;color:var(--text3);line-height:2}
+    .ft-contact a{color:var(--text2);text-decoration:none}
+    .ft-contact i{width:18px;color:var(--primary)}
+    .ft-badges{display:flex;gap:8px;margin:12px 0}
+    .ft-badge{font-size:11px;font-weight:700;color:var(--text2);padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+    .ft-badge i{margin-right:4px}
+    .ft-copy{font-size:11px;color:var(--text3);display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
+    .ft-copy a{color:var(--text3);text-decoration:none;margin-left:10px}
+  </style>
 </head>
 <body>
 
-<header class="app-topbar">
-  <a href="/app/home" class="brand">
-    <img class="brand-logo" src="/assets/images/logo.png" alt="FWF"
-         onerror="this.src='/assets/images/logo.png'">
-    <div>
-      <div class="brand-text">FWF</div>
-      <div class="brand-sub">Skills to Livelihood</div>
+  <!-- Topbar -->
+  <header class="app-topbar">
+    <div class="brand">
+      <img src="/assets/images/logo.png" alt="FWF" loading="eager">
+      <div><div class="brand-text">FWF</div><div class="brand-sub">Skills to Livelihood</div></div>
     </div>
-  </a>
-  <div class="topbar-right">
-    <div class="lang-pill">
-      <button onclick="setLang('en')" id="btn-en">EN</button>
-      <button onclick="setLang('hi')" id="btn-hi">HI</button>
-    </div>
-    <a href="/app/profile" class="topbar-avatar" id="topbar-user">U</a>
-  </div>
-</header>
-<div id="toast-container"></div>
+    <a href="/app/login" class="topbar-action"><i class="fas fa-user"></i></a>
+  </header>
 
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ HERO Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<section class="app-hero fade-up">
-  <div class="hero-inner">
-    <div style="margin-bottom:14px">
-      <span class="chip chip-purple">Ã¢Å“Â¨ India's Skills Platform</span>
-    </div>
-    <h1 data-i18n="hero.title">Skill se<br>Khushali Tak</h1>
-    <p data-i18n="hero.sub">Join 5000+ women building sustainable livelihoods through skill development, micro-projects &amp; community support.</p>
-    <div class="hero-btns">
-      <a href="/join"         class="btn-hero-primary" data-i18n="hero.cta1">Ã°Å¸Å¡â‚¬ Join FWF</a>
-      <a href="/app/projects" class="btn-hero-accent"  data-i18n="hero.cta2">Ã°Å¸Å’Â¿ Projects</a>
-    </div>
+  <!-- Install Banner -->
+  <div class="inst-bar" id="instBar">
+    <span style="font-size:22px">📲</span>
+    <div class="it"><strong data-i18n="i.t">Add FWF to Home Screen</strong><span data-i18n="i.s">Free — works offline too</span></div>
+    <button class="ib-btn" id="installBtn" data-i18n="i.b">Install</button>
+    <button class="ib-x" onclick="dismissInstall()">✕</button>
   </div>
-</section>
 
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ STATS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="stat-strip fade-up-2">
-  <div class="stat-box">
-    <div class="sv">5000+</div>
-    <div class="sl" data-i18n="s.members">Members</div>
-  </div>
-  <div class="stat-box">
-    <div class="sv">50+</div>
-    <div class="sl" data-i18n="s.projects">Projects</div>
-  </div>
-  <div class="stat-box">
-    <div class="sv">Ã¢â€šÂ¹2Cr+</div>
-    <div class="sl" data-i18n="s.funded">Funded</div>
-  </div>
-</div>
-
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ QUICK GRID Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="section fade-up-3">
-  <div class="section-head">
-    <h2 data-i18n="h.explore">Explore FWF</h2>
-  </div>
-  <div class="quick-grid">
-    <a href="/join"         class="quick-item">
-      <div class="qi-icon" style="background:var(--orange-g);border:1px solid rgba(249,115,22,0.2)">Ã°Å¸Å¡â‚¬</div>
-      <span class="qi-label" data-i18n="n.join">Join</span>
-    </a>
-    <a href="/app/donate"   class="quick-item">
-      <div class="qi-icon" style="background:var(--green-g);border:1px solid rgba(52,211,153,0.2)">Ã°Å¸â€™Å¡</div>
-      <span class="qi-label" data-i18n="n.donate">Donate</span>
-    </a>
-    <a href="/app/quiz"     class="quick-item">
-      <div class="qi-icon" style="background:var(--purple-g);border:1px solid rgba(139,92,246,0.2)">Ã°Å¸Å½Â²</div>
-      <span class="qi-label" data-i18n="n.quiz">Quiz</span>
-    </a>
-    <a href="/app/store"    class="quick-item">
-      <div class="qi-icon" style="background:var(--blue-g);border:1px solid rgba(96,165,250,0.2)">Ã°Å¸â€ºâ€™</div>
-      <span class="qi-label" data-i18n="n.store">Store</span>
-    </a>
-  </div>
-</div>
-
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ PROGRAMS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="section">
-  <div class="section-head"><h2 data-i18n="h.programs">Our Programs</h2></div>
-
-  <div class="feat-card card-orange mb-12">
-    <div class="fc-head">
-      <div class="fc-icon fc-icon-orange">Ã°Å¸Å¡â‚¬</div>
-      <div>
-        <div class="fc-title" data-i18n="p.m.t">Become a Member</div>
-        <div class="fc-price" data-i18n="p.m.p">Ã¢â€šÂ¹200/month</div>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-inner">
+      <img src="/assets/images/logo.png" alt="FWF" class="hero-logo">
+      <div class="hero-tag" data-i18n="hero.tag">FWF – Skills to Livelihood</div>
+      <h1 data-i18n="hero.h1">From Skills to Stable Income</h1>
+      <p class="lead" data-i18n-html="hero.lead">We connect people with market-ready training and real business projects, so you can earn with dignity.<br><b>Training → Livelihood → Direct Earning Pipeline</b></p>
+      <div class="hero-btns">
+        <a href="/projects" class="hb hb-p"><i class="fas fa-rocket"></i> <span data-i18n="hero.journeyBtn">Start Your Journey</span></a>
+        <a href="/app/donate" class="hb hb-s"><i class="fas fa-heart"></i> <span data-i18n="nav.donate">Donate</span></a>
       </div>
     </div>
-    <p class="fc-desc" data-i18n="p.m.d">Access livelihood projects, skill training, business funding support, and a personal wallet.</p>
-    <a href="/join" class="btn btn-orange btn-block">Ã°Å¸Å¡â‚¬ <span data-i18n="p.m.c">Join Now</span></a>
   </div>
 
-  <div class="feat-card card-green mb-12">
-    <div class="fc-head">
-      <div class="fc-icon fc-icon-green">Ã°Å¸â€™Å¡</div>
-      <div>
-        <div class="fc-title" data-i18n="p.d.t">Support a Project</div>
-        <div class="fc-price" style="color:var(--green)" data-i18n="p.d.p">Starting Ã¢â€šÂ¹100</div>
-      </div>
-    </div>
-    <p class="fc-desc" data-i18n="p.d.d">Fund women entrepreneurs directly. Every rupee helps build a sustainable livelihood.</p>
-    <a href="/app/donate" class="btn btn-green btn-block">Ã°Å¸â€™Å¡ <span data-i18n="p.d.c">Donate Now</span></a>
+  <!-- How It Works -->
+  <div class="sec">
+    <div class="sec-title"><span data-i18n="how.titleMain">Get Started in</span> <span style="color:var(--primary)" data-i18n="how.titleAccent">4 Easy Steps</span></div>
+    <div class="sec-sub" data-i18n="how.sub">We guide you — you stay worry-free.</div>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div><h4 data-i18n="how.s1.title">Enter Basic Details</h4><p data-i18n="how.s1.desc">Quick sign-up and KYC</p></div></div>
+    <div class="step"><div class="sn">2</div><div><h4 data-i18n="how.s2.title">Compare & Choose Project</h4><p data-i18n="how.s2.desc">Pick what suits your time & interest</p></div></div>
+    <div class="step"><div class="sn">3</div><div><h4 data-i18n="how.s3.title">Join Training</h4><p data-i18n="how.s3.desc">Hands-on, task-based learning</p></div></div>
+    <div class="step"><div class="sn">4</div><div><h4 data-i18n="how.s4.title">Start Earning</h4><p data-i18n="how.s4.desc">Work-links & project allotment</p></div></div>
   </div>
 
-  <div class="feat-card card-purple mb-12">
-    <div class="fc-head">
-      <div class="fc-icon fc-icon-purple">Ã°Å¸Å½Â²</div>
-      <div>
-        <div class="fc-title" data-i18n="p.q.t">FWF Quiz &amp; Win</div>
-        <div class="fc-price" style="color:var(--purple-l)" data-i18n="p.q.p">Win cash prizes</div>
-      </div>
-    </div>
-    <p class="fc-desc" data-i18n="p.q.d">Participate in monthly quiz competitions. Answer correctly and win exciting cash prizes!</p>
-    <a href="/app/quiz" class="btn btn-primary btn-block">Ã°Å¸Å½Â² <span data-i18n="p.q.c">Play Quiz</span></a>
+  <!-- CTA Cards – Your Support Creates Real Change -->
+  <div class="sec">
+    <div class="sec-title" data-i18n="cta.titleMain">Your support creates real change</div>
+    <div class="sec-sub" data-i18n="cta.subtitle">Choose your next step</div>
   </div>
-</div>
+  <div class="cta-grid">
+    <a href="https://www.fwfindia.org/donation#donateModal" class="cta-card cc-d">
+      <div class="cc-ico"><i class="fas fa-heart"></i></div>
+      <div class="cc-name" data-i18n="cta.cards.donate.title">Donate Now</div>
+      <div class="cc-desc" data-i18n="cta.cards.donate.desc">Your donation helps people access training and projects to earn their livelihood.</div>
+      <div class="cc-btn"><span data-i18n="cta.cards.donate.btn">Donate</span> <i class="fas fa-arrow-right"></i></div>
+    </a>
+    <a href="https://www.fwfindia.org/donation#memberModal" class="cta-card cc-m">
+      <div class="cc-ico"><i class="fas fa-user-plus"></i></div>
+      <div class="cc-name" data-i18n="cta.cards.member.title">Become a Member</div>
+      <div class="cc-desc" data-i18n="cta.cards.member.desc">Get priority training, project access and business support.</div>
+      <div class="cc-btn"><span data-i18n="cta.cards.member.btn">Apply</span> <i class="fas fa-arrow-right"></i></div>
+    </a>
+    <a href="https://www.fwfindia.org/donation#supporterModal" class="cta-card cc-s">
+      <div class="cc-ico"><i class="fas fa-hands-helping"></i></div>
+      <div class="cc-name" data-i18n="cta.cards.vol.title">Join as Supporter</div>
+      <div class="cc-desc" data-i18n="cta.cards.vol.desc">Mentor trainees, support events and help run local projects.</div>
+      <div class="cc-btn"><span data-i18n="cta.cards.vol.btn">Join</span> <i class="fas fa-arrow-right"></i></div>
+    </a>
+    <a href="/app/csr" class="cta-card cc-p">
+      <div class="cc-ico"><i class="fas fa-building"></i></div>
+      <div class="cc-name" data-i18n="cta.cards.partner.title">Partner With Us</div>
+      <div class="cc-desc" data-i18n="cta.cards.partner.desc">CSR & outsourcing partnerships that create jobs where they matter.</div>
+      <div class="cc-btn"><span data-i18n="cta.cards.partner.btn">Partner</span> <i class="fas fa-arrow-right"></i></div>
+    </a>
+  </div>
 
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ HOW IT WORKS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="section">
-  <div class="section-head"><h2 data-i18n="h.how">How It Works</h2></div>
-  <div class="step-grid">
-    <div class="step-card">
-      <div class="step-num">1</div>
-      <div class="step-icon">Ã°Å¸Å¡â‚¬</div>
-      <h3 data-i18n="hw.1t">Join FWF</h3>
-      <p data-i18n="hw.1d">Register &amp; pay membership</p>
+  <!-- Focus Areas -->
+  <div class="sec">
+    <div class="sec-title" data-i18n="focus.title">Our Focus Areas</div>
+  </div>
+  <div class="focus-scroll">
+    <div class="focus-chip"><strong data-i18n="focus.items.skill.title">Skill India</strong><span data-i18n="focus.items.skill.sub"> • NSDC/SSC aligned</span></div>
+    <div class="focus-chip"><strong data-i18n="focus.items.women.title">Women Empowerment</strong><span data-i18n="focus.items.women.sub"> • Micro-units & SHGs</span></div>
+    <div class="focus-chip"><strong data-i18n="focus.items.youth.title">Youth Employment</strong><span data-i18n="focus.items.youth.sub"> • Job-linked training</span></div>
+    <div class="focus-chip"><strong data-i18n="focus.items.health.title">Healthcare Access</strong><span data-i18n="focus.items.health.sub"> • Camps & screening</span></div>
+    <div class="focus-chip"><strong data-i18n="focus.items.green.title">Green Jobs</strong><span data-i18n="focus.items.green.sub"> • Waste & solar</span></div>
+    <div class="focus-chip"><strong data-i18n="focus.items.digital.title">Digital Skills</strong><span data-i18n="focus.items.digital.sub"> • BPO & data</span></div>
+  </div>
+
+  <!-- About Us -->
+  <div class="sec">
+    <div class="sec-title" data-i18n="about.title">About Us</div>
+  </div>
+  <div class="about-cards">
+    <div class="acard">
+      <h3><i class="fas fa-bullseye"></i> <span data-i18n="about.mission.h">Mission</span></h3>
+      <ul>
+        <li data-i18n="about.mission.b1">Link Skills → Work → Income with a clear pathway</li>
+        <li data-i18n="about.mission.b2">Direct earning opportunities via outsourced projects</li>
+        <li data-i18n="about.mission.b3">Low-cost, high-impact livelihood models</li>
+      </ul>
     </div>
-    <div class="step-card">
-      <div class="step-num">2</div>
-      <div class="step-icon">Ã°Å¸â€œÅ¡</div>
-      <h3 data-i18n="hw.2t">Learn Skills</h3>
-      <p data-i18n="hw.2d">Attend workshops &amp; training</p>
+    <div class="acard">
+      <h3><i class="fas fa-lightbulb"></i> <span data-i18n="about.vision.h">Vision</span></h3>
+      <ul>
+        <li data-i18n="about.vision.b1">Training + Project hubs in every district</li>
+        <li data-i18n="about.vision.b2">Inclusive & gender-neutral ecosystem</li>
+        <li data-i18n="about.vision.b3">Tech-enabled transparency & tracking</li>
+      </ul>
     </div>
-    <div class="step-card">
-      <div class="step-num">3</div>
-      <div class="step-icon">Ã°Å¸Å’Â¿</div>
-      <h3 data-i18n="hw.3t">Pick Project</h3>
-      <p data-i18n="hw.3d">Choose livelihood project</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">4</div>
-      <div class="step-icon">Ã°Å¸â€™Â°</div>
-      <h3 data-i18n="hw.4t">Earn Income</h3>
-      <p data-i18n="hw.4d">Build business &amp; earn</p>
+    <div class="acard">
+      <h3><i class="fas fa-gem"></i> <span data-i18n="about.values.h">Values</span></h3>
+      <ul>
+        <li data-i18n="about.values.b1">Self-reliance, dignity and inclusion</li>
+        <li data-i18n="about.values.b2">Corporate-NGO-Community partnerships</li>
+        <li data-i18n="about.values.b3">Impact-first, data-driven decisions</li>
+      </ul>
     </div>
   </div>
-</div>
 
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ CSR Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="section" style="padding-bottom:28px">
-  <a href="/app/csr" class="feat-card card-green" style="display:flex;flex-direction:column">
-    <div class="fc-head" style="margin-bottom:10px">
-      <div class="fc-icon fc-icon-green">Ã°Å¸Â¤Â</div>
-      <div>
-        <div class="fc-title" data-i18n="csr.t">CSR Partnership</div>
-        <div style="font-size:12px;font-weight:700;color:var(--green)" data-i18n="csr.s">For Companies &amp; NGOs</div>
-      </div>
+  <!-- Success Stories -->
+  <div class="sec">
+    <div class="sec-title" data-i18n="stories.title">Success Stories</div>
+    <div class="sec-sub" data-i18n="stories.sub">Changing lives, one entrepreneur at a time.</div>
+  </div>
+  <div class="stories-scroll">
+    <div class="scard">
+      <div class="scard-head"><div class="scard-emo">🎉</div><div><div class="scard-name">Kirti</div><div class="scard-role">Home Bakery</div></div></div>
+      <p data-i18n="stories.kirti">Kirti made her dream a reality with FWF: "They believed in me and I believed in myself."</p>
     </div>
-    <p style="font-size:13px;color:var(--t2);margin-bottom:16px" data-i18n="csr.d">Fund livelihoods, fulfill CSR obligations &amp; create measurable social impact.</p>
-    <span class="btn btn-green btn-block">Ã°Å¸Â¤Â <span data-i18n="csr.c">Partner With Us</span></span>
-  </a>
-</div>
+    <div class="scard">
+      <div class="scard-head"><div class="scard-emo">🚚</div><div><div class="scard-name">Rahul</div><div class="scard-role">Delivery Service</div></div></div>
+      <p data-i18n="stories.rahul">Rahul provided jobs to youth with his FWF-supported startup—growth that builds his whole community.</p>
+    </div>
+    <div class="scard">
+      <div class="scard-head"><div class="scard-emo">🫧</div><div><div class="scard-name">Rani</div><div class="scard-role">Handmade Soaps</div></div></div>
+      <p data-i18n="stories.rani">With FWF's micro-investment, Rani's soaps are now sold in 3 cities; her family's life changed.</p>
+    </div>
+  </div>
 
-<nav class="app-tabs">
-  <a href="/app/home"     class="tab-item active"><span class="tab-icon">Ã°Å¸ÂÂ </span><span class="tab-label">Home</span></a>
-  <a href="/app/projects" class="tab-item"><span class="tab-icon">Ã°Å¸Å’Â¿</span><span class="tab-label">Projects</span></a>
-  <a href="/app/donate"   class="tab-fab"><div class="fab-circle">Ã°Å¸â€™Å¡</div><span class="fab-label">Donate</span></a>
-  <a href="/app/quiz"     class="tab-item"><span class="tab-icon">Ã°Å¸Å½Â²</span><span class="tab-label">Quiz</span></a>
-  <a href="/app/profile"  class="tab-item"><span class="tab-icon">Ã°Å¸â€˜Â¤</span><span class="tab-label">Account</span></a>
-</nav>
+  <!-- Footer -->
+  <div class="app-ft">
+    <div class="ft-top">
+      <img src="/assets/images/logo.png" alt="FWF">
+      <div class="ft-brand">Foundris Welfare Foundation</div>
+    </div>
+    <div class="ft-tagline" data-i18n="footer.tagline">Uniting skills, opportunities and livelihoods on one platform.</div>
 
-<script>
-const T = {
-en: {
-  'hero.title':'Skill se<br>Khushali Tak',
-  'hero.sub':'Join 5000+ women building sustainable livelihoods through skill development, micro-projects &amp; community support.',
-  'hero.cta1':'Ã°Å¸Å¡â‚¬ Join FWF','hero.cta2':'Ã°Å¸Å’Â¿ Projects',
-  's.members':'Members','s.projects':'Projects','s.funded':'Funded',
-  'h.explore':'Explore FWF','h.programs':'Our Programs','h.how':'How It Works',
-  'p.m.t':'Become a Member','p.m.p':'Ã¢â€šÂ¹200/month',
-  'p.m.d':'Access livelihood projects, skill training, business funding support, and a personal wallet.',
-  'p.m.c':'Join Now',
-  'p.d.t':'Support a Project','p.d.p':'Starting Ã¢â€šÂ¹100',
-  'p.d.d':'Fund women entrepreneurs directly. Every rupee helps build a sustainable livelihood.',
-  'p.d.c':'Donate Now',
-  'p.q.t':'FWF Quiz &amp; Win','p.q.p':'Win cash prizes',
-  'p.q.d':'Participate in monthly quiz competitions. Answer correctly and win exciting cash prizes!',
-  'p.q.c':'Play Quiz',
-  'hw.1t':'Join FWF','hw.1d':'Register &amp; pay membership',
-  'hw.2t':'Learn Skills','hw.2d':'Attend workshops &amp; training',
-  'hw.3t':'Pick Project','hw.3d':'Choose livelihood project',
-  'hw.4t':'Earn Income','hw.4d':'Build business &amp; earn',
-  'csr.t':'CSR Partnership','csr.s':'For Companies &amp; NGOs',
-  'csr.d':'Fund livelihoods, fulfill CSR obligations &amp; create measurable social impact.',
-  'csr.c':'Partner With Us',
-  'n.join':'Join','n.donate':'Donate','n.quiz':'Quiz','n.store':'Store'
-},
-hi: {
-  'hero.title':'Ã Â¤â€¢Ã Â¥Å’Ã Â¤Â¶Ã Â¤Â² Ã Â¤Â¸Ã Â¥â€¡<br>Ã Â¤â€“Ã Â¥ÂÃ Â¤Â¶Ã Â¤Â¹Ã Â¤Â¾Ã Â¤Â²Ã Â¥â‚¬ Ã Â¤Â¤Ã Â¤â€¢',
-  'hero.sub':'5000+ Ã Â¤Â®Ã Â¤Â¹Ã Â¤Â¿Ã Â¤Â²Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š Ã Â¤â€¢Ã Â¥â€¡ Ã Â¤Â¸Ã Â¤Â¾Ã Â¤Â¥ Ã Â¤Å“Ã Â¥ÂÃ Â¤Â¡Ã Â¤Â¼Ã Â¥â€¡Ã Â¤â€š Ã Â¤Å“Ã Â¥â€¹ Ã Â¤â€¢Ã Â¥Å’Ã Â¤Â¶Ã Â¤Â² Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Â¸, Ã Â¤Â¸Ã Â¥â€šÃ Â¤â€¢Ã Â¥ÂÃ Â¤Â·Ã Â¥ÂÃ Â¤Â® Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š Ã Â¤Â¸Ã Â¥â€¡ Ã Â¤â€ Ã Â¤Â¤Ã Â¥ÂÃ Â¤Â®Ã Â¤Â¨Ã Â¤Â¿Ã Â¤Â°Ã Â¥ÂÃ Â¤Â­Ã Â¤Â° Ã Â¤Â¬Ã Â¤Â¨ Ã Â¤Â°Ã Â¤Â¹Ã Â¥â‚¬ Ã Â¤Â¹Ã Â¥Ë†Ã Â¤â€šÃ Â¥Â¤',
-  'hero.cta1':'Ã°Å¸Å¡â‚¬ FWF Ã Â¤Å“Ã Â¥â€°Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','hero.cta2':'Ã°Å¸Å’Â¿ Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€š',
-  's.members':'Ã Â¤Â¸Ã Â¤Â¦Ã Â¤Â¸Ã Â¥ÂÃ Â¤Â¯','s.projects':'Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€š','s.funded':'Ã Â¤ÂµÃ Â¤Â¿Ã Â¤Â¤Ã Â¥ÂÃ Â¤Â¤ Ã Â¤ÂªÃ Â¥â€¹Ã Â¤Â·Ã Â¤Â¿Ã Â¤Â¤',
-  'h.explore':'FWF Ã Â¤ÂÃ Â¤â€¢Ã Â¥ÂÃ Â¤Â¸Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â²Ã Â¥â€¹Ã Â¤Â° Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','h.programs':'Ã Â¤Â¹Ã Â¤Â®Ã Â¤Â¾Ã Â¤Â°Ã Â¥â€¡ Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Â°Ã Â¥ÂÃ Â¤Â¯Ã Â¤â€¢Ã Â¥ÂÃ Â¤Â°Ã Â¤Â®','h.how':'Ã Â¤Â¯Ã Â¤Â¹ Ã Â¤â€¢Ã Â¥Ë†Ã Â¤Â¸Ã Â¥â€¡ Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Â® Ã Â¤â€¢Ã Â¤Â°Ã Â¤Â¤Ã Â¤Â¾ Ã Â¤Â¹Ã Â¥Ë†',
-  'p.m.t':'Ã Â¤Â¸Ã Â¤Â¦Ã Â¤Â¸Ã Â¥ÂÃ Â¤Â¯ Ã Â¤Â¬Ã Â¤Â¨Ã Â¥â€¡Ã Â¤â€š','p.m.p':'Ã¢â€šÂ¹200/Ã Â¤Â®Ã Â¤Â¾Ã Â¤Â¹',
-  'p.m.d':'Ã Â¤â€ Ã Â¤Å“Ã Â¥â‚¬Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾ Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š, Ã Â¤â€¢Ã Â¥Å’Ã Â¤Â¶Ã Â¤Â² Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â¶Ã Â¤Â¿Ã Â¤â€¢Ã Â¥ÂÃ Â¤Â·Ã Â¤Â£, Ã Â¤ÂµÃ Â¥ÂÃ Â¤Â¯Ã Â¤Â¾Ã Â¤ÂªÃ Â¤Â¾Ã Â¤Â° Ã Â¤ÂµÃ Â¤Â¿Ã Â¤Â¤Ã Â¥ÂÃ Â¤Â¤ Ã Â¤Â¸Ã Â¤Â¹Ã Â¤Â¾Ã Â¤Â¯Ã Â¤Â¤Ã Â¤Â¾ Ã Â¤â€Ã Â¤Â° Ã Â¤ÂªÃ Â¤Â°Ã Â¥ÂÃ Â¤Â¸Ã Â¤Â¨Ã Â¤Â² Ã Â¤ÂµÃ Â¥â€°Ã Â¤Â²Ã Â¥â€¡Ã Â¤Å¸ Ã Â¤Â¤Ã Â¤â€¢ Ã Â¤ÂªÃ Â¤Â¹Ã Â¥ÂÃ Â¤â€šÃ Â¤Å¡ Ã Â¤ÂªÃ Â¤Â¾Ã Â¤ÂÃ Â¤â€šÃ Â¥Â¤',
-  'p.m.c':'Ã Â¤â€¦Ã Â¤Â­Ã Â¥â‚¬ Ã Â¤Å“Ã Â¥â€°Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š',
-  'p.d.t':'Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾ Ã Â¤â€¢Ã Â¥â€¹ Ã Â¤Â¸Ã Â¤Â¹Ã Â¤Â¯Ã Â¥â€¹Ã Â¤â€”','p.d.p':'Ã¢â€šÂ¹100 Ã Â¤Â¸Ã Â¥â€¡ Ã Â¤Â¶Ã Â¥ÂÃ Â¤Â°Ã Â¥â€š',
-  'p.d.d':'Ã Â¤Â®Ã Â¤Â¹Ã Â¤Â¿Ã Â¤Â²Ã Â¤Â¾ Ã Â¤â€°Ã Â¤Â¦Ã Â¥ÂÃ Â¤Â¯Ã Â¤Â®Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤â€š Ã Â¤â€¢Ã Â¥â€¹ Ã Â¤Â¸Ã Â¥â‚¬Ã Â¤Â§Ã Â¥â€¡ Ã Â¤Â«Ã Â¤â€šÃ Â¤Â¡ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€šÃ Â¥Â¤ Ã Â¤Â¹Ã Â¤Â° Ã Â¤Â°Ã Â¥ÂÃ Â¤ÂªÃ Â¤Â¯Ã Â¤Â¾ Ã Â¤ÂÃ Â¤â€¢ Ã Â¤Å¸Ã Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Å  Ã Â¤â€ Ã Â¤Å“Ã Â¥â‚¬Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾ Ã Â¤Â¬Ã Â¤Â¨Ã Â¤Â¾Ã Â¤Â¨Ã Â¥â€¡ Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š Ã Â¤Â®Ã Â¤Â¦Ã Â¤Â¦ Ã Â¤â€¢Ã Â¤Â°Ã Â¤Â¤Ã Â¤Â¾ Ã Â¤Â¹Ã Â¥Ë†Ã Â¥Â¤',
-  'p.d.c':'Ã Â¤â€¦Ã Â¤Â­Ã Â¥â‚¬ Ã Â¤Â¦Ã Â¤Â¾Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š',
-  'p.q.t':'FWF Ã Â¤â€¢Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¿Ã Â¤Å“Ã Â¤Â¼ Ã Â¤â€Ã Â¤Â° Ã Â¤Å“Ã Â¥â‚¬Ã Â¤Â¤Ã Â¥â€¡Ã Â¤â€š','p.q.p':'Ã Â¤Â¨Ã Â¤â€¢Ã Â¤Â¦ Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â¸Ã Â¥ÂÃ Â¤â€¢Ã Â¤Â¾Ã Â¤Â° Ã Â¤Å“Ã Â¥â‚¬Ã Â¤Â¤Ã Â¥â€¡Ã Â¤â€š',
-  'p.q.d':'Ã Â¤Â®Ã Â¤Â¾Ã Â¤Â¸Ã Â¤Â¿Ã Â¤â€¢ Ã Â¤â€¢Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¿Ã Â¤Å“Ã Â¤Â¼ Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â¤Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤â€”Ã Â¤Â¿Ã Â¤Â¤Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š Ã Â¤Â­Ã Â¤Â¾Ã Â¤â€” Ã Â¤Â²Ã Â¥â€¡Ã Â¤â€šÃ Â¥Â¤ Ã Â¤Â¸Ã Â¤Â¹Ã Â¥â‚¬ Ã Â¤â€°Ã Â¤Â¤Ã Â¥ÂÃ Â¤Â¤Ã Â¤Â° Ã Â¤Â¦Ã Â¥â€¡Ã Â¤â€š Ã Â¤â€Ã Â¤Â° Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â¸Ã Â¥ÂÃ Â¤â€¢Ã Â¤Â¾Ã Â¤Â° Ã Â¤Å“Ã Â¥â‚¬Ã Â¤Â¤Ã Â¥â€¡Ã Â¤â€š!',
-  'p.q.c':'Ã Â¤â€¢Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¿Ã Â¤Å“Ã Â¤Â¼ Ã Â¤â€“Ã Â¥â€¡Ã Â¤Â²Ã Â¥â€¡Ã Â¤â€š',
-  'hw.1t':'FWF Ã Â¤Å“Ã Â¥â€°Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','hw.1d':'Ã Â¤ÂªÃ Â¤â€šÃ Â¤Å“Ã Â¥â‚¬Ã Â¤â€¢Ã Â¤Â°Ã Â¤Â£ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š Ã Â¤â€Ã Â¤Â° Ã Â¤Â¶Ã Â¥ÂÃ Â¤Â²Ã Â¥ÂÃ Â¤â€¢ Ã Â¤Â¦Ã Â¥â€¡Ã Â¤â€š',
-  'hw.2t':'Ã Â¤â€¢Ã Â¥Å’Ã Â¤Â¶Ã Â¤Â² Ã Â¤Â¸Ã Â¥â‚¬Ã Â¤â€“Ã Â¥â€¡Ã Â¤â€š','hw.2d':'Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Â°Ã Â¥ÂÃ Â¤Â¯Ã Â¤Â¶Ã Â¤Â¾Ã Â¤Â²Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š Ã Â¤Â­Ã Â¤Â¾Ã Â¤â€” Ã Â¤Â²Ã Â¥â€¡Ã Â¤â€š',
-  'hw.3t':'Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾ Ã Â¤Å¡Ã Â¥ÂÃ Â¤Â¨Ã Â¥â€¡Ã Â¤â€š','hw.3d':'Ã Â¤â€ Ã Â¤Å“Ã Â¥â‚¬Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾ Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾ Ã Â¤Å¡Ã Â¥ÂÃ Â¤Â¨Ã Â¥â€¡Ã Â¤â€š',
-  'hw.4t':'Ã Â¤â€ Ã Â¤Â®Ã Â¤Â¦Ã Â¤Â¨Ã Â¥â‚¬ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','hw.4d':'Ã Â¤ÂµÃ Â¥ÂÃ Â¤Â¯Ã Â¤ÂµÃ Â¤Â¸Ã Â¤Â¾Ã Â¤Â¯ Ã Â¤Â¬Ã Â¤Â¨Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€š Ã Â¤â€Ã Â¤Â° Ã Â¤â€¢Ã Â¤Â®Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€š',
-  'csr.t':'CSR Ã Â¤Â¸Ã Â¤Â¾Ã Â¤ÂÃ Â¥â€¡Ã Â¤Â¦Ã Â¤Â¾Ã Â¤Â°Ã Â¥â‚¬','csr.s':'Ã Â¤â€¢Ã Â¤â€šÃ Â¤ÂªÃ Â¤Â¨Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤â€š Ã Â¤â€Ã Â¤Â° NGOs Ã Â¤â€¢Ã Â¥â€¡ Ã Â¤Â²Ã Â¤Â¿Ã Â¤Â',
-  'csr.d':'Ã Â¤â€ Ã Â¤Å“Ã Â¥â‚¬Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾ Ã Â¤â€¢Ã Â¥â€¹ Ã Â¤Â«Ã Â¤â€šÃ Â¤Â¡ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š, CSR Ã Â¤Â¦Ã Â¤Â¾Ã Â¤Â¯Ã Â¤Â¿Ã Â¤Â¤Ã Â¥ÂÃ Â¤Âµ Ã Â¤ÂªÃ Â¥â€šÃ Â¤Â°Ã Â¤Â¾ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š Ã Â¤â€Ã Â¤Â° Ã Â¤Â¸Ã Â¤Â¾Ã Â¤Â®Ã Â¤Â¾Ã Â¤Å“Ã Â¤Â¿Ã Â¤â€¢ Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â­Ã Â¤Â¾Ã Â¤Âµ Ã Â¤Â¬Ã Â¤Â¨Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€šÃ Â¥Â¤',
-  'csr.c':'Ã Â¤Â¹Ã Â¤Â®Ã Â¤Â¾Ã Â¤Â°Ã Â¥â€¡ Ã Â¤Â¸Ã Â¤Â¾Ã Â¤Â¥ Ã Â¤Å“Ã Â¥ÂÃ Â¤Â¡Ã Â¤Â¼Ã Â¥â€¡Ã Â¤â€š',
-  'n.join':'Ã Â¤Å“Ã Â¥â€°Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','n.donate':'Ã Â¤Â¦Ã Â¤Â¾Ã Â¤Â¨','n.quiz':'Ã Â¤â€¢Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¿Ã Â¤Å“Ã Â¤Â¼','n.store':'Ã Â¤Â¸Ã Â¥ÂÃ Â¤Å¸Ã Â¥â€¹Ã Â¤Â°'
-}
-};
+    <div class="ft-socials">
+      <a href="https://www.facebook.com/fwfindia" target="_blank"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/fwfindia" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.linkedin.com/company/fwfindia" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://youtube.com/@fwf_india" target="_blank"><i class="fab fa-youtube"></i></a>
+      <a href="https://wa.me/919580118412" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    </div>
 
-function setLang(lang) {
-  document.documentElement.setAttribute('data-lang', lang);
-  localStorage.setItem('fwf-lang', lang);
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const k = el.getAttribute('data-i18n');
-    if (T[lang][k] !== undefined) el.innerHTML = T[lang][k];
-  });
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-  document.getElementById('btn-hi').classList.toggle('active', lang === 'hi');
-}
+    <div class="ft-row">
+      <a href="/app/projects" class="ft-link" data-i18n="footer.links.projects">Projects</a>
+      <a href="https://www.fwfindia.org/donation#memberModal" class="ft-link" data-i18n="footer.links.join">Join</a>
+      <a href="/app/donate" class="ft-link" data-i18n="footer.links.donate">Donate</a>
+      <a href="https://www.fwfindia.org/about" class="ft-link" data-i18n="footer.links.about">About</a>
+    </div>
 
-function showToast(msg, type='info') {
-  const icons = {success:'Ã¢Å“â€¦', error:'Ã¢ÂÅ’', info:'Ã¢â€žÂ¹Ã¯Â¸Â', warning:'Ã¢Å¡Â Ã¯Â¸Â'};
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
-  const c = document.getElementById('toast-container');
-  if (c) c.appendChild(t);
-  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
-}
+    <div class="ft-contact">
+      <div><i class="fas fa-map-marker-alt"></i> 1398/1850 Sagarpuri Gallamandi, Kanpur - 208021 U.P India</div>
+      <div><i class="fas fa-phone"></i> <a href="tel:+919580118412">+91-9580118412</a></div>
+      <div><i class="fas fa-envelope"></i> <a href="mailto:info@fwfindia.org">info@fwfindia.org</a></div>
+      <div><i class="fab fa-whatsapp"></i> <a href="https://wa.me/919580118412" data-i18n="footer.whatsapp">WhatsApp</a></div>
+    </div>
 
-function updateTopbarUser() {
-  const user = JSON.parse(localStorage.getItem('fwf-user') || 'null');
-  const btn  = document.getElementById('topbar-user');
-  if (!btn) return;
-  if (user) {
-    btn.href = '/app/dashboard';
-    btn.textContent = (user.name || 'U').charAt(0).toUpperCase();
-  }
-}
+    <div class="ft-badges">
+      <span class="ft-badge"><i class="fas fa-certificate" style="color:#f59e0b"></i> 12A</span>
+      <span class="ft-badge"><i class="fas fa-receipt" style="color:#60a5fa"></i> 80G</span>
+      <span class="ft-badge"><i class="fas fa-landmark" style="color:#4ade80"></i> CSR-1</span>
+    </div>
 
-(function() {
-  const lang = localStorage.getItem('fwf-lang') || 'en';
-  setLang(lang);
-  updateTopbarUser();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(() => {});
-})();
-</script>
+    <div class="ft-copy">
+      <span>&copy; <span id="yr"></span> <span data-i18n="footer.rights">FWF – All Rights Reserved</span></span>
+      <span><a href="https://www.fwfindia.org/privacy" data-i18n="footer.privacy">Privacy</a><a href="https://www.fwfindia.org/terms" data-i18n="footer.terms">Terms</a></span>
+    </div>
+  </div>
+
+  <!-- Bottom Tabs -->
+  <nav class="app-tabs">
+    <a href="/app/home" class="tab-item active" id="t-h"><i class="fas fa-home"></i><span data-i18n="nav.home">Home</span></a>
+    <a href="/app/projects" class="tab-item" id="t-p"><i class="fas fa-briefcase"></i><span data-i18n="nav.projects">Projects</span></a>
+    <a href="https://www.fwfindia.org/donation#memberModal" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span data-i18n="nav.join">Join</span></a>
+    <a href="/app/donate" class="tab-item" id="t-d"><i class="fas fa-heart"></i><span data-i18n="nav.donate">Donate</span></a>
+    <a href="/app/login" class="tab-item" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
+  </nav>
+
+  <script>
+    document.getElementById('yr').textContent=new Date().getFullYear();
+
+    /* PWA install */
+    let dP;
+    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dP=e;if(!localStorage.getItem('pwaOff'))document.getElementById('instBar').classList.add('show')});
+    document.getElementById('installBtn').onclick=async()=>{if(!dP)return;dP.prompt();await dP.userChoice;dP=null;document.getElementById('instBar').classList.remove('show')};
+    function dismissInstall(){document.getElementById('instBar').classList.remove('show');localStorage.setItem('pwaOff','1')}
+
+    /* i18n — same keys as desktop */
+    const T={
+      en:{
+        'nav.home':'Home','nav.projects':'Projects','nav.about':'About Us','nav.join':'Join','nav.donate':'Donate',
+        'hero.tag':'FWF – Skills to Livelihood','hero.h1':'From Skills to Stable Income',
+        'hero.lead':'We connect people with market-ready training and real business projects, so you can earn with dignity.<br><b>Training → Livelihood → Direct Earning Pipeline</b>',
+        'hero.journeyBtn':'Start Your Journey',
+        'how.titleMain':'Get Started in','how.titleAccent':'4 Easy Steps','how.sub':'We guide you — you stay worry-free.',
+        'how.s1.title':'Enter Basic Details','how.s1.desc':'Quick sign-up and KYC',
+        'how.s2.title':'Compare & Choose Project','how.s2.desc':'Pick what suits your time & interest',
+        'how.s3.title':'Join Training','how.s3.desc':'Hands-on, task-based learning',
+        'how.s4.title':'Start Earning','how.s4.desc':'Work-links & project allotment',
+        'cta.titleMain':'Your support creates real change','cta.subtitle':'Choose your next step',
+        'cta.cards.donate.title':'Donate Now','cta.cards.donate.desc':'Your donation helps people access training and projects to earn their livelihood.','cta.cards.donate.btn':'Donate',
+        'cta.cards.member.title':'Become a Member','cta.cards.member.desc':'Get priority training, project access and business support.','cta.cards.member.btn':'Apply',
+        'cta.cards.vol.title':'Join as Supporter','cta.cards.vol.desc':'Mentor trainees, support events and help run local projects.','cta.cards.vol.btn':'Join',
+        'cta.cards.partner.title':'Partner With Us','cta.cards.partner.desc':'CSR & outsourcing partnerships that create jobs where they matter.','cta.cards.partner.btn':'Partner',
+        'focus.title':'Our Focus Areas',
+        'focus.items.skill.title':'Skill India','focus.items.skill.sub':' • NSDC/SSC aligned',
+        'focus.items.women.title':'Women Empowerment','focus.items.women.sub':' • Micro-units & SHGs',
+        'focus.items.youth.title':'Youth Employment','focus.items.youth.sub':' • Job-linked training',
+        'focus.items.health.title':'Healthcare Access','focus.items.health.sub':' • Camps & screening',
+        'focus.items.green.title':'Green Jobs','focus.items.green.sub':' • Waste & solar',
+        'focus.items.digital.title':'Digital Skills','focus.items.digital.sub':' • BPO & data',
+        'about.title':'About Us',
+        'about.mission.h':'Mission','about.mission.b1':'Link Skills → Work → Income with a clear pathway','about.mission.b2':'Direct earning opportunities via outsourced projects','about.mission.b3':'Low-cost, high-impact livelihood models',
+        'about.vision.h':'Vision','about.vision.b1':'Training + Project hubs in every district','about.vision.b2':'Inclusive & gender-neutral ecosystem','about.vision.b3':'Tech-enabled transparency & tracking',
+        'about.values.h':'Values','about.values.b1':'Self-reliance, dignity and inclusion','about.values.b2':'Corporate-NGO-Community partnerships','about.values.b3':'Impact-first, data-driven decisions',
+        'stories.title':'Success Stories','stories.sub':'Changing lives, one entrepreneur at a time.',
+        'stories.kirti':'Kirti made her dream a reality with FWF: "They believed in me and I believed in myself."',
+        'stories.rahul':'Rahul provided jobs to youth with his FWF-supported startup—growth that builds his whole community.',
+        'stories.rani':'With FWF\'s micro-investment, Rani\'s soaps are now sold in 3 cities; her family\'s life changed.',
+        'footer.tagline':'Uniting skills, opportunities and livelihoods on one platform.',
+        'footer.links.projects':'Projects','footer.links.join':'Join','footer.links.donate':'Donate','footer.links.about':'About',
+        'footer.whatsapp':'WhatsApp','footer.rights':'FWF – All Rights Reserved','footer.privacy':'Privacy','footer.terms':'Terms',
+        'i.t':'Add FWF to Home Screen','i.s':'Free — works offline too','i.b':'Install'
+      },
+      hi:{
+        'nav.home':'होम','nav.projects':'प्रोजेक्ट्स','nav.about':'हमारे बारे में','nav.join':'जुड़ें','nav.donate':'डोनेट',
+        'hero.tag':'FWF – हुनर से रोज़गार','hero.h1':'स्किल सीखो, कमाई शुरू करो',
+        'hero.lead':'हम आपको ऐसी ट्रेनिंग और असली प्रोजेक्ट्स से जोड़ते हैं जिनसे इज़्ज़त के साथ कमाई हो सके।<br><b>ट्रेनिंग → काम → सीधी कमाई</b>',
+        'hero.journeyBtn':'शुरू करें',
+        'how.titleMain':'शुरू करें','how.titleAccent':'4 आसान स्टेप','how.sub':'रास्ता हम दिखाएँ, आप बेफ़िक्र रहें।',
+        'how.s1.title':'बुनियादी जानकारी भरें','how.s1.desc':'जल्दी साइन-अप और KYC',
+        'how.s2.title':'प्रोजेक्ट देखें और चुनें','how.s2.desc':'समय और रुचि के हिसाब से चुनें',
+        'how.s3.title':'ट्रेनिंग में जुड़ें','how.s3.desc':'काम-आधारित, प्रैक्टिकल सीख',
+        'how.s4.title':'कमाई शुरू करें','how.s4.desc':'वर्क-लिंक और प्रोजेक्ट अलॉटमेंट',
+        'cta.titleMain':'आपका सहयोग सच्चा बदलाव लाता है','cta.subtitle':'अपना अगला कदम चुनें',
+        'cta.cards.donate.title':'अभी डोनेट करें','cta.cards.donate.desc':'आपकी मदद से लोग ट्रेनिंग और असली प्रोजेक्ट्स तक पहुँच पाते हैं।','cta.cards.donate.btn':'डोनेट',
+        'cta.cards.member.title':'मेंबर बनें','cta.cards.member.desc':'प्रायोरिटी ट्रेनिंग, प्रोजेक्ट ऐक्सेस और बिज़नेस सपोर्ट पाएँ।','cta.cards.member.btn':'अर्ज़ी दें',
+        'cta.cards.vol.title':'सपोर्टर बनें','cta.cards.vol.desc':'ट्रेनिंग में मेंटर करें, इवेंट्स संभालें और लोकल प्रोजेक्ट चलाएँ।','cta.cards.vol.btn':'जुड़ें',
+        'cta.cards.partner.title':'हमारे साथ पार्टनर बनें','cta.cards.partner.desc':'CSR और आउटसोर्सिंग से वहीं रोज़गार बनाएँ जहाँ ज़रूरत है।','cta.cards.partner.btn':'पार्टनर',
+        'focus.title':'हमारे फ़ोकस एरिया',
+        'focus.items.skill.title':'स्किल इंडिया','focus.items.skill.sub':' • NSDC/SSC अनुरूप',
+        'focus.items.women.title':'महिला सशक्तिकरण','focus.items.women.sub':' • माइक्रो यूनिट्स व SHG',
+        'focus.items.youth.title':'युवा रोजगार','focus.items.youth.sub':' • जॉब-लिंक्ड ट्रेनिंग',
+        'focus.items.health.title':'हेल्थकेयर सुविधा','focus.items.health.sub':' • कैंप व स्क्रीनिंग',
+        'focus.items.green.title':'ग्रीन जॉब्स','focus.items.green.sub':' • वेस्ट व सोलर',
+        'focus.items.digital.title':'डिजिटल स्किल्स','focus.items.digital.sub':' • BPO व डाटा',
+        'about.title':'हमारे बारे में',
+        'about.mission.h':'मिशन','about.mission.b1':'स्किल → काम → आय का साफ़ रास्ता','about.mission.b2':'आउटसोर्स्ड प्रोजेक्ट्स से सीधी कमाई','about.mission.b3':'कम लागत, अधिक प्रभाव वाले जीविका मॉडल',
+        'about.vision.h':'विजन','about.vision.b1':'हर ज़िले में ट्रेनिंग + प्रोजेक्ट हब','about.vision.b2':'समावेशी व जेंडर-न्यूट्रल इकोसिस्टम','about.vision.b3':'टेक-सक्षम पारदर्शिता व ट्रैकिंग',
+        'about.values.h':'वैल्यूज़','about.values.b1':'आत्मनिर्भरता, सम्मान और समावेशन','about.values.b2':'कॉर्पोरेट-NGO-समुदाय साझेदारी','about.values.b3':'इम्पैक्ट-फर्स्ट, डेटा-ड्रिवन निर्णय',
+        'stories.title':'सफलता की कहानियाँ','stories.sub':'हर उद्यमी के साथ ज़िंदगी बदल रही है।',
+        'stories.kirti':'FWF ने भरोसा किया, तो मैंने भी खुद पर भरोसा किया—सपना सच हुआ।',
+        'stories.rahul':'FWF-समर्थन से शुरू हुई सर्विस ने युवाओं को रोज़गार दिया—पूरे समुदाय का विकास।',
+        'stories.rani':'माइक्रो-इन्वेस्टमेंट से रानी के साबुन अब 3 शहरों में बिक रहे हैं—परिवार बदला।',
+        'footer.tagline':'एक ही प्लेटफ़ॉर्म पर स्किल, अवसर और रोज़गार।',
+        'footer.links.projects':'प्रोजेक्ट्स','footer.links.join':'जुड़ें','footer.links.donate':'डोनेट','footer.links.about':'हमारे बारे में',
+        'footer.whatsapp':'व्हाट्सऐप','footer.rights':'FWF – सर्वाधिकार सुरक्षित','footer.privacy':'प्राइवेसी','footer.terms':'शर्तें',
+        'i.t':'FWF होम स्क्रीन पर जोड़ें','i.s':'मुफ्त — ऑफलाइन काम करता है','i.b':'इंस्टॉल'
+      }
+    };
+    function setLang(l){
+      document.documentElement.setAttribute('data-lang',l);
+      localStorage.setItem('fwfLang',l);
+      const t=T[l];
+      document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.getAttribute('data-i18n')];if(v!==undefined)el.textContent=v});
+      document.querySelectorAll('[data-i18n-html]').forEach(el=>{const v=t[el.getAttribute('data-i18n-html')];if(v!==undefined)el.innerHTML=v});
+    }
+    setLang(localStorage.getItem('fwfLang')||'en');
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
+  </script>
 </body>
 </html>

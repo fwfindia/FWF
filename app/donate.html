@@ -2,190 +2,194 @@
 <html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#06060d">
-  <meta name="description" content="Support FWF livelihood projects - fund women entrepreneurs">
-  <title>Donate â€“ FWF</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Get Involved — FWF</title>
   <link rel="manifest" href="/app/manifest.json">
   <link rel="icon" href="/assets/images/logo.png">
   <link rel="apple-touch-icon" href="/assets/images/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+    [data-lang="hi"] body{font-family:'Mukta','Noto Sans Devanagari',sans-serif}
+    body{padding-bottom:calc(var(--tab-h)+env(safe-area-inset-bottom));animation:fadeUp .35s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .app-tabs{padding-bottom:env(safe-area-inset-bottom);height:calc(var(--tab-h)+env(safe-area-inset-bottom))}
+
+    /* Hero */
+    .don-hero{margin:12px 16px 0;border-radius:22px;padding:24px 20px;background:linear-gradient(135deg,#be123c,#f43f5e);position:relative;overflow:hidden;text-align:center}
+    .don-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);border-radius:50%}
+    .don-hero img{width:48px;height:48px;border-radius:12px;background:#fff;padding:4px;object-fit:contain;margin:0 auto 10px;display:block;position:relative;z-index:1}
+    .don-hero .badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);font-size:11px;font-weight:800;color:#fff;padding:4px 12px;border-radius:50px;margin-bottom:10px;position:relative;z-index:1}
+    .don-hero h1{font-size:22px;font-weight:900;color:#fff;position:relative;z-index:1;margin-bottom:6px}
+    .don-hero p{font-size:13px;color:rgba(255,255,255,.85);position:relative;z-index:1;margin:0;line-height:1.5}
+
+    /* Tabs */
+    .tab-bar{display:flex;gap:0;margin:16px 16px 0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .tab-btn{flex:1;padding:10px 6px;font-size:11.5px;font-weight:800;text-align:center;border:none;background:transparent;color:var(--text3);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .tab-btn.on{background:var(--primary);color:#fff}
+
+    /* Section cards */
+    .sec-card{margin:16px 16px 0;border-radius:22px;padding:24px 20px;position:relative;overflow:hidden}
+    .sc-donate{background:linear-gradient(145deg,rgba(239,68,68,.15),rgba(239,68,68,.05));border:1.5px solid rgba(239,68,68,.25)}
+    .sc-member{background:linear-gradient(145deg,rgba(168,85,247,.15),rgba(168,85,247,.05));border:1.5px solid rgba(168,85,247,.25)}
+    .sc-supporter{background:linear-gradient(145deg,rgba(34,197,94,.15),rgba(34,197,94,.05));border:1.5px solid rgba(34,197,94,.25)}
+    .sc-csr{background:linear-gradient(145deg,rgba(6,182,212,.15),rgba(6,182,212,.05));border:1.5px solid rgba(6,182,212,.25)}
+    .sec-card .sc-icon{font-size:36px;margin-bottom:14px;display:block}
+    .sec-card h2{font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px}
+    .sec-card .sc-desc{font-size:13.5px;color:var(--text2);line-height:1.6;margin-bottom:14px}
+    .sec-card .sc-feat{list-style:none;padding:0;margin:0 0 18px}
+    .sec-card .sc-feat li{font-size:13px;color:var(--text2);padding:5px 0;padding-left:22px;position:relative}
+    .sec-card .sc-feat li::before{content:'✓';position:absolute;left:0;color:var(--primary);font-weight:800}
+    .sc-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:13px;font-size:14px;font-weight:800;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:transform .15s}
+    .sc-btn:active{transform:scale(.96)}
+    .sc-btn-red{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 4px 16px rgba(239,68,68,.3)}
+    .sc-btn-purple{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.3)}
+    .sc-btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 4px 16px rgba(34,197,94,.3)}
+    .sc-btn-cyan{background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;box-shadow:0 4px 16px rgba(6,182,212,.3)}
+
+    .sec-hidden{display:none}
+
+    /* Footer */
+    .app-ft{padding:20px 16px 12px;margin-top:20px;border-top:1px solid var(--border);text-align:center}
+    .ft-copy{font-size:11px;color:var(--text3)}
+    .ft-copy a{color:var(--text3);text-decoration:none;margin:0 6px}
+  </style>
 </head>
 <body>
-<header class="app-topbar">
-  <a href="/app/home" class="brand"><img class="brand-logo" src="/assets/images/logo.png" alt="FWF"><div><div class="brand-text">Donate</div><div class="brand-sub">Fund Livelihoods</div></div></a>
-  <div class="topbar-right">
-    <a href="/app/profile" class="tb-btn" id="topbar-user">&#128100;</a>
-  </div>
-</header>
-<div id="toast-container"></div>
 
-<div class="page">
-  <div class="section fade-up">
-    <div class="card card-green" style="text-align:center;padding:24px 20px">
-      <div style="font-size:44px;margin-bottom:12px">&#128152;</div>
-      <h2 style="font-size:20px;margin-bottom:8px">Make a Difference</h2>
-      <p style="font-size:14px;color:var(--t2)">Your donation directly funds women's livelihoods. Even &#8377;100 can change a life.</p>
+  <header class="app-topbar">
+    <div class="brand">
+      <img src="/assets/images/logo.png" alt="FWF" loading="eager">
+      <div><div class="brand-text">FWF</div><div class="brand-sub">Get Involved</div></div>
     </div>
+    <a href="/app/home" class="topbar-action"><i class="fas fa-home"></i></a>
+  </header>
+
+  <!-- Hero -->
+  <div class="don-hero">
+    <img src="/assets/images/logo.png" alt="FWF">
+    <div class="badge"><i class="fas fa-heart"></i> <span data-i18n="d.badge">Small gift. Big livelihood.</span></div>
+    <h1 data-i18n="d.h1">You can be the reason a family smiles 😊</h1>
+    <p data-i18n="d.sub">Your small contribution is a new ray of hope for the unemployed.</p>
   </div>
 
-  <!-- Impact Cards -->
-  <div class="section fade-up-2">
-    <div class="section-head"><h2>Your Impact</h2></div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div class="card card-sm" style="display:flex;align-items:center;gap:14px">
-        <div style="font-size:26px;width:48px;text-align:center">&#8377;100</div>
-        <p style="font-size:13px;color:var(--t2);margin:0">Covers 1 day of raw material cost for a papad unit</p>
-      </div>
-      <div class="card card-sm" style="display:flex;align-items:center;gap:14px">
-        <div style="font-size:26px;width:48px;text-align:center">&#8377;500</div>
-        <p style="font-size:13px;color:var(--t2);margin:0">1 skill development workshop for 5 women</p>
-      </div>
-      <div class="card card-sm" style="display:flex;align-items:center;gap:14px">
-        <div style="font-size:26px;width:48px;text-align:center">&#8377;1000</div>
-        <p style="font-size:13px;color:var(--t2);margin:0">Startup kit for 1 home-based tailoring unit</p>
-      </div>
-      <div class="card card-sm" style="display:flex;align-items:center;gap:14px">
-        <div style="font-size:26px;width:48px;text-align:center">&#8377;5000</div>
-        <p style="font-size:13px;color:var(--t2);margin:0">Full setup support for 1 agarbatti unit</p>
-      </div>
-    </div>
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="showTab('donate',this)" data-i18n="d.tab1">Donate</button>
+    <button class="tab-btn" onclick="showTab('member',this)" data-i18n="d.tab2">Rojgar</button>
+    <button class="tab-btn" onclick="showTab('supporter',this)" data-i18n="d.tab3">Supporter</button>
+    <button class="tab-btn" onclick="showTab('csr',this)" data-i18n="d.tab4">CSR Tie-up</button>
   </div>
 
-  <!-- Donation Form -->
-  <div class="section fade-up-3" style="padding-bottom:24px">
-    <div class="section-head"><h2>Choose Amount</h2></div>
-    <div class="card card-lg">
-      <div class="amount-presets">
-        <button class="amount-preset" onclick="setAmt(100)">&#8377;100</button>
-        <button class="amount-preset" onclick="setAmt(200)">&#8377;200</button>
-        <button class="amount-preset" onclick="setAmt(500)">&#8377;500</button>
-        <button class="amount-preset" onclick="setAmt(1000)">&#8377;1000</button>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Or Enter Custom Amount</label>
-        <div class="input-wrap">
-          <span class="input-icon" style="font-size:14px;color:var(--t2);font-weight:700">&#8377;</span>
-          <input type="number" id="donate-amount" class="form-input" placeholder="Enter amount" min="10" oninput="clearPresets()">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email (for receipt)</label>
-        <div class="input-wrap">
-          <span class="input-icon">&#128140;</span>
-          <input type="email" id="donate-email" class="form-input" placeholder="your@email.com">
-        </div>
-      </div>
-      <div id="points-preview" style="background:var(--orange-g);border:1px solid rgba(249,115,22,.3);border-radius:12px;padding:12px;text-align:center;margin-bottom:16px;display:none">
-        <span style="font-size:12px;color:var(--t2)">You'll earn </span>
-        <span style="font-size:16px;font-weight:900;color:var(--orange)" id="pts-preview-val">0</span>
-        <span style="font-size:12px;color:var(--t2)"> points</span>
-      </div>
-      <button onclick="startDonation()" class="btn btn-green btn-block btn-lg" id="donate-btn">
-        &#128152; Donate Now
-      </button>
-      <p style="font-size:11px;color:var(--t3);text-align:center;margin-top:10px">Secure payment via Razorpay Â· 80G eligible</p>
-    </div>
+  <!-- Donate Section -->
+  <div class="sec-card sc-donate" id="s-donate">
+    <div class="sc-icon">❤️</div>
+    <h2 data-i18n="d.don.h">Make a Donation</h2>
+    <div class="sc-desc" data-i18n="d.don.desc">Every ₹ you give helps train skills, fund real projects & open a livelihood door.</div>
+    <ul class="sc-feat">
+      <li data-i18n="d.don.f1">80G receipt support</li>
+      <li data-i18n="d.don.f2">Direct impact tracking</li>
+      <li data-i18n="d.don.f3">UPI / Bank transfer</li>
+    </ul>
+    <a href="https://www.fwfindia.org/donation#donateModal" class="sc-btn sc-btn-red"><i class="fas fa-heart"></i> <span data-i18n="d.don.btn">Donate Now</span></a>
   </div>
-</div>
 
-<nav class="app-tabs">
-  <a href="/app/home" class="tab-item"><span class="tab-icon">&#127968;</span><span class="tab-label">Home</span></a>
-  <a href="/app/projects" class="tab-item"><span class="tab-icon">&#127807;</span><span class="tab-label">Projects</span></a>
-  <a href="/app/donate" class="tab-fab active"><div class="fab-circle">&#128152;</div><span class="fab-label">Donate</span></a>
-  <a href="/app/quiz" class="tab-item"><span class="tab-icon">&#127922;</span><span class="tab-label">Quiz</span></a>
-  <a href="/app/profile" class="tab-item"><span class="tab-icon">&#128100;</span><span class="tab-label">Account</span></a>
-</nav>
+  <!-- Member Section -->
+  <div class="sec-card sc-member sec-hidden" id="s-member">
+    <div class="sc-icon">👤</div>
+    <h2 data-i18n="d.mem.h">Membership Program</h2>
+    <div class="sc-desc" data-i18n="d.mem.desc">Skill training, micro-enterprise support & livelihood opportunities.</div>
+    <ul class="sc-feat">
+      <li data-i18n="d.mem.f1">Hands-on skill training</li>
+      <li data-i18n="d.mem.f2">Micro-enterprise project funding</li>
+      <li data-i18n="d.mem.f3">Market linkage & self-employment</li>
+    </ul>
+    <a href="https://www.fwfindia.org/donation#memberModal" class="sc-btn sc-btn-purple"><i class="fas fa-user-plus"></i> <span data-i18n="d.mem.btn">Join Now</span></a>
+  </div>
 
-<script>
+  <!-- Supporter Section -->
+  <div class="sec-card sc-supporter sec-hidden" id="s-supporter">
+    <div class="sc-icon">🤝</div>
+    <h2 data-i18n="d.sup.h">Supporter Program</h2>
+    <div class="sc-desc" data-i18n="d.sup.desc">Teach, mentor & help set up micro-business.</div>
+    <ul class="sc-feat">
+      <li data-i18n="d.sup.f1">Flexible time</li>
+      <li data-i18n="d.sup.f2">Teach real skills</li>
+      <li data-i18n="d.sup.f3">Community reach</li>
+    </ul>
+    <a href="https://www.fwfindia.org/donation#supporterModal" class="sc-btn sc-btn-green"><i class="fas fa-hands-helping"></i> <span data-i18n="d.sup.btn">Sign Up</span></a>
+  </div>
 
-function showToast(msg, type='info') {
-  const icons = {success:'&#9989;', error:'&#10060;', info:'&#8505;&#65039;', warning:'&#9888;&#65039;'};
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
-  const c = document.getElementById('toast-container');
-  if (c) c.appendChild(t);
-  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
-}
+  <!-- CSR Section -->
+  <div class="sec-card sc-csr sec-hidden" id="s-csr">
+    <div class="sc-icon">🏢</div>
+    <h2 data-i18n="d.csr.h">CSR Tie-up / Corporate Partnership</h2>
+    <div class="sc-desc" data-i18n="d.csr.desc">Projects, internships, hiring या CSR से sustainable impact.</div>
+    <ul class="sc-feat">
+      <li data-i18n="d.csr.f1">CSR alignment</li>
+      <li data-i18n="d.csr.f2">Project outsourcing</li>
+      <li data-i18n="d.csr.f3">Direct placements</li>
+    </ul>
+    <a href="/app/csr" class="sc-btn sc-btn-cyan"><i class="fas fa-building"></i> <span data-i18n="d.csr.btn">Partner</span></a>
+  </div>
 
-const API = 'https://fwf-production.up.railway.app';
-function getToken() { return localStorage.getItem('fwf-token'); }
-function getUser()  { return JSON.parse(localStorage.getItem('fwf-user') || 'null'); }
-function isLoggedIn() { return !!getToken(); }
-async function apiCall(url, opts={}) {
-  const token = getToken();
-  const headers = { 'Content-Type':'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) };
-  const res = await fetch(url, { credentials: 'include', ...opts, headers: { ...headers, ...(opts.headers||{}) } });
-  if (res.status === 401) { logout(); return null; }
-  return res.json();
-}
-function logout() {
-  localStorage.removeItem('fwf-token');
-  localStorage.removeItem('fwf-user');
-  window.location.href = '/app/login';
-}
-function updateTopbarUser() {
-  const user = getUser();
-  const btn = document.getElementById('topbar-user');
-  if (!btn) return;
-  if (user) {
-    btn.href = '/app/dashboard';
-    btn.innerHTML = '<span style="font-size:13px;font-weight:800;line-height:1">' + (user.name||'U').charAt(0).toUpperCase() + '</span>';
-    btn.style.cssText = 'background:linear-gradient(135deg,var(--orange),var(--orange-d));color:#fff;border-radius:50%;width:36px;height:36px;border:2px solid rgba(255,255,255,.2)';
-  }
-}
-const BACKEND = 'https://fwf-production.up.railway.app';
-let selectedAmt = 0;
+  <div class="app-ft">
+    <div class="ft-copy">&copy; <span id="yr"></span> FWF · <a href="https://www.fwfindia.org/privacy">Privacy</a> · <a href="https://www.fwfindia.org/terms">Terms</a></div>
+  </div>
 
-function setAmt(amt) {
-  selectedAmt = amt;
-  document.getElementById('donate-amount').value = amt;
-  document.querySelectorAll('.amount-preset').forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  updatePtsPreview(amt);
-}
-function clearPresets() {
-  document.querySelectorAll('.amount-preset').forEach(b => b.classList.remove('active'));
-  const v = parseInt(document.getElementById('donate-amount').value) || 0;
-  updatePtsPreview(v);
-}
-function updatePtsPreview(amt) {
-  const el = document.getElementById('points-preview');
-  const val = document.getElementById('pts-preview-val');
-  if (amt >= 10 && isLoggedIn()) {
-    el.style.display = 'block';
-    val.textContent = Math.floor(amt * 0.1);
-  } else {
-    el.style.display = 'none';
-  }
-}
-async function startDonation() {
-  const amt = parseInt(document.getElementById('donate-amount').value) || 0;
-  const email = document.getElementById('donate-email').value.trim();
-  if (amt < 10) { showToast('Minimum donation is &#8377;10', 'error'); return; }
-  if (!isLoggedIn()) { window.location.href = '/app/login'; return; }
-  const btn = document.getElementById('donate-btn');
-  btn.classList.add('loading'); btn.textContent = '';
-  try {
-    const data = await apiCall(BACKEND + '/api/member/record-donation', {
-      method: 'POST', body: JSON.stringify({ amount: amt, email })
-    });
-    if (data?.ok) {
-      showToast('Thank you for your donation! &#128152;', 'success');
-      document.getElementById('donate-amount').value = '';
-      selectedAmt = 0;
-    } else {
-      showToast(data?.error || 'Donation failed', 'error');
+  <nav class="app-tabs">
+    <a href="/app/home" class="tab-item" id="t-h"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/app/projects" class="tab-item" id="t-p"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+    <a href="https://www.fwfindia.org/donation#memberModal" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
+    <a href="/app/donate" class="tab-item active" id="t-d"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/login" class="tab-item" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
+  </nav>
+
+  <script>
+    document.getElementById('yr').textContent=new Date().getFullYear();
+
+    function showTab(id,btn){
+      document.querySelectorAll('.sec-card').forEach(s=>s.classList.add('sec-hidden'));
+      document.getElementById('s-'+id).classList.remove('sec-hidden');
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
     }
-  } catch(e) { showToast('Network error', 'error'); }
-  btn.classList.remove('loading');
-  btn.innerHTML = '&#128152; Donate Now';
-}
-(function() { updateTopbarUser(); })();
-</script>
+
+    /* Check hash for direct tab */
+    const hash=location.hash.replace('#','');
+    if(hash){const map={donateModal:'donate',memberModal:'member',supporterModal:'supporter',csrModal:'csr'};const tab=map[hash];if(tab){const btns=document.querySelectorAll('.tab-btn');const idx={donate:0,member:1,supporter:2,csr:3}[tab];if(btns[idx])showTab(tab,btns[idx])}}
+
+    const T={
+      en:{
+        'd.badge':'Small gift. Big livelihood.','d.h1':'You can be the reason a family smiles 😊','d.sub':'Your small contribution is a new ray of hope for the unemployed.',
+        'd.tab1':'Donate','d.tab2':'Rojgar','d.tab3':'Supporter','d.tab4':'CSR Tie-up',
+        'd.don.h':'Make a Donation','d.don.desc':'Every ₹ you give helps train skills, fund real projects & open a livelihood door.','d.don.f1':'80G receipt support','d.don.f2':'Direct impact tracking','d.don.f3':'UPI / Bank transfer','d.don.btn':'Donate Now',
+        'd.mem.h':'Membership Program','d.mem.desc':'Skill training, micro-enterprise support & livelihood opportunities.','d.mem.f1':'Hands-on skill training','d.mem.f2':'Micro-enterprise project funding','d.mem.f3':'Market linkage & self-employment','d.mem.btn':'Join Now',
+        'd.sup.h':'Supporter Program','d.sup.desc':'Teach, mentor & help set up micro-business.','d.sup.f1':'Flexible time','d.sup.f2':'Teach real skills','d.sup.f3':'Community reach','d.sup.btn':'Sign Up',
+        'd.csr.h':'CSR Tie-up / Corporate Partnership','d.csr.desc':'Projects, internships, hiring or CSR for sustainable impact.','d.csr.f1':'CSR alignment','d.csr.f2':'Project outsourcing','d.csr.f3':'Direct placements','d.csr.btn':'Partner'
+      },
+      hi:{
+        'd.badge':'छोटा दान। बड़ी आजीविका।','d.h1':'आप किसी परिवार की मुस्कान का कारण बन सकते हैं 😊','d.sub':'आपका छोटा योगदान बेरोज़गारों के लिए एक नई उम्मीद की किरण है।',
+        'd.tab1':'दान','d.tab2':'रोज़गार','d.tab3':'सपोर्टर','d.tab4':'CSR टाई-अप',
+        'd.don.h':'दान करें','d.don.desc':'आपका हर रुपया स्किल ट्रेनिंग, प्रोजेक्ट और आजीविका का दरवाज़ा खोलता है।','d.don.f1':'80G रसीद सपोर्ट','d.don.f2':'डायरेक्ट इम्पैक्ट ट्रैकिंग','d.don.f3':'UPI / बैंक ट्रांसफर','d.don.btn':'अभी दान करें',
+        'd.mem.h':'सदस्यता कार्यक्रम','d.mem.desc':'स्किल ट्रेनिंग, माइक्रो-एंटरप्राइज सपोर्ट और आजीविका के अवसर।','d.mem.f1':'प्रैक्टिकल स्किल ट्रेनिंग','d.mem.f2':'माइक्रो-एंटरप्राइज प्रोजेक्ट फंडिंग','d.mem.f3':'मार्केट लिंकेज और स्व-रोज़गार','d.mem.btn':'अभी जुड़ें',
+        'd.sup.h':'सपोर्टर कार्यक्रम','d.sup.desc':'पढ़ाएं, मेंटर करें और माइक्रो-बिज़नेस शुरू करने में मदद करें।','d.sup.f1':'फ्लेक्सिबल समय','d.sup.f2':'असली स्किल सिखाएं','d.sup.f3':'समुदाय तक पहुंच','d.sup.btn':'साइन अप',
+        'd.csr.h':'CSR टाई-अप / कॉर्पोरेट पार्टनरशिप','d.csr.desc':'प्रोजेक्ट, इंटर्नशिप, हायरिंग या CSR से स्थायी प्रभाव।','d.csr.f1':'CSR अलाइनमेंट','d.csr.f2':'प्रोजेक्ट आउटसोर्सिंग','d.csr.f3':'डायरेक्ट प्लेसमेंट','d.csr.btn':'पार्टनर'
+      }
+    };
+    function setLang(l){
+      document.documentElement.setAttribute('data-lang',l);localStorage.setItem('fwfLang',l);
+      const t=T[l];
+      document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.getAttribute('data-i18n')];if(v!==undefined)el.textContent=v});
+    }
+    setLang(localStorage.getItem('fwfLang')||'en');
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
+  </script>
 </body>
 </html>
