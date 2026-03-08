@@ -80,7 +80,7 @@
               <i class="fas fa-eye" id="passIcon"></i>
             </button>
           </div>
-          <a href="https://www.fwf.org.in/forgot-password" class="forgot-link" data-i18n="login.forgot">Forgot Password?</a>
+          <a href="https://www.fwfindia.org/forgot-password" class="forgot-link" data-i18n="login.forgot">Forgot Password?</a>
         </div>
         <label class="check-row mb-16">
           <input type="checkbox" name="remember">
@@ -91,7 +91,7 @@
         </button>
       </form>
       <div class="divider-text" data-i18n="login.or">or</div>
-      <a href="https://www.fwf.org.in/join" class="btn btn-secondary btn-block">
+      <a href="https://www.fwfindia.org/join" class="btn btn-secondary btn-block">
         <i class="fas fa-user-plus"></i> <span data-i18n="login.create">Create New Account</span>
       </a>
     </div>
@@ -123,8 +123,8 @@
     <div class="footer-bar">
       <span class="footer-bar-copy">&copy; <span id="yr">2025</span> FWF</span>
       <div class="footer-bar-links">
-        <a href="https://www.fwf.org.in/privacy">Privacy</a>
-        <a href="https://www.fwf.org.in/terms">Terms</a>
+        <a href="https://www.fwfindia.org/privacy">Privacy</a>
+        <a href="https://www.fwfindia.org/terms">Terms</a>
       </div>
     </div>
   </footer>
@@ -133,7 +133,7 @@
   <nav class="app-tabs">
     <a href="/app/home"     class="tab-item" id="tab-home"><i class="fas fa-home"></i><span>Home</span></a>
     <a href="/app/projects" class="tab-item" id="tab-projects"><i class="fas fa-briefcase"></i><span>Projects</span></a>
-    <a href="https://www.fwf.org.in/join" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
+    <a href="https://www.fwfindia.org/join" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
     <a href="/app/donate"   class="tab-item" id="tab-donate"><i class="fas fa-heart"></i><span>Donate</span></a>
     <a href="/app/login"    class="tab-item" id="tab-login"><i class="fas fa-user"></i><span>Login</span></a>
   </nav>
@@ -174,7 +174,7 @@
         if (data.ok) {
           alert.className = 'app-alert app-alert-success mb-16';
           alert.textContent = 'Login successful! Redirecting...';
-          setTimeout(() => { window.location.href = 'https://www.fwf.org.in/member-dashboard'; }, 800);
+          setTimeout(() => { window.location.href = 'https://www.fwfindia.org/member-dashboard'; }, 800);
         } else {
           alert.className = 'app-alert app-alert-error mb-16';
           alert.textContent = data.error || 'Invalid credentials. Please try again.';
