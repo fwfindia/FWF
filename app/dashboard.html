@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#07090f">
+  <meta name="description" content="Your FWF member dashboard - wallet, points, quizzes, tasks and more">
+  <title>My Dashboard – FWF</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+.wallet-card{background:linear-gradient(135deg,#1e3a8a 0%,#0f766e 100%);border-radius:var(--r-lg);padding:22px 20px;position:relative;overflow:hidden;margin:0 16px}
+.wallet-card::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07)}
+.wallet-card::after{content:'';position:absolute;bottom:-30px;left:-10px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.04)}
+.wc-inner{position:relative;z-index:1}
+.wc-greeting{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:2px}
+.wc-name{font-size:20px;font-weight:900;color:#fff;margin-bottom:16px}
+.wc-bal{display:flex;align-items:baseline;gap:6px;margin-bottom:3px}
+.wc-bal .v{font-size:34px;font-weight:900;color:#fff}
+.wc-bal .u{font-size:14px;color:rgba(255,255,255,.65)}
+.wc-lbl{font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.6px;margin-bottom:18px}
+.wc-actions{display:flex;gap:8px}
+.wc-btn{flex:1;padding:10px 6px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;text-align:center;cursor:pointer;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;backdrop-filter:blur(4px);transition:background .12s}
+.wc-btn i{font-size:18px}
+.wc-btn:active{background:rgba(255,255,255,.2)}
+.act-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 16px}
+.act-item{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 6px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);cursor:pointer;text-decoration:none;transition:background .12s,transform .12s;text-align:center}
+.act-item:active{transform:scale(.95);background:var(--s3)}
+.ai-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ai-lbl{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.3px;line-height:1.3}
+</style>
+</head>
+<body>
+<header class="app-topbar">
+  <a href="/app/home" class="brand"><img class="brand-logo" src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF"><div><div class="brand-text">Dashboard</div><div class="brand-sub" id="member-id-sub">Loading...</div></div></a>
+  <div class="topbar-right">
+    <a href="/app/profile" class="topbar-avatar" id="dash-avatar">U</a>
+  </div>
+</header>
+<div id="toast-container"></div>
+
+<!-- Wallet Card -->
+<div class="page">
+  <div class="wallet-card fade-up">
+    <div class="wc-inner">
+      <div class="wc-greeting" id="dash-greeting">Good morning,</div>
+      <div class="wc-name" id="dash-name">Loading...</div>
+      <div class="wc-bal">
+        <span class="v" id="dash-points">--</span>
+        <span class="u">pts</span>
+      </div>
+      <div class="wc-lbl">Total Points Balance</div>
+      <div class="wc-actions">
+        <a href="/app/quiz" class="wc-btn"><i>&#127922;</i>Quiz</a>
+        <a href="/app/donate" class="wc-btn"><i>&#128152;</i>Donate</a>
+        <a href="/app/store" class="wc-btn"><i>&#128722;</i>Store</a>
+        <a href="/app/profile" class="wc-btn"><i>&#128100;</i>Profile</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section fade-up-2">
+    <div class="section-head"><h2>Quick Actions</h2></div>
+    <div class="act-grid">
+      <a href="/app/quiz" class="act-item"><div class="ai-icon" style="background:rgba(139,92,246,.2)">&#127922;</div><span class="ai-lbl">Quiz</span></a>
+      <a href="/app/quiz#sell" class="act-item"><div class="ai-icon" style="background:rgba(249,115,22,.2)">&#127914;</div><span class="ai-lbl">Sell Ticket</span></a>
+      <a href="/app/tasks" class="act-item"><div class="ai-icon" style="background:rgba(16,185,129,.2)">&#9989;</div><span class="ai-lbl">Tasks</span></a>
+      <a href="/app/store" class="act-item"><div class="ai-icon" style="background:rgba(59,130,246,.2)">&#128722;</div><span class="ai-lbl">Store</span></a>
+      <a href="/app/projects" class="act-item"><div class="ai-icon" style="background:rgba(6,182,212,.2)">&#127807;</div><span class="ai-lbl">Projects</span></a>
+      <a href="/app/donate" class="act-item"><div class="ai-icon" style="background:rgba(16,185,129,.2)">&#128152;</div><span class="ai-lbl">Donate</span></a>
+      <a href="/member/referrals" class="act-item"><div class="ai-icon" style="background:rgba(245,158,11,.2)">&#128279;</div><span class="ai-lbl">Referrals</span></a>
+      <a href="/app/profile#support" class="act-item"><div class="ai-icon" style="background:rgba(239,68,68,.15)">&#128222;</div><span class="ai-lbl">Support</span></a>
+    </div>
+  </div>
+
+  <!-- Active Quizzes -->
+  <div class="section fade-up-3">
+    <div class="section-head"><h2>Active Quizzes</h2><a href="/app/quiz" class="see-all">See all</a></div>
+    <div class="scroll-row" id="active-quizzes">
+      <div class="quiz-card skeleton" style="height:160px"></div>
+      <div class="quiz-card skeleton" style="height:160px"></div>
+    </div>
+  </div>
+
+  <!-- Points History -->
+  <div class="section">
+    <div class="section-head"><h2>Recent Points</h2><a href="/member/wallet" class="see-all">History</a></div>
+    <div class="card" id="points-list">
+      <div class="skeleton sk-line mb-8"></div>
+      <div class="skeleton sk-line medium mb-8"></div>
+      <div class="skeleton sk-line short"></div>
+    </div>
+  </div>
+
+  <!-- Quiz History -->
+  <div class="section" style="padding-bottom:24px">
+    <div class="section-head"><h2>My Quizzes</h2><a href="/app/quiz" class="see-all">All</a></div>
+    <div class="card" id="quiz-history">
+      <div class="empty-state" style="padding:24px">
+        <div class="es-icon">&#127922;</div>
+        <h3 style="font-size:14px">No quiz participation yet</h3>
+        <p>Join a quiz to win cash prizes!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="app-tabs">
+  <a href="/app/home" class="tab-item active"><span class="tab-icon">&#127968;</span><span class="tab-label">Home</span></a>
+  <a href="/app/projects" class="tab-item"><span class="tab-icon">&#127807;</span><span class="tab-label">Projects</span></a>
+  <a href="/app/donate" class="tab-fab"><div class="fab-circle">&#128152;</div><span class="fab-label">Donate</span></a>
+  <a href="/app/quiz" class="tab-item"><span class="tab-icon">&#127922;</span><span class="tab-label">Quiz</span></a>
+  <a href="/app/profile" class="tab-item"><span class="tab-icon">&#128100;</span><span class="tab-label">Account</span></a>
+</nav>
+
+<script>
+
+function showToast(msg, type='info') {
+  const icons = {success:'&#9989;', error:'&#10060;', info:'&#8505;&#65039;', warning:'&#9888;&#65039;'};
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
+  const c = document.getElementById('toast-container');
+  if (c) c.appendChild(t);
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
+}
+
+const API = 'https://fwf-production.up.railway.app';
+function getToken() { return localStorage.getItem('fwf-token'); }
+function getUser()  { return JSON.parse(localStorage.getItem('fwf-user') || 'null'); }
+function isLoggedIn() { return !!getToken(); }
+async function apiCall(url, opts={}) {
+  const token = getToken();
+  const headers = { 'Content-Type':'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) };
+  const res = await fetch(url, { credentials: 'include', ...opts, headers: { ...headers, ...(opts.headers||{}) } });
+  if (res.status === 401) { logout(); return null; }
+  return res.json();
+}
+function logout() {
+  localStorage.removeItem('fwf-token');
+  localStorage.removeItem('fwf-user');
+  window.location.href = '/app/login';
+}
+function updateTopbarUser() {
+  const user = getUser();
+  const btn = document.getElementById('topbar-user');
+  if (!btn) return;
+  if (user) {
+    btn.href = '/app/dashboard';
+    btn.innerHTML = '<span style="font-size:13px;font-weight:800;line-height:1">' + (user.name||'U').charAt(0).toUpperCase() + '</span>';
+    btn.style.cssText = 'background:linear-gradient(135deg,var(--orange),var(--orange-d));color:#fff;border-radius:50%;width:36px;height:36px;border:2px solid rgba(255,255,255,.2)';
+  }
+}
+const BACKEND = 'https://fwf-production.up.railway.app';
+
+function greet(name) {
+  const h = new Date().getHours();
+  const g = h<12 ? 'Good morning' : h<17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('dash-greeting').textContent = g + ',';
+  document.getElementById('dash-name').textContent = name || 'Member';
+  const av = document.getElementById('dash-avatar');
+  if (av) av.textContent = (name||'M').charAt(0).toUpperCase();
+}
+
+async function loadDashboard() {
+  const user = getUser();
+  if (!user) { window.location.href = '/app/login'; return; }
+  greet(user.name);
+  document.getElementById('member-id-sub').textContent = user.memberId || user.member_id || '';
+
+  try {
+    const data = await apiCall(BACKEND + '/api/member/me');
+    if (!data) return;
+    const pts = data.wallet?.points_balance || 0;
+    document.getElementById('dash-points').textContent = pts.toLocaleString('en-IN');
+    renderPointHistory(data.recentPoints || []);
+    renderQuizHistory(data.quizParticipations || []);
+  } catch(e) { console.error(e); }
+
+  try {
+    const qdata = await apiCall(BACKEND + '/api/member/active-quizzes');
+    if (qdata?.quizzes) renderActiveQuizzes(qdata.quizzes);
+  } catch(e) {}
+}
+
+function renderActiveQuizzes(quizzes) {
+  const el = document.getElementById('active-quizzes');
+  if (!quizzes.length) { el.innerHTML = '<div class="empty-state" style="width:220px;flex-shrink:0"><div class="es-icon">&#127922;</div><p style="font-size:12px">No active quizzes</p></div>'; return; }
+  el.innerHTML = quizzes.map(q => `
+    <a href="/app/quiz" class="quiz-card">
+      <div class="qc-badge ${q.status==='active'?'live':'upcoming'}">${q.status==='active'?'<span class=\"live-dot\" style=\"margin-right:4px\"></span>Live':'Upcoming'}</div>
+      <div class="qc-title">${q.title}</div>
+      <div class="qc-fee">&#8377;${q.entry_fee||0}</div>
+      <div class="qc-meta">Result: ${q.result_date ? new Date(q.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}) : 'TBD'}</div>
+      <div class="qc-prizes">&#127942; Prize: ${q.prizes?.map(p=>p.label||p.prize_label).join(', ')||'TBD'}</div>
+    </a>
+  `).join('');
+}
+
+function renderPointHistory(points) {
+  const el = document.getElementById('points-list');
+  if (!points.length) { el.innerHTML = '<div class="empty-state" style="padding:20px"><div class="es-icon">&#128176;</div><p>No points yet</p></div>'; return; }
+  el.innerHTML = points.slice(0,5).map(p => `
+    <div class="list-item" style="padding:12px 0">
+      <div class="li-icon" style="background:rgba(249,115,22,.15)">${p.type==='quiz'?'&#127922;':p.type==='donation'?'&#128152;':'&#128176;'}</div>
+      <div class="li-content"><div class="li-title">${p.description||p.type}</div><div class="li-sub">${new Date(p.created_at||p.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+      <div class="li-right"><div class="li-value text-orange">+${p.points} pts</div></div>
+    </div>
+  `).join('');
+}
+
+function renderQuizHistory(quizzes) {
+  const el = document.getElementById('quiz-history');
+  if (!quizzes.length) return;
+  el.innerHTML = quizzes.slice(0,4).map(p => `
+    <div class="list-item" style="padding:12px 0">
+      <div class="li-icon" style="background:rgba(139,92,246,.15)">&#127922;</div>
+      <div class="li-content">
+        <div class="li-title">${p.quiz_details?.title || 'Quiz'}</div>
+        <div class="li-sub">Score: ${p.score||'?'} | #${p.enrollment_number||''}</div>
+      </div>
+      <div class="li-right"><div class="li-badge ${p.status==='submitted'?'success':p.status==='failed'?'failed':'pending'}">${p.status||'enrolled'}</div></div>
+    </div>
+  `).join('');
+}
+
+(function() {
+  if (!getToken()) { window.location.href = '/app/login'; return; }
+  loadDashboard();
+})();
+</script>
+</body>
+</html>

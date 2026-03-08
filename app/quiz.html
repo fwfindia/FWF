@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#07090f">
+  <meta name="description" content="FWF Quiz competitions - win cash prizes by answering correctly">
+  <title>Quiz Hub – FWF</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+</head>
+<body>
+<header class="app-topbar">
+  <a href="/app/home" class="brand"><img class="brand-logo" src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF"><div><div class="brand-text">FWF Quiz</div><div class="brand-sub">Win Cash Prizes</div></div></a>
+  <div class="topbar-right">
+    <a href="/app/profile" class="tb-btn" id="topbar-user">&#128100;</a>
+  </div>
+</header>
+<div id="toast-container"></div>
+
+<div class="page">
+  <!-- Active Quizzes -->
+  <div class="section fade-up">
+    <div class="section-head">
+      <h2>&#127775; Active Quizzes</h2>
+      <div class="live-dot"></div>
+    </div>
+    <div id="quiz-list">
+      <div class="scroll-row">
+        <div class="quiz-card skeleton" style="height:180px"></div>
+        <div class="quiz-card skeleton" style="height:180px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Participations -->
+  <div class="section fade-up-2" id="my-quiz-section" style="display:none">
+    <div class="section-head"><h2>My Participations</h2><a href="#" class="see-all" onclick="loadQuizHistory();return false">Refresh</a></div>
+    <div class="card" id="my-quiz-list">
+      <div class="empty-state" style="padding:24px"><div class="es-icon">&#127922;</div><h3 style="font-size:14px">No quiz participation yet</h3><p>Enroll in a quiz to get started!</p></div>
+    </div>
+  </div>
+
+  <!-- Sell Ticket Section (members only) -->
+  <div class="section fade-up-2" id="sell-section" style="display:none">
+    <div class="section-head"><h2>&#127914; Sell Quiz Tickets</h2></div>
+    <div class="card card-orange">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+        <div style="width:50px;height:50px;border-radius:14px;background:rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">&#127914;</div>
+        <div><div style="font-size:16px;font-weight:800;color:var(--t1)">Earn by Selling</div><div style="font-size:12px;color:var(--orange);font-weight:700">10% commission per ticket</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Generate a payment link for quiz tickets and earn commission points when buyers participate.</p>
+      <button onclick="openSellModal()" class="btn btn-primary btn-block">&#127914; Generate Ticket Link</button>
+    </div>
+  </div>
+
+  <!-- How Quiz Works -->
+  <div class="section" style="padding-bottom:24px">
+    <div class="section-head"><h2>How Quiz Works</h2></div>
+    <div class="step-grid">
+      <div class="step-card"><div class="step-num">1</div><div class="step-icon">&#128640;</div><h3>Enroll</h3><p>Pay entry fee to join</p></div>
+      <div class="step-card"><div class="step-num">2</div><div class="step-icon">&#127922;</div><h3>Answer</h3><p>Answer all questions</p></div>
+      <div class="step-card"><div class="step-num">3</div><div class="step-icon">&#127941;</div><h3>Result</h3><p>Results on result date</p></div>
+      <div class="step-card"><div class="step-num">4</div><div class="step-icon">&#128176;</div><h3>Win</h3><p>Cash prize to winners</p></div>
+    </div>
+  </div>
+</div>
+
+<nav class="app-tabs">
+  <a href="/app/home" class="tab-item"><span class="tab-icon">&#127968;</span><span class="tab-label">Home</span></a>
+  <a href="/app/projects" class="tab-item"><span class="tab-icon">&#127807;</span><span class="tab-label">Projects</span></a>
+  <a href="/app/donate" class="tab-fab"><div class="fab-circle">&#128152;</div><span class="fab-label">Donate</span></a>
+  <a href="/app/quiz" class="tab-item active"><span class="tab-icon">&#127922;</span><span class="tab-label">Quiz</span></a>
+  <a href="/app/profile" class="tab-item"><span class="tab-icon">&#128100;</span><span class="tab-label">Account</span></a>
+</nav>
+
+<!-- Enroll Modal -->
+<div class="overlay" id="enroll-overlay" onclick="closeEnrollModal()"></div>
+<div class="bottom-sheet" id="enroll-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="enroll-title">Enroll in Quiz</div>
+  <div id="enroll-body">
+    <p style="font-size:13px;color:var(--t3);text-align:center;margin-bottom:20px">Pay entry fee to participate</p>
+    <div class="info-list">
+      <div class="info-row"><div class="ir-icon" style="background:rgba(249,115,22,.15)">&#128176;</div><div><div class="ir-label">Entry Fee</div><div class="ir-val" id="enroll-fee">--</div></div></div>
+      <div class="info-row"><div class="ir-icon" style="background:rgba(16,185,129,.15)">&#127942;</div><div><div class="ir-label">Total Prize Pool</div><div class="ir-val" id="enroll-prizes">--</div></div></div>
+    </div>
+    <button onclick="proceedEnroll()" class="btn btn-primary btn-block mt-16" id="enroll-btn">&#128640; Proceed to Pay</button>
+    <button onclick="closeEnrollModal()" class="btn btn-ghost btn-block mt-8">Cancel</button>
+  </div>
+</div>
+
+<!-- Sell Modal -->
+<div class="overlay" id="sell-overlay" onclick="closeSellModal()"></div>
+<div class="bottom-sheet" id="sell-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Generate Ticket Link</div>
+  <form id="sell-form" onsubmit="submitSellForm(event)">
+    <div class="form-group">
+      <label class="form-label">Select Quiz <span>*</span></label>
+      <select id="sell-quiz" class="form-select" required><option value="">-- Choose Quiz --</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Buyer Name <span>*</span></label>
+      <input type="text" id="sell-name" class="form-input" placeholder="Enter buyer's full name" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Buyer Mobile <span>*</span></label>
+      <input type="tel" id="sell-mobile" class="form-input" placeholder="10-digit mobile number" maxlength="10" required>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block" id="sell-btn">&#127914; Generate Link</button>
+    <button type="button" onclick="closeSellModal()" class="btn btn-ghost btn-block mt-8">Cancel</button>
+  </form>
+  <div id="sell-result" style="display:none;text-align:center;padding:16px 0">
+    <div style="font-size:40px;margin-bottom:12px">&#127775;</div>
+    <h3 style="margin-bottom:8px">Link Generated!</h3>
+    <p style="font-size:13px;color:var(--t3);margin-bottom:16px">Share this link with the buyer:</p>
+    <div style="background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:14px;font-size:12px;font-family:monospace;word-break:break-all;color:var(--orange)" id="sell-link"></div>
+    <button onclick="copyLink()" class="btn btn-secondary btn-block mt-16">&#128203; Copy Link</button>
+    <button onclick="closeSellModal()" class="btn btn-ghost btn-block mt-8">Done</button>
+  </div>
+</div>
+
+<script>
+
+function showToast(msg, type='info') {
+  const icons = {success:'&#9989;', error:'&#10060;', info:'&#8505;&#65039;', warning:'&#9888;&#65039;'};
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
+  const c = document.getElementById('toast-container');
+  if (c) c.appendChild(t);
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
+}
+
+const API = 'https://fwf-production.up.railway.app';
+function getToken() { return localStorage.getItem('fwf-token'); }
+function getUser()  { return JSON.parse(localStorage.getItem('fwf-user') || 'null'); }
+function isLoggedIn() { return !!getToken(); }
+async function apiCall(url, opts={}) {
+  const token = getToken();
+  const headers = { 'Content-Type':'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) };
+  const res = await fetch(url, { credentials: 'include', ...opts, headers: { ...headers, ...(opts.headers||{}) } });
+  if (res.status === 401) { logout(); return null; }
+  return res.json();
+}
+function logout() {
+  localStorage.removeItem('fwf-token');
+  localStorage.removeItem('fwf-user');
+  window.location.href = '/app/login';
+}
+function updateTopbarUser() {
+  const user = getUser();
+  const btn = document.getElementById('topbar-user');
+  if (!btn) return;
+  if (user) {
+    btn.href = '/app/dashboard';
+    btn.innerHTML = '<span style="font-size:13px;font-weight:800;line-height:1">' + (user.name||'U').charAt(0).toUpperCase() + '</span>';
+    btn.style.cssText = 'background:linear-gradient(135deg,var(--orange),var(--orange-d));color:#fff;border-radius:50%;width:36px;height:36px;border:2px solid rgba(255,255,255,.2)';
+  }
+}
+const BACKEND = 'https://fwf-production.up.railway.app';
+let activeQuizzes = [];
+let selectedQuiz = null;
+
+async function loadQuizzes() {
+  try {
+    const data = await fetch(BACKEND + '/api/member/active-quizzes', {
+      credentials: 'include',
+      headers: getToken() ? {Authorization:'Bearer '+getToken()} : {}
+    }).then(r=>r.json()).catch(()=>null);
+
+    if (!data?.quizzes?.length) {
+      document.getElementById('quiz-list').innerHTML = '<div class="empty-state"><div class="es-icon">&#127922;</div><h3>No active quizzes</h3><p>Check back soon for new quiz competitions!</p></div>';
+      return;
+    }
+    activeQuizzes = data.quizzes;
+    document.getElementById('quiz-list').innerHTML = '<div class="scroll-row">' +
+      data.quizzes.map(q => `
+        <div class="quiz-card" onclick="openEnrollModal('${q.quiz_id || q._id}')">
+          <div class="qc-badge ${q.status==='active'?'live':q.status==='upcoming'?'upcoming':'closed'}">${q.status==='active'?'<span class=\"live-dot\" style=\"margin-right:4px\"></span>Live':q.status==='upcoming'?'Upcoming':'Closed'}</div>
+          <div class="qc-title">${q.title}</div>
+          <div class="qc-fee">&#8377;${q.entry_fee||100}</div>
+          <div class="qc-meta">&#128197; Result: ${q.result_date ? new Date(q.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'TBD'}</div>
+          <div class="qc-meta" style="margin-bottom:8px">&#128101; ${q.total_participants||0} enrolled</div>
+          <div class="qc-prizes">&#127942; ${q.prizes?.map(p=>p.label||p.prize_label||('1st: &#8377;'+p.amount)).join(' | ')||'Prizes TBD'}</div>
+        </div>
+      `).join('') + '</div>';
+
+    // Populate sell dropdown
+    const sel = document.getElementById('sell-quiz');
+    if (sel) sel.innerHTML = '<option value="">-- Choose Quiz --</option>' + data.quizzes.filter(q=>q.status!=='closed').map(q=>`<option value="${q.quiz_id||q._id}">${q.title} – &#8377;${q.entry_fee||100}</option>`).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function loadQuizHistory() {
+  if (!isLoggedIn()) return;
+  try {
+    const data = await apiCall(BACKEND + '/api/member/quiz-history');
+    if (!data?.participations?.length) return;
+    document.getElementById('my-quiz-section').style.display = 'block';
+    document.getElementById('my-quiz-list').innerHTML = data.participations.map(p => `
+      <div class="list-item" style="padding:12px 0">
+        <div class="li-icon" style="background:rgba(139,92,246,.15)">&#127922;</div>
+        <div class="li-content">
+          <div class="li-title">${p.quiz_details?.title||'Quiz'}</div>
+          <div class="li-sub">Score: ${p.score!==undefined?p.score:'?'} | Enroll: ${p.enrollment_number||'--'}</div>
+        </div>
+        <div class="li-right">
+          <div class="li-badge ${p.status==='submitted'?'success':p.status==='failed'?'failed':p.status==='result_declared'?'info':'pending'}">${p.status||'enrolled'}</div>
+          <div class="li-meta">${p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}) : ''}</div>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+function openEnrollModal(quizId) {
+  const q = activeQuizzes.find(x => (x.quiz_id||x._id) === quizId);
+  if (!q) return;
+  selectedQuiz = q;
+  document.getElementById('enroll-title').textContent = q.title;
+  document.getElementById('enroll-fee').textContent = '&#8377;' + (q.entry_fee||100);
+  document.getElementById('enroll-prizes').textContent = q.prizes?.map(p=>p.label||p.prize_label).join(', ')||'TBD';
+  document.getElementById('enroll-overlay').classList.add('open');
+  document.getElementById('enroll-sheet').classList.add('open');
+}
+function closeEnrollModal() {
+  document.getElementById('enroll-overlay').classList.remove('open');
+  document.getElementById('enroll-sheet').classList.remove('open');
+  selectedQuiz = null;
+}
+function proceedEnroll() {
+  if (!isLoggedIn()) { window.location.href = '/app/login'; return; }
+  if (!selectedQuiz) return;
+  closeEnrollModal();
+  // Redirect to quiz-ticket page or handle inline
+  showToast('Redirecting to payment...', 'info');
+  setTimeout(() => { window.location.href = '/quiz-ticket'; }, 500);
+}
+function openSellModal() {
+  if (!isLoggedIn()) { window.location.href = '/app/login'; return; }
+  document.getElementById('sell-form').style.display = 'block';
+  document.getElementById('sell-result').style.display = 'none';
+  document.getElementById('sell-overlay').classList.add('open');
+  document.getElementById('sell-sheet').classList.add('open');
+}
+function closeSellModal() {
+  document.getElementById('sell-overlay').classList.remove('open');
+  document.getElementById('sell-sheet').classList.remove('open');
+}
+async function submitSellForm(e) {
+  e.preventDefault();
+  const btn = document.getElementById('sell-btn');
+  const quiz_id = document.getElementById('sell-quiz').value;
+  const buyer_name = document.getElementById('sell-name').value.trim();
+  const buyer_contact = document.getElementById('sell-mobile').value.trim();
+  if (!quiz_id || !buyer_name || !buyer_contact) { showToast('All fields required', 'error'); return; }
+  if (!/^[6-9]\d{9}$/.test(buyer_contact)) { showToast('Enter valid 10-digit mobile', 'error'); return; }
+  btn.classList.add('loading'); btn.textContent = '';
+  try {
+    const data = await apiCall(BACKEND + '/api/member/quiz/generate-ticket', {
+      method: 'POST', body: JSON.stringify({ quiz_id, buyer_name, buyer_contact })
+    });
+    btn.classList.remove('loading'); btn.textContent = 'Generate Link';
+    if (data?.ok && data.link) {
+      document.getElementById('sell-form').style.display = 'none';
+      document.getElementById('sell-link').textContent = data.link;
+      document.getElementById('sell-result').style.display = 'block';
+    } else {
+      showToast(data?.error || 'Failed to generate link', 'error');
+    }
+  } catch(e) {
+    btn.classList.remove('loading'); btn.textContent = 'Generate Link';
+    showToast('Network error', 'error');
+  }
+}
+function copyLink() {
+  const link = document.getElementById('sell-link').textContent;
+  navigator.clipboard.writeText(link).then(() => showToast('Link copied!', 'success')).catch(() => showToast('Copy failed', 'error'));
+}
+
+(function() {
+  loadQuizzes();
+  if (isLoggedIn()) {
+    document.getElementById('sell-section').style.display = 'block';
+    loadQuizHistory();
+    updateTopbarUser();
+  }
+})();
+</script>
+</body>
+</html>

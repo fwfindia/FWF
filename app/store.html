@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#07090f">
+  <meta name="description" content="Buy handmade products from FWF members - support women entrepreneurs">
+  <title>FWF Store – FWF</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+</head>
+<body>
+<header class="app-topbar">
+  <a href="/app/home" class="brand"><img class="brand-logo" src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF"><div><div class="brand-text">FWF Store</div><div class="brand-sub">Member Products</div></div></a>
+  <div class="topbar-right">
+    <a href="/app/profile" class="tb-btn" id="topbar-user">&#128100;</a>
+  </div>
+</header>
+<div id="toast-container"></div>
+
+<div class="page">
+  <div class="chip-strip" style="padding-top:8px">
+    <button class="chip chip-orange" onclick="filterStore('all')" id="sf-all">All</button>
+    <button class="chip" onclick="filterStore('food')" id="sf-food">&#127815; Food</button>
+    <button class="chip" onclick="filterStore('craft')" id="sf-craft">&#127912; Craft</button>
+    <button class="chip" onclick="filterStore('textile')" id="sf-text">&#129513; Textile</button>
+    <button class="chip" onclick="filterStore('beauty')" id="sf-beauty">&#128167; Beauty</button>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="section">
+    <div id="products-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="skeleton" style="height:200px;border-radius:var(--r)"></div>
+      <div class="skeleton" style="height:200px;border-radius:var(--r)"></div>
+      <div class="skeleton" style="height:200px;border-radius:var(--r)"></div>
+      <div class="skeleton" style="height:200px;border-radius:var(--r)"></div>
+    </div>
+  </div>
+
+  <!-- Sell on FWF CTA (members only) -->
+  <div class="section" id="sell-cta" style="padding-bottom:24px;display:none">
+    <div class="card card-orange">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+        <div style="width:48px;height:48px;border-radius:14px;background:rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:24px">&#128722;</div>
+        <div><div style="font-size:16px;font-weight:800">Sell Your Products</div><div style="font-size:12px;color:var(--orange);font-weight:700">Reach 5000+ buyers</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--t2);margin-bottom:16px">List your handmade products and reach thousands of buyers. Free listing for FWF members.</p>
+      <a href="/member/dashboard" class="btn btn-primary btn-block">&#128722; Add Product</a>
+    </div>
+  </div>
+</div>
+
+<nav class="app-tabs">
+  <a href="/app/home" class="tab-item"><span class="tab-icon">&#127968;</span><span class="tab-label">Home</span></a>
+  <a href="/app/projects" class="tab-item"><span class="tab-icon">&#127807;</span><span class="tab-label">Projects</span></a>
+  <a href="/app/donate" class="tab-fab"><div class="fab-circle">&#128152;</div><span class="fab-label">Donate</span></a>
+  <a href="/app/quiz" class="tab-item"><span class="tab-icon">&#127922;</span><span class="tab-label">Quiz</span></a>
+  <a href="/app/profile" class="tab-item active"><span class="tab-icon">&#128100;</span><span class="tab-label">Account</span></a>
+</nav>
+
+<script>
+
+function showToast(msg, type='info') {
+  const icons = {success:'&#9989;', error:'&#10060;', info:'&#8505;&#65039;', warning:'&#9888;&#65039;'};
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
+  const c = document.getElementById('toast-container');
+  if (c) c.appendChild(t);
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
+}
+
+const API = 'https://fwf-production.up.railway.app';
+function getToken() { return localStorage.getItem('fwf-token'); }
+function getUser()  { return JSON.parse(localStorage.getItem('fwf-user') || 'null'); }
+function isLoggedIn() { return !!getToken(); }
+async function apiCall(url, opts={}) {
+  const token = getToken();
+  const headers = { 'Content-Type':'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) };
+  const res = await fetch(url, { credentials: 'include', ...opts, headers: { ...headers, ...(opts.headers||{}) } });
+  if (res.status === 401) { logout(); return null; }
+  return res.json();
+}
+function logout() {
+  localStorage.removeItem('fwf-token');
+  localStorage.removeItem('fwf-user');
+  window.location.href = '/app/login';
+}
+function updateTopbarUser() {
+  const user = getUser();
+  const btn = document.getElementById('topbar-user');
+  if (!btn) return;
+  if (user) {
+    btn.href = '/app/dashboard';
+    btn.innerHTML = '<span style="font-size:13px;font-weight:800;line-height:1">' + (user.name||'U').charAt(0).toUpperCase() + '</span>';
+    btn.style.cssText = 'background:linear-gradient(135deg,var(--orange),var(--orange-d));color:#fff;border-radius:50%;width:36px;height:36px;border:2px solid rgba(255,255,255,.2)';
+  }
+}
+const BACKEND = 'https://fwf-production.up.railway.app';
+let allProducts = [];
+
+async function loadProducts() {
+  try {
+    const data = await fetch(BACKEND + '/api/store/products', { credentials:'include' }).then(r=>r.json()).catch(()=>null);
+    if (!data?.products?.length) {
+      document.getElementById('products-grid').innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">&#128722;</div><h3>No products yet</h3><p>Be the first to list your products!</p></div>';
+      return;
+    }
+    allProducts = data.products;
+    renderProducts(allProducts);
+  } catch(e) {
+    document.getElementById('products-grid').innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">&#128722;</div><h3>Loading products...</h3><p>Please wait</p></div>';
+  }
+}
+function renderProducts(products) {
+  const grid = document.getElementById('products-grid');
+  if (!products.length) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">&#128722;</div><h3>No products found</h3></div>'; return; }
+  grid.innerHTML = products.map(p => `
+    <div class="card" style="padding:0;overflow:hidden;cursor:pointer" onclick="openProduct('${p._id}')">
+      <div style="height:130px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:40px">${p.emoji||'&#128722;'}</div>
+      <div style="padding:12px">
+        <div style="font-size:13px;font-weight:800;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
+        <div style="font-size:15px;font-weight:900;color:var(--orange)">&#8377;${p.price}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:3px">${p.seller_name||'FWF Member'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+function filterStore(cat) {
+  document.querySelectorAll('.chip-strip .chip').forEach(c => { c.style.background=''; c.style.color=''; c.style.borderColor=''; });
+  const btn = document.getElementById('sf-' + cat);
+  if (btn) { btn.style.background='rgba(249,115,22,.18)'; btn.style.color='var(--orange-l)'; btn.style.borderColor='rgba(249,115,22,.3)'; }
+  const filtered = cat === 'all' ? allProducts : allProducts.filter(p => p.category === cat);
+  renderProducts(filtered);
+}
+function openProduct(id) {
+  window.location.href = '/store?product=' + id;
+}
+(function() {
+  loadProducts();
+  if (isLoggedIn()) { document.getElementById('sell-cta').style.display = 'block'; }
+  updateTopbarUser();
+  filterStore('all');
+})();
+</script>
+</body>
+</html>

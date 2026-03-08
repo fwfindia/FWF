@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#07090f">
+  <meta name="description" content="Your FWF account profile, settings, and support">
+  <title>My Account – FWF</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+</head>
+<body>
+<header class="app-topbar">
+  <a href="/app/home" class="brand"><img class="brand-logo" src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF"><div><div class="brand-text">Account</div><div class="brand-sub">Profile &amp; Settings</div></div></a>
+  <div class="topbar-right">
+    <div class="lang-pill"><button onclick="setLang('en')" class="active" id="btn-en">EN</button><button onclick="setLang('hi')" id="btn-hi">HI</button></div>
+  </div>
+</header>
+<div id="toast-container"></div>
+
+<!-- Logged OUT state -->
+<div id="logged-out-view" style="display:none;min-height:calc(100vh - var(--topbar-h) - var(--tabbar-h));display:none;flex-direction:column;justify-content:center;align-items:center;padding:32px 20px;text-align:center">
+  <div style="font-size:64px;margin-bottom:20px">&#128274;</div>
+  <h2 style="margin-bottom:10px">Sign in to continue</h2>
+  <p style="font-size:14px;color:var(--t3);margin-bottom:28px;max-width:260px">Login to access your dashboard, points, quizzes, and more.</p>
+  <a href="/app/login" class="btn btn-primary btn-lg" style="width:100%;max-width:280px">&#128275; Sign In</a>
+  <a href="/join" class="btn btn-secondary mt-8" style="width:100%;max-width:280px">&#128640; New? Join FWF</a>
+</div>
+
+<!-- Logged IN state -->
+<div id="logged-in-view" style="display:none">
+  <div class="profile-hero fade-up">
+    <div class="avatar-ring">
+      <div class="avatar-inner" id="profile-avatar">U</div>
+    </div>
+    <div class="profile-name" id="profile-name">Loading...</div>
+    <div class="profile-id" id="profile-mid">--</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center" id="profile-chips">
+      <span class="chip chip-orange">&#128640; Member</span>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stat-strip" id="profile-stats">
+    <div class="stat-box"><div class="sv" id="stat-pts">--</div><div class="sl">Points</div></div>
+    <div class="stat-box"><div class="sv" id="stat-referrals">--</div><div class="sl">Referrals</div></div>
+    <div class="stat-box"><div class="sv" id="stat-quizzes">--</div><div class="sl">Quizzes</div></div>
+  </div>
+
+  <!-- Menu Sections -->
+  <div class="section fade-up-2">
+    <div class="card" style="padding:0">
+      <a href="/app/dashboard" class="list-item"><div class="li-icon" style="background:rgba(249,115,22,.15)">&#128202;</div><div class="li-content"><div class="li-title">My Dashboard</div><div class="li-sub">Wallet, points & activity</div></div><div class="li-arrow">&#8250;</div></a>
+      <a href="/app/quiz" class="list-item"><div class="li-icon" style="background:rgba(139,92,246,.15)">&#127922;</div><div class="li-content"><div class="li-title">Quiz History</div><div class="li-sub">Your participations & scores</div></div><div class="li-arrow">&#8250;</div></a>
+      <a href="/member/referrals" class="list-item"><div class="li-icon" style="background:rgba(245,158,11,.15)">&#128279;</div><div class="li-content"><div class="li-title">My Referrals</div><div class="li-sub">Friends you've invited</div></div><div class="li-arrow">&#8250;</div></a>
+      <a href="/member/wallet" class="list-item" style="border-bottom:none"><div class="li-icon" style="background:rgba(59,130,246,.15)">&#128176;</div><div class="li-content"><div class="li-title">Points History</div><div class="li-sub">All earnings & transactions</div></div><div class="li-arrow">&#8250;</div></a>
+    </div>
+  </div>
+
+  <div class="section fade-up-3">
+    <div class="card" style="padding:0">
+      <a href="/app/store#my-products" class="list-item"><div class="li-icon" style="background:rgba(16,185,129,.15)">&#128722;</div><div class="li-content"><div class="li-title">My Products</div><div class="li-sub">Products you're selling</div></div><div class="li-arrow">&#8250;</div></a>
+      <a href="/app/tasks" class="list-item"><div class="li-icon" style="background:rgba(6,182,212,.15)">&#9989;</div><div class="li-content"><div class="li-title">Tasks</div><div class="li-sub">Weekly social tasks</div></div><div class="li-arrow">&#8250;</div></a>
+      <a href="/app/profile#support" class="list-item" style="border-bottom:none"><div class="li-icon" style="background:rgba(239,68,68,.15)">&#128222;</div><div class="li-content"><div class="li-title">Support</div><div class="li-sub">Get help & raise tickets</div></div><div class="li-arrow">&#8250;</div></a>
+    </div>
+  </div>
+
+  <!-- Edit Profile -->
+  <div class="section">
+    <div class="card" style="padding:0">
+      <button onclick="openEditProfile()" class="list-item w-full" style="background:none;border:none;font-family:inherit;text-align:left"><div class="li-icon" style="background:rgba(59,130,246,.15)">&#9998;</div><div class="li-content"><div class="li-title">Edit Profile</div><div class="li-sub">Update name & email</div></div><div class="li-arrow">&#8250;</div></button>
+      <button onclick="doLogout()" class="list-item w-full" style="background:none;border:none;font-family:inherit;text-align:left;border-top:1px solid var(--b1)"><div class="li-icon" style="background:rgba(239,68,68,.15)">&#128682;</div><div class="li-content"><div class="li-title" style="color:var(--red)">Sign Out</div><div class="li-sub">Logout from this device</div></div><div class="li-arrow" style="color:var(--red)">&#8250;</div></button>
+    </div>
+  </div>
+
+  <div style="padding:20px 16px 32px;text-align:center">
+    <p style="font-size:11px;color:var(--t4)">FWF App v2.0 · <a href="/privacy-policy" style="color:var(--t3)">Privacy</a> · <a href="/terms-conditions" style="color:var(--t3)">Terms</a></p>
+  </div>
+</div>
+
+<nav class="app-tabs">
+  <a href="/app/home" class="tab-item"><span class="tab-icon">&#127968;</span><span class="tab-label">Home</span></a>
+  <a href="/app/projects" class="tab-item"><span class="tab-icon">&#127807;</span><span class="tab-label">Projects</span></a>
+  <a href="/app/donate" class="tab-fab"><div class="fab-circle">&#128152;</div><span class="fab-label">Donate</span></a>
+  <a href="/app/quiz" class="tab-item"><span class="tab-icon">&#127922;</span><span class="tab-label">Quiz</span></a>
+  <a href="/app/profile" class="tab-item active"><span class="tab-icon">&#128100;</span><span class="tab-label">Account</span></a>
+</nav>
+
+<!-- Edit Profile Sheet -->
+<div class="overlay" id="edit-overlay" onclick="closeEditProfile()"></div>
+<div class="bottom-sheet" id="edit-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Edit Profile</div>
+  <form id="edit-form" onsubmit="submitEdit(event)">
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input type="text" id="edit-name" class="form-input" placeholder="Full name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" id="edit-email" class="form-input" placeholder="Email address">
+    </div>
+    <button type="submit" class="btn btn-primary btn-block" id="edit-btn">Save Changes</button>
+    <button type="button" onclick="closeEditProfile()" class="btn btn-ghost btn-block mt-8">Cancel</button>
+  </form>
+</div>
+
+<script>
+
+function showToast(msg, type='info') {
+  const icons = {success:'&#9989;', error:'&#10060;', info:'&#8505;&#65039;', warning:'&#9888;&#65039;'};
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
+  const c = document.getElementById('toast-container');
+  if (c) c.appendChild(t);
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
+}
+
+// Lang helper
+const T={en:{},hi:{}};
+function setLang(lang){
+  document.documentElement.setAttribute('data-lang',lang);
+  localStorage.setItem('fwf-lang',lang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    if(T[lang][k]!==undefined) el.innerHTML=T[lang][k];
+  });
+  document.getElementById('btn-en').classList.toggle('active',lang==='en');
+  document.getElementById('btn-hi').classList.toggle('active',lang==='hi');
+}
+
+const API = 'https://fwf-production.up.railway.app';
+function getToken() { return localStorage.getItem('fwf-token'); }
+function getUser()  { return JSON.parse(localStorage.getItem('fwf-user') || 'null'); }
+function isLoggedIn() { return !!getToken(); }
+async function apiCall(url, opts={}) {
+  const token = getToken();
+  const headers = { 'Content-Type':'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) };
+  const res = await fetch(url, { credentials: 'include', ...opts, headers: { ...headers, ...(opts.headers||{}) } });
+  if (res.status === 401) { logout(); return null; }
+  return res.json();
+}
+function logout() {
+  localStorage.removeItem('fwf-token');
+  localStorage.removeItem('fwf-user');
+  window.location.href = '/app/login';
+}
+function updateTopbarUser() {
+  const user = getUser();
+  const btn = document.getElementById('topbar-user');
+  if (!btn) return;
+  if (user) {
+    btn.href = '/app/dashboard';
+    btn.innerHTML = '<span style="font-size:13px;font-weight:800;line-height:1">' + (user.name||'U').charAt(0).toUpperCase() + '</span>';
+    btn.style.cssText = 'background:linear-gradient(135deg,var(--orange),var(--orange-d));color:#fff;border-radius:50%;width:36px;height:36px;border:2px solid rgba(255,255,255,.2)';
+  }
+}
+const BACKEND = 'https://fwf-production.up.railway.app';
+
+function openEditProfile() {
+  const u = getUser();
+  document.getElementById('edit-name').value = u?.name || '';
+  document.getElementById('edit-email').value = u?.email || '';
+  document.getElementById('edit-overlay').classList.add('open');
+  document.getElementById('edit-sheet').classList.add('open');
+}
+function closeEditProfile() {
+  document.getElementById('edit-overlay').classList.remove('open');
+  document.getElementById('edit-sheet').classList.remove('open');
+}
+async function submitEdit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('edit-btn');
+  const name = document.getElementById('edit-name').value.trim();
+  const email = document.getElementById('edit-email').value.trim();
+  btn.classList.add('loading'); btn.textContent = '';
+  try {
+    const data = await apiCall(BACKEND + '/api/member/update-profile', { method:'POST', body: JSON.stringify({name, email}) });
+    btn.classList.remove('loading'); btn.textContent = 'Save Changes';
+    if (data?.ok) {
+      const u = getUser();
+      if (u) { u.name = name || u.name; u.email = email || u.email; localStorage.setItem('fwf-user', JSON.stringify(u)); }
+      showToast('Profile updated!', 'success');
+      closeEditProfile();
+      loadProfile();
+    } else { showToast(data?.error || 'Update failed', 'error'); }
+  } catch(e) { showToast('Network error', 'error'); btn.classList.remove('loading'); btn.textContent = 'Save Changes'; }
+}
+function doLogout() {
+  if (!confirm('Are you sure you want to sign out?')) return;
+  fetch('/api/auth/logout', { method:'POST', credentials:'include' }).finally(() => {
+    localStorage.removeItem('fwf-token');
+    localStorage.removeItem('fwf-user');
+    window.location.href = '/app/home';
+  });
+}
+async function loadProfile() {
+  const user = getUser();
+  if (!user) {
+    document.getElementById('logged-out-view').style.display = 'flex';
+    document.getElementById('logged-in-view').style.display = 'none';
+    return;
+  }
+  document.getElementById('logged-out-view').style.display = 'none';
+  document.getElementById('logged-in-view').style.display = 'block';
+  document.getElementById('profile-name').textContent = user.name || 'Member';
+  document.getElementById('profile-mid').textContent = user.memberId || user.member_id || '--';
+  document.getElementById('profile-avatar').textContent = (user.name||'M').charAt(0).toUpperCase();
+  try {
+    const data = await apiCall(BACKEND + '/api/member/me');
+    if (!data) return;
+    const pts = data.wallet?.points_balance || 0;
+    document.getElementById('stat-pts').textContent = pts >= 1000 ? (pts/1000).toFixed(1)+'K' : pts;
+    document.getElementById('stat-referrals').textContent = data.referrals?.length || 0;
+    document.getElementById('stat-quizzes').textContent = data.quizParticipations?.length || 0;
+    if (user.role === 'supporter') {
+      document.getElementById('profile-chips').innerHTML = '<span class="chip chip-blue">&#9733; Supporter</span>';
+    }
+  } catch(e) {}
+}
+(function() {
+  const lang = localStorage.getItem('fwf-lang') || 'en';
+  if (lang !== 'en') setLang(lang); else document.getElementById('btn-en').classList.add('active');
+  loadProfile();
+})();
+</script>
+</body>
+</html>
