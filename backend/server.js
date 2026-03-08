@@ -3356,19 +3356,23 @@ app.post('/api/quiz-ticket/:token/submit-quiz', async (req, res) => {
     let buyerAccount = null;
     const rawContact = (ticket.buyer_contact || '').replace(/\D/g, '').slice(-10);
     if (rawContact.length === 10) {
-      const existingUser = await User.findOne({ mobile: rawContact }).select('member_id name').lean();
+      const existingUser = await User.findOne({ mobile: rawContact }).select('_id member_id name').lean();
       if (existingUser) {
         buyerAccount = { user_id: existingUser.member_id, is_new: false };
+        // Ensure participation is linked to the real user _id (in case enroll used a temp ObjectId)
+        await QuizParticipation.updateOne({ _id: participation._id }, { user_id: existingUser._id });
       } else {
         const supporterId = await nextSupporterId();
         const plain = randPass();
         const hash = bcrypt.hashSync(plain, 10);
         const refCode = generateReferralCode(supporterId);
-        await User.create({
+        const newBuyer = await User.create({
           member_id: supporterId, name: ticket.buyer_name, mobile: rawContact,
           password_hash: hash, role: 'supporter', membership_active: true,
           referral_code: refCode, wallet: {}
         });
+        // Link participation to the real user _id (enroll used a temp ObjectId for new buyers)
+        await QuizParticipation.updateOne({ _id: participation._id }, { user_id: newBuyer._id });
         sendWhatsAppCredentials({ mobile: rawContact, name: ticket.buyer_name, userId: supporterId, password: plain })
           .catch(e => console.error('⚠️ Buyer credentials WhatsApp failed:', e.message));
         buyerAccount = { user_id: supporterId, password: plain, is_new: true };
