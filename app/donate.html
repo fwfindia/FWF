@@ -55,35 +55,48 @@
 
     .sec-hidden{display:none}
 
-    /* Popup forms */
-    .popup-overlay{position:fixed;inset:0;background:rgba(2,6,23,.72);backdrop-filter:blur(10px);display:none;align-items:flex-end;justify-content:center;z-index:9999;padding:0}
+    /* Desktop-like popup forms */
+    .popup-overlay{position:fixed;inset:0;background:rgba(15,23,42,.2);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
     .popup-overlay.show{display:flex}
-    .popup-card{width:100%;max-width:430px;max-height:86vh;background:#fff;border-radius:22px 22px 0 0;overflow:hidden;box-shadow:0 -14px 40px rgba(0,0,0,.3);animation:slideUp .25s ease}
-    @keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
-    .popup-head{padding:14px 16px 12px;position:relative}
-    .ph-donate{background:linear-gradient(135deg,#ff416c,#ff4f81)}
-    .ph-member{background:linear-gradient(135deg,#6153ff,#8b5cf6)}
-    .ph-supporter{background:linear-gradient(135deg,#16a34a,#22c55e)}
-    .popup-headrow{display:flex;align-items:center;gap:10px;padding-right:34px}
-    .popup-icon{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
-    .popup-title{font-size:16px;font-weight:900;color:#fff;margin:0}
-    .popup-sub{font-size:11.5px;color:rgba(255,255,255,.85);margin:2px 0 0;line-height:1.4}
-    .popup-close{position:absolute;top:10px;right:10px;width:34px;height:34px;border:none;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:16px;cursor:pointer}
-    .popup-body{padding:16px;max-height:calc(86vh - 72px);overflow-y:auto}
-    .popup-form{display:grid;gap:10px}
-    .popup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .popup-input,.popup-select{width:100%;border-radius:12px;border:1.5px solid #e7e9f6;background:#fff;color:#0f172a;font-size:14px;font-weight:700;padding:13px 14px;font-family:inherit}
-    .popup-input:focus,.popup-select:focus{outline:none;border-color:#6153ff;box-shadow:0 0 0 3px rgba(97,83,255,.12)}
-    .popup-kicker{font-size:11px;font-weight:800;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin:2px 0 0}
-    .popup-chips{display:flex;flex-wrap:wrap;gap:8px}
-    .popup-chip{padding:8px 12px;border-radius:999px;background:#f8fafc;border:1px solid #dbe3f7;font-size:12px;font-weight:900;color:#0f172a;cursor:pointer;font-family:inherit}
-    .popup-chip.on{background:#ff7a18;border-color:#ff7a18;color:#fff}
-    .popup-note{padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12px;color:#475569;line-height:1.5}
-    .popup-submit{width:100%;padding:13px 16px;border:none;border-radius:13px;color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-    .ps-donate{background:linear-gradient(135deg,#ff416c,#ff4f81)}
-    .ps-member{background:linear-gradient(135deg,#6153ff,#8b5cf6)}
-    .ps-supporter{background:linear-gradient(135deg,#16a34a,#22c55e)}
-    @media (max-width:560px){.popup-grid{grid-template-columns:1fr}}
+    .popup-card{background:#fff;border-radius:18px;max-width:520px;width:96vw;box-shadow:0 8px 40px rgba(15,23,42,.18);position:relative;overflow:hidden;animation:fadeUp .22s ease}
+    .popup-body{padding:14px 18px 16px;max-height:72vh;overflow-y:auto}
+    .popup-close{position:absolute;top:10px;right:12px;background:none;border:none;font-size:1.25rem;cursor:pointer;color:inherit;z-index:2}
+    .popup-head{padding:13px 18px 12px;position:relative}
+    .ph-donate{background:linear-gradient(135deg,#ff416c,#ff4f81);color:#fff}
+    .ph-member,.ph-supporter{background:#fff;color:#0f172a;padding:22px 22px 12px}
+    .popup-headrow{display:flex;align-items:center;gap:10px}
+    .popup-icon{background:rgba(255,255,255,.18);border-radius:11px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;color:#fff}
+    .ph-member .popup-icon,.ph-supporter .popup-icon{background:#eef2ff;color:#6153ff}
+    .popup-title{margin:0;font-size:1.05rem;font-weight:900}
+    .popup-sub{margin:1px 0 0;font-size:.75rem;line-height:1.4}
+    .popup-kicker{font-size:.73rem;font-weight:800;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin:0 0 6px}
+    .popup-divider{border-top:1px solid #f1f5f9;margin:10px 0}
+    .amount-chips{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 10px}
+    .amount-chip{padding:6px 10px;border-radius:999px;background:#f1f5ff;border:1px solid #dbe3f7;cursor:pointer;font-weight:900;font-size:.85rem;font-family:inherit}
+    .amount-chip.on{background:#ff7a18;border-color:#ff7a18;color:#fff}
+    .fl-group{position:relative;margin-bottom:10px}
+    .fl-input,.fl-select{width:100%;border-radius:12px;border:2px solid #e7e9f6;background:#fff;font-size:.97rem;padding:16px 13px 7px 43px;color:#0f172a;font-weight:700;transition:border-color .18s,box-shadow .18s;outline:0;font-family:inherit}
+    .fl-select{padding-top:18px;padding-bottom:10px}
+    .fl-input::placeholder{color:transparent}
+    .fl-input:focus,.fl-select:focus{border-color:#6153ff;box-shadow:0 0 0 3px rgba(97,83,255,.14)}
+    .fl-label{position:absolute;left:42px;top:10px;font-weight:800;font-size:.93rem;color:#6153ff;padding:0 5px;background:transparent;pointer-events:none;transition:.18s;border-radius:6px}
+    .fl-input:focus + .fl-label,.fl-input:not(:placeholder-shown) + .fl-label,.fl-select:valid + .fl-label{top:-8px;left:36px;font-size:.82rem;background:#fff;box-shadow:0 0 0 6px #fff inset}
+    .fl-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:.97rem}
+    .rupee-chip{position:absolute;left:54px;top:50%;transform:translateY(-50%);font-weight:900;color:#64748b}
+    .fl-input.amount{padding-left:98px}
+    .fl-input.amount + .fl-label{left:82px}
+    .btn-primary{width:100%;padding:11px 0;color:#fff;font-weight:900;border:none;border-radius:11px;font-size:1em;cursor:pointer;transition:.18s;font-family:inherit}
+    .btn-primary:hover{filter:brightness(1.05);transform:translateY(-1px)}
+    .btn-primary:disabled{opacity:.4;cursor:not-allowed!important;pointer-events:none}
+    .subtle{font-size:.85rem;color:#64748b;margin:4px 2px 10px}
+    .tc-checks{margin:12px 0 2px;display:flex;flex-direction:column;gap:8px}
+    .tc-check-row{display:flex;align-items:flex-start;gap:9px;padding:8px 11px;background:#f8faff;border:1.5px solid #e0e7ff;border-radius:10px;transition:border-color .2s}
+    .tc-check-row.accepted{border-color:#86efac;background:#f0fdf4}
+    .tc-check-row input[type=checkbox]{width:17px;height:17px;margin-top:2px;flex-shrink:0;accent-color:#6153ff;cursor:pointer}
+    .tc-check-row label{font-size:.81rem;color:#334155;line-height:1.45}
+    .popup-link{color:#6366f1;font-weight:700;text-decoration:none}
+    .opt-row{display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fde68a;border-radius:14px;padding:14px 16px;cursor:pointer;margin-bottom:4px;margin-top:2px}
+    .opt-row span{font-size:.92rem;font-weight:600;color:#92400e;line-height:1.4}
 
     /* Footer */
     .app-ft{padding:20px 16px 12px;margin-top:20px;border-top:1px solid var(--border);text-align:center}
@@ -180,23 +193,37 @@
       </div>
       <div class="popup-body">
         <form class="popup-form" id="donatePopupForm">
-          <div class="popup-kicker">Select or Enter Amount</div>
-          <div class="popup-chips" id="popupAmountChips">
-            <button type="button" class="popup-chip" data-amount="200">₹200</button>
-            <button type="button" class="popup-chip" data-amount="500">₹500</button>
-            <button type="button" class="popup-chip" data-amount="1000">₹1,000</button>
-            <button type="button" class="popup-chip" data-amount="2500">₹2,500</button>
-            <button type="button" class="popup-chip" data-amount="5000">₹5,000</button>
+          <p class="popup-kicker">Select or Enter Amount</p>
+          <div class="amount-chips" id="popupAmountChips">
+            <button type="button" class="amount-chip" data-amount="200">₹200</button>
+            <button type="button" class="amount-chip" data-amount="500">₹500</button>
+            <button type="button" class="amount-chip" data-amount="1000">₹1,000</button>
+            <button type="button" class="amount-chip" data-amount="2500">₹2,500</button>
+            <button type="button" class="amount-chip" data-amount="5000">₹5,000</button>
           </div>
-          <input class="popup-input" id="popupDonateAmount" type="number" min="1" placeholder="Custom Amount (₹)" required>
-          <div class="popup-kicker">Your Details</div>
-          <div class="popup-grid">
-            <input class="popup-input" type="text" placeholder="Full Name" required>
-            <input class="popup-input" type="tel" placeholder="Phone (10-digit)" required>
-          </div>
-          <input class="popup-input" type="email" placeholder="Email" required>
-          <div class="popup-note">Continue to the full donation flow for payment, 80G receipt, and secure verification.</div>
-          <button class="popup-submit ps-donate" type="submit"><i class="fas fa-heart"></i> Be the Change — Donate Now</button>
+          <div class="fl-group"><span class="rupee-chip">₹</span><input class="fl-input amount" id="popupDonateAmount" type="number" min="1" step="1" placeholder=" " required><label class="fl-label">Custom Amount</label></div>
+          <div class="popup-divider"></div>
+          <p class="popup-kicker">Your Details</p>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-user"></i><input class="fl-input" type="text" placeholder=" " required><label class="fl-label">Full Name</label></div>
+          <div class="fl-group"><i class="fl-icon fa-solid fa-mobile-screen-button"></i><input class="fl-input" type="tel" placeholder=" " required><label class="fl-label">Phone (10-digit)</label></div>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-envelope"></i><input class="fl-input" type="email" placeholder=" " required><label class="fl-label">Email</label></div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:#f8faff;border:1.5px solid #dbe3f7;border-radius:10px;padding:8px 11px;margin-bottom:8px;transition:.2s">
+            <input type="checkbox" style="width:18px;height:18px;accent-color:#ff4f81;flex-shrink:0">
+            <div>
+              <p style="margin:0;font-size:0.82rem;font-weight:800;color:#1e293b">I want 80G Tax Receipt</p>
+              <p style="margin:0;font-size:0.71rem;color:#64748b">PAN card required for income tax exemption</p>
+            </div>
+            <span style="margin-left:auto;background:#fee2e2;color:#dc2626;font-size:0.68rem;font-weight:800;padding:2px 7px;border-radius:20px">Save Tax</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:#f0f7ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:8px 11px;margin-bottom:8px;transition:.2s">
+            <input type="checkbox" style="width:18px;height:18px;accent-color:#6153ff;flex-shrink:0">
+            <div>
+              <p style="margin:0;font-size:0.82rem;font-weight:800;color:#1e293b">Make it Monthly</p>
+              <p style="margin:0;font-size:0.71rem;color:#64748b">Auto-debit every month · Cancel anytime from UPI app</p>
+            </div>
+            <span style="margin-left:auto;background:#dbeafe;color:#1d4ed8;font-size:0.68rem;font-weight:800;padding:2px 7px;border-radius:20px;white-space:nowrap"><i class="fa-solid fa-rotate" style="margin-right:3px"></i>Monthly</span>
+          </label>
+          <button class="btn-primary" type="submit" style="background:linear-gradient(135deg,#ff416c,#ff4f81);margin-top:4px"><i class="fas fa-heart"></i> Be the Change — Donate Now</button>
         </form>
       </div>
     </div>
@@ -206,34 +233,20 @@
     <div class="popup-card">
       <div class="popup-head ph-member">
         <button class="popup-close" type="button" onclick="closePopup('memberPopup')"><i class="fas fa-times"></i></button>
-        <div class="popup-headrow">
-          <div class="popup-icon"><i class="fas fa-user-plus"></i></div>
-          <div><h3 class="popup-title">Join Membership</h3><p class="popup-sub">Start your member registration like the desktop flow</p></div>
-        </div>
+        <div><h3 class="popup-title">Join Membership</h3></div>
       </div>
       <div class="popup-body">
-        <form class="popup-form" id="memberPopupForm">
-          <div class="popup-grid">
-            <input class="popup-input" type="text" placeholder="Full Name" required>
-            <input class="popup-input" type="tel" placeholder="Phone" required>
+        <form class="popup-form" id="memberPopupForm" novalidate>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-user"></i><input class="fl-input" type="text" placeholder=" " required><label class="fl-label">Full Name</label></div>
+          <div class="fl-group"><i class="fl-icon fa-solid fa-mobile-screen-button"></i><input class="fl-input" type="tel" placeholder=" " required><label class="fl-label">Phone</label></div>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-envelope"></i><input class="fl-input" type="email" placeholder=" " required><label class="fl-label">Email</label></div>
+          <div class="fl-group"><i class="fl-icon fa-solid fa-diagram-project"></i><select class="fl-select" id="memberProjectSelect" required><option value="" hidden selected></option><option>Suraksha</option><option>Swachh Bharat</option><option>Happy Meal</option><option>Green Energy</option><option>DIY Crafts</option><option>Swachh Jal</option><option>Samman</option><option>Sweet Home</option><option>Hariyali</option><option>Worship</option><option>Shiksha</option></select><label class="fl-label">Select Project</label></div>
+          <div class="tc-checks">
+            <div class="tc-check-row" id="memberTc1Row"><input type="checkbox" id="memberTc1"><label for="memberTc1">I have read and agree to the Business Funding Agreement</label></div>
+            <div class="tc-check-row" id="memberTc2Row"><input type="checkbox" id="memberTc2"><label for="memberTc2">I agree to pay the ₹500 per month membership fee to maintain my membership.</label></div>
           </div>
-          <input class="popup-input" type="email" placeholder="Email" required>
-          <select class="popup-select" required>
-            <option value="">Select Project</option>
-            <option>Suraksha</option>
-            <option>Swachh Bharat</option>
-            <option>Happy Meal</option>
-            <option>Green Energy</option>
-            <option>DIY Crafts</option>
-            <option>Swachh Jal</option>
-            <option>Samman</option>
-            <option>Sweet Home</option>
-            <option>Hariyali</option>
-            <option>Worship</option>
-            <option>Shiksha</option>
-          </select>
-          <div class="popup-note">Membership continues to the complete desktop form with agreement and payment flow.</div>
-          <button class="popup-submit ps-member" type="submit"><i class="fas fa-user-plus"></i> Proceed to Membership</button>
+          <button class="btn-primary" id="memberSubmitBtn" type="submit" style="background:linear-gradient(135deg,#6153ff,#8b5cf6)" disabled>Proceed to Payment</button>
+          <p style="text-align:center; margin-top:16px; font-size:14px; color:#64748b;">Already a member? <a href="/app/login" class="popup-link">Login to Dashboard</a></p>
         </form>
       </div>
     </div>
@@ -243,21 +256,16 @@
     <div class="popup-card">
       <div class="popup-head ph-supporter">
         <button class="popup-close" type="button" onclick="closePopup('supporterPopup')"><i class="fas fa-times"></i></button>
-        <div class="popup-headrow">
-          <div class="popup-icon">🤝</div>
-          <div><h3 class="popup-title">Supporter Sign Up</h3><p class="popup-sub">Tell us how you'd like to help</p></div>
-        </div>
+        <div><h3 class="popup-title">Supporter Sign Up</h3><p class="subtle">Tell us how you'd like to help</p></div>
       </div>
       <div class="popup-body">
         <form class="popup-form" id="supporterPopupForm">
-          <div class="popup-grid">
-            <input class="popup-input" type="text" placeholder="Full Name" required>
-            <input class="popup-input" type="tel" placeholder="Phone" required>
-          </div>
-          <input class="popup-input" type="email" placeholder="Email" required>
-          <input class="popup-input" type="number" min="1" placeholder="Donation Amount (optional)">
-          <div class="popup-note">This continues to the full supporter sign-up flow used on the desktop page.</div>
-          <button class="popup-submit ps-supporter" type="submit"><i class="fas fa-hands-helping"></i> Register as Supporter</button>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-user"></i><input class="fl-input" type="text" placeholder=" " required><label class="fl-label">Full Name</label></div>
+          <div class="fl-group"><i class="fl-icon fa-solid fa-mobile-screen-button"></i><input class="fl-input" type="tel" placeholder=" " required><label class="fl-label">Phone</label></div>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-envelope"></i><input class="fl-input" type="email" placeholder=" " required><label class="fl-label">Email</label></div>
+          <label class="opt-row"><input type="checkbox" id="supDonateChk" style="width:18px;height:18px;margin-top:2px;accent-color:#f59e0b;flex-shrink:0"><span>💛 I also want to make a donation along with my support</span></label>
+          <div id="supDonateAmtRow" style="display:none;margin-bottom:4px"><div class="fl-group" style="margin-bottom:0"><i class="fl-icon fa-solid fa-indian-rupee-sign"></i><input class="fl-input" type="number" min="1" placeholder=" "><label class="fl-label">Donation Amount (₹)</label></div></div>
+          <button class="btn-primary" type="submit" style="background:linear-gradient(135deg,#6153ff,#8b5cf6);margin-top:6px"><i class="fa-solid fa-user-plus"></i> Register as Supporter</button>
         </form>
       </div>
     </div>
@@ -338,9 +346,25 @@
     document.getElementById('popupAmountChips').addEventListener('click',event=>{
       const chip=event.target.closest('[data-amount]');
       if(!chip) return;
-      document.querySelectorAll('#popupAmountChips .popup-chip').forEach(btn=>btn.classList.remove('on'));
+      document.querySelectorAll('#popupAmountChips .amount-chip').forEach(btn=>btn.classList.remove('on'));
       chip.classList.add('on');
       document.getElementById('popupDonateAmount').value=chip.dataset.amount;
+    });
+
+    function syncMemberSubmitState(){
+      const c1=document.getElementById('memberTc1');
+      const c2=document.getElementById('memberTc2');
+      const btn=document.getElementById('memberSubmitBtn');
+      const enabled=c1.checked && c2.checked;
+      btn.disabled=!enabled;
+      document.getElementById('memberTc1Row').classList.toggle('accepted',c1.checked);
+      document.getElementById('memberTc2Row').classList.toggle('accepted',c2.checked);
+    }
+    document.getElementById('memberTc1').addEventListener('change',syncMemberSubmitState);
+    document.getElementById('memberTc2').addEventListener('change',syncMemberSubmitState);
+
+    document.getElementById('supDonateChk').addEventListener('change',event=>{
+      document.getElementById('supDonateAmtRow').style.display=event.target.checked?'block':'none';
     });
 
     document.querySelectorAll('.popup-overlay').forEach(overlay=>{
