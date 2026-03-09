@@ -55,6 +55,31 @@
 
     .sec-hidden{display:none}
 
+  /* Action forms */
+  .action-wrap{margin:18px 16px 0;border-radius:22px;padding:22px 18px;background:var(--surface);border:1px solid var(--border)}
+  .action-wrap.is-hidden{display:none}
+  .action-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .action-head h3{font-size:18px;font-weight:900;color:var(--text);margin:0 0 4px}
+  .action-head p{font-size:12.5px;color:var(--text3);margin:0;line-height:1.5}
+  .action-badge{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:38px;border-radius:12px;background:rgba(249,115,22,.12);color:var(--primary);font-size:18px}
+  .action-pane{display:none}
+  .action-pane.on{display:block}
+  .mini-form{display:grid;gap:10px}
+  .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mini-input,.mini-select{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-weight:600;font-family:inherit}
+  .mini-input:focus,.mini-select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(249,115,22,.12)}
+  .mini-hint{font-size:11.5px;color:var(--text3);line-height:1.5;margin:2px 0 0}
+  .mini-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .mini-chip{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+  .mini-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .mini-submit{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 18px;border:none;border-radius:13px;font-size:14px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit;transition:transform .15s}
+  .mini-submit:active{transform:scale(.97)}
+  .mini-submit.red{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 14px rgba(239,68,68,.28)}
+  .mini-submit.purple{background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 4px 14px rgba(139,92,246,.28)}
+  .mini-submit.green{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 14px rgba(34,197,94,.28)}
+  .mini-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:11.5px;color:var(--text3);line-height:1.5}
+  @media (max-width:560px){.mini-grid{grid-template-columns:1fr}}
+
     /* Footer */
     .app-ft{padding:20px 16px 12px;margin-top:20px;border-top:1px solid var(--border);text-align:center}
     .ft-copy{font-size:11px;color:var(--text3)}
@@ -139,6 +164,75 @@
     <a href="/app/csr" class="sc-btn sc-btn-cyan"><i class="fas fa-building"></i> <span data-i18n="d.csr.btn">Partner</span></a>
   </div>
 
+  <div class="action-wrap" id="actionWrap">
+    <div class="action-head">
+      <div>
+        <h3 id="actionTitle">Complete Your Donation</h3>
+        <p id="actionSub">Enter a few details and continue to the secure donation flow.</p>
+      </div>
+      <div class="action-badge" id="actionBadge"><i class="fas fa-heart"></i></div>
+    </div>
+
+    <div class="action-pane on" id="pane-donate">
+      <form class="mini-form" id="donateActionForm">
+        <div class="mini-chips" id="amountChips">
+          <button type="button" class="mini-chip" data-amount="200">₹200</button>
+          <button type="button" class="mini-chip" data-amount="500">₹500</button>
+          <button type="button" class="mini-chip" data-amount="1000">₹1,000</button>
+          <button type="button" class="mini-chip" data-amount="2500">₹2,500</button>
+          <button type="button" class="mini-chip" data-amount="5000">₹5,000</button>
+        </div>
+        <input class="mini-input" id="donateAmount" type="number" min="1" placeholder="Custom amount (₹)" required>
+        <div class="mini-grid">
+          <input class="mini-input" type="text" placeholder="Full name" required>
+          <input class="mini-input" type="tel" placeholder="Mobile number" required>
+        </div>
+        <input class="mini-input" type="email" placeholder="Email address" required>
+        <button class="mini-submit red" type="submit"><i class="fas fa-heart"></i> Continue to Donation</button>
+      </form>
+      <div class="mini-note">80G receipt and secure payment options continue on the final donation step.</div>
+    </div>
+
+    <div class="action-pane" id="pane-member">
+      <form class="mini-form" id="memberActionForm">
+        <div class="mini-grid">
+          <input class="mini-input" type="text" placeholder="Full name" required>
+          <input class="mini-input" type="tel" placeholder="Mobile number" required>
+        </div>
+        <input class="mini-input" type="email" placeholder="Email address" required>
+        <select class="mini-select" required>
+          <option value="">Choose project interest</option>
+          <option>Suraksha</option>
+          <option>Swachh Bharat</option>
+          <option>Happy Meal</option>
+          <option>Green Energy</option>
+          <option>DIY Crafts</option>
+          <option>Swachh Jal</option>
+          <option>Samman</option>
+          <option>Sweet Home</option>
+          <option>Hariyali</option>
+          <option>Worship</option>
+          <option>Shiksha</option>
+        </select>
+        <button class="mini-submit purple" type="submit"><i class="fas fa-user-plus"></i> Continue to Membership</button>
+      </form>
+      <div class="mini-note">Membership starts from ₹500/month and opens the complete member registration flow next.</div>
+    </div>
+
+    <div class="action-pane" id="pane-supporter">
+      <form class="mini-form" id="supporterActionForm">
+        <div class="mini-grid">
+          <input class="mini-input" type="text" placeholder="Full name" required>
+          <input class="mini-input" type="tel" placeholder="Mobile number" required>
+        </div>
+        <input class="mini-input" type="email" placeholder="Email address" required>
+        <input class="mini-input" type="text" placeholder="How would you like to support?">
+        <button class="mini-submit green" type="submit"><i class="fas fa-hands-helping"></i> Continue as Supporter</button>
+      </form>
+      <div class="mini-note">Supporters can volunteer skills, mentor members, or contribute to local livelihood programs.</div>
+    </div>
+  </div>
+
   <div class="app-ft">
     <div class="ft-copy">&copy; <span id="yr"></span> FWF · <a href="https://www.fwfindia.org/privacy">Privacy</a> · <a href="https://www.fwfindia.org/terms">Terms</a></div>
   </div>
@@ -155,9 +249,41 @@
     document.getElementById('yr').textContent=new Date().getFullYear();
 
     const TAB_HASH={donate:'donateModal',member:'memberModal',supporter:'supporterModal',csr:'csrModal'};
+    const ACTION_META={
+      donate:{title:'Complete Your Donation',sub:'Enter a few details and continue to the secure donation flow.',icon:'fa-heart'},
+      member:{title:'Start Membership Request',sub:'Share your basics to continue into the member registration flow.',icon:'fa-user-plus'},
+      supporter:{title:'Join as a Supporter',sub:'Tell us who you are and continue to the supporter sign-up step.',icon:'fa-hands-helping'}
+    };
+
+    function updateActionPane(id, options={}){
+      const {scroll=false, focus=false}=options;
+      const wrap=document.getElementById('actionWrap');
+      const meta=ACTION_META[id];
+      document.querySelectorAll('.action-pane').forEach(p=>p.classList.remove('on'));
+
+      if(!meta){
+        wrap.classList.add('is-hidden');
+        return;
+      }
+
+      wrap.classList.remove('is-hidden');
+      document.getElementById('pane-'+id).classList.add('on');
+      document.getElementById('actionTitle').textContent=meta.title;
+      document.getElementById('actionSub').textContent=meta.sub;
+      document.getElementById('actionBadge').innerHTML='<i class="fas '+meta.icon+'"></i>';
+
+      if(scroll){
+        wrap.scrollIntoView({behavior:'smooth',block:'start'});
+      }
+
+      if(focus){
+        const field=wrap.querySelector('#pane-'+id+' .mini-input, #pane-'+id+' .mini-select');
+        if(field) setTimeout(()=>field.focus(),180);
+      }
+    }
 
     function activateTab(id, options={}){
-      const {syncHash=true, scrollToCard=false}=options;
+      const {syncHash=true, scrollToCard=false, scrollToAction=false, focusAction=false}=options;
       const section=document.getElementById('s-'+id);
       const btn=document.querySelector('.tab-btn[data-tab="'+id+'"]');
       if(!section || !btn) return false;
@@ -175,12 +301,14 @@
         section.scrollIntoView({behavior:'smooth',block:'start'});
       }
 
+      updateActionPane(id,{scroll:scrollToAction,focus:focusAction});
+
       return false;
     }
 
     function activateTabLink(event,id){
       if(event) event.preventDefault();
-      return activateTab(id,{syncHash:true,scrollToCard:true});
+      return activateTab(id,{syncHash:true,scrollToCard:true,scrollToAction:true,focusAction:true});
     }
 
     function syncTabFromHash(){
@@ -188,6 +316,29 @@
       const tab=Object.keys(TAB_HASH).find(key=>TAB_HASH[key]===hash) || 'donate';
       activateTab(tab,{syncHash:false});
     }
+
+    document.getElementById('amountChips').addEventListener('click',event=>{
+      const chip=event.target.closest('[data-amount]');
+      if(!chip) return;
+      document.querySelectorAll('#amountChips .mini-chip').forEach(btn=>btn.classList.remove('on'));
+      chip.classList.add('on');
+      document.getElementById('donateAmount').value=chip.dataset.amount;
+    });
+
+    document.getElementById('donateActionForm').addEventListener('submit',event=>{
+      event.preventDefault();
+      location.href='https://www.fwfindia.org/donation#donateModal';
+    });
+
+    document.getElementById('memberActionForm').addEventListener('submit',event=>{
+      event.preventDefault();
+      location.href='https://www.fwfindia.org/donation#memberModal';
+    });
+
+    document.getElementById('supporterActionForm').addEventListener('submit',event=>{
+      event.preventDefault();
+      location.href='https://www.fwfindia.org/donation#supporterModal';
+    });
 
     /* Check hash for direct tab */
     syncTabFromHash();
