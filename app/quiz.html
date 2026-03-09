@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
   <meta name="theme-color" content="#06060d">
   <meta name="description" content="FWF Quiz competitions - win cash prizes by answering correctly">
-  <title>Quiz Hub â€“ FWF</title>
+  <title>Quiz Hub Ã¢â‚¬â€œ FWF</title>
   <link rel="manifest" href="/app/manifest.json">
   <link rel="icon" href="/assets/images/logo.png">
   <link rel="apple-touch-icon" href="/assets/images/logo.png">
@@ -194,7 +194,7 @@ async function loadQuizzes() {
 
     // Populate sell dropdown
     const sel = document.getElementById('sell-quiz');
-    if (sel) sel.innerHTML = '<option value="">-- Choose Quiz --</option>' + data.quizzes.filter(q=>q.status!=='closed').map(q=>`<option value="${q.quiz_id||q._id}">${q.title} â€“ &#8377;${q.entry_fee||100}</option>`).join('');
+    if (sel) sel.innerHTML = '<option value="">-- Choose Quiz --</option>' + data.quizzes.filter(q=>q.status!=='closed').map(q=>`<option value="${q.quiz_id||q._id}">${q.title} Ã¢â‚¬â€œ &#8377;${q.entry_fee||100}</option>`).join('');
   } catch(e) { console.error(e); }
 }
 

@@ -1,206 +1,256 @@
 <!DOCTYPE html>
 <html lang="en" data-lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#06060d">
-  <meta name="description" content="Sign in to your FWF member account">
-  <title>Sign In â€“ FWF</title>
-  <link rel="manifest" href="/app/manifest.json">
-  <link rel="icon" href="/assets/images/logo.png">
-  <link rel="apple-touch-icon" href="/assets/images/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>Member Login â€” FWF</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Mukta:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <style>
-    body { padding-bottom: 0; }
+    [data-lang="hi"] body { font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif; }
     .login-wrap {
-      min-height: 100vh;
-      min-height: -webkit-fill-available;
-      display: flex;
-      flex-direction: column;
-      padding: calc(var(--topbar-h) + 16px) 0 32px;
-    }
-    .login-glow {
-      position: fixed; top: 0; left: 0; right: 0; height: 40vh;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 70%);
-      pointer-events: none; z-index: 0;
-    }
-    .login-body {
-      flex: 1;
+      min-height: calc(100vh - var(--topbar-h) - var(--tab-h));
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 20px 24px;
-      position: relative; z-index: 1;
-    }
-    .login-logo-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 36px;
+      padding: 24px 16px;
     }
     .login-logo {
-      width: 76px; height: 76px;
-      border-radius: 24px;
-      background: #fff;
-      padding: 11px;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .login-logo img {
+      width: 72px; height: 72px;
+      border-radius: 20px;
+      background: #fff; padding: 8px;
       object-fit: contain;
-      box-shadow: 0 12px 50px rgba(124,58,237,0.4);
-      margin-bottom: 18px;
+      margin: 0 auto 12px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
     }
-    .login-logo-wrap h1 {
-      font-size: 24px;
-      letter-spacing: -0.4px;
-      margin-bottom: 6px;
-    }
-    .login-logo-wrap p { font-size: 14px; color: var(--t3); }
-    .form-card {
-      background: var(--s2);
-      border: 1px solid var(--b2);
-      border-radius: var(--r-lg);
-      padding: 24px 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .form-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--purple-d), var(--orange));
+    .login-logo h1 { font-size: 22px; color: var(--text); margin-bottom: 4px; }
+    .login-logo p  { font-size: 13px; color: var(--text2); }
+    .pass-wrap { position: relative; }
+    .pass-wrap input  { padding-right: 44px; }
+    .pass-toggle {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--text3); font-size: 16px;
+      padding: 4px;
     }
     .forgot-link {
-      display: block;
-      text-align: right;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--purple-l);
-      margin-top: -10px;
-      margin-bottom: 20px;
+      display: block; text-align: right;
+      font-size: 12px; color: var(--primary);
+      margin-top: 6px; text-decoration: none;
+    }
+    .divider-text {
+      display: flex; align-items: center; gap: 10px;
+      margin: 16px 0; color: var(--text3); font-size: 12px;
+    }
+    .divider-text::before,
+    .divider-text::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
     }
   </style>
 </head>
 <body>
 
-<header class="app-topbar">
-  <a href="/app/home" class="tb-btn" style="font-size:20px">&#8592;</a>
-  <div class="brand" style="justify-content:center">
-    <span style="font-size:16px;font-weight:800;color:var(--t1)">Sign In</span>
-  </div>
-  <a href="/join" style="font-size:12px;font-weight:800;color:var(--purple-l);padding:8px 14px;background:var(--purple-g);border:1px solid rgba(167,139,250,0.25);border-radius:10px;text-decoration:none">Join</a>
-</header>
-
-<div class="login-glow"></div>
-<div id="toast-container"></div>
-
-<div class="login-wrap">
-  <div class="login-body">
-    <div class="login-logo-wrap fade-up">
-      <img class="login-logo" src="/assets/images/logo.png" alt="FWF"
-           onerror="this.src='/assets/images/logo.png'">
-      <h1>Welcome Back ðŸ‘‹</h1>
-      <p>Login to your FWF account</p>
+  <!-- Top Bar -->
+  <header class="app-topbar">
+    <div class="brand">
+      <img src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF Logo" loading="eager">
+      <div>
+        <div class="brand-text">FWF</div>
+        <div class="brand-sub">Foundris Welfare Foundation</div>
+      </div>
+    </div>
+    <div class="lang-pill">
+      <button id="langEN" class="active" onclick="setLanguage('en')">EN</button>
+      <button id="langHI" onclick="setLanguage('hi')">HI</button>
+    </div>
+  </header>
+    <!-- Logo -->
+    <div class="login-logo">
+      <img src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF Logo">
+      <h1 data-i18n="login.title">Welcome Back</h1>
+      <p data-i18n="login.sub">Sign in to your member account</p>
     </div>
 
-    <div class="form-card fade-up-2">
-      <form id="login-form">
+    <!-- Alert -->
+    <div id="alertBox" class="app-alert mb-16"></div>
+
+    <!-- Login Card -->
+    <div class="glass-card">
+      <form id="loginForm" autocomplete="on">
         <div class="form-group">
-          <label class="form-label">Mobile / Member ID <span>*</span></label>
-          <div class="input-wrap">
-            <span class="input-icon">ðŸ“±</span>
-            <input type="text" id="login-id" class="form-input"
-                   placeholder="Mobile or FWF-000001"
-                   autocomplete="username" required>
-          </div>
+          <label class="form-label">Member ID or Mobile</label>
+          <input class="form-input" type="text" name="login" required
+            placeholder="FWF-000001 or 10-digit mobile" autofocus autocomplete="username">
         </div>
-        <div class="form-group" style="margin-bottom:8px">
-          <label class="form-label">Password <span>*</span></label>
-          <div class="input-wrap has-action">
-            <span class="input-icon">ðŸ”’</span>
-            <input type="password" id="login-pass" class="form-input"
-                   placeholder="Enter your password"
-                   autocomplete="current-password" required>
-            <button type="button" class="input-action" onclick="togglePass()" id="pass-toggle">ðŸ‘</button>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="pass-wrap">
+            <input class="form-input" type="password" name="password" id="passInput"
+              required placeholder="Your password" autocomplete="current-password">
+            <button type="button" class="pass-toggle" id="passToggle" aria-label="Toggle visibility">
+              <i class="fas fa-eye" id="passIcon"></i>
+            </button>
           </div>
+          <a href="/forgot-password" class="forgot-link">Forgot Password?</a>
         </div>
-        <a href="/app/forgot-password" class="forgot-link">Forgot Password?</a>
-        <button type="submit" class="btn btn-primary btn-lg btn-block" id="login-btn">
-          ðŸ”“ Sign In
+
+        <label class="check-row mb-16">
+          <input type="checkbox" name="remember">
+          <span>Remember me on this device</span>
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+          <i class="fas fa-sign-in-alt"></i> Sign In
         </button>
       </form>
+
+      <div class="divider-text">or</div>
+
+      <a href="https://www.fwfindia.org/donation#memberModal" class="btn btn-secondary btn-block">
+        <i class="fas fa-user-plus"></i> Create New Account
+      </a>
     </div>
 
-    <p style="text-align:center;margin-top:24px;font-size:13px;color:var(--t3)">
-      New to FWF? <a href="/join" style="color:var(--purple-l);font-weight:700">Join as Member â†’</a>
+    <!-- Trust note -->
+    <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:16px;">
+      <i class="fas fa-lock" style="color:var(--green);margin-right:4px;"></i>
+      Secure login Â· Data encrypted
     </p>
+  </main>
 
-    <div class="alert alert-info" style="margin-top:18px">
-      <i>â„¹ï¸</i>
-      <span>Use your registered mobile number or Member ID (e.g. FWF-000001) as username.</span>
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-top">
+      <div class="footer-logo-wrap">
+        <img src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF">
+        <div>
+          <div class="footer-brand-name">Foundris Welfare Foundation</div>
+          <div class="footer-brand-tagline">Skills &rarr; Livelihood &rarr; Aatmnirbharta</div>
+        </div>
+      </div>
+      <div class="footer-socials">
+        <a href="https://www.facebook.com/fwfindia" target="_blank" aria-label="Facebook" class="fs-fb"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/fwfindia" target="_blank" aria-label="Instagram" class="fs-ig"><i class="fab fa-instagram"></i></a>
+        <a href="https://wa.me/919580118412" target="_blank" aria-label="WhatsApp" class="fs-wa"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://youtube.com/@fwf_india" target="_blank" aria-label="YouTube" class="fs-yt"><i class="fab fa-youtube"></i></a>
+      </div>
+      <div class="footer-badges">
+        <span class="fbadge"><i class="fas fa-certificate" style="color:#f59e0b"></i> 12A Certified</span>
+        <span class="fbadge"><i class="fas fa-receipt" style="color:#60a5fa"></i> 80G Tax Benefit</span>
+        <span class="fbadge"><i class="fas fa-handshake" style="color:#4ade80"></i> CSR-1 Registered</span>
+      </div>
     </div>
-  </div>
-</div>
+    <div class="footer-divider"></div>
+    <div class="footer-made">Made with &#10084;&#65039; in India &#127470;&#127475;</div>
+    <div class="footer-bar">
+      <span class="footer-bar-copy">&copy; 2024 FWF. All rights reserved.</span>
+      <div class="footer-bar-links">
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
 
-<nav class="app-tabs">
-  <a href="/app/home"     class="tab-item"><span class="tab-icon">ðŸ </span><span class="tab-label">Home</span></a>
-  <a href="/app/projects" class="tab-item"><span class="tab-icon">ðŸŒ¿</span><span class="tab-label">Projects</span></a>
-  <a href="/app/donate"   class="tab-fab"><div class="fab-circle">ðŸ’š</div><span class="fab-label">Donate</span></a>
-  <a href="/app/quiz"     class="tab-item"><span class="tab-icon">ðŸŽ²</span><span class="tab-label">Quiz</span></a>
-  <a href="/app/profile"  class="tab-item active"><span class="tab-icon">ðŸ‘¤</span><span class="tab-label">Account</span></a>
-</nav>
+  <!-- Bottom Tab Bar -->
+  <nav class="app-tabs">
+    <a href="/app/home" class="tab-item">
+      <i class="fas fa-home"></i><span>Home</span>
+    </a>
+    <a href="/app/projects" class="tab-item">
+      <i class="fas fa-briefcase"></i><span>Projects</span>
+    </a>
+    <a href="https://www.fwfindia.org/donation#memberModal" class="tab-item tab-join">
+      <div class="tab-fab"><i class="fas fa-plus"></i></div>
+      <span>Join</span>
+    </a>
+    <a href="https://www.fwfindia.org/donation#donateModal" class="tab-item">
+      <i class="fas fa-heart"></i><span>Donate</span>
+    </a>
+    <a href="/app/login" class="tab-item active">
+      <i class="fas fa-user"></i><span>Login</span>
+    </a>
+  </nav>
 
-<script>
-
-function showToast(msg, type='info') {
-  const icons = {success:'&#9989;', error:'&#10060;', info:'&#8505;&#65039;', warning:'&#9888;&#65039;'};
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
-  const c = document.getElementById('toast-container');
-  if (c) c.appendChild(t);
-  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
-}
-function togglePass() {
-  const inp = document.getElementById('login-pass');
-  const btn = document.getElementById('pass-toggle');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '&#128064;'; }
-  else { inp.type = 'password'; btn.innerHTML = '&#128065;'; }
-}
-document.getElementById('login-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn = document.getElementById('login-btn');
-  const id = document.getElementById('login-id').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  if (!id || !pass) { showToast('Please fill all fields', 'error'); return; }
-  btn.classList.add('loading');
-  btn.textContent = '';
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST', credentials: 'include',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ mobile: id, password: pass })
-    });
-    const data = await res.json();
-    if (data.ok || data.token) {
-      if (data.token) localStorage.setItem('fwf-token', data.token);
-      if (data.user) localStorage.setItem('fwf-user', JSON.stringify(data.user));
-      showToast('Login successful!', 'success');
-      setTimeout(() => { window.location.href = '/app/dashboard'; }, 800);
-    } else {
-      showToast(data.error || 'Login failed. Check your credentials.', 'error');
-      btn.classList.remove('loading');
-      btn.innerHTML = '&#128275; Sign In';
+  <script>
+    /* â”€â”€ Language support â”€â”€ */
+    const T_LOGIN = {
+      en: { 'login.title': 'Welcome Back', 'login.sub': 'Sign in to your member account' },
+      hi: { 'login.title': 'à¤µà¤¾à¤ªà¤¸ à¤†à¤¯à¥‡à¤‚!', 'login.sub': 'à¤…à¤ªà¤¨à¥‡ à¤¸à¤¦à¤¸à¥à¤¯ à¤–à¤¾à¤¤à¥‡ à¤®à¥‡à¤‚ à¤¸à¤¾à¤‡à¤¨ à¤‡à¤¨ à¤•à¤°à¥‡à¤‚' }
+    };
+    function setLanguage(lang) {
+      const l = (lang === 'hi' || lang === 'en') ? lang : 'en';
+      document.documentElement.setAttribute('data-lang', l);
+      const t = T_LOGIN[l];
+      document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (t[k] !== undefined) el.textContent = t[k]; });
+      document.getElementById('langEN').classList.toggle('active', l === 'en');
+      document.getElementById('langHI').classList.toggle('active', l === 'hi');
+      try { localStorage.setItem('fwf_lang', l); } catch(e) {}
     }
-  } catch(err) {
-    showToast('Network error. Please try again.', 'error');
-    btn.classList.remove('loading');
-    btn.innerHTML = '&#128275; Sign In';
-  }
-});
-// Redirect if already logged in
-if (localStorage.getItem('fwf-token')) window.location.href = '/app/dashboard';
-</script>
+    try { const s = localStorage.getItem('fwf_lang'); if (s === 'en' || s === 'hi') setLanguage(s); } catch(e) {}
+
+    // Password toggle
+    document.getElementById('passToggle').addEventListener('click', function() {
+      const inp = document.getElementById('passInput');
+      const icon = document.getElementById('passIcon');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+      } else {
+        inp.type = 'password';
+        icon.className = 'fas fa-eye';
+      }
+    });
+
+    function showAlert(msg, type) {
+      const a = document.getElementById('alertBox');
+      a.textContent = msg;
+      a.className = 'app-alert show ' + type;
+      setTimeout(() => a.classList.remove('show'), 5000);
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+      try {
+        const fd = new FormData(this);
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ login: fd.get('login'), password: fd.get('password') })
+        });
+        const data = await res.json();
+        if (data.ok || res.ok) {
+          showAlert('âœ… Login successful! Redirecting...', 'success');
+          setTimeout(() => window.location.href = '../member-dashboard.html', 1000);
+        } else {
+          throw new Error(data.error || 'Invalid credentials');
+        }
+      } catch(err) {
+        showAlert('âŒ ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+      }
+    });
+
+    // Auto-redirect if already logged in
+    fetch('/api/member/me', { credentials: 'include' })
+      .then(r => r.json()).then(d => { if (d.ok) window.location.href = '../member-dashboard.html'; })
+      .catch(() => {});
+  </script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 </body>
 </html>

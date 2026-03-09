@@ -1,280 +1,591 @@
 <!DOCTYPE html>
 <html lang="en" data-lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#06060d">
-  <meta name="description" content="Join 5000+ women building sustainable livelihoods through skill development, micro-projects & community support.">
-  <title>FWF Ã¢â‚¬â€œ Skills to Livelihood</title>
-  <link rel="manifest" href="/app/manifest.json">
-  <link rel="icon" href="/assets/images/logo.png">
-  <link rel="apple-touch-icon" href="/assets/images/logo.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+  <meta name="theme-color" content="#0b1220" />
+<meta name="description" content="FWF — Skill development, livelihood building &amp; Atmanirbhar programs for unemployed people" />
+  <title>FWF — Skills to Livelihood</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="https://www.fwfindia.org/assets/images/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Mukta:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+    /* Hindi typography */
+    [data-lang="hi"] body { font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif; }
+
+    /* Language switcher pill */
+    .lang-pill {
+      display: flex;
+      gap: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 3px;
+    }
+    .lang-pill button {
+      background: none; border: none; cursor: pointer;
+      padding: 4px 10px; border-radius: 6px;
+      font-size: 12px; font-weight: 700;
+      color: var(--text3);
+      transition: all .15s;
+    }
+    .lang-pill button.active { background: var(--primary); color: #fff; }
+
+    /* â”€â”€ Motivational tag strip â”€â”€ */
+    .motiv-strip {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 14px 16px 6px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .motiv-strip::-webkit-scrollbar { display: none; }
+    .motiv-chip {
+      flex-shrink: 0;
+      font-size: 11px; font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 50px;
+      white-space: nowrap;
+      letter-spacing: .2px;
+    }
+    .motiv-chip.mc-orange { background: rgba(249,115,22,.18); color: #fb923c; border: 1px solid rgba(249,115,22,.35); }
+    .motiv-chip.mc-green  { background: rgba(34,197,94,.15);  color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+    .motiv-chip.mc-blue   { background: rgba(59,130,246,.15); color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
+    .motiv-chip.mc-amber  { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+    .motiv-chip.mc-rose   { background: rgba(244,63,94,.15);  color: #fb7185; border: 1px solid rgba(244,63,94,.3); }
+
+    /* â”€â”€ Action feature cards (vertical) â”€â”€ */
+    .action-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 0 16px;
+    }
+    .feat-card {
+      border-radius: 18px;
+      padding: 20px 18px;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: transform .18s;
+    }
+    .feat-card:active { transform: scale(.98); }
+    .feat-card.fc-orange { background: linear-gradient(135deg, rgba(249,115,22,.22) 0%, rgba(234,88,12,.12) 100%); border: 1px solid rgba(249,115,22,.35); }
+    .feat-card.fc-blue   { background: linear-gradient(135deg, rgba(59,130,246,.2) 0%, rgba(37,99,235,.1) 100%); border: 1px solid rgba(59,130,246,.3); }
+    .feat-card.fc-green  { background: linear-gradient(135deg, rgba(34,197,94,.2) 0%, rgba(21,128,61,.1) 100%); border: 1px solid rgba(34,197,94,.3); }
+    .feat-card .fc-head {
+      display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px;
+    }
+    .feat-card .fc-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; flex-shrink: 0;
+    }
+    .fc-orange .fc-icon { background: rgba(249,115,22,.25); }
+    .fc-blue   .fc-icon { background: rgba(59,130,246,.2); }
+    .fc-green  .fc-icon { background: rgba(34,197,94,.2); }
+    .feat-card .fc-title {
+      font-size: 16px; font-weight: 800;
+      color: var(--text); line-height: 1.2; margin-bottom: 4px;
+    }
+    .feat-card .fc-price {
+      font-size: 13px; font-weight: 700;
+    }
+    .fc-orange .fc-price { color: #fb923c; }
+    .fc-blue   .fc-price { color: #60a5fa; }
+    .fc-green  .fc-price { color: #4ade80; }
+    .feat-card .fc-desc {
+      font-size: 12.5px; color: var(--text2); line-height: 1.55; margin-bottom: 14px;
+    }
+    /* Benefits list */
+    .benefit-list {
+      list-style: none; padding: 0; margin: 0 0 14px;
+      display: flex; flex-direction: column; gap: 7px;
+    }
+    .benefit-list li {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 12.5px; color: var(--text);
+    }
+    .benefit-list li .bl-icon {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: rgba(249,115,22,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; flex-shrink: 0;
+      color: #fb923c;
+    }
+    .feat-card .tc-note {
+      font-size: 10px; color: var(--text3); margin-bottom: 14px;
+    }
+    .tc-note a { color: var(--primary); font-weight: 700; cursor: pointer; }
+    .feat-card .fc-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px; border-radius: 12px;
+      font-size: 13px; font-weight: 800; text-decoration: none;
+      transition: opacity .15s;
+    }
+    .feat-card .fc-btn:active { opacity: .8; }
+    .fc-orange .fc-btn { background: var(--primary); color: #fff; }
+    .fc-blue   .fc-btn { background: #3b82f6; color: #fff; }
+    .fc-green  .fc-btn { background: #22c55e; color: #fff; }
+
+    /* â”€â”€ Accordion cards â”€â”€ */
+    .feat-card { cursor: pointer; }
+    .feat-card .fc-head { margin-bottom: 0; cursor: pointer; }
+    .feat-card .fc-head-row {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .feat-card .fc-chevron {
+      font-size: 12px; color: var(--text3);
+      transition: transform .25s;
+      flex-shrink: 0; margin-left: 8px;
+    }
+    .feat-card.expanded .fc-chevron { transform: rotate(180deg); }
+    .feat-card .fc-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height .35s ease, padding-top .25s;
+      padding-top: 0;
+    }
+    .feat-card.expanded .fc-body {
+      max-height: 600px;
+      padding-top: 14px;
+    }
+
+    /* Step cards grid */
+    .how-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 0 16px;
+    }
+    .how-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 14px;
+      text-align: center;
+    }
+    .how-card .hc-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff; font-weight: 800; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px;
+    }
+    .how-card .hc-icon { font-size: 26px; margin-bottom: 8px; }
+    .how-card h3 { font-size: 13px; color: var(--text); margin-bottom: 5px; }
+    .how-card p  { font-size: 11px; color: var(--text2); margin: 0; }
+
+    /* Mission + Vision cards */
+    .mv-grid {
+      display: flex; flex-direction: column; gap: 14px;
+      padding: 0 16px;
+    }
+    .mv-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px 18px;
+    }
+    .mv-card-head {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+    }
+    .mv-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .mv-icon.orange { background: rgba(249,115,22,.2); }
+    .mv-icon.violet { background: rgba(139,92,246,.2); }
+    .mv-card-head h2 { font-size: 16px; font-weight: 800; color: var(--text); margin: 0; }
+    .mv-card p { font-size: 13px; color: var(--text2); line-height: 1.65; margin: 0; }
+
+    /* Modern Footer extras */
+    .footer-badges {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      margin: 14px 16px 8px;
+      scrollbar-width: none;
+      white-space: nowrap;
+    }
+    .footer-badges::-webkit-scrollbar { display: none; }
+    .fbadge {
+      flex-shrink: 0;
+      font-size: 9px; font-weight: 700;
+      padding: 4px 9px; border-radius: 50px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--text3);
+    }
+    .fbadge i { margin-right: 4px; }
+    .footer-made {
+      text-align: center;
+      font-size: 11px; color: var(--text3);
+      padding: 10px 16px 0;
+    }
+
+    /* T&C Modal */
+    .tc-modal-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,.75);
+      display: flex; align-items: flex-end;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .tc-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .tc-modal {
+      background: #0f1f35;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 22px 22px 0 0;
+      padding: 24px 20px 36px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: translateY(60px);
+      transition: transform .25s;
+    }
+    .tc-modal-overlay.open .tc-modal { transform: translateY(0); }
+    .tc-modal h3 { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 16px; }
+    .tc-modal p, .tc-modal li { font-size: 12.5px; color: var(--text2); line-height: 1.7; }
+    .tc-modal ul { padding-left: 18px; margin-bottom: 12px; }
+    .tc-close-btn {
+      float: right; background: rgba(255,255,255,.1); border: none;
+      border-radius: 50%; width: 30px; height: 30px;
+      font-size: 16px; color: var(--text); cursor: pointer;
+      margin-top: -4px;
+    }
+  </style>
 </head>
 <body>
 
-<header class="app-topbar">
-  <a href="/app/home" class="brand">
-    <img class="brand-logo" src="/assets/images/logo.png" alt="FWF"
-         onerror="this.src='/assets/images/logo.png'">
-    <div>
-      <div class="brand-text">FWF</div>
-      <div class="brand-sub">Skills to Livelihood</div>
+  <!-- Top Bar -->
+  <header class="app-topbar">
+    <div class="brand">
+      <img src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF Logo" loading="eager">
+      <div>
+        <div class="brand-text">FWF</div>
+        <div class="brand-sub">Foundris Welfare Foundation</div>
+      </div>
     </div>
-  </a>
-  <div class="topbar-right">
     <div class="lang-pill">
-      <button onclick="setLang('en')" id="btn-en">EN</button>
-      <button onclick="setLang('hi')" id="btn-hi">HI</button>
+      <button id="langEN" class="active" onclick="setLanguage('en')">EN</button>
+      <button id="langHI" onclick="setLanguage('hi')">HI</button>
     </div>
-    <a href="/app/profile" class="topbar-avatar" id="topbar-user">U</a>
-  </div>
-</header>
-<div id="toast-container"></div>
+  </header>
 
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ HERO Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<section class="app-hero fade-up">
-  <div class="hero-inner">
-    <div style="margin-bottom:14px">
-      <span class="chip chip-purple">Ã¢Å“Â¨ India's Skills Platform</span>
-    </div>
-    <h1 data-i18n="hero.title">Skill se<br>Khushali Tak</h1>
-    <p data-i18n="hero.sub">Join 5000+ women building sustainable livelihoods through skill development, micro-projects &amp; community support.</p>
-    <div class="hero-btns">
-      <a href="/join"         class="btn-hero-primary" data-i18n="hero.cta1">Ã°Å¸Å¡â‚¬ Join FWF</a>
-      <a href="/app/projects" class="btn-hero-accent"  data-i18n="hero.cta2">Ã°Å¸Å’Â¿ Projects</a>
-    </div>
-  </div>
-</section>
-
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ STATS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="stat-strip fade-up-2">
-  <div class="stat-box">
-    <div class="sv">5000+</div>
-    <div class="sl" data-i18n="s.members">Members</div>
-  </div>
-  <div class="stat-box">
-    <div class="sv">50+</div>
-    <div class="sl" data-i18n="s.projects">Projects</div>
-  </div>
-  <div class="stat-box">
-    <div class="sv">Ã¢â€šÂ¹2Cr+</div>
-    <div class="sl" data-i18n="s.funded">Funded</div>
-  </div>
-</div>
-
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ QUICK GRID Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="section fade-up-3">
-  <div class="section-head">
-    <h2 data-i18n="h.explore">Explore FWF</h2>
-  </div>
-  <div class="quick-grid">
-    <a href="/join"         class="quick-item">
-      <div class="qi-icon" style="background:var(--orange-g);border:1px solid rgba(249,115,22,0.2)">Ã°Å¸Å¡â‚¬</div>
-      <span class="qi-label" data-i18n="n.join">Join</span>
-    </a>
-    <a href="/app/donate"   class="quick-item">
-      <div class="qi-icon" style="background:var(--green-g);border:1px solid rgba(52,211,153,0.2)">Ã°Å¸â€™Å¡</div>
-      <span class="qi-label" data-i18n="n.donate">Donate</span>
-    </a>
-    <a href="/app/quiz"     class="quick-item">
-      <div class="qi-icon" style="background:var(--purple-g);border:1px solid rgba(139,92,246,0.2)">Ã°Å¸Å½Â²</div>
-      <span class="qi-label" data-i18n="n.quiz">Quiz</span>
-    </a>
-    <a href="/app/store"    class="quick-item">
-      <div class="qi-icon" style="background:var(--blue-g);border:1px solid rgba(96,165,250,0.2)">Ã°Å¸â€ºâ€™</div>
-      <span class="qi-label" data-i18n="n.store">Store</span>
-    </a>
-  </div>
-</div>
-
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ PROGRAMS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="section">
-  <div class="section-head"><h2 data-i18n="h.programs">Our Programs</h2></div>
-
-  <div class="feat-card card-orange mb-12">
-    <div class="fc-head">
-      <div class="fc-icon fc-icon-orange">Ã°Å¸Å¡â‚¬</div>
-      <div>
-        <div class="fc-title" data-i18n="p.m.t">Become a Member</div>
-        <div class="fc-price" data-i18n="p.m.p">Ã¢â€šÂ¹200/month</div>
+  <!-- Hero -->
+  <section class="app-hero">
+    <div class="hero-inner">
+      <h1 data-i18n="hero.title">Skills to Livelihood &middot; Aatmnirbhar Bharat</h1>
+      <p data-i18n="hero.subtitle">Join India's growing community of skilled people building their own livelihoods</p>
+      <div class="hero-btns">
+        <a href="https://www.fwfindia.org/donation#memberModal" class="btn-hero-primary">
+          <i class="fas fa-user-plus"></i>
+          <span data-i18n="hero.join">Join Now</span>
+        </a>
+        <a href="https://www.fwfindia.org/donation#donateModal" class="btn-hero-accent">
+          <i class="fas fa-heart"></i>
+          <span data-i18n="hero.donate">Donate</span>
+        </a>
       </div>
     </div>
-    <p class="fc-desc" data-i18n="p.m.d">Access livelihood projects, skill training, business funding support, and a personal wallet.</p>
-    <a href="/join" class="btn btn-orange btn-block">Ã°Å¸Å¡â‚¬ <span data-i18n="p.m.c">Join Now</span></a>
+  </section>
+
+  <!-- Motivational Tags Strip -->
+  <div class="motiv-strip">
+    <div class="motiv-chip mc-orange">ðŸ‡®ðŸ‡³ Aatmnirbhar Bharat</div>
+    <div class="motiv-chip mc-green">ðŸ­ Make in India</div>
+    <div class="motiv-chip mc-blue">ðŸ›’ Vocal for Local</div>
+    <div class="motiv-chip mc-amber">ðŸŽ“ Skill India</div>
+    <div class="motiv-chip mc-rose">ðŸ’ª Self Reliant</div>
   </div>
 
-  <div class="feat-card card-green mb-12">
-    <div class="fc-head">
-      <div class="fc-icon fc-icon-green">Ã°Å¸â€™Å¡</div>
-      <div>
-        <div class="fc-title" data-i18n="p.d.t">Support a Project</div>
-        <div class="fc-price" style="color:var(--green)" data-i18n="p.d.p">Starting Ã¢â€šÂ¹100</div>
+  <!-- Get Started Today -->
+  <div class="app-section">
+    <div class="section-head">
+      <h2 data-i18n="actions.title">Get Started Today</h2>
+    </div>
+  </div>
+  <div class="action-cards">
+
+    <!-- Card 1: Become a Member -->
+    <div class="feat-card fc-orange" onclick="toggleCard(this)">
+      <div class="fc-head">
+        <div class="fc-head-row" style="flex:1;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="fc-icon">ðŸ‘©â€ðŸŽ“</div>
+            <div>
+              <div class="fc-title" data-i18n="actions.member.title">Become a Member</div>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down fc-chevron"></i>
+        </div>
+      </div>
+      <div class="fc-body">
+        <div class="fc-desc" data-i18n="actions.member.desc">Join FWF and unlock skill development training, project funding support, and a powerful network of members.</div>
+        <ul class="benefit-list">
+          <li><span class="bl-icon"><i class="fas fa-graduation-cap"></i></span><span data-i18n="actions.member.b1">Free Skill Development Training</span></li>
+          <li><span class="bl-icon"><i class="fas fa-seedling"></i></span><span data-i18n="actions.member.b2">Project Start Funding Help</span></li>
+          <li><span class="bl-icon"><i class="fas fa-store"></i></span><span data-i18n="actions.member.b3">Member Network for Selling Products</span></li>
+          <li><span class="bl-icon"><i class="fas fa-hands-helping"></i></span><span data-i18n="actions.member.b4">Future Support Programs</span></li>
+        </ul>
+        <div class="tc-note">*<span data-i18n="actions.member.tc_text">Benefits subject to eligibility.</span> <a onclick="event.stopPropagation();openTCModal()" data-i18n="actions.member.tc_link">T&amp;C Apply</a></div>
+        <a href="https://www.fwfindia.org/donation#memberModal" class="fc-btn" onclick="event.stopPropagation()">
+          <i class="fas fa-user-plus"></i>
+          <span data-i18n="actions.member.cta">Join Now</span>
+        </a>
       </div>
     </div>
-    <p class="fc-desc" data-i18n="p.d.d">Fund women entrepreneurs directly. Every rupee helps build a sustainable livelihood.</p>
-    <a href="/app/donate" class="btn btn-green btn-block">Ã°Å¸â€™Å¡ <span data-i18n="p.d.c">Donate Now</span></a>
-  </div>
 
-  <div class="feat-card card-purple mb-12">
-    <div class="fc-head">
-      <div class="fc-icon fc-icon-purple">Ã°Å¸Å½Â²</div>
-      <div>
-        <div class="fc-title" data-i18n="p.q.t">FWF Quiz &amp; Win</div>
-        <div class="fc-price" style="color:var(--purple-l)" data-i18n="p.q.p">Win cash prizes</div>
+    <!-- Card 2: Support Our Cause -->
+    <div class="feat-card fc-blue" onclick="toggleCard(this)">
+      <div class="fc-head">
+        <div class="fc-head-row" style="flex:1;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="fc-icon">â¤ï¸</div>
+            <div>
+              <div class="fc-title" data-i18n="actions.donate.title">Support Our Cause</div>
+              <div class="fc-price" data-i18n="actions.donate.sub">Livelihood Support</div>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down fc-chevron"></i>
+        </div>
+      </div>
+      <div class="fc-body">
+        <div class="fc-desc" data-i18n="actions.donate.desc">Buy products made by our members, help collect donations for NGO projects, or recommend our products and services to your network.</div>
+        <a href="https://www.fwfindia.org/donation#supporterModal" class="fc-btn" onclick="event.stopPropagation()">
+          <i class="fas fa-heart"></i>
+          <span data-i18n="actions.donate.cta">Donate / Buy Products</span>
+        </a>
       </div>
     </div>
-    <p class="fc-desc" data-i18n="p.q.d">Participate in monthly quiz competitions. Answer correctly and win exciting cash prizes!</p>
-    <a href="/app/quiz" class="btn btn-primary btn-block">Ã°Å¸Å½Â² <span data-i18n="p.q.c">Play Quiz</span></a>
-  </div>
-</div>
 
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ HOW IT WORKS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="section">
-  <div class="section-head"><h2 data-i18n="h.how">How It Works</h2></div>
-  <div class="step-grid">
-    <div class="step-card">
-      <div class="step-num">1</div>
-      <div class="step-icon">Ã°Å¸Å¡â‚¬</div>
-      <h3 data-i18n="hw.1t">Join FWF</h3>
-      <p data-i18n="hw.1d">Register &amp; pay membership</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">2</div>
-      <div class="step-icon">Ã°Å¸â€œÅ¡</div>
-      <h3 data-i18n="hw.2t">Learn Skills</h3>
-      <p data-i18n="hw.2d">Attend workshops &amp; training</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">3</div>
-      <div class="step-icon">Ã°Å¸Å’Â¿</div>
-      <h3 data-i18n="hw.3t">Pick Project</h3>
-      <p data-i18n="hw.3d">Choose livelihood project</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">4</div>
-      <div class="step-icon">Ã°Å¸â€™Â°</div>
-      <h3 data-i18n="hw.4t">Earn Income</h3>
-      <p data-i18n="hw.4d">Build business &amp; earn</p>
-    </div>
-  </div>
-</div>
-
-<!-- Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ CSR Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ -->
-<div class="section" style="padding-bottom:28px">
-  <a href="/app/csr" class="feat-card card-green" style="display:flex;flex-direction:column">
-    <div class="fc-head" style="margin-bottom:10px">
-      <div class="fc-icon fc-icon-green">Ã°Å¸Â¤Â</div>
-      <div>
-        <div class="fc-title" data-i18n="csr.t">CSR Partnership</div>
-        <div style="font-size:12px;font-weight:700;color:var(--green)" data-i18n="csr.s">For Companies &amp; NGOs</div>
+    <!-- Card 3: CSR Partnership -->
+    <div class="feat-card fc-green" onclick="toggleCard(this)">
+      <div class="fc-head">
+        <div class="fc-head-row" style="flex:1;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="fc-icon">ðŸ¤</div>
+            <div>
+              <div class="fc-title" data-i18n="actions.csr.title">CSR Partnership</div>
+              <div class="fc-price" data-i18n="actions.csr.sub">Corporate Impact</div>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down fc-chevron"></i>
+        </div>
+      </div>
+      <div class="fc-body">
+        <div class="fc-desc" data-i18n="actions.csr.desc">Meet your CSR goals while creating real livelihoods. Fund skill training, sponsor micro-enterprises, or co-create products under Make in India.</div>
+        <a href="/app/csr" class="fc-btn" onclick="event.stopPropagation()">
+          <i class="fas fa-handshake"></i>
+          <span data-i18n="actions.csr.cta">Explore CSR Options</span>
+        </a>
       </div>
     </div>
-    <p style="font-size:13px;color:var(--t2);margin-bottom:16px" data-i18n="csr.d">Fund livelihoods, fulfill CSR obligations &amp; create measurable social impact.</p>
-    <span class="btn btn-green btn-block">Ã°Å¸Â¤Â <span data-i18n="csr.c">Partner With Us</span></span>
-  </a>
-</div>
 
-<nav class="app-tabs">
-  <a href="/app/home"     class="tab-item active"><span class="tab-icon">Ã°Å¸ÂÂ </span><span class="tab-label">Home</span></a>
-  <a href="/app/projects" class="tab-item"><span class="tab-icon">Ã°Å¸Å’Â¿</span><span class="tab-label">Projects</span></a>
-  <a href="/app/donate"   class="tab-fab"><div class="fab-circle">Ã°Å¸â€™Å¡</div><span class="fab-label">Donate</span></a>
-  <a href="/app/quiz"     class="tab-item"><span class="tab-icon">Ã°Å¸Å½Â²</span><span class="tab-label">Quiz</span></a>
-  <a href="/app/profile"  class="tab-item"><span class="tab-icon">Ã°Å¸â€˜Â¤</span><span class="tab-label">Account</span></a>
-</nav>
+  </div>
 
-<script>
-const T = {
-en: {
-  'hero.title':'Skill se<br>Khushali Tak',
-  'hero.sub':'Join 5000+ women building sustainable livelihoods through skill development, micro-projects &amp; community support.',
-  'hero.cta1':'Ã°Å¸Å¡â‚¬ Join FWF','hero.cta2':'Ã°Å¸Å’Â¿ Projects',
-  's.members':'Members','s.projects':'Projects','s.funded':'Funded',
-  'h.explore':'Explore FWF','h.programs':'Our Programs','h.how':'How It Works',
-  'p.m.t':'Become a Member','p.m.p':'Ã¢â€šÂ¹200/month',
-  'p.m.d':'Access livelihood projects, skill training, business funding support, and a personal wallet.',
-  'p.m.c':'Join Now',
-  'p.d.t':'Support a Project','p.d.p':'Starting Ã¢â€šÂ¹100',
-  'p.d.d':'Fund women entrepreneurs directly. Every rupee helps build a sustainable livelihood.',
-  'p.d.c':'Donate Now',
-  'p.q.t':'FWF Quiz &amp; Win','p.q.p':'Win cash prizes',
-  'p.q.d':'Participate in monthly quiz competitions. Answer correctly and win exciting cash prizes!',
-  'p.q.c':'Play Quiz',
-  'hw.1t':'Join FWF','hw.1d':'Register &amp; pay membership',
-  'hw.2t':'Learn Skills','hw.2d':'Attend workshops &amp; training',
-  'hw.3t':'Pick Project','hw.3d':'Choose livelihood project',
-  'hw.4t':'Earn Income','hw.4d':'Build business &amp; earn',
-  'csr.t':'CSR Partnership','csr.s':'For Companies &amp; NGOs',
-  'csr.d':'Fund livelihoods, fulfill CSR obligations &amp; create measurable social impact.',
-  'csr.c':'Partner With Us',
-  'n.join':'Join','n.donate':'Donate','n.quiz':'Quiz','n.store':'Store'
-},
-hi: {
-  'hero.title':'Ã Â¤â€¢Ã Â¥Å’Ã Â¤Â¶Ã Â¤Â² Ã Â¤Â¸Ã Â¥â€¡<br>Ã Â¤â€“Ã Â¥ÂÃ Â¤Â¶Ã Â¤Â¹Ã Â¤Â¾Ã Â¤Â²Ã Â¥â‚¬ Ã Â¤Â¤Ã Â¤â€¢',
-  'hero.sub':'5000+ Ã Â¤Â®Ã Â¤Â¹Ã Â¤Â¿Ã Â¤Â²Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š Ã Â¤â€¢Ã Â¥â€¡ Ã Â¤Â¸Ã Â¤Â¾Ã Â¤Â¥ Ã Â¤Å“Ã Â¥ÂÃ Â¤Â¡Ã Â¤Â¼Ã Â¥â€¡Ã Â¤â€š Ã Â¤Å“Ã Â¥â€¹ Ã Â¤â€¢Ã Â¥Å’Ã Â¤Â¶Ã Â¤Â² Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Â¸, Ã Â¤Â¸Ã Â¥â€šÃ Â¤â€¢Ã Â¥ÂÃ Â¤Â·Ã Â¥ÂÃ Â¤Â® Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š Ã Â¤Â¸Ã Â¥â€¡ Ã Â¤â€ Ã Â¤Â¤Ã Â¥ÂÃ Â¤Â®Ã Â¤Â¨Ã Â¤Â¿Ã Â¤Â°Ã Â¥ÂÃ Â¤Â­Ã Â¤Â° Ã Â¤Â¬Ã Â¤Â¨ Ã Â¤Â°Ã Â¤Â¹Ã Â¥â‚¬ Ã Â¤Â¹Ã Â¥Ë†Ã Â¤â€šÃ Â¥Â¤',
-  'hero.cta1':'Ã°Å¸Å¡â‚¬ FWF Ã Â¤Å“Ã Â¥â€°Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','hero.cta2':'Ã°Å¸Å’Â¿ Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€š',
-  's.members':'Ã Â¤Â¸Ã Â¤Â¦Ã Â¤Â¸Ã Â¥ÂÃ Â¤Â¯','s.projects':'Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€š','s.funded':'Ã Â¤ÂµÃ Â¤Â¿Ã Â¤Â¤Ã Â¥ÂÃ Â¤Â¤ Ã Â¤ÂªÃ Â¥â€¹Ã Â¤Â·Ã Â¤Â¿Ã Â¤Â¤',
-  'h.explore':'FWF Ã Â¤ÂÃ Â¤â€¢Ã Â¥ÂÃ Â¤Â¸Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â²Ã Â¥â€¹Ã Â¤Â° Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','h.programs':'Ã Â¤Â¹Ã Â¤Â®Ã Â¤Â¾Ã Â¤Â°Ã Â¥â€¡ Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Â°Ã Â¥ÂÃ Â¤Â¯Ã Â¤â€¢Ã Â¥ÂÃ Â¤Â°Ã Â¤Â®','h.how':'Ã Â¤Â¯Ã Â¤Â¹ Ã Â¤â€¢Ã Â¥Ë†Ã Â¤Â¸Ã Â¥â€¡ Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Â® Ã Â¤â€¢Ã Â¤Â°Ã Â¤Â¤Ã Â¤Â¾ Ã Â¤Â¹Ã Â¥Ë†',
-  'p.m.t':'Ã Â¤Â¸Ã Â¤Â¦Ã Â¤Â¸Ã Â¥ÂÃ Â¤Â¯ Ã Â¤Â¬Ã Â¤Â¨Ã Â¥â€¡Ã Â¤â€š','p.m.p':'Ã¢â€šÂ¹200/Ã Â¤Â®Ã Â¤Â¾Ã Â¤Â¹',
-  'p.m.d':'Ã Â¤â€ Ã Â¤Å“Ã Â¥â‚¬Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾ Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š, Ã Â¤â€¢Ã Â¥Å’Ã Â¤Â¶Ã Â¤Â² Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â¶Ã Â¤Â¿Ã Â¤â€¢Ã Â¥ÂÃ Â¤Â·Ã Â¤Â£, Ã Â¤ÂµÃ Â¥ÂÃ Â¤Â¯Ã Â¤Â¾Ã Â¤ÂªÃ Â¤Â¾Ã Â¤Â° Ã Â¤ÂµÃ Â¤Â¿Ã Â¤Â¤Ã Â¥ÂÃ Â¤Â¤ Ã Â¤Â¸Ã Â¤Â¹Ã Â¤Â¾Ã Â¤Â¯Ã Â¤Â¤Ã Â¤Â¾ Ã Â¤â€Ã Â¤Â° Ã Â¤ÂªÃ Â¤Â°Ã Â¥ÂÃ Â¤Â¸Ã Â¤Â¨Ã Â¤Â² Ã Â¤ÂµÃ Â¥â€°Ã Â¤Â²Ã Â¥â€¡Ã Â¤Å¸ Ã Â¤Â¤Ã Â¤â€¢ Ã Â¤ÂªÃ Â¤Â¹Ã Â¥ÂÃ Â¤â€šÃ Â¤Å¡ Ã Â¤ÂªÃ Â¤Â¾Ã Â¤ÂÃ Â¤â€šÃ Â¥Â¤',
-  'p.m.c':'Ã Â¤â€¦Ã Â¤Â­Ã Â¥â‚¬ Ã Â¤Å“Ã Â¥â€°Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š',
-  'p.d.t':'Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾ Ã Â¤â€¢Ã Â¥â€¹ Ã Â¤Â¸Ã Â¤Â¹Ã Â¤Â¯Ã Â¥â€¹Ã Â¤â€”','p.d.p':'Ã¢â€šÂ¹100 Ã Â¤Â¸Ã Â¥â€¡ Ã Â¤Â¶Ã Â¥ÂÃ Â¤Â°Ã Â¥â€š',
-  'p.d.d':'Ã Â¤Â®Ã Â¤Â¹Ã Â¤Â¿Ã Â¤Â²Ã Â¤Â¾ Ã Â¤â€°Ã Â¤Â¦Ã Â¥ÂÃ Â¤Â¯Ã Â¤Â®Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤â€š Ã Â¤â€¢Ã Â¥â€¹ Ã Â¤Â¸Ã Â¥â‚¬Ã Â¤Â§Ã Â¥â€¡ Ã Â¤Â«Ã Â¤â€šÃ Â¤Â¡ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€šÃ Â¥Â¤ Ã Â¤Â¹Ã Â¤Â° Ã Â¤Â°Ã Â¥ÂÃ Â¤ÂªÃ Â¤Â¯Ã Â¤Â¾ Ã Â¤ÂÃ Â¤â€¢ Ã Â¤Å¸Ã Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Å  Ã Â¤â€ Ã Â¤Å“Ã Â¥â‚¬Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾ Ã Â¤Â¬Ã Â¤Â¨Ã Â¤Â¾Ã Â¤Â¨Ã Â¥â€¡ Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š Ã Â¤Â®Ã Â¤Â¦Ã Â¤Â¦ Ã Â¤â€¢Ã Â¤Â°Ã Â¤Â¤Ã Â¤Â¾ Ã Â¤Â¹Ã Â¥Ë†Ã Â¥Â¤',
-  'p.d.c':'Ã Â¤â€¦Ã Â¤Â­Ã Â¥â‚¬ Ã Â¤Â¦Ã Â¤Â¾Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š',
-  'p.q.t':'FWF Ã Â¤â€¢Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¿Ã Â¤Å“Ã Â¤Â¼ Ã Â¤â€Ã Â¤Â° Ã Â¤Å“Ã Â¥â‚¬Ã Â¤Â¤Ã Â¥â€¡Ã Â¤â€š','p.q.p':'Ã Â¤Â¨Ã Â¤â€¢Ã Â¤Â¦ Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â¸Ã Â¥ÂÃ Â¤â€¢Ã Â¤Â¾Ã Â¤Â° Ã Â¤Å“Ã Â¥â‚¬Ã Â¤Â¤Ã Â¥â€¡Ã Â¤â€š',
-  'p.q.d':'Ã Â¤Â®Ã Â¤Â¾Ã Â¤Â¸Ã Â¤Â¿Ã Â¤â€¢ Ã Â¤â€¢Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¿Ã Â¤Å“Ã Â¤Â¼ Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â¤Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤â€”Ã Â¤Â¿Ã Â¤Â¤Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š Ã Â¤Â­Ã Â¤Â¾Ã Â¤â€” Ã Â¤Â²Ã Â¥â€¡Ã Â¤â€šÃ Â¥Â¤ Ã Â¤Â¸Ã Â¤Â¹Ã Â¥â‚¬ Ã Â¤â€°Ã Â¤Â¤Ã Â¥ÂÃ Â¤Â¤Ã Â¤Â° Ã Â¤Â¦Ã Â¥â€¡Ã Â¤â€š Ã Â¤â€Ã Â¤Â° Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â¸Ã Â¥ÂÃ Â¤â€¢Ã Â¤Â¾Ã Â¤Â° Ã Â¤Å“Ã Â¥â‚¬Ã Â¤Â¤Ã Â¥â€¡Ã Â¤â€š!',
-  'p.q.c':'Ã Â¤â€¢Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¿Ã Â¤Å“Ã Â¤Â¼ Ã Â¤â€“Ã Â¥â€¡Ã Â¤Â²Ã Â¥â€¡Ã Â¤â€š',
-  'hw.1t':'FWF Ã Â¤Å“Ã Â¥â€°Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','hw.1d':'Ã Â¤ÂªÃ Â¤â€šÃ Â¤Å“Ã Â¥â‚¬Ã Â¤â€¢Ã Â¤Â°Ã Â¤Â£ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š Ã Â¤â€Ã Â¤Â° Ã Â¤Â¶Ã Â¥ÂÃ Â¤Â²Ã Â¥ÂÃ Â¤â€¢ Ã Â¤Â¦Ã Â¥â€¡Ã Â¤â€š',
-  'hw.2t':'Ã Â¤â€¢Ã Â¥Å’Ã Â¤Â¶Ã Â¤Â² Ã Â¤Â¸Ã Â¥â‚¬Ã Â¤â€“Ã Â¥â€¡Ã Â¤â€š','hw.2d':'Ã Â¤â€¢Ã Â¤Â¾Ã Â¤Â°Ã Â¥ÂÃ Â¤Â¯Ã Â¤Â¶Ã Â¤Â¾Ã Â¤Â²Ã Â¤Â¾Ã Â¤â€œÃ Â¤â€š Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š Ã Â¤Â­Ã Â¤Â¾Ã Â¤â€” Ã Â¤Â²Ã Â¥â€¡Ã Â¤â€š',
-  'hw.3t':'Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾ Ã Â¤Å¡Ã Â¥ÂÃ Â¤Â¨Ã Â¥â€¡Ã Â¤â€š','hw.3d':'Ã Â¤â€ Ã Â¤Å“Ã Â¥â‚¬Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾ Ã Â¤ÂªÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤Å“Ã Â¤Â¨Ã Â¤Â¾ Ã Â¤Å¡Ã Â¥ÂÃ Â¤Â¨Ã Â¥â€¡Ã Â¤â€š',
-  'hw.4t':'Ã Â¤â€ Ã Â¤Â®Ã Â¤Â¦Ã Â¤Â¨Ã Â¥â‚¬ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','hw.4d':'Ã Â¤ÂµÃ Â¥ÂÃ Â¤Â¯Ã Â¤ÂµÃ Â¤Â¸Ã Â¤Â¾Ã Â¤Â¯ Ã Â¤Â¬Ã Â¤Â¨Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€š Ã Â¤â€Ã Â¤Â° Ã Â¤â€¢Ã Â¤Â®Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€š',
-  'csr.t':'CSR Ã Â¤Â¸Ã Â¤Â¾Ã Â¤ÂÃ Â¥â€¡Ã Â¤Â¦Ã Â¤Â¾Ã Â¤Â°Ã Â¥â‚¬','csr.s':'Ã Â¤â€¢Ã Â¤â€šÃ Â¤ÂªÃ Â¤Â¨Ã Â¤Â¿Ã Â¤Â¯Ã Â¥â€¹Ã Â¤â€š Ã Â¤â€Ã Â¤Â° NGOs Ã Â¤â€¢Ã Â¥â€¡ Ã Â¤Â²Ã Â¤Â¿Ã Â¤Â',
-  'csr.d':'Ã Â¤â€ Ã Â¤Å“Ã Â¥â‚¬Ã Â¤ÂµÃ Â¤Â¿Ã Â¤â€¢Ã Â¤Â¾ Ã Â¤â€¢Ã Â¥â€¹ Ã Â¤Â«Ã Â¤â€šÃ Â¤Â¡ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š, CSR Ã Â¤Â¦Ã Â¤Â¾Ã Â¤Â¯Ã Â¤Â¿Ã Â¤Â¤Ã Â¥ÂÃ Â¤Âµ Ã Â¤ÂªÃ Â¥â€šÃ Â¤Â°Ã Â¤Â¾ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š Ã Â¤â€Ã Â¤Â° Ã Â¤Â¸Ã Â¤Â¾Ã Â¤Â®Ã Â¤Â¾Ã Â¤Å“Ã Â¤Â¿Ã Â¤â€¢ Ã Â¤ÂªÃ Â¥ÂÃ Â¤Â°Ã Â¤Â­Ã Â¤Â¾Ã Â¤Âµ Ã Â¤Â¬Ã Â¤Â¨Ã Â¤Â¾Ã Â¤ÂÃ Â¤â€šÃ Â¥Â¤',
-  'csr.c':'Ã Â¤Â¹Ã Â¤Â®Ã Â¤Â¾Ã Â¤Â°Ã Â¥â€¡ Ã Â¤Â¸Ã Â¤Â¾Ã Â¤Â¥ Ã Â¤Å“Ã Â¥ÂÃ Â¤Â¡Ã Â¤Â¼Ã Â¥â€¡Ã Â¤â€š',
-  'n.join':'Ã Â¤Å“Ã Â¥â€°Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š','n.donate':'Ã Â¤Â¦Ã Â¤Â¾Ã Â¤Â¨','n.quiz':'Ã Â¤â€¢Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¿Ã Â¤Å“Ã Â¤Â¼','n.store':'Ã Â¤Â¸Ã Â¥ÂÃ Â¤Å¸Ã Â¥â€¹Ã Â¤Â°'
-}
-};
+  <!-- How It Works -->
+  <div class="app-section" style="margin-top:24px;">
+    <div class="section-head">
+      <h2 data-i18n="how.title">How It Works</h2>
+    </div>
+  </div>
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="hc-num">1</div>
+      <div class="hc-icon">ðŸ“</div>
+      <h3 data-i18n="how.step1.title">Register</h3>
+      <p data-i18n="how.step1.desc">Fill simple form and join our community</p>
+    </div>
+    <div class="how-card">
+      <div class="hc-num">2</div>
+      <div class="hc-icon">ðŸ“š</div>
+      <h3 data-i18n="how.step2.title">Learn Skills</h3>
+      <p data-i18n="how.step2.desc">Get trained in valuable skills for free</p>
+    </div>
+    <div class="how-card">
+      <div class="hc-num">3</div>
+      <div class="hc-icon">ðŸ’¼</div>
+      <h3 data-i18n="how.step3.title">Get Projects</h3>
+      <p data-i18n="how.step3.desc">Work on real projects and earn income</p>
+    </div>
+    <div class="how-card">
+      <div class="hc-num">4</div>
+      <div class="hc-icon">ðŸŽ¯</div>
+      <h3 data-i18n="how.step4.title">Grow</h3>
+      <p data-i18n="how.step4.desc">Build your career and become independent</p>
+    </div>
+  </div>
 
-function setLang(lang) {
-  document.documentElement.setAttribute('data-lang', lang);
-  localStorage.setItem('fwf-lang', lang);
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const k = el.getAttribute('data-i18n');
-    if (T[lang][k] !== undefined) el.innerHTML = T[lang][k];
-  });
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-  document.getElementById('btn-hi').classList.toggle('active', lang === 'hi');
-}
+  <!-- Mission + Vision -->
+  <div class="app-section" style="margin-top:24px;">
+    <div class="section-head">
+      <h2 data-i18n="about.section_title">Who We Are</h2>
+    </div>
+  </div>
+  <div class="mv-grid">
+    <div class="mv-card">
+      <div class="mv-card-head">
+        <div class="mv-icon orange">ðŸŽ¯</div>
+        <h2 data-i18n="about.mission_head">Our Mission</h2>
+      </div>
+      <p>To help unemployed people create their own livelihood through skill development training and make them self-reliant (Aatmnirbhar).</p>
+    </div>
+    <div class="mv-card">
+      <div class="mv-card-head">
+        <div class="mv-icon violet">ðŸ”­</div>
+        <h2 data-i18n="about.vision_head">Our Vision</h2>
+      </div>
+      <p>To make India a Manufacturing Hub and contribute to the nation's growth.</p>
+    </div>
+  </div>
 
-function showToast(msg, type='info') {
-  const icons = {success:'Ã¢Å“â€¦', error:'Ã¢ÂÅ’', info:'Ã¢â€žÂ¹Ã¯Â¸Â', warning:'Ã¢Å¡Â Ã¯Â¸Â'};
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
-  const c = document.getElementById('toast-container');
-  if (c) c.appendChild(t);
-  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
-}
+  <!-- Rich Footer -->
+  <footer class="app-footer">
+    <div class="footer-top">
+      <!-- Brand -->
+      <div class="footer-logo-wrap">
+        <img src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF">
+        <div>
+          <div class="footer-brand-name">Foundris Welfare Foundation</div>
+          <div class="footer-brand-tagline">Skills &rarr; Livelihood &rarr; Aatmnirbharta</div>
+        </div>
+      </div>
+      <!-- Social Icons -->
+      <div class="footer-socials">
+        <a href="https://www.facebook.com/fwfindia" target="_blank" aria-label="Facebook" class="fs-fb"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/fwfindia" target="_blank" aria-label="Instagram" class="fs-ig"><i class="fab fa-instagram"></i></a>
+        <a href="https://wa.me/919580118412" target="_blank" aria-label="WhatsApp" class="fs-wa"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://youtube.com/@fwf_india" target="_blank" aria-label="YouTube" class="fs-yt"><i class="fab fa-youtube"></i></a>
+      </div>
+      <!-- Badges -->
+      <div class="footer-badges">
+        <span class="fbadge"><i class="fas fa-certificate" style="color:#f59e0b"></i> 12A Certified</span>
+        <span class="fbadge"><i class="fas fa-receipt" style="color:#60a5fa"></i> 80G Tax Benefit</span>
+        <span class="fbadge"><i class="fas fa-handshake" style="color:#4ade80"></i> CSR-1 Registered</span>
+      </div>
+    </div>
+    <div class="footer-divider"></div>
+    <div class="footer-made">Made with &#10084;&#65039; in India &#127470;&#127475;</div>
+    <div class="footer-bar">
+      <span class="footer-bar-copy">&copy; 2024 FWF. All rights reserved.</span>
+      <div class="footer-bar-links">
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
 
-function updateTopbarUser() {
-  const user = JSON.parse(localStorage.getItem('fwf-user') || 'null');
-  const btn  = document.getElementById('topbar-user');
-  if (!btn) return;
-  if (user) {
-    btn.href = '/app/dashboard';
-    btn.textContent = (user.name || 'U').charAt(0).toUpperCase();
-  }
-}
+  <!-- T&C Modal -->
+  <div class="tc-modal-overlay" id="tcModalOverlay" onclick="closeTCModal(event)">
+    <div class="tc-modal" id="tcModal">
+      <button class="tc-close-btn" onclick="closeTCModal(null, true)">âœ•</button>
+      <h3>Membership Terms &amp; Conditions</h3>
+      <p>By becoming a member of Foundris Welfare Foundation (FWF), you agree to the following terms:</p>
+      <ul>
+        <li><strong>Membership Fee:</strong> â‚¹500/month, payable in advance. Non-refundable once training begins.</li>
+        <li><strong>Skill Training:</strong> Free training is provided subject to availability of batches and slots. FWF reserves the right to schedule sessions as per operational capacity.</li>
+        <li><strong>Project Funding Help:</strong> Funding support for livelihood projects is evaluated on a case-by-case basis and is subject to project viability and availability of corpus funds.</li>
+        <li><strong>Member Network:</strong> Access to the member marketplace for selling products is subject to quality standards and FWF approval.</li>
+        <li><strong>Future Support Programs:</strong> Additional programs will be announced periodically and are subject to eligibility criteria at the time of launch.</li>
+        <li><strong>Code of Conduct:</strong> Members must maintain respectful conduct within the community at all times.</li>
+        <li><strong>Data Privacy:</strong> Your personal data is protected as per our <a href="../privacy.html" style="color:var(--primary)">Privacy Policy</a>.</li>
+      </ul>
+      <p>For queries, contact us at <a href="mailto:info@fwfindia.org" style="color:var(--primary)">info@fwfindia.org</a>.</p>
+      <br>
+      <button onclick="closeTCModal(null, true)" style="width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;">I Understand</button>
+    </div>
+  </div>
 
-(function() {
-  const lang = localStorage.getItem('fwf-lang') || 'en';
-  setLang(lang);
-  updateTopbarUser();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(() => {});
-})();
-</script>
+  <!-- Bottom Tab Bar -->
+  <nav class="app-tabs">
+    <a href="/app/home" class="tab-item active">
+      <i class="fas fa-home"></i><span>Home</span>
+    </a>
+    <a href="/app/projects" class="tab-item">
+      <i class="fas fa-briefcase"></i><span>Projects</span>
+    </a>
+    <a href="https://www.fwfindia.org/donation#memberModal" class="tab-item tab-join">
+      <div class="tab-fab"><i class="fas fa-plus"></i></div>
+      <span>Join</span>
+    </a>
+    <a href="https://www.fwfindia.org/donation#donateModal" class="tab-item">
+      <i class="fas fa-heart"></i><span>Donate</span>
+    </a>
+    <a href="/app/login" class="tab-item">
+      <i class="fas fa-user"></i><span>Login</span>
+    </a>
+  </nav>
+
+  <script>
+    // Set footer year
+    const fy = document.getElementById('footerYear');
+    if (fy) fy.textContent = '2024';
+
+    // Accordion toggle
+    function toggleCard(card) { card.classList.toggle('expanded'); }
+
+    // T&C Modal
+    function openTCModal() { document.getElementById('tcModalOverlay').classList.add('open'); }
+    function closeTCModal(e, force) {
+      if (force || (e && e.target === document.getElementById('tcModalOverlay'))) {
+        document.getElementById('tcModalOverlay').classList.remove('open');
+      }
+    }
+
+    const T = {
+      en: {
+        hero: { title: "Skills to Livelihood Â· Aatmnirbhar Bharat", subtitle: "Join India's growing community of skilled people building their own livelihoods", join: "Join Now", donate: "Donate" },
+        how: { title: "How It Works", step1: { title: "Register", desc: "Fill simple form and join our community" }, step2: { title: "Learn Skills", desc: "Get trained in valuable skills for free" }, step3: { title: "Get Projects", desc: "Work on real projects and earn income" }, step4: { title: "Grow", desc: "Build your career and become independent" } },
+        actions: {
+          title: "Get Started Today",
+          member: { title: "Become a Member", desc: "Join FWF and unlock skill development training, project funding support, and a powerful network of members.", b1: "Skill Development Training", b2: "Project Start Funding Help", b3: "Member Network for Selling Products", b4: "Future Support Programs", tc_text: "Benefits subject to eligibility.", tc_link: "T&C Apply", cta: "Join Now" },
+          donate: { title: "Support Our Cause", sub: "Livelihood Support", desc: "Buy products made by our members, help collect donations for NGO projects, or recommend our products and services to your network.", cta: "Donate / Buy Products" },
+          csr: { title: "CSR Partnership", sub: "Corporate Impact", desc: "Meet your CSR goals while creating real livelihoods. Fund skill training, sponsor micro-enterprises, or co-create products under Make in India.", cta: "Explore CSR Options" }
+        },
+        about: { section_title: "Who We Are", mission_head: "Our Mission", vision_head: "Our Vision", mission: "Berojgar logo ko skill development ki training de kar unko livelihood create karne mein help karna aur unko Aatmnirbhar banana.", vision: "India ko Manufacturing hub banana jisse aur desh ki growth mein help karna." }
+      },
+      hi: {
+        hero: { title: "à¤•à¥Œà¤¶à¤² à¤¸à¥‡ à¤†à¤œà¥€à¤µà¤¿à¤•à¤¾, à¤†à¤œà¥€à¤µà¤¿à¤•à¤¾ à¤¸à¥‡ à¤†à¤¤à¥à¤®à¤¨à¤¿à¤°à¥à¤­à¤°à¤¤à¤¾", subtitle: "à¤­à¤¾à¤°à¤¤ à¤•à¥‡ à¤¬à¤¢à¤¼à¤¤à¥‡ à¤•à¥à¤¶à¤² à¤‰à¤¦à¥à¤¯à¤®à¤¿à¤¯à¥‹à¤‚ à¤•à¥‡ à¤¸à¤®à¥à¤¦à¤¾à¤¯ à¤®à¥‡à¤‚ à¤¶à¤¾à¤®à¤¿à¤² à¤¹à¥‹à¤‚ à¤”à¤° à¤…à¤ªà¤¨à¥€ à¤†à¤œà¥€à¤µà¤¿à¤•à¤¾ à¤¬à¤¨à¤¾à¤à¤‚", join: "à¤…à¤­à¥€ à¤œà¥à¤¡à¤¼à¥‡à¤‚", donate: "à¤¦à¤¾à¤¨ à¤•à¤°à¥‡à¤‚" },
+        how: { title: "à¤¯à¤¹ à¤•à¥ˆà¤¸à¥‡ à¤•à¤¾à¤® à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ", step1: { title: "à¤°à¤œà¤¿à¤¸à¥à¤Ÿà¤° à¤•à¤°à¥‡à¤‚", desc: "à¤¸à¤°à¤² à¤«à¥‰à¤°à¥à¤® à¤­à¤°à¥‡à¤‚ à¤”à¤° à¤¹à¤®à¤¾à¤°à¥‡ à¤¸à¤®à¥à¤¦à¤¾à¤¯ à¤®à¥‡à¤‚ à¤¶à¤¾à¤®à¤¿à¤² à¤¹à¥‹à¤‚" }, step2: { title: "à¤•à¥Œà¤¶à¤² à¤¸à¥€à¤–à¥‡à¤‚", desc: "à¤®à¥à¤«à¥à¤¤ à¤®à¥‡à¤‚ à¤®à¥‚à¤²à¥à¤¯à¤µà¤¾à¤¨ à¤•à¥Œà¤¶à¤² à¤®à¥‡à¤‚ à¤ªà¥à¤°à¤¶à¤¿à¤•à¥à¤·à¤¿à¤¤ à¤¹à¥‹à¤‚" }, step3: { title: "à¤ªà¥à¤°à¥‹à¤œà¥‡à¤•à¥à¤Ÿ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤°à¥‡à¤‚", desc: "à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤ªà¤°à¤¿à¤¯à¥‹à¤œà¤¨à¤¾à¤“à¤‚ à¤ªà¤° à¤•à¤¾à¤® à¤•à¤°à¥‡à¤‚ à¤”à¤° à¤†à¤¯ à¤…à¤°à¥à¤œà¤¿à¤¤ à¤•à¤°à¥‡à¤‚" }, step4: { title: "à¤µà¤¿à¤•à¤¾à¤¸ à¤•à¤°à¥‡à¤‚", desc: "à¤…à¤ªà¤¨à¤¾ à¤•à¤°à¤¿à¤¯à¤° à¤¬à¤¨à¤¾à¤à¤‚ à¤”à¤° à¤¸à¥à¤µà¤¤à¤‚à¤¤à¥à¤° à¤¬à¤¨à¥‡à¤‚" } },
+        actions: {
+          title: "à¤†à¤œ à¤¹à¥€ à¤¶à¥à¤°à¥‚ à¤•à¤°à¥‡à¤‚",
+          member: { title: "à¤¸à¤¦à¤¸à¥à¤¯ à¤¬à¤¨à¥‡à¤‚", desc: "FWF à¤®à¥‡à¤‚ à¤¶à¤¾à¤®à¤¿à¤² à¤¹à¥‹à¤‚ à¤”à¤° à¤•à¥Œà¤¶à¤² à¤ªà¥à¤°à¤¶à¤¿à¤•à¥à¤·à¤£, à¤ªà¥à¤°à¥‹à¤œà¥‡à¤•à¥à¤Ÿ à¤«à¤‚à¤¡à¤¿à¤‚à¤— à¤”à¤° à¤¸à¤¦à¤¸à¥à¤¯à¥‹à¤‚ à¤•à¥‡ à¤¨à¥‡à¤Ÿà¤µà¤°à¥à¤• à¤•à¤¾ à¤²à¤¾à¤­ à¤²à¥‡à¤‚à¥¤", b1: "à¤•à¥Œà¤¶à¤² à¤µà¤¿à¤•à¤¾à¤¸ à¤ªà¥à¤°à¤¶à¤¿à¤•à¥à¤·à¤£", b2: "à¤ªà¥à¤°à¥‹à¤œà¥‡à¤•à¥à¤Ÿ à¤¶à¥à¤°à¥‚ à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤®à¤¦à¤¦", b3: "à¤‰à¤¤à¥à¤ªà¤¾à¤¦ à¤¬à¥‡à¤šà¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¤¦à¤¸à¥à¤¯ à¤¨à¥‡à¤Ÿà¤µà¤°à¥à¤•", b4: "à¤­à¤µà¤¿à¤·à¥à¤¯ à¤•à¥‡ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾ à¤•à¤¾à¤°à¥à¤¯à¤•à¥à¤°à¤®", tc_text: "à¤²à¤¾à¤­ à¤ªà¤¾à¤¤à¥à¤°à¤¤à¤¾ à¤•à¥‡ à¤…à¤§à¥€à¤¨ à¤¹à¥ˆà¤‚à¥¤", tc_link: "à¤¨à¤¿à¤¯à¤® à¤²à¤¾à¤—à¥‚", cta: "à¤…à¤­à¥€ à¤œà¥à¤¡à¤¼à¥‡à¤‚" },
+          donate: { title: "à¤¸à¤®à¤°à¥à¤¥à¤¨ à¤•à¤°à¥‡à¤‚", sub: "à¤†à¤œà¥€à¤µà¤¿à¤•à¤¾ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾", desc: "à¤¹à¤®à¤¾à¤°à¥€ à¤¸à¤¦à¤¸à¥à¤¯à¥‹à¤‚ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤¬à¤¨à¤¾à¤ à¤‰à¤¤à¥à¤ªà¤¾à¤¦ à¤–à¤°à¥€à¤¦à¥‡à¤‚, NGO à¤ªà¥à¤°à¥‹à¤œà¥‡à¤•à¥à¤Ÿ à¤•à¥‡ à¤²à¤¿à¤ à¤¦à¤¾à¤¨ à¤œà¤®à¤¾ à¤•à¤°à¥‡à¤‚, à¤¯à¤¾ à¤‰à¤¤à¥à¤ªà¤¾à¤¦/à¤¸à¥‡à¤µà¤¾à¤à¤‚ à¤…à¤ªà¤¨à¥‡ à¤¨à¥‡à¤Ÿà¤µà¤°à¥à¤• à¤•à¥‹ à¤¸à¥à¤à¤¾à¤à¤‚à¥¤", cta: "à¤¦à¤¾à¤¨ à¤•à¤°à¥‡à¤‚ / à¤‰à¤¤à¥à¤ªà¤¾à¤¦ à¤–à¤°à¥€à¤¦à¥‡à¤‚" },
+          csr: { title: "CSR à¤¸à¤¾à¤à¥‡à¤¦à¤¾à¤°à¥€", sub: "à¤•à¥‰à¤°à¥à¤ªà¥‹à¤°à¥‡à¤Ÿ à¤ªà¥à¤°à¤­à¤¾à¤µ", desc: "à¤…à¤ªà¤¨à¥‡ CSR à¤²à¤•à¥à¤·à¥à¤¯ à¤ªà¥‚à¤°à¥‡ à¤•à¤°à¥‡à¤‚ à¤”à¤° à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤†à¤œà¥€à¤µà¤¿à¤•à¤¾ à¤¬à¤¨à¤¾à¤à¤‚à¥¤ à¤•à¥Œà¤¶à¤² à¤ªà¥à¤°à¤¶à¤¿à¤•à¥à¤·à¤£, à¤²à¤˜à¥ à¤‰à¤¦à¥à¤¯à¤® à¤¯à¤¾ à¤®à¥‡à¤• à¤‡à¤¨ à¤‡à¤‚à¤¡à¤¿à¤¯à¤¾ à¤‰à¤¤à¥à¤ªà¤¾à¤¦ à¤•à¥‹ à¤«à¤‚à¤¡ à¤•à¤°à¥‡à¤‚à¥¤", cta: "CSR à¤µà¤¿à¤•à¤²à¥à¤ª à¤¦à¥‡à¤–à¥‡à¤‚" }
+        },
+        about: { section_title: "à¤¹à¤® à¤•à¥Œà¤¨ à¤¹à¥ˆà¤‚", mission_head: "à¤¹à¤®à¤¾à¤°à¤¾ à¤®à¤¿à¤¶à¤¨", vision_head: "à¤¹à¤®à¤¾à¤°à¥€ à¤¦à¥ƒà¤·à¥à¤Ÿà¤¿", mission: "à¤¬à¥‡à¤°à¥‹à¤œà¤—à¤¾à¤° à¤²à¥‹à¤—à¥‹à¤‚ à¤•à¥‹ à¤¸à¥à¤•à¤¿à¤² à¤¡à¥‡à¤µà¤²à¤ªà¤®à¥‡à¤‚à¤Ÿ à¤•à¥€ à¤Ÿà¥à¤°à¥‡à¤¨à¤¿à¤‚à¤— à¤¦à¥‡à¤•à¤° à¤‰à¤¨à¤•à¥‹ à¤²à¤¾à¤‡à¤µà¤²à¥€à¤¹à¥à¤¡ à¤•à¥à¤°à¤¿à¤à¤Ÿ à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤®à¤¦à¤¦ à¤•à¤°à¤¨à¤¾ à¤”à¤° à¤‰à¤¨à¤•à¥‹ à¤†à¤¤à¥à¤®à¤¨à¤¿à¤°à¥à¤­à¤° à¤¬à¤¨à¤¾à¤¨à¤¾à¥¤", vision: "à¤‡à¤‚à¤¡à¤¿à¤¯à¤¾ à¤•à¥‹ à¤®à¥ˆà¤¨à¥à¤¯à¥à¤«à¥ˆà¤•à¥à¤šà¤°à¤¿à¤‚à¤— à¤¹à¤¬ à¤¬à¤¨à¤¾à¤¨à¤¾ à¤œà¤¿à¤¸à¤¸à¥‡ à¤”à¤° à¤¦à¥‡à¤¶ à¤•à¥€ à¤—à¥à¤°à¥‹à¤¥ à¤®à¥‡à¤‚ à¤®à¤¦à¤¦ à¤•à¤°à¤¨à¤¾à¥¤" }
+      }
+    };
+
+    function setLanguage(lang) {
+      document.documentElement.setAttribute('data-lang', lang);
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const keys = el.getAttribute('data-i18n').split('.');
+        let v = T[lang];
+        for (const k of keys) v = v?.[k];
+        if (v) el.textContent = v;
+      });
+      document.getElementById('langEN').classList.toggle('active', lang === 'en');
+      document.getElementById('langHI').classList.toggle('active', lang === 'hi');
+      try { localStorage.setItem('fwf_lang', lang); } catch(e) {}
+    }
+
+    try {
+      const s = localStorage.getItem('fwf_lang');
+      if (s === 'en' || s === 'hi') setLanguage(s);
+    } catch(e) {}
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('../service-worker.js').catch(() => {}));
+    }
+  </script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 </body>
 </html>
