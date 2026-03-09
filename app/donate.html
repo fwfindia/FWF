@@ -55,30 +55,35 @@
 
     .sec-hidden{display:none}
 
-  /* Action forms */
-  .action-wrap{margin:18px 16px 0;border-radius:22px;padding:22px 18px;background:var(--surface);border:1px solid var(--border)}
-  .action-wrap.is-hidden{display:none}
-  .action-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
-  .action-head h3{font-size:18px;font-weight:900;color:var(--text);margin:0 0 4px}
-  .action-head p{font-size:12.5px;color:var(--text3);margin:0;line-height:1.5}
-  .action-badge{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:38px;border-radius:12px;background:rgba(249,115,22,.12);color:var(--primary);font-size:18px}
-  .action-pane{display:none}
-  .action-pane.on{display:block}
-  .mini-form{display:grid;gap:10px}
-  .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .mini-input,.mini-select{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-weight:600;font-family:inherit}
-  .mini-input:focus,.mini-select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(249,115,22,.12)}
-  .mini-hint{font-size:11.5px;color:var(--text3);line-height:1.5;margin:2px 0 0}
-  .mini-chips{display:flex;flex-wrap:wrap;gap:8px}
-  .mini-chip{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
-  .mini-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
-  .mini-submit{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 18px;border:none;border-radius:13px;font-size:14px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit;transition:transform .15s}
-  .mini-submit:active{transform:scale(.97)}
-  .mini-submit.red{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 14px rgba(239,68,68,.28)}
-  .mini-submit.purple{background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 4px 14px rgba(139,92,246,.28)}
-  .mini-submit.green{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 14px rgba(34,197,94,.28)}
-  .mini-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:11.5px;color:var(--text3);line-height:1.5}
-  @media (max-width:560px){.mini-grid{grid-template-columns:1fr}}
+    /* Popup forms */
+    .popup-overlay{position:fixed;inset:0;background:rgba(2,6,23,.72);backdrop-filter:blur(10px);display:none;align-items:flex-end;justify-content:center;z-index:9999;padding:0}
+    .popup-overlay.show{display:flex}
+    .popup-card{width:100%;max-width:430px;max-height:86vh;background:#fff;border-radius:22px 22px 0 0;overflow:hidden;box-shadow:0 -14px 40px rgba(0,0,0,.3);animation:slideUp .25s ease}
+    @keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .popup-head{padding:14px 16px 12px;position:relative}
+    .ph-donate{background:linear-gradient(135deg,#ff416c,#ff4f81)}
+    .ph-member{background:linear-gradient(135deg,#6153ff,#8b5cf6)}
+    .ph-supporter{background:linear-gradient(135deg,#16a34a,#22c55e)}
+    .popup-headrow{display:flex;align-items:center;gap:10px;padding-right:34px}
+    .popup-icon{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
+    .popup-title{font-size:16px;font-weight:900;color:#fff;margin:0}
+    .popup-sub{font-size:11.5px;color:rgba(255,255,255,.85);margin:2px 0 0;line-height:1.4}
+    .popup-close{position:absolute;top:10px;right:10px;width:34px;height:34px;border:none;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:16px;cursor:pointer}
+    .popup-body{padding:16px;max-height:calc(86vh - 72px);overflow-y:auto}
+    .popup-form{display:grid;gap:10px}
+    .popup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .popup-input,.popup-select{width:100%;border-radius:12px;border:1.5px solid #e7e9f6;background:#fff;color:#0f172a;font-size:14px;font-weight:700;padding:13px 14px;font-family:inherit}
+    .popup-input:focus,.popup-select:focus{outline:none;border-color:#6153ff;box-shadow:0 0 0 3px rgba(97,83,255,.12)}
+    .popup-kicker{font-size:11px;font-weight:800;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin:2px 0 0}
+    .popup-chips{display:flex;flex-wrap:wrap;gap:8px}
+    .popup-chip{padding:8px 12px;border-radius:999px;background:#f8fafc;border:1px solid #dbe3f7;font-size:12px;font-weight:900;color:#0f172a;cursor:pointer;font-family:inherit}
+    .popup-chip.on{background:#ff7a18;border-color:#ff7a18;color:#fff}
+    .popup-note{padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12px;color:#475569;line-height:1.5}
+    .popup-submit{width:100%;padding:13px 16px;border:none;border-radius:13px;color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+    .ps-donate{background:linear-gradient(135deg,#ff416c,#ff4f81)}
+    .ps-member{background:linear-gradient(135deg,#6153ff,#8b5cf6)}
+    .ps-supporter{background:linear-gradient(135deg,#16a34a,#22c55e)}
+    @media (max-width:560px){.popup-grid{grid-template-columns:1fr}}
 
     /* Footer */
     .app-ft{padding:20px 16px 12px;margin-top:20px;border-top:1px solid var(--border);text-align:center}
@@ -122,7 +127,7 @@
       <li data-i18n="d.don.f2">Direct impact tracking</li>
       <li data-i18n="d.don.f3">UPI / Bank transfer</li>
     </ul>
-    <a href="/app/donate#donateModal" class="sc-btn sc-btn-red" onclick="return activateTabLink(event,'donate')"><i class="fas fa-heart"></i> <span data-i18n="d.don.btn">Donate Now</span></a>
+    <a href="/app/donate#donateModal" class="sc-btn sc-btn-red" onclick="return openActionModal(event,'donate')"><i class="fas fa-heart"></i> <span data-i18n="d.don.btn">Donate Now</span></a>
   </div>
 
   <!-- Member Section -->
@@ -135,7 +140,7 @@
       <li data-i18n="d.mem.f2">Micro-enterprise project funding</li>
       <li data-i18n="d.mem.f3">Market linkage & self-employment</li>
     </ul>
-    <a href="/app/donate#memberModal" class="sc-btn sc-btn-purple" onclick="return activateTabLink(event,'member')"><i class="fas fa-user-plus"></i> <span data-i18n="d.mem.btn">Join Now</span></a>
+    <a href="/app/donate#memberModal" class="sc-btn sc-btn-purple" onclick="return openActionModal(event,'member')"><i class="fas fa-user-plus"></i> <span data-i18n="d.mem.btn">Join Now</span></a>
   </div>
 
   <!-- Supporter Section -->
@@ -148,7 +153,7 @@
       <li data-i18n="d.sup.f2">Teach real skills</li>
       <li data-i18n="d.sup.f3">Community reach</li>
     </ul>
-    <a href="/app/donate#supporterModal" class="sc-btn sc-btn-green" onclick="return activateTabLink(event,'supporter')"><i class="fas fa-hands-helping"></i> <span data-i18n="d.sup.btn">Sign Up</span></a>
+    <a href="/app/donate#supporterModal" class="sc-btn sc-btn-green" onclick="return openActionModal(event,'supporter')"><i class="fas fa-hands-helping"></i> <span data-i18n="d.sup.btn">Sign Up</span></a>
   </div>
 
   <!-- CSR Section -->
@@ -164,72 +169,97 @@
     <a href="/app/csr" class="sc-btn sc-btn-cyan"><i class="fas fa-building"></i> <span data-i18n="d.csr.btn">Partner</span></a>
   </div>
 
-  <div class="action-wrap" id="actionWrap">
-    <div class="action-head">
-      <div>
-        <h3 id="actionTitle">Complete Your Donation</h3>
-        <p id="actionSub">Enter a few details and continue to the secure donation flow.</p>
+  <div class="popup-overlay" id="donatePopup">
+    <div class="popup-card">
+      <div class="popup-head ph-donate">
+        <button class="popup-close" type="button" onclick="closePopup('donatePopup')"><i class="fas fa-times"></i></button>
+        <div class="popup-headrow">
+          <div class="popup-icon">❤️</div>
+          <div><h3 class="popup-title">Make a Donation</h3><p class="popup-sub">100% secure · 80G receipt available</p></div>
+        </div>
       </div>
-      <div class="action-badge" id="actionBadge"><i class="fas fa-heart"></i></div>
+      <div class="popup-body">
+        <form class="popup-form" id="donatePopupForm">
+          <div class="popup-kicker">Select or Enter Amount</div>
+          <div class="popup-chips" id="popupAmountChips">
+            <button type="button" class="popup-chip" data-amount="200">₹200</button>
+            <button type="button" class="popup-chip" data-amount="500">₹500</button>
+            <button type="button" class="popup-chip" data-amount="1000">₹1,000</button>
+            <button type="button" class="popup-chip" data-amount="2500">₹2,500</button>
+            <button type="button" class="popup-chip" data-amount="5000">₹5,000</button>
+          </div>
+          <input class="popup-input" id="popupDonateAmount" type="number" min="1" placeholder="Custom Amount (₹)" required>
+          <div class="popup-kicker">Your Details</div>
+          <div class="popup-grid">
+            <input class="popup-input" type="text" placeholder="Full Name" required>
+            <input class="popup-input" type="tel" placeholder="Phone (10-digit)" required>
+          </div>
+          <input class="popup-input" type="email" placeholder="Email" required>
+          <div class="popup-note">Continue to the full donation flow for payment, 80G receipt, and secure verification.</div>
+          <button class="popup-submit ps-donate" type="submit"><i class="fas fa-heart"></i> Be the Change — Donate Now</button>
+        </form>
+      </div>
     </div>
+  </div>
 
-    <div class="action-pane on" id="pane-donate">
-      <form class="mini-form" id="donateActionForm">
-        <div class="mini-chips" id="amountChips">
-          <button type="button" class="mini-chip" data-amount="200">₹200</button>
-          <button type="button" class="mini-chip" data-amount="500">₹500</button>
-          <button type="button" class="mini-chip" data-amount="1000">₹1,000</button>
-          <button type="button" class="mini-chip" data-amount="2500">₹2,500</button>
-          <button type="button" class="mini-chip" data-amount="5000">₹5,000</button>
+  <div class="popup-overlay" id="memberPopup">
+    <div class="popup-card">
+      <div class="popup-head ph-member">
+        <button class="popup-close" type="button" onclick="closePopup('memberPopup')"><i class="fas fa-times"></i></button>
+        <div class="popup-headrow">
+          <div class="popup-icon"><i class="fas fa-user-plus"></i></div>
+          <div><h3 class="popup-title">Join Membership</h3><p class="popup-sub">Start your member registration like the desktop flow</p></div>
         </div>
-        <input class="mini-input" id="donateAmount" type="number" min="1" placeholder="Custom amount (₹)" required>
-        <div class="mini-grid">
-          <input class="mini-input" type="text" placeholder="Full name" required>
-          <input class="mini-input" type="tel" placeholder="Mobile number" required>
-        </div>
-        <input class="mini-input" type="email" placeholder="Email address" required>
-        <button class="mini-submit red" type="submit"><i class="fas fa-heart"></i> Continue to Donation</button>
-      </form>
-      <div class="mini-note">80G receipt and secure payment options continue on the final donation step.</div>
+      </div>
+      <div class="popup-body">
+        <form class="popup-form" id="memberPopupForm">
+          <div class="popup-grid">
+            <input class="popup-input" type="text" placeholder="Full Name" required>
+            <input class="popup-input" type="tel" placeholder="Phone" required>
+          </div>
+          <input class="popup-input" type="email" placeholder="Email" required>
+          <select class="popup-select" required>
+            <option value="">Select Project</option>
+            <option>Suraksha</option>
+            <option>Swachh Bharat</option>
+            <option>Happy Meal</option>
+            <option>Green Energy</option>
+            <option>DIY Crafts</option>
+            <option>Swachh Jal</option>
+            <option>Samman</option>
+            <option>Sweet Home</option>
+            <option>Hariyali</option>
+            <option>Worship</option>
+            <option>Shiksha</option>
+          </select>
+          <div class="popup-note">Membership continues to the complete desktop form with agreement and payment flow.</div>
+          <button class="popup-submit ps-member" type="submit"><i class="fas fa-user-plus"></i> Proceed to Membership</button>
+        </form>
+      </div>
     </div>
+  </div>
 
-    <div class="action-pane" id="pane-member">
-      <form class="mini-form" id="memberActionForm">
-        <div class="mini-grid">
-          <input class="mini-input" type="text" placeholder="Full name" required>
-          <input class="mini-input" type="tel" placeholder="Mobile number" required>
+  <div class="popup-overlay" id="supporterPopup">
+    <div class="popup-card">
+      <div class="popup-head ph-supporter">
+        <button class="popup-close" type="button" onclick="closePopup('supporterPopup')"><i class="fas fa-times"></i></button>
+        <div class="popup-headrow">
+          <div class="popup-icon">🤝</div>
+          <div><h3 class="popup-title">Supporter Sign Up</h3><p class="popup-sub">Tell us how you'd like to help</p></div>
         </div>
-        <input class="mini-input" type="email" placeholder="Email address" required>
-        <select class="mini-select" required>
-          <option value="">Choose project interest</option>
-          <option>Suraksha</option>
-          <option>Swachh Bharat</option>
-          <option>Happy Meal</option>
-          <option>Green Energy</option>
-          <option>DIY Crafts</option>
-          <option>Swachh Jal</option>
-          <option>Samman</option>
-          <option>Sweet Home</option>
-          <option>Hariyali</option>
-          <option>Worship</option>
-          <option>Shiksha</option>
-        </select>
-        <button class="mini-submit purple" type="submit"><i class="fas fa-user-plus"></i> Continue to Membership</button>
-      </form>
-      <div class="mini-note">Membership starts from ₹500/month and opens the complete member registration flow next.</div>
-    </div>
-
-    <div class="action-pane" id="pane-supporter">
-      <form class="mini-form" id="supporterActionForm">
-        <div class="mini-grid">
-          <input class="mini-input" type="text" placeholder="Full name" required>
-          <input class="mini-input" type="tel" placeholder="Mobile number" required>
-        </div>
-        <input class="mini-input" type="email" placeholder="Email address" required>
-        <input class="mini-input" type="text" placeholder="How would you like to support?">
-        <button class="mini-submit green" type="submit"><i class="fas fa-hands-helping"></i> Continue as Supporter</button>
-      </form>
-      <div class="mini-note">Supporters can volunteer skills, mentor members, or contribute to local livelihood programs.</div>
+      </div>
+      <div class="popup-body">
+        <form class="popup-form" id="supporterPopupForm">
+          <div class="popup-grid">
+            <input class="popup-input" type="text" placeholder="Full Name" required>
+            <input class="popup-input" type="tel" placeholder="Phone" required>
+          </div>
+          <input class="popup-input" type="email" placeholder="Email" required>
+          <input class="popup-input" type="number" min="1" placeholder="Donation Amount (optional)">
+          <div class="popup-note">This continues to the full supporter sign-up flow used on the desktop page.</div>
+          <button class="popup-submit ps-supporter" type="submit"><i class="fas fa-hands-helping"></i> Register as Supporter</button>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -249,41 +279,26 @@
     document.getElementById('yr').textContent=new Date().getFullYear();
 
     const TAB_HASH={donate:'donateModal',member:'memberModal',supporter:'supporterModal',csr:'csrModal'};
-    const ACTION_META={
-      donate:{title:'Complete Your Donation',sub:'Enter a few details and continue to the secure donation flow.',icon:'fa-heart'},
-      member:{title:'Start Membership Request',sub:'Share your basics to continue into the member registration flow.',icon:'fa-user-plus'},
-      supporter:{title:'Join as a Supporter',sub:'Tell us who you are and continue to the supporter sign-up step.',icon:'fa-hands-helping'}
-    };
+    const POPUP_BY_TAB={donate:'donatePopup',member:'memberPopup',supporter:'supporterPopup'};
 
-    function updateActionPane(id, options={}){
-      const {scroll=false, focus=false}=options;
-      const wrap=document.getElementById('actionWrap');
-      const meta=ACTION_META[id];
-      document.querySelectorAll('.action-pane').forEach(p=>p.classList.remove('on'));
+    function closeAllPopups(){
+      document.querySelectorAll('.popup-overlay').forEach(el=>el.classList.remove('show'));
+    }
 
-      if(!meta){
-        wrap.classList.add('is-hidden');
-        return;
-      }
+    function closePopup(id){
+      const popup=document.getElementById(id);
+      if(popup) popup.classList.remove('show');
+      if(['#donateModal','#memberModal','#supporterModal'].includes(location.hash)) history.replaceState(null,'','/app/donate');
+    }
 
-      wrap.classList.remove('is-hidden');
-      document.getElementById('pane-'+id).classList.add('on');
-      document.getElementById('actionTitle').textContent=meta.title;
-      document.getElementById('actionSub').textContent=meta.sub;
-      document.getElementById('actionBadge').innerHTML='<i class="fas '+meta.icon+'"></i>';
-
-      if(scroll){
-        wrap.scrollIntoView({behavior:'smooth',block:'start'});
-      }
-
-      if(focus){
-        const field=wrap.querySelector('#pane-'+id+' .mini-input, #pane-'+id+' .mini-select');
-        if(field) setTimeout(()=>field.focus(),180);
-      }
+    function openPopup(id){
+      closeAllPopups();
+      const popup=document.getElementById(id);
+      if(popup) popup.classList.add('show');
     }
 
     function activateTab(id, options={}){
-      const {syncHash=true, scrollToCard=false, scrollToAction=false, focusAction=false}=options;
+      const {syncHash=true, scrollToCard=false}=options;
       const section=document.getElementById('s-'+id);
       const btn=document.querySelector('.tab-btn[data-tab="'+id+'"]');
       if(!section || !btn) return false;
@@ -301,41 +316,48 @@
         section.scrollIntoView({behavior:'smooth',block:'start'});
       }
 
-      updateActionPane(id,{scroll:scrollToAction,focus:focusAction});
-
       return false;
     }
 
-    function activateTabLink(event,id){
+    function openActionModal(event,id){
       if(event) event.preventDefault();
-      return activateTab(id,{syncHash:true,scrollToCard:true,scrollToAction:true,focusAction:true});
+      activateTab(id,{syncHash:true,scrollToCard:true});
+      const popupId=POPUP_BY_TAB[id];
+      if(popupId) openPopup(popupId);
+      return false;
     }
 
     function syncTabFromHash(){
       const hash=location.hash.replace('#','');
       const tab=Object.keys(TAB_HASH).find(key=>TAB_HASH[key]===hash) || 'donate';
       activateTab(tab,{syncHash:false});
+      const popupId=POPUP_BY_TAB[tab];
+      if(hash && popupId) openPopup(popupId); else closeAllPopups();
     }
 
-    document.getElementById('amountChips').addEventListener('click',event=>{
+    document.getElementById('popupAmountChips').addEventListener('click',event=>{
       const chip=event.target.closest('[data-amount]');
       if(!chip) return;
-      document.querySelectorAll('#amountChips .mini-chip').forEach(btn=>btn.classList.remove('on'));
+      document.querySelectorAll('#popupAmountChips .popup-chip').forEach(btn=>btn.classList.remove('on'));
       chip.classList.add('on');
-      document.getElementById('donateAmount').value=chip.dataset.amount;
+      document.getElementById('popupDonateAmount').value=chip.dataset.amount;
     });
 
-    document.getElementById('donateActionForm').addEventListener('submit',event=>{
+    document.querySelectorAll('.popup-overlay').forEach(overlay=>{
+      overlay.addEventListener('click',event=>{ if(event.target===overlay) closePopup(overlay.id); });
+    });
+
+    document.getElementById('donatePopupForm').addEventListener('submit',event=>{
       event.preventDefault();
       location.href='https://www.fwfindia.org/donation#donateModal';
     });
 
-    document.getElementById('memberActionForm').addEventListener('submit',event=>{
+    document.getElementById('memberPopupForm').addEventListener('submit',event=>{
       event.preventDefault();
       location.href='https://www.fwfindia.org/donation#memberModal';
     });
 
-    document.getElementById('supporterActionForm').addEventListener('submit',event=>{
+    document.getElementById('supporterPopupForm').addEventListener('submit',event=>{
       event.preventDefault();
       location.href='https://www.fwfindia.org/donation#supporterModal';
     });
