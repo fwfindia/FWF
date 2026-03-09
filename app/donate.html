@@ -81,10 +81,10 @@
 
   <!-- Tab Bar -->
   <div class="tab-bar">
-    <button class="tab-btn on" onclick="showTab('donate',this)" data-i18n="d.tab1">Donate</button>
-    <button class="tab-btn" onclick="showTab('member',this)" data-i18n="d.tab2">Rojgar</button>
-    <button class="tab-btn" onclick="showTab('supporter',this)" data-i18n="d.tab3">Supporter</button>
-    <button class="tab-btn" onclick="showTab('csr',this)" data-i18n="d.tab4">CSR Tie-up</button>
+    <button type="button" class="tab-btn on" data-tab="donate" onclick="activateTab('donate')" data-i18n="d.tab1">Donate</button>
+    <button type="button" class="tab-btn" data-tab="member" onclick="activateTab('member')" data-i18n="d.tab2">Rojgar</button>
+    <button type="button" class="tab-btn" data-tab="supporter" onclick="activateTab('supporter')" data-i18n="d.tab3">Supporter</button>
+    <button type="button" class="tab-btn" data-tab="csr" onclick="activateTab('csr')" data-i18n="d.tab4">CSR Tie-up</button>
   </div>
 
   <!-- Donate Section -->
@@ -97,7 +97,7 @@
       <li data-i18n="d.don.f2">Direct impact tracking</li>
       <li data-i18n="d.don.f3">UPI / Bank transfer</li>
     </ul>
-    <a href="/app/donate#donateModal" class="sc-btn sc-btn-red"><i class="fas fa-heart"></i> <span data-i18n="d.don.btn">Donate Now</span></a>
+    <a href="/app/donate#donateModal" class="sc-btn sc-btn-red" onclick="return activateTabLink(event,'donate')"><i class="fas fa-heart"></i> <span data-i18n="d.don.btn">Donate Now</span></a>
   </div>
 
   <!-- Member Section -->
@@ -110,7 +110,7 @@
       <li data-i18n="d.mem.f2">Micro-enterprise project funding</li>
       <li data-i18n="d.mem.f3">Market linkage & self-employment</li>
     </ul>
-    <a href="/app/donate#memberModal" class="sc-btn sc-btn-purple"><i class="fas fa-user-plus"></i> <span data-i18n="d.mem.btn">Join Now</span></a>
+    <a href="/app/donate#memberModal" class="sc-btn sc-btn-purple" onclick="return activateTabLink(event,'member')"><i class="fas fa-user-plus"></i> <span data-i18n="d.mem.btn">Join Now</span></a>
   </div>
 
   <!-- Supporter Section -->
@@ -123,7 +123,7 @@
       <li data-i18n="d.sup.f2">Teach real skills</li>
       <li data-i18n="d.sup.f3">Community reach</li>
     </ul>
-    <a href="/app/donate#supporterModal" class="sc-btn sc-btn-green"><i class="fas fa-hands-helping"></i> <span data-i18n="d.sup.btn">Sign Up</span></a>
+    <a href="/app/donate#supporterModal" class="sc-btn sc-btn-green" onclick="return activateTabLink(event,'supporter')"><i class="fas fa-hands-helping"></i> <span data-i18n="d.sup.btn">Sign Up</span></a>
   </div>
 
   <!-- CSR Section -->
@@ -154,16 +154,44 @@
   <script>
     document.getElementById('yr').textContent=new Date().getFullYear();
 
-    function showTab(id,btn){
+    const TAB_HASH={donate:'donateModal',member:'memberModal',supporter:'supporterModal',csr:'csrModal'};
+
+    function activateTab(id, options={}){
+      const {syncHash=true, scrollToCard=false}=options;
+      const section=document.getElementById('s-'+id);
+      const btn=document.querySelector('.tab-btn[data-tab="'+id+'"]');
+      if(!section || !btn) return false;
       document.querySelectorAll('.sec-card').forEach(s=>s.classList.add('sec-hidden'));
-      document.getElementById('s-'+id).classList.remove('sec-hidden');
+      section.classList.remove('sec-hidden');
       document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
       btn.classList.add('on');
+
+      if(syncHash){
+        const nextHash='#'+(TAB_HASH[id]||'donateModal');
+        if(location.hash!==nextHash) history.replaceState(null,'',nextHash);
+      }
+
+      if(scrollToCard){
+        section.scrollIntoView({behavior:'smooth',block:'start'});
+      }
+
+      return false;
+    }
+
+    function activateTabLink(event,id){
+      if(event) event.preventDefault();
+      return activateTab(id,{syncHash:true,scrollToCard:true});
+    }
+
+    function syncTabFromHash(){
+      const hash=location.hash.replace('#','');
+      const tab=Object.keys(TAB_HASH).find(key=>TAB_HASH[key]===hash) || 'donate';
+      activateTab(tab,{syncHash:false});
     }
 
     /* Check hash for direct tab */
-    const hash=location.hash.replace('#','');
-    if(hash){const map={donateModal:'donate',memberModal:'member',supporterModal:'supporter',csrModal:'csr'};const tab=map[hash];if(tab){const btns=document.querySelectorAll('.tab-btn');const idx={donate:0,member:1,supporter:2,csr:3}[tab];if(btns[idx])showTab(tab,btns[idx])}}
+    syncTabFromHash();
+    window.addEventListener('hashchange',syncTabFromHash);
 
     const T={
       en:{
