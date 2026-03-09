@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#07090f">
+  <meta name="theme-color" content="#06060d">
   <meta name="description" content="FWF livelihood projects - skill development, micro-enterprises for women">
-  <title>Projects – FWF</title>
+  <title>Projects â€“ FWF</title>
   <link rel="manifest" href="/app/manifest.json">
-  <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
-  <link rel="apple-touch-icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="/assets/css/fwf-app.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 </head>
 <body>
 <header class="app-topbar">
-  <a href="/app/home" class="brand"><img class="brand-logo" src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF"><div><div class="brand-text">Projects</div><div class="brand-sub">Livelihood Opportunities</div></div></a>
+  <a href="/app/home" class="brand"><img class="brand-logo" src="/assets/images/logo.png" alt="FWF"><div><div class="brand-text">Projects</div><div class="brand-sub">Livelihood Opportunities</div></div></a>
   <div class="topbar-right">
     <a href="/app/profile" class="tb-btn" id="topbar-user">&#128100;</a>
   </div>
@@ -88,14 +88,14 @@ function updateTopbarUser() {
 }
 
 const PROJECTS = [
-  { id:'agarbatti', name:'Agarbatti Making Unit', nameHi:'अगरबत्ती निर्माण इकाई', category:'craft', icon:'&#127807;', tag:'Manufacturing', cost:'₹25,000', funded:'60%', members:142, desc:'Set up a complete agarbatti manufacturing unit with raw material supply chain and retail distribution support.', color:'orange' },
-  { id:'tailoring', name:'Tailoring & Garments', nameHi:'सिलाई और वस्त्र', category:'textile', icon:'&#129513;', tag:'Textile', cost:'₹18,000', funded:'55%', members:89, desc:'Start a home-based tailoring business with modern sewing machines, training, and bulk order support.', color:'blue' },
-  { id:'papad-unit', name:'Papad & Snacks Unit', nameHi:'पापड़ और नाश्ता इकाई', category:'food', icon:'&#127815;', tag:'Food Processing', cost:'₹22,000', funded:'65%', members:113, desc:'Launch a papad, namkeen, and snacks manufacturing unit with packaging and local market connectivity.', color:'yellow' },
-  { id:'beauty-parlor', name:'Beauty Parlor', nameHi:'ब्यूटी पार्लर', category:'beauty', icon:'&#128167;', tag:'Services', cost:'₹30,000', funded:'50%', members:76, desc:'Open a professional beauty parlor with training in latest techniques, product supply, and customer base building.', color:'purple' },
-  { id:'vermi-compost', name:'Vermi Compost Unit', nameHi:'वर्मी कम्पोस्ट इकाई', category:'agri', icon:'&#127807;', tag:'Agriculture', cost:'₹15,000', funded:'70%', members:95, desc:'Start an organic vermi-composting unit to supply fertilizer to local farmers with guaranteed buy-back.', color:'green' },
-  { id:'pickle-unit', name:'Pickle & Preserve Unit', nameHi:'अचार और संरक्षण इकाई', category:'food', icon:'&#127827;', tag:'Food Processing', cost:'₹12,000', funded:'60%', members:108, desc:'Traditional pickle and seasonal preserve business with branding support and online marketplace listing.', color:'orange' },
-  { id:'candle-making', name:'Candle & Diya Making', nameHi:'मोमबत्ती और दीया निर्माण', category:'craft', icon:'&#128367;', tag:'Handicraft', cost:'₹10,000', funded:'75%', members:134, desc:'Handmade candles and decorative diyas business targeting festive markets, corporate gifting, and online sales.', color:'yellow' },
-  { id:'diy-craft', name:'DIY Crafts & Gifts', nameHi:'स्वनिर्मित शिल्प और उपहार', category:'craft', icon:'&#127912;', tag:'Handicraft', cost:'₹8,000', funded:'80%', members:158, desc:'Create handmade gifts, home decor, and craft items for online and offline markets with packaging support.', color:'purple' },
+  { id:'agarbatti', name:'Agarbatti Making Unit', nameHi:'à¤…à¤—à¤°à¤¬à¤¤à¥à¤¤à¥€ à¤¨à¤¿à¤°à¥à¤®à¤¾à¤£ à¤‡à¤•à¤¾à¤ˆ', category:'craft', icon:'&#127807;', tag:'Manufacturing', cost:'â‚¹25,000', funded:'60%', members:142, desc:'Set up a complete agarbatti manufacturing unit with raw material supply chain and retail distribution support.', color:'orange' },
+  { id:'tailoring', name:'Tailoring & Garments', nameHi:'à¤¸à¤¿à¤²à¤¾à¤ˆ à¤”à¤° à¤µà¤¸à¥à¤¤à¥à¤°', category:'textile', icon:'&#129513;', tag:'Textile', cost:'â‚¹18,000', funded:'55%', members:89, desc:'Start a home-based tailoring business with modern sewing machines, training, and bulk order support.', color:'blue' },
+  { id:'papad-unit', name:'Papad & Snacks Unit', nameHi:'à¤ªà¤¾à¤ªà¤¡à¤¼ à¤”à¤° à¤¨à¤¾à¤¶à¥à¤¤à¤¾ à¤‡à¤•à¤¾à¤ˆ', category:'food', icon:'&#127815;', tag:'Food Processing', cost:'â‚¹22,000', funded:'65%', members:113, desc:'Launch a papad, namkeen, and snacks manufacturing unit with packaging and local market connectivity.', color:'yellow' },
+  { id:'beauty-parlor', name:'Beauty Parlor', nameHi:'à¤¬à¥à¤¯à¥‚à¤Ÿà¥€ à¤ªà¤¾à¤°à¥à¤²à¤°', category:'beauty', icon:'&#128167;', tag:'Services', cost:'â‚¹30,000', funded:'50%', members:76, desc:'Open a professional beauty parlor with training in latest techniques, product supply, and customer base building.', color:'purple' },
+  { id:'vermi-compost', name:'Vermi Compost Unit', nameHi:'à¤µà¤°à¥à¤®à¥€ à¤•à¤®à¥à¤ªà¥‹à¤¸à¥à¤Ÿ à¤‡à¤•à¤¾à¤ˆ', category:'agri', icon:'&#127807;', tag:'Agriculture', cost:'â‚¹15,000', funded:'70%', members:95, desc:'Start an organic vermi-composting unit to supply fertilizer to local farmers with guaranteed buy-back.', color:'green' },
+  { id:'pickle-unit', name:'Pickle & Preserve Unit', nameHi:'à¤…à¤šà¤¾à¤° à¤”à¤° à¤¸à¤‚à¤°à¤•à¥à¤·à¤£ à¤‡à¤•à¤¾à¤ˆ', category:'food', icon:'&#127827;', tag:'Food Processing', cost:'â‚¹12,000', funded:'60%', members:108, desc:'Traditional pickle and seasonal preserve business with branding support and online marketplace listing.', color:'orange' },
+  { id:'candle-making', name:'Candle & Diya Making', nameHi:'à¤®à¥‹à¤®à¤¬à¤¤à¥à¤¤à¥€ à¤”à¤° à¤¦à¥€à¤¯à¤¾ à¤¨à¤¿à¤°à¥à¤®à¤¾à¤£', category:'craft', icon:'&#128367;', tag:'Handicraft', cost:'â‚¹10,000', funded:'75%', members:134, desc:'Handmade candles and decorative diyas business targeting festive markets, corporate gifting, and online sales.', color:'yellow' },
+  { id:'diy-craft', name:'DIY Crafts & Gifts', nameHi:'à¤¸à¥à¤µà¤¨à¤¿à¤°à¥à¤®à¤¿à¤¤ à¤¶à¤¿à¤²à¥à¤ª à¤”à¤° à¤‰à¤ªà¤¹à¤¾à¤°', category:'craft', icon:'&#127912;', tag:'Handicraft', cost:'â‚¹8,000', funded:'80%', members:158, desc:'Create handmade gifts, home decor, and craft items for online and offline markets with packaging support.', color:'purple' },
 ];
 
 let currentFilter = 'all';

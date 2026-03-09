@@ -3,31 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#07090f">
+  <meta name="theme-color" content="#06060d">
   <meta name="description" content="Your FWF member dashboard - wallet, points, quizzes, tasks and more">
-  <title>My Dashboard – FWF</title>
+  <title>My Dashboard â€“ FWF</title>
   <link rel="manifest" href="/app/manifest.json">
-  <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
-  <link rel="apple-touch-icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="/assets/css/fwf-app.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
-.wallet-card{background:linear-gradient(135deg,#1e3a8a 0%,#0f766e 100%);border-radius:var(--r-lg);padding:22px 20px;position:relative;overflow:hidden;margin:0 16px}
-.wallet-card::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07)}
-.wallet-card::after{content:'';position:absolute;bottom:-30px;left:-10px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.04)}
-.wc-inner{position:relative;z-index:1}
-.wc-greeting{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:2px}
-.wc-name{font-size:20px;font-weight:900;color:#fff;margin-bottom:16px}
-.wc-bal{display:flex;align-items:baseline;gap:6px;margin-bottom:3px}
-.wc-bal .v{font-size:34px;font-weight:900;color:#fff}
-.wc-bal .u{font-size:14px;color:rgba(255,255,255,.65)}
-.wc-lbl{font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.6px;margin-bottom:18px}
-.wc-actions{display:flex;gap:8px}
-.wc-btn{flex:1;padding:10px 6px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;text-align:center;cursor:pointer;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;backdrop-filter:blur(4px);transition:background .12s}
-.wc-btn i{font-size:18px}
-.wc-btn:active{background:rgba(255,255,255,.2)}
 .act-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 16px}
 .act-item{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 6px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);cursor:pointer;text-decoration:none;transition:background .12s,transform .12s;text-align:center}
 .act-item:active{transform:scale(.95);background:var(--s3)}
@@ -37,7 +23,7 @@
 </head>
 <body>
 <header class="app-topbar">
-  <a href="/app/home" class="brand"><img class="brand-logo" src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF"><div><div class="brand-text">Dashboard</div><div class="brand-sub" id="member-id-sub">Loading...</div></div></a>
+  <a href="/app/home" class="brand"><img class="brand-logo" src="/assets/images/logo.png" alt="FWF"><div><div class="brand-text">Dashboard</div><div class="brand-sub" id="member-id-sub">Loading...</div></div></a>
   <div class="topbar-right">
     <a href="/app/profile" class="topbar-avatar" id="dash-avatar">U</a>
   </div>

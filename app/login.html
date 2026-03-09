@@ -3,74 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#07090f">
+  <meta name="theme-color" content="#06060d">
   <meta name="description" content="Sign in to your FWF member account">
-  <title>Login – FWF</title>
+  <title>Sign In â€“ FWF</title>
   <link rel="manifest" href="/app/manifest.json">
-  <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
-  <link rel="apple-touch-icon" href="https://www.fwfindia.org/assets/images/logo.png">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="/assets/css/fwf-app.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+    body { padding-bottom: 0; }
+    .login-wrap {
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      display: flex;
+      flex-direction: column;
+      padding: calc(var(--topbar-h) + 16px) 0 32px;
+    }
+    .login-glow {
+      position: fixed; top: 0; left: 0; right: 0; height: 40vh;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .login-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 24px;
+      position: relative; z-index: 1;
+    }
+    .login-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 36px;
+    }
+    .login-logo {
+      width: 76px; height: 76px;
+      border-radius: 24px;
+      background: #fff;
+      padding: 11px;
+      object-fit: contain;
+      box-shadow: 0 12px 50px rgba(124,58,237,0.4);
+      margin-bottom: 18px;
+    }
+    .login-logo-wrap h1 {
+      font-size: 24px;
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+    .login-logo-wrap p { font-size: 14px; color: var(--t3); }
+    .form-card {
+      background: var(--s2);
+      border: 1px solid var(--b2);
+      border-radius: var(--r-lg);
+      padding: 24px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .form-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--purple-d), var(--orange));
+    }
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--purple-l);
+      margin-top: -10px;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
+
 <header class="app-topbar">
-  <a href="/app/home" class="tb-btn" style="flex-shrink:0;font-size:18px">&#8592;</a>
-  <div style="flex:1;text-align:center"><span style="font-size:16px;font-weight:800">Sign In</span></div>
-  <a href="/join" class="tb-btn" style="font-size:11px;font-weight:800;width:auto;padding:0 12px;color:var(--orange)">Join</a>
+  <a href="/app/home" class="tb-btn" style="font-size:20px">&#8592;</a>
+  <div class="brand" style="justify-content:center">
+    <span style="font-size:16px;font-weight:800;color:var(--t1)">Sign In</span>
+  </div>
+  <a href="/join" style="font-size:12px;font-weight:800;color:var(--purple-l);padding:8px 14px;background:var(--purple-g);border:1px solid rgba(167,139,250,0.25);border-radius:10px;text-decoration:none">Join</a>
 </header>
+
+<div class="login-glow"></div>
 <div id="toast-container"></div>
 
-<div style="min-height:calc(100vh - var(--topbar-h) - var(--tabbar-h));display:flex;flex-direction:column;justify-content:center;padding:24px 20px">
-  <div style="text-align:center;margin-bottom:32px">
-    <div style="width:72px;height:72px;border-radius:22px;background:#fff;padding:10px;margin:0 auto 16px;box-shadow:0 8px 32px rgba(255,255,255,.15)">
-      <img src="https://www.fwfindia.org/assets/images/logo.png" style="width:100%;height:100%;object-fit:contain" alt="FWF">
-    </div>
-    <h1 style="font-size:22px;margin-bottom:6px">Welcome Back &#128075;</h1>
-    <p style="font-size:14px;color:var(--t3)">Login to your FWF account</p>
-  </div>
-
-  <form id="login-form" style="display:flex;flex-direction:column;gap:0">
-    <div class="form-group">
-      <label class="form-label">Mobile / Member ID <span>*</span></label>
-      <div class="input-wrap">
-        <span class="input-icon">&#128241;</span>
-        <input type="text" id="login-id" class="form-input" placeholder="Mobile number or Member ID" autocomplete="username" required>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Password <span>*</span></label>
-      <div class="input-wrap has-action">
-        <span class="input-icon">&#128274;</span>
-        <input type="password" id="login-pass" class="form-input" placeholder="Enter your password" autocomplete="current-password" required>
-        <button type="button" class="input-action" onclick="togglePass()" id="pass-toggle">&#128065;</button>
-      </div>
+<div class="login-wrap">
+  <div class="login-body">
+    <div class="login-logo-wrap fade-up">
+      <img class="login-logo" src="/assets/images/logo.png" alt="FWF"
+           onerror="this.src='/assets/images/logo.png'">
+      <h1>Welcome Back ðŸ‘‹</h1>
+      <p>Login to your FWF account</p>
     </div>
 
-    <a href="/app/forgot-password" style="font-size:13px;color:var(--orange);font-weight:700;text-align:right;margin-bottom:20px">Forgot Password?</a>
+    <div class="form-card fade-up-2">
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Mobile / Member ID <span>*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">ðŸ“±</span>
+            <input type="text" id="login-id" class="form-input"
+                   placeholder="Mobile or FWF-000001"
+                   autocomplete="username" required>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:8px">
+          <label class="form-label">Password <span>*</span></label>
+          <div class="input-wrap has-action">
+            <span class="input-icon">ðŸ”’</span>
+            <input type="password" id="login-pass" class="form-input"
+                   placeholder="Enter your password"
+                   autocomplete="current-password" required>
+            <button type="button" class="input-action" onclick="togglePass()" id="pass-toggle">ðŸ‘</button>
+          </div>
+        </div>
+        <a href="/app/forgot-password" class="forgot-link">Forgot Password?</a>
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="login-btn">
+          ðŸ”“ Sign In
+        </button>
+      </form>
+    </div>
 
-    <button type="submit" class="btn btn-primary btn-lg btn-block" id="login-btn">
-      &#128275; Sign In
-    </button>
-  </form>
+    <p style="text-align:center;margin-top:24px;font-size:13px;color:var(--t3)">
+      New to FWF? <a href="/join" style="color:var(--purple-l);font-weight:700">Join as Member â†’</a>
+    </p>
 
-  <div style="text-align:center;margin-top:24px;font-size:13px;color:var(--t3)">
-    New to FWF? <a href="/join" style="color:var(--orange);font-weight:700">Join as Member</a>
-  </div>
-
-  <div style="margin-top:16px" class="alert alert-info">
-    <i>&#8505;&#65039;</i>
-    <span>Use your registered mobile number or Member ID (e.g. FWF-000001) as username.</span>
+    <div class="alert alert-info" style="margin-top:18px">
+      <i>â„¹ï¸</i>
+      <span>Use your registered mobile number or Member ID (e.g. FWF-000001) as username.</span>
+    </div>
   </div>
 </div>
 
 <nav class="app-tabs">
-  <a href="/app/home" class="tab-item"><span class="tab-icon">&#127968;</span><span class="tab-label">Home</span></a>
-  <a href="/app/projects" class="tab-item"><span class="tab-icon">&#127807;</span><span class="tab-label">Projects</span></a>
-  <a href="/app/donate" class="tab-fab"><div class="fab-circle">&#128152;</div><span class="fab-label">Donate</span></a>
-  <a href="/app/quiz" class="tab-item"><span class="tab-icon">&#127922;</span><span class="tab-label">Quiz</span></a>
-  <a href="/app/profile" class="tab-item active"><span class="tab-icon">&#128100;</span><span class="tab-label">Account</span></a>
+  <a href="/app/home"     class="tab-item"><span class="tab-icon">ðŸ </span><span class="tab-label">Home</span></a>
+  <a href="/app/projects" class="tab-item"><span class="tab-icon">ðŸŒ¿</span><span class="tab-label">Projects</span></a>
+  <a href="/app/donate"   class="tab-fab"><div class="fab-circle">ðŸ’š</div><span class="fab-label">Donate</span></a>
+  <a href="/app/quiz"     class="tab-item"><span class="tab-icon">ðŸŽ²</span><span class="tab-label">Quiz</span></a>
+  <a href="/app/profile"  class="tab-item active"><span class="tab-icon">ðŸ‘¤</span><span class="tab-label">Account</span></a>
 </nav>
 
 <script>
