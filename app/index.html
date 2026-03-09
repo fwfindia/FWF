@@ -113,10 +113,10 @@
       <circle class="ring-fill"  cx="18" cy="18" r="15.9"/>
     </svg>
   </div>
-  <div class="version-tag">FWF App v3.0 Â· Aura</div>
+  <div class="version-tag">FWF App v3.0 · Aura</div>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' }).catch(() => {});
+      navigator.serviceWorker.register('/app/sw.js', { scope: '/app/', updateViaCache: 'none' }).then(reg => reg.update()).catch(() => {});
     }
     setTimeout(() => {
       const token = localStorage.getItem('fwf-token');

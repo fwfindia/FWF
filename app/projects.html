@@ -163,7 +163,7 @@
       renderChips();renderGrid();
     }
     setLang(lang);
-    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/',updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
   </script>
 </body>
 </html>

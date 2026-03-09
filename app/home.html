@@ -403,7 +403,7 @@
       document.querySelectorAll('[data-i18n-html]').forEach(el=>{const v=t[el.getAttribute('data-i18n-html')];if(v!==undefined)el.innerHTML=v});
     }
     setLang(localStorage.getItem('fwfLang')||'en');
-    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/',updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
   </script>
 </body>
 </html>

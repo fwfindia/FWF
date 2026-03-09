@@ -189,7 +189,7 @@
       document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.getAttribute('data-i18n')];if(v!==undefined)el.textContent=v});
     }
     setLang(localStorage.getItem('fwfLang')||'en');
-    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/',updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
   </script>
 </body>
 </html>
