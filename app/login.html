@@ -244,7 +244,7 @@
         setTimeout(()=>{
           if(d.role==='admin')location.href='/admin/dashboard';
           else if(d.role==='supporter')location.href='/supporter/dashboard';
-          else location.href='/member/dashboard';
+          else location.href='/app/dashboard';
         },600);
       }catch(er){
         btn.innerHTML='<i class="fas fa-xmark"></i> Failed';

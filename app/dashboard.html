@@ -116,16 +116,16 @@ function showToast(msg, type='info') {
   if (c) c.appendChild(t);
   setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
 }
-
-const API = 'https://fwf-production.up.railway.app';
-function getToken() { return localStorage.getItem('fwf-token'); }
-function getUser()  { return JSON.parse(localStorage.getItem('fwf-user') || 'null'); }
-function isLoggedIn() { return !!getToken(); }
+let sessionUser = null;
+function getUser()  { return sessionUser || JSON.parse(localStorage.getItem('fwf-user') || 'null'); }
 async function apiCall(url, opts={}) {
-  const token = getToken();
-  const headers = { 'Content-Type':'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) };
-  const res = await fetch(url, { credentials: 'include', ...opts, headers: { ...headers, ...(opts.headers||{}) } });
-  if (res.status === 401) { logout(); return null; }
+  const res = await fetch(url, {
+    credentials: 'include',
+    ...opts,
+    headers: { 'Content-Type':'application/json', ...(opts.headers||{}) }
+  });
+  if (res.status === 401 || res.status === 403) { logout(); return null; }
+  if (!res.ok) throw new Error('Request failed');
   return res.json();
 }
 function logout() {
@@ -155,22 +155,22 @@ function greet(name) {
 }
 
 async function loadDashboard() {
-  const user = getUser();
-  if (!user) { window.location.href = '/app/login'; return; }
-  greet(user.name);
-  document.getElementById('member-id-sub').textContent = user.memberId || user.member_id || '';
-
   try {
-    const data = await apiCall(BACKEND + '/api/member/me');
+    const data = await apiCall('/api/member/me');
     if (!data) return;
+    const user = data.user || {};
+    sessionUser = { ...user, memberId: user.member_id || user.memberId };
+    localStorage.setItem('fwf-user', JSON.stringify(sessionUser));
+    greet(user.name);
+    document.getElementById('member-id-sub').textContent = user.member_id || user.memberId || '';
     const pts = data.wallet?.points_balance || 0;
     document.getElementById('dash-points').textContent = pts.toLocaleString('en-IN');
     renderPointHistory(data.recentPoints || []);
     renderQuizHistory(data.quizParticipations || []);
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error(e); logout(); return; }
 
   try {
-    const qdata = await apiCall(BACKEND + '/api/member/active-quizzes');
+    const qdata = await apiCall('/api/member/active-quizzes');
     if (qdata?.quizzes) renderActiveQuizzes(qdata.quizzes);
   } catch(e) {}
 }
@@ -217,7 +217,6 @@ function renderQuizHistory(quizzes) {
 }
 
 (function() {
-  if (!getToken()) { window.location.href = '/app/login'; return; }
   loadDashboard();
 })();
 </script>
