@@ -207,7 +207,21 @@
 
   <script>
     document.getElementById('yr').textContent=new Date().getFullYear();
-    const API=window.location.hostname==='localhost'?'http://localhost:3000':'https://fwf-production.up.railway.app';
+    async function apiJson(url, options={}){
+      const response=await fetch(url,{
+        method:options.method||'GET',
+        headers:{'Content-Type':'application/json',...(options.headers||{})},
+        credentials:'include',
+        body:options.body?JSON.stringify(options.body):undefined
+      });
+      const data=await response.json().catch(()=>({error: response.ok ? '' : 'Request failed'}));
+      if(!response.ok){
+        const error=new Error(data.error||'Request failed');
+        error.status=response.status;
+        throw error;
+      }
+      return data;
+    }
 
     function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000)}
     function togglePwd(fid,iid){const f=document.getElementById(fid),i=document.getElementById(iid);if(f.type==='password'){f.type='text';i.className='fas fa-eye-slash'}else{f.type='password';i.className='fas fa-eye'}}
@@ -215,27 +229,27 @@
     /* Login */
     document.getElementById('loginForm').addEventListener('submit',async e=>{
       e.preventDefault();
+      const button=document.querySelector('.login-btn');
       const btn=document.getElementById('btnText');
       const memberId=document.getElementById('mid').value.trim();
       const password=document.getElementById('pwd').value.trim();
+      button.disabled=true;
       btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Logging in...';
       try{
-        let url=API+'/api/auth/login',body={memberId,password};
-        if(memberId.includes('@')){url=API+'/api/admin/login';body={username:memberId,password}}
-        const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(body)});
-        const d=await r.json();
-        if(!r.ok)throw new Error(d.error||'Invalid credentials');
+        let d;
+        if(memberId.includes('@')) d=await apiJson('/api/admin/login',{method:'POST',body:{username:memberId,password}});
+        else d=await apiJson('/api/auth/login',{method:'POST',body:{memberId,password}});
         btn.innerHTML='<i class="fas fa-check"></i> Success!';
         toast('Logged in!','success');
         setTimeout(()=>{
-          if(d.role==='admin')location.href='https://www.fwfindia.org/admin-dashboard';
-          else if(d.role==='supporter')location.href='https://www.fwfindia.org/supporter-dashboard';
-          else location.href='https://www.fwfindia.org/member-dashboard';
+          if(d.role==='admin')location.href='/admin/dashboard';
+          else if(d.role==='supporter')location.href='/supporter/dashboard';
+          else location.href='/member/dashboard';
         },600);
       }catch(er){
         btn.innerHTML='<i class="fas fa-xmark"></i> Failed';
         toast(er.message||'Login failed','error');
-        setTimeout(()=>{btn.innerHTML='<i class="fas fa-arrow-right-to-bracket"></i> Login to Dashboard'},2000);
+        setTimeout(()=>{btn.innerHTML='<i class="fas fa-arrow-right-to-bracket"></i> Login to Dashboard';button.disabled=false},2000);
       }
     });
 
