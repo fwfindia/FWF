@@ -242,9 +242,9 @@
         btn.innerHTML='<i class="fas fa-check"></i> Success!';
         toast('Logged in!','success');
         setTimeout(()=>{
-          if(d.role==='admin')location.href='/admin/dashboard';
-          else if(d.role==='supporter')location.href='/supporter/dashboard';
-          else location.href='/app/dashboard';
+          if(d.role==='admin')location.replace('/admin/dashboard');
+          else if(d.role==='supporter')location.replace('/supporter/dashboard');
+          else location.replace('/app/dashboard');
         },600);
       }catch(er){
         btn.innerHTML='<i class="fas fa-xmark"></i> Failed';
