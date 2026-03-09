@@ -222,6 +222,7 @@
       }
       return data;
     }
+    const MAIN_SITE='https://www.fwfindia.org';
 
     function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000)}
     function togglePwd(fid,iid){const f=document.getElementById(fid),i=document.getElementById(iid);if(f.type==='password'){f.type='text';i.className='fas fa-eye-slash'}else{f.type='password';i.className='fas fa-eye'}}
@@ -242,8 +243,8 @@
         btn.innerHTML='<i class="fas fa-check"></i> Success!';
         toast('Logged in!','success');
         setTimeout(()=>{
-          if(d.role==='admin')location.replace('/admin/dashboard');
-          else if(d.role==='supporter')location.replace('/supporter/dashboard');
+          if(d.role==='admin')location.replace(MAIN_SITE+'/admin/dashboard');
+          else if(d.role==='supporter')location.replace(MAIN_SITE+'/supporter/dashboard');
           else location.replace('/app/dashboard');
         },600);
       }catch(er){
