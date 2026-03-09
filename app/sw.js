@@ -1,25 +1,17 @@
 /**
- * FWF App — Service Worker v2.0
- * Cache-first for assets · Network-first for pages · Offline fallback
+ * FWF App — Service Worker v2.1
+ * Cache-first for static assets · Network-first for pages · Offline fallback
  */
 
-const CACHE = 'fwf-app-v3';
+const CACHE = 'fwf-app-v4';
 const OFFLINE_URL = '/app/offline';
 
 const PRECACHE = [
-  '/app/home',
-  '/app/login',
-  '/app/dashboard',
-  '/app/quiz',
-  '/app/projects',
-  '/app/donate',
-  '/app/profile',
-  '/app/csr',
-  '/app/store',
   '/app/offline',
   '/app/manifest.json',
   '/assets/css/fwf-app.css',
   '/assets/images/logo.png',
+  '/assets/images/bg-madhubani.png',
 ];
 
 // ── Install ──────────────────────────────────────────────

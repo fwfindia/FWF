@@ -1,380 +1,645 @@
 <!DOCTYPE html>
 <html lang="en" data-lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-  <meta name="theme-color" content="#0b1220" />
-  <title>Donate â€” FWF</title>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="https://www.fwfindia.org/assets/images/logo.png">
-  <link href="https://www.fwfindia.org/assets/css/fwf-app.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Mukta:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Get Involved — FWF</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/logo.png">
+  <link href="/assets/css/fwf-app.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <style>
-    [data-lang="hi"] body { font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif; }
-    /* Impact cards */
-    .impact-row { display: flex; flex-direction: column; gap: 10px; }
-    .impact-card {
-      display: flex; align-items: center; gap: 14px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 14px 16px;
-    }
-    .impact-amt {
-      font-size: 18px; font-weight: 800;
-      color: var(--primary); min-width: 60px;
-    }
-    .impact-desc { font-size: 13px; color: var(--text2); margin: 0; }
+    [data-lang="hi"] body{font-family:'Mukta','Noto Sans Devanagari',sans-serif}
+    body{padding-bottom:calc(var(--tab-h)+env(safe-area-inset-bottom));animation:fadeUp .35s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .app-tabs{padding-bottom:env(safe-area-inset-bottom);height:calc(var(--tab-h)+env(safe-area-inset-bottom))}
 
-    /* Payment info box */
-    .pay-info-box {
-      background: rgba(59,130,246,0.1);
-      border: 1px solid rgba(59,130,246,0.25);
-      border-radius: var(--radius-sm);
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      display: none;
-    }
-    .pay-info-box.show { display: block; }
-    .pay-info-box h5 {
-      font-size: 13px; color: #93c5fd; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .pay-info-box p { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
-    .pay-info-box strong { color: var(--text); }
+    /* Hero */
+    .don-hero{margin:12px 16px 0;border-radius:22px;padding:24px 20px;background:linear-gradient(135deg,#be123c,#f43f5e);position:relative;overflow:hidden;text-align:center}
+    .don-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);border-radius:50%}
+    .don-hero img{width:48px;height:48px;border-radius:12px;background:#fff;padding:4px;object-fit:contain;margin:0 auto 10px;display:block;position:relative;z-index:1}
+    .don-hero .badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);font-size:11px;font-weight:800;color:#fff;padding:4px 12px;border-radius:50px;margin-bottom:10px;position:relative;z-index:1}
+    .don-hero h1{font-size:22px;font-weight:900;color:#fff;position:relative;z-index:1;margin-bottom:6px}
+    .don-hero p{font-size:13px;color:rgba(255,255,255,.85);position:relative;z-index:1;margin:0;line-height:1.5}
 
-    /* Trust badges */
-    .trust-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-    .trust-badge {
-      display: flex; align-items: center; gap: 5px;
-      font-size: 11px; color: var(--text3);
-    }
-    .trust-badge i { color: var(--green); font-size: 12px; }
+    /* Tabs */
+    .tab-bar{display:flex;gap:0;margin:16px 16px 0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .tab-btn{flex:1;padding:10px 6px;font-size:11.5px;font-weight:800;text-align:center;border:none;background:transparent;color:var(--text3);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .tab-btn.on{background:var(--primary);color:#fff}
+
+    /* Section cards */
+    .sec-card{margin:16px 16px 0;border-radius:22px;padding:24px 20px;position:relative;overflow:hidden}
+    .sc-donate{background:linear-gradient(145deg,rgba(239,68,68,.15),rgba(239,68,68,.05));border:1.5px solid rgba(239,68,68,.25)}
+    .sc-member{background:linear-gradient(145deg,rgba(168,85,247,.15),rgba(168,85,247,.05));border:1.5px solid rgba(168,85,247,.25)}
+    .sc-supporter{background:linear-gradient(145deg,rgba(34,197,94,.15),rgba(34,197,94,.05));border:1.5px solid rgba(34,197,94,.25)}
+    .sc-csr{background:linear-gradient(145deg,rgba(6,182,212,.15),rgba(6,182,212,.05));border:1.5px solid rgba(6,182,212,.25)}
+    .sec-card .sc-icon{font-size:36px;margin-bottom:14px;display:block}
+    .sec-card h2{font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px}
+    .sec-card .sc-desc{font-size:13.5px;color:var(--text2);line-height:1.6;margin-bottom:14px}
+    .sec-card .sc-feat{list-style:none;padding:0;margin:0 0 18px}
+    .sec-card .sc-feat li{font-size:13px;color:var(--text2);padding:5px 0;padding-left:22px;position:relative}
+    .sec-card .sc-feat li::before{content:'✓';position:absolute;left:0;color:var(--primary);font-weight:800}
+    .sc-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:13px;font-size:14px;font-weight:800;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:transform .15s}
+    .sc-btn:active{transform:scale(.96)}
+    .sc-btn-red{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 4px 16px rgba(239,68,68,.3)}
+    .sc-btn-purple{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.3)}
+    .sc-btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 4px 16px rgba(34,197,94,.3)}
+    .sc-btn-cyan{background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;box-shadow:0 4px 16px rgba(6,182,212,.3)}
+
+    .sec-hidden{display:none}
+
+    /* Desktop-like popup forms */
+    .popup-overlay{position:fixed;inset:0;background:rgba(15,23,42,.2);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+    .popup-overlay.show{display:flex}
+    .popup-card{background:#fff;border-radius:18px;max-width:520px;width:96vw;box-shadow:0 8px 40px rgba(15,23,42,.18);position:relative;overflow:hidden;animation:fadeUp .22s ease}
+    .popup-body{padding:14px 18px 16px;max-height:72vh;overflow-y:auto}
+    .popup-close{position:absolute;top:10px;right:12px;background:none;border:none;font-size:1.25rem;cursor:pointer;color:inherit;z-index:2}
+    .popup-head{padding:13px 18px 12px;position:relative}
+    .ph-donate{background:linear-gradient(135deg,#ff416c,#ff4f81);color:#fff}
+    .ph-member,.ph-supporter{background:#fff;color:#0f172a;padding:22px 22px 12px}
+    .popup-headrow{display:flex;align-items:center;gap:10px}
+    .popup-icon{background:rgba(255,255,255,.18);border-radius:11px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;color:#fff}
+    .ph-member .popup-icon,.ph-supporter .popup-icon{background:#eef2ff;color:#6153ff}
+    .popup-title{margin:0;font-size:1.05rem;font-weight:900}
+    .popup-sub{margin:1px 0 0;font-size:.75rem;line-height:1.4}
+    .popup-kicker{font-size:.73rem;font-weight:800;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin:0 0 6px}
+    .popup-divider{border-top:1px solid #f1f5f9;margin:10px 0}
+    .amount-chips{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 10px}
+    .amount-chip{padding:6px 10px;border-radius:999px;background:#f1f5ff;border:1px solid #dbe3f7;cursor:pointer;font-weight:900;font-size:.85rem;font-family:inherit}
+    .amount-chip.on{background:#ff7a18;border-color:#ff7a18;color:#fff}
+    .fl-group{position:relative;margin-bottom:10px}
+    .fl-input,.fl-select{width:100%;border-radius:12px;border:2px solid #e7e9f6;background:#fff;font-size:.97rem;padding:16px 13px 7px 43px;color:#0f172a;font-weight:700;transition:border-color .18s,box-shadow .18s;outline:0;font-family:inherit}
+    .fl-select{padding-top:18px;padding-bottom:10px}
+    .fl-input::placeholder{color:transparent}
+    .fl-input:focus,.fl-select:focus{border-color:#6153ff;box-shadow:0 0 0 3px rgba(97,83,255,.14)}
+    .fl-label{position:absolute;left:42px;top:10px;font-weight:800;font-size:.93rem;color:#6153ff;padding:0 5px;background:transparent;pointer-events:none;transition:.18s;border-radius:6px}
+    .fl-input:focus + .fl-label,.fl-input:not(:placeholder-shown) + .fl-label,.fl-select:valid + .fl-label{top:-8px;left:36px;font-size:.82rem;background:#fff;box-shadow:0 0 0 6px #fff inset}
+    .fl-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:.97rem}
+    .rupee-chip{position:absolute;left:54px;top:50%;transform:translateY(-50%);font-weight:900;color:#64748b}
+    .fl-input.amount{padding-left:98px}
+    .fl-input.amount + .fl-label{left:82px}
+    .btn-primary{width:100%;padding:11px 0;color:#fff;font-weight:900;border:none;border-radius:11px;font-size:1em;cursor:pointer;transition:.18s;font-family:inherit}
+    .btn-primary:hover{filter:brightness(1.05);transform:translateY(-1px)}
+    .btn-primary:disabled{opacity:.4;cursor:not-allowed!important;pointer-events:none}
+    .subtle{font-size:.85rem;color:#64748b;margin:4px 2px 10px}
+    .tc-checks{margin:12px 0 2px;display:flex;flex-direction:column;gap:8px}
+    .tc-check-row{display:flex;align-items:flex-start;gap:9px;padding:8px 11px;background:#f8faff;border:1.5px solid #e0e7ff;border-radius:10px;transition:border-color .2s}
+    .tc-check-row.tc-trigger{cursor:pointer}
+    .tc-check-row.accepted{border-color:#86efac;background:#f0fdf4}
+    .tc-check-row input[type=checkbox]{width:17px;height:17px;margin-top:2px;flex-shrink:0;accent-color:#6153ff;cursor:pointer}
+    .tc-check-row label{font-size:.81rem;color:#334155;line-height:1.45}
+    .tc-check-row.tc-trigger input,.tc-check-row.tc-trigger label{pointer-events:none}
+    .popup-link{color:#6366f1;font-weight:700;text-decoration:none}
+    .opt-row{display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fde68a;border-radius:14px;padding:14px 16px;cursor:pointer;margin-bottom:4px;margin-top:2px}
+    .opt-row span{font-size:.92rem;font-weight:600;color:#92400e;line-height:1.4}
+
+    .tc-modal{position:fixed;inset:0;background:rgba(15,23,42,.24);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:10020;padding:16px}
+    .tc-modal.show{display:flex}
+    .tc-card{background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(15,23,42,.22);width:min(92vw,620px);max-height:min(84vh,760px);display:flex;flex-direction:column;overflow:hidden}
+    .tc-card-head{padding:16px 18px 12px;border-bottom:1px solid #e2e8f0}
+    .tc-card-head h3{margin:0;font-size:1.05rem;font-weight:900;color:#0f172a}
+    .tc-close{background:none;border:none;font-size:1.25rem;color:#64748b;cursor:pointer;line-height:1}
+    .tc-prog{height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin-top:10px}
+    .tc-prog-fill{height:100%;width:0;background:linear-gradient(135deg,#6153ff,#8b5cf6);transition:width .18s ease}
+    .tc-body{padding:16px 18px;overflow-y:auto;color:#334155;line-height:1.65;font-size:.94rem}
+    .tc-body h4{margin:0 0 8px;font-size:1.35rem;color:#6153ff;line-height:1.2}
+    .tc-body h5{margin:18px 0 8px;font-size:1.02rem;color:#6153ff;line-height:1.25}
+    .tc-body p{margin:0 0 10px}
+    .tc-body ul{margin:0 0 10px 18px;padding:0}
+    .tc-body li{margin:0 0 6px}
+    .tc-body strong{color:#1e293b}
+    .tc-foot{padding:12px 18px 18px;border-top:1px solid #e2e8f0;background:#fff}
+    .tc-scroll-hint{margin:0 0 10px;text-align:center;font-size:.84rem;color:#94a3b8;font-weight:700}
+    .tc-accept-btn{width:100%;padding:12px 14px;border:none;border-radius:12px;background:linear-gradient(135deg,#6153ff,#8b5cf6);color:#fff;font-weight:900;font-size:1rem;cursor:pointer;font-family:inherit}
+    .tc-accept-btn:disabled{opacity:.45;cursor:not-allowed}
+
+    /* Footer */
+    .app-ft{padding:20px 16px 12px;margin-top:20px;border-top:1px solid var(--border);text-align:center}
+    .ft-copy{font-size:11px;color:var(--text3)}
+    .ft-copy a{color:var(--text3);text-decoration:none;margin:0 6px}
   </style>
 </head>
 <body>
 
-  <!-- Top Bar -->
   <header class="app-topbar">
     <div class="brand">
-      <img src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF Logo" loading="eager">
-      <div>
-        <div class="brand-text">FWF</div>
-        <div class="brand-sub">Foundris Welfare Foundation</div>
-      </div>
+      <img src="/assets/images/logo.png" alt="FWF" loading="eager" class="brand-logo">
+      <div><div class="brand-text">FWF</div><div class="brand-sub">Get Involved</div></div>
     </div>
-    <div class="lang-pill">
-      <button id="langEN" class="active" onclick="setLanguage('en')">EN</button>
-      <button id="langHI" onclick="setLanguage('hi')">HI</button>
-    </div>
+    <a href="/app/home" class="topbar-action"><i class="fas fa-home"></i></a>
   </header>
-  <div class="app-section">
-    <div class="section-head">
-      <h2 data-i18n="impact.title">â¤ï¸ Your Impact</h2>
-      <p data-i18n="impact.sub">Every rupee directly supports livelihoods and self-reliance</p>
-    </div>
-    <div class="impact-row">
-      <div class="impact-card">
-        <div class="impact-amt">â‚¹500</div>
-        <p class="impact-desc" data-i18n="impact.d1">Provides skill training materials for one woman</p>
+
+  <!-- Hero -->
+  <div class="don-hero">
+    <img src="/assets/images/logo.png" alt="FWF">
+    <div class="badge"><i class="fas fa-heart"></i> <span data-i18n="d.badge">Small gift. Big livelihood.</span></div>
+    <h1 data-i18n="d.h1">You can be the reason a family smiles 😊</h1>
+    <p data-i18n="d.sub">Your small contribution is a new ray of hope for the unemployed.</p>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button type="button" class="tab-btn on" data-tab="donate" onclick="activateTab('donate')" data-i18n="d.tab1">Donate</button>
+    <button type="button" class="tab-btn" data-tab="member" onclick="activateTab('member')" data-i18n="d.tab2">Rojgar</button>
+    <button type="button" class="tab-btn" data-tab="supporter" onclick="activateTab('supporter')" data-i18n="d.tab3">Supporter</button>
+    <button type="button" class="tab-btn" data-tab="csr" onclick="activateTab('csr')" data-i18n="d.tab4">CSR Tie-up</button>
+  </div>
+
+  <!-- Donate Section -->
+  <div class="sec-card sc-donate" id="s-donate">
+    <div class="sc-icon">❤️</div>
+    <h2 data-i18n="d.don.h">Make a Donation</h2>
+    <div class="sc-desc" data-i18n="d.don.desc">Every ₹ you give helps train skills, fund real projects & open a livelihood door.</div>
+    <ul class="sc-feat">
+      <li data-i18n="d.don.f1">80G receipt support</li>
+      <li data-i18n="d.don.f2">Direct impact tracking</li>
+      <li data-i18n="d.don.f3">UPI / Bank transfer</li>
+    </ul>
+    <a href="/app/donate#donateModal" class="sc-btn sc-btn-red" onclick="return openActionModal(event,'donate')"><i class="fas fa-heart"></i> <span data-i18n="d.don.btn">Donate Now</span></a>
+  </div>
+
+  <!-- Member Section -->
+  <div class="sec-card sc-member sec-hidden" id="s-member">
+    <div class="sc-icon">👤</div>
+    <h2 data-i18n="d.mem.h">Membership Program</h2>
+    <div class="sc-desc" data-i18n="d.mem.desc">Skill training, micro-enterprise support & livelihood opportunities.</div>
+    <ul class="sc-feat">
+      <li data-i18n="d.mem.f1">Hands-on skill training</li>
+      <li data-i18n="d.mem.f2">Micro-enterprise project funding</li>
+      <li data-i18n="d.mem.f3">Market linkage & self-employment</li>
+    </ul>
+    <a href="/app/donate#memberModal" class="sc-btn sc-btn-purple" onclick="return openActionModal(event,'member')"><i class="fas fa-user-plus"></i> <span data-i18n="d.mem.btn">Join Now</span></a>
+  </div>
+
+  <!-- Supporter Section -->
+  <div class="sec-card sc-supporter sec-hidden" id="s-supporter">
+    <div class="sc-icon">🤝</div>
+    <h2 data-i18n="d.sup.h">Supporter Program</h2>
+    <div class="sc-desc" data-i18n="d.sup.desc">Teach, mentor & help set up micro-business.</div>
+    <ul class="sc-feat">
+      <li data-i18n="d.sup.f1">Flexible time</li>
+      <li data-i18n="d.sup.f2">Teach real skills</li>
+      <li data-i18n="d.sup.f3">Community reach</li>
+    </ul>
+    <a href="/app/donate#supporterModal" class="sc-btn sc-btn-green" onclick="return openActionModal(event,'supporter')"><i class="fas fa-hands-helping"></i> <span data-i18n="d.sup.btn">Sign Up</span></a>
+  </div>
+
+  <!-- CSR Section -->
+  <div class="sec-card sc-csr sec-hidden" id="s-csr">
+    <div class="sc-icon">🏢</div>
+    <h2 data-i18n="d.csr.h">CSR Tie-up / Corporate Partnership</h2>
+    <div class="sc-desc" data-i18n="d.csr.desc">Projects, internships, hiring या CSR से sustainable impact.</div>
+    <ul class="sc-feat">
+      <li data-i18n="d.csr.f1">CSR alignment</li>
+      <li data-i18n="d.csr.f2">Project outsourcing</li>
+      <li data-i18n="d.csr.f3">Direct placements</li>
+    </ul>
+    <a href="/app/csr" class="sc-btn sc-btn-cyan"><i class="fas fa-building"></i> <span data-i18n="d.csr.btn">Partner</span></a>
+  </div>
+
+  <div class="popup-overlay" id="donatePopup">
+    <div class="popup-card">
+      <div class="popup-head ph-donate">
+        <button class="popup-close" type="button" onclick="closePopup('donatePopup')"><i class="fas fa-times"></i></button>
+        <div class="popup-headrow">
+          <div class="popup-icon">❤️</div>
+          <div><h3 class="popup-title">Make a Donation</h3><p class="popup-sub">100% secure · 80G receipt available</p></div>
+        </div>
       </div>
-      <div class="impact-card">
-        <div class="impact-amt">â‚¹1,000</div>
-        <p class="impact-desc" data-i18n="impact.d2">Supports one woman's training for a month</p>
-      </div>
-      <div class="impact-card">
-        <div class="impact-amt">â‚¹5,000</div>
-        <p class="impact-desc" data-i18n="impact.d3">Funds complete training &amp; job placement for one woman</p>
+      <div class="popup-body">
+        <form class="popup-form" id="donatePopupForm">
+          <p class="popup-kicker">Select or Enter Amount</p>
+          <div class="amount-chips" id="popupAmountChips">
+            <button type="button" class="amount-chip" data-amount="200">₹200</button>
+            <button type="button" class="amount-chip" data-amount="500">₹500</button>
+            <button type="button" class="amount-chip" data-amount="1000">₹1,000</button>
+            <button type="button" class="amount-chip" data-amount="2500">₹2,500</button>
+            <button type="button" class="amount-chip" data-amount="5000">₹5,000</button>
+          </div>
+          <div class="fl-group"><span class="rupee-chip">₹</span><input class="fl-input amount" id="popupDonateAmount" type="number" min="1" step="1" placeholder=" " required><label class="fl-label">Custom Amount</label></div>
+          <div class="popup-divider"></div>
+          <p class="popup-kicker">Your Details</p>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-user"></i><input class="fl-input" type="text" placeholder=" " required><label class="fl-label">Full Name</label></div>
+          <div class="fl-group"><i class="fl-icon fa-solid fa-mobile-screen-button"></i><input class="fl-input" type="tel" placeholder=" " required><label class="fl-label">Phone (10-digit)</label></div>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-envelope"></i><input class="fl-input" type="email" placeholder=" " required><label class="fl-label">Email</label></div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:#f8faff;border:1.5px solid #dbe3f7;border-radius:10px;padding:8px 11px;margin-bottom:8px;transition:.2s">
+            <input type="checkbox" style="width:18px;height:18px;accent-color:#ff4f81;flex-shrink:0">
+            <div>
+              <p style="margin:0;font-size:0.82rem;font-weight:800;color:#1e293b">I want 80G Tax Receipt</p>
+              <p style="margin:0;font-size:0.71rem;color:#64748b">PAN card required for income tax exemption</p>
+            </div>
+            <span style="margin-left:auto;background:#fee2e2;color:#dc2626;font-size:0.68rem;font-weight:800;padding:2px 7px;border-radius:20px">Save Tax</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:#f0f7ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:8px 11px;margin-bottom:8px;transition:.2s">
+            <input type="checkbox" style="width:18px;height:18px;accent-color:#6153ff;flex-shrink:0">
+            <div>
+              <p style="margin:0;font-size:0.82rem;font-weight:800;color:#1e293b">Make it Monthly</p>
+              <p style="margin:0;font-size:0.71rem;color:#64748b">Auto-debit every month · Cancel anytime from UPI app</p>
+            </div>
+            <span style="margin-left:auto;background:#dbeafe;color:#1d4ed8;font-size:0.68rem;font-weight:800;padding:2px 7px;border-radius:20px;white-space:nowrap"><i class="fa-solid fa-rotate" style="margin-right:3px"></i>Monthly</span>
+          </label>
+          <button class="btn-primary" type="submit" style="background:linear-gradient(135deg,#ff416c,#ff4f81);margin-top:4px"><i class="fas fa-heart"></i> Be the Change — Donate Now</button>
+        </form>
       </div>
     </div>
   </div>
 
-  <!-- Donation Form -->
-  <div class="app-section" style="margin-top:8px;">
-    <div class="section-head">
-      <h2 data-i18n="form.title">Make a Donation</h2>
+  <div class="popup-overlay" id="memberPopup">
+    <div class="popup-card">
+      <div class="popup-head ph-member">
+        <button class="popup-close" type="button" onclick="closePopup('memberPopup')"><i class="fas fa-times"></i></button>
+        <div><h3 class="popup-title">Join Membership</h3></div>
+      </div>
+      <div class="popup-body">
+        <form class="popup-form" id="memberPopupForm" novalidate>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-user"></i><input class="fl-input" type="text" placeholder=" " required><label class="fl-label">Full Name</label></div>
+          <div class="fl-group"><i class="fl-icon fa-solid fa-mobile-screen-button"></i><input class="fl-input" type="tel" placeholder=" " required><label class="fl-label">Phone</label></div>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-envelope"></i><input class="fl-input" type="email" placeholder=" " required><label class="fl-label">Email</label></div>
+          <div class="fl-group"><i class="fl-icon fa-solid fa-diagram-project"></i><select class="fl-select" id="memberProjectSelect" required><option value="" hidden selected></option><option>Suraksha</option><option>Swachh Bharat</option><option>Happy Meal</option><option>Green Energy</option><option>DIY Crafts</option><option>Swachh Jal</option><option>Samman</option><option>Sweet Home</option><option>Hariyali</option><option>Worship</option><option>Shiksha</option></select><label class="fl-label">Select Project</label></div>
+          <div class="tc-checks">
+            <div class="tc-check-row tc-trigger" id="memberTc1Row" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="memberTcModal"><input type="checkbox" id="memberTc1" tabindex="-1"><label for="memberTc1">I have read and agree to the Business Funding Agreement</label></div>
+            <div class="tc-check-row" id="memberTc2Row"><input type="checkbox" id="memberTc2"><label for="memberTc2">I agree to pay the ₹500 per month membership fee to maintain my membership.</label></div>
+          </div>
+          <button class="btn-primary" id="memberSubmitBtn" type="submit" style="background:linear-gradient(135deg,#6153ff,#8b5cf6)" disabled>Proceed to Payment</button>
+          <p style="text-align:center; margin-top:16px; font-size:14px; color:#64748b;">Already a member? <a href="/app/login" class="popup-link">Login to Dashboard</a></p>
+        </form>
+      </div>
     </div>
-
-    <div id="alertBox" class="app-alert mb-16"></div>
-
-    <form id="donationForm">
-      <!-- Amount Selection -->
-      <div class="form-group">
-        <label class="form-label">Select Amount</label>
-        <div class="amount-grid">
-          <div class="amount-pill" onclick="selectAmount(500, this)">
-            <div class="av">â‚¹500</div><div class="al">Starter</div>
-          </div>
-          <div class="amount-pill" onclick="selectAmount(1000, this)">
-            <div class="av">â‚¹1,000</div><div class="al">Supporter</div>
-          </div>
-          <div class="amount-pill" onclick="selectAmount(2500, this)">
-            <div class="av">â‚¹2,500</div><div class="al">Champion</div>
-          </div>
-          <div class="amount-pill" onclick="selectAmount(5000, this)">
-            <div class="av">â‚¹5,000</div><div class="al">Patron</div>
-          </div>
-          <div class="amount-pill" onclick="selectAmount(10000, this)">
-            <div class="av">â‚¹10,000</div><div class="al">Benefactor</div>
-          </div>
-          <div class="amount-pill" onclick="selectAmount('custom', this)">
-            <div class="av">â‚¹<i class="fas fa-pen" style="font-size:12px;"></i></div>
-            <div class="al">Custom</div>
-          </div>
-        </div>
-        <input type="hidden" name="amount" id="donationAmount" required>
-      </div>
-
-      <div class="form-group" id="customAmountField" style="display:none;">
-        <label class="form-label">Custom Amount (â‚¹)</label>
-        <input class="form-input" type="number" id="customAmount" min="100" placeholder="Enter amount" oninput="setCustomAmount()">
-      </div>
-
-      <!-- Donor Details -->
-      <div class="form-group">
-        <label class="form-label">Full Name *</label>
-        <input class="form-input" type="text" name="name" required placeholder="Your name">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Mobile Number *</label>
-        <input class="form-input" type="tel" name="mobile" required pattern="[0-9]{10}" placeholder="10-digit mobile">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-input" type="email" name="email" placeholder="Optional">
-      </div>
-      <div class="form-group">
-        <label class="form-label">PAN Number (for 80G tax benefit)</label>
-        <input class="form-input" type="text" name="pan" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" placeholder="Optional" style="text-transform:uppercase;">
-      </div>
-
-      <!-- Payment Method -->
-      <div class="form-group">
-        <label class="form-label">Payment Method *</label>
-        <select class="form-select" name="paymentMethod" required onchange="togglePaymentInfo(this.value)">
-          <option value="">Select method</option>
-          <option value="upi">UPI</option>
-          <option value="bank">Bank Transfer</option>
-          <option value="cash">Cash</option>
-        </select>
-      </div>
-
-      <!-- Payment Info -->
-      <div class="pay-info-box" id="paymentInfo">
-        <h5><i class="fas fa-info-circle"></i> Payment Details</h5>
-        <div id="upiInfo" style="display:none;">
-          <p><strong>UPI ID:</strong> fwf@paytm</p>
-          <p><strong>Name:</strong> FWF Foundation</p>
-        </div>
-        <div id="bankInfo" style="display:none;">
-          <p><strong>Account Name:</strong> FWF Foundation</p>
-          <p><strong>Account No:</strong> 1234567890</p>
-          <p><strong>IFSC:</strong> SBIN0001234</p>
-          <p><strong>Bank:</strong> State Bank of India</p>
-        </div>
-        <p style="margin-top:8px;font-size:12px;color:var(--text3);">After payment, upload screenshot below</p>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Transaction ID / Reference</label>
-        <input class="form-input" type="text" name="transactionId" placeholder="Optional">
-      </div>
-
-      <!-- Payment Proof Upload -->
-      <div class="form-group">
-        <label class="form-label">Payment Screenshot</label>
-        <div class="file-zone" onclick="document.getElementById('paymentProof').click()">
-          <input type="file" id="paymentProof" name="paymentProof" accept="image/*" style="display:none;" onchange="previewFile(this)">
-          <div id="filePreview">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <p><strong>Tap to upload proof</strong></p>
-            <p style="font-size:11px;color:var(--text3);margin:0;">Optional Â· JPG, PNG</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Message (Optional)</label>
-        <textarea class="form-textarea" name="message" rows="2" placeholder="Share your thoughts..."></textarea>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
-        <i class="fas fa-heart"></i> Donate Now
-      </button>
-
-      <!-- Trust -->
-      <div class="trust-row">
-        <div class="trust-badge"><i class="fas fa-check-circle"></i> 100% Transparent</div>
-        <div class="trust-badge"><i class="fas fa-check-circle"></i> 80G Tax Benefit</div>
-        <div class="trust-badge"><i class="fas fa-check-circle"></i> Direct Impact</div>
-        <div class="trust-badge"><i class="fas fa-check-circle"></i> Regular Updates</div>
-      </div>
-    </form>
   </div>
 
-  <!-- Footer -->
-  <footer class="app-footer">
-    <div class="footer-top">
-      <div class="footer-logo-wrap">
-        <img src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF">
-        <div>
-          <div class="footer-brand-name">Foundris Welfare Foundation</div>
-          <div class="footer-brand-tagline">Skills &rarr; Livelihood &rarr; Aatmnirbharta</div>
+  <div class="tc-modal" id="memberTcModal" aria-hidden="true">
+    <div class="tc-card" role="dialog" aria-modal="true" aria-labelledby="memberTcModalTitle">
+      <div class="tc-card-head">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <h3 id="memberTcModalTitle">Business Funding Agreement</h3>
+          <button class="tc-close" type="button" aria-label="Close agreement" onclick="closeMemberTcModal(false)"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="tc-prog"><div class="tc-prog-fill" id="memberTcProgFill"></div></div>
+      </div>
+      <div class="tc-body" id="memberTcBody">
+        <div data-tc-lang="en">
+          <h4>Business Funding Agreement</h4>
+          <p><strong>Foundris Welfare Foundation (FWF)</strong></p>
+          <p>This Agreement is made between <strong>Foundris Welfare Foundation (FWF)</strong> and the <strong>Member</strong> who has applied for financial support for starting a business. By accepting funding support from FWF, the member agrees to the following terms and conditions.</p>
+          <h5>1. Objective of Funding</h5>
+          <p>1.1 The purpose of this funding is to support members in <strong>creating sustainable livelihood opportunities and becoming self-reliant</strong>.</p>
+          <p>1.2 Funding provided by FWF is intended <strong>only for the approved business project</strong> submitted by the member.</p>
+          <p>1.3 The funding support is <strong>not a grant unless specifically declared</strong>, and may require repayment as per the agreed schedule.</p>
+          <h5>2. Project Cost Sharing</h5>
+          <p>2.1 The total business project cost will be shared between the member and the NGO.</p>
+          <p>2.2 Funding structure:</p>
+          <ul><li><strong>50% of the project cost must be contributed by the member.</strong></li><li><strong>50% of the project cost may be provided by Foundris Welfare Foundation.</strong></li></ul>
+          <p>2.3 The member must deposit their <strong>50% contribution before the business project is initiated.</strong></p>
+          <p>2.4 The NGO may release funds <strong>in stages depending on project progress and verification.</strong></p>
+          <h5>3. Use of Funds</h5>
+          <p>3.1 The funds must be used <strong>strictly for the approved business purpose.</strong></p>
+          <p>3.2 The member is <strong>not allowed</strong> to use funds for personal expenses, unrelated activities, or transfer them to another person.</p>
+          <p>3.3 If misuse is detected, FWF has the right to immediately stop funding, demand full repayment, and terminate membership.</p>
+          <h5>4. Monitoring &amp; Reporting</h5>
+          <p>4.1 FWF reserves the right to <strong>monitor the progress of the business project.</strong></p>
+          <p>4.2 The member must provide business updates, financial details if requested, and proof of fund utilization.</p>
+          <p>4.3 FWF representatives may <strong>inspect the business activity or project location if required.</strong></p>
+          <h5>5. Repayment Terms</h5>
+          <p>5.1 If structured as a loan, the member must repay <strong>as per the agreed EMI or installment schedule.</strong></p>
+          <p>5.2 Timely repayment is mandatory.</p>
+          <p>5.3 A member will not be eligible for future funding if repayment obligations are not fulfilled or EMI bounce count exceeds <strong>5 instances</strong>.</p>
+          <h5>6. Future Funding Eligibility</h5>
+          <p>6.1 Members can apply for additional funding <strong>only after clearing previous funding obligations.</strong></p>
+          <p>6.2 Approval depends on business performance, repayment history, and the decision of the FWF management committee.</p>
+          <h5>7. Branding Requirement</h5>
+          <p>7.1 Businesses started with FWF support may be required to <strong>mention the NGO or sponsors on product packaging, marketing materials, or promotional activities.</strong></p>
+          <h5>8. Guarantor / Responsibility</h5>
+          <p>8.1 The member is <strong>fully responsible</strong> for managing and operating the business.</p>
+          <p>8.2 The funding received will be <strong>repaid according to the agreed schedule</strong>, regardless of business profit or loss.</p>
+          <h5>9. Default &amp; Recovery</h5>
+          <p>9.1 If a member fails to repay or misuses funds, FWF reserves the right to suspend membership, cancel future funding eligibility, and recover the funded amount through appropriate legal or organizational measures.</p>
+          <h5>10. Liability Disclaimer</h5>
+          <p>10.1 FWF provides <strong>support, guidance, and financial assistance only.</strong></p>
+          <p>10.2 The business will be <strong>fully owned and operated by the member.</strong></p>
+          <p>10.3 FWF will <strong>not be liable</strong> for any business losses, market risks, or operational failures.</p>
+          <h5>11. False Information</h5>
+          <p>11.1 If any information is found to be <strong>false, misleading, or incomplete</strong>, FWF reserves the right to cancel membership, cancel funding support, and recover disbursed funds.</p>
+          <h5>12. Policy Changes</h5>
+          <p>FWF reserves the right to <strong>update or modify this agreement when necessary.</strong></p>
+          <h5>Member Declaration</h5>
+          <ul><li>I have read and understood this agreement.</li><li>All information provided by me is true and correct.</li><li>I agree to follow all rules, repayment terms, and conditions set by Foundris Welfare Foundation.</li></ul>
+        </div>
+        <div data-tc-lang="hi" style="display:none">
+          <h4>व्यवसाय वित्तीय सहायता समझौता</h4>
+          <p><strong>Foundris Welfare Foundation (FWF)</strong></p>
+          <p>यह समझौता <strong>Foundris Welfare Foundation (FWF)</strong> और उस <strong>सदस्य</strong> के बीच किया जाता है जिसने अपना व्यवसाय शुरू करने के लिए वित्तीय सहायता के लिए आवेदन किया है। FWF से सहायता प्राप्त करके सदस्य नीचे दी गई सभी शर्तों और नियमों से सहमत होता है।</p>
+          <h5>1. सहायता का उद्देश्य</h5>
+          <p>1.1 इस सहायता का उद्देश्य सदस्यों को <strong>स्थायी आजीविका के अवसर बनाने और आत्मनिर्भर बनने में सहायता प्रदान करना</strong> है।</p>
+          <p>1.2 FWF द्वारा दी गई वित्तीय सहायता <strong>केवल स्वीकृत व्यवसाय परियोजना</strong> के लिए उपयोग की जाएगी।</p>
+          <p>1.3 यह सहायता <strong>स्वतः अनुदान नहीं मानी जाएगी</strong>, जब तक NGO द्वारा स्पष्ट रूप से ऐसा घोषित न किया जाए।</p>
+          <h5>2. परियोजना लागत का साझा योगदान</h5>
+          <p>2.1 व्यवसाय परियोजना की कुल लागत सदस्य और NGO द्वारा मिलकर वहन की जाएगी।</p>
+          <p>2.2 परियोजना लागत का ढांचा:</p>
+          <ul><li><strong>कुल परियोजना लागत का 50% सदस्य द्वारा योगदान किया जाएगा।</strong></li><li><strong>कुल परियोजना लागत का 50% Foundris Welfare Foundation द्वारा प्रदान किया जा सकता है।</strong></li></ul>
+          <p>2.3 व्यवसाय परियोजना शुरू करने से पहले सदस्य को <strong>अपना 50% योगदान जमा करना अनिवार्य होगा।</strong></p>
+          <p>2.4 NGO परियोजना की प्रगति और सत्यापन के आधार पर <strong>धनराशि चरणों में जारी कर सकता है।</strong></p>
+          <h5>3. धनराशि का उपयोग</h5>
+          <p>3.1 धनराशि का उपयोग <strong>केवल स्वीकृत व्यवसाय उद्देश्य</strong> के लिए ही किया जाना चाहिए।</p>
+          <p>3.2 सदस्य इस धनराशि का उपयोग व्यक्तिगत खर्चों, किसी अन्य व्यक्ति को स्थानांतरण, या किसी अन्य कार्य में नहीं कर सकता।</p>
+          <p>3.3 यदि दुरुपयोग पाया जाता है, तो FWF सहायता रोक सकता है, पूरी राशि की वापसी मांग सकता है और सदस्यता समाप्त कर सकता है।</p>
+          <h5>4. निगरानी और जानकारी</h5>
+          <p>4.1 FWF को व्यवसाय परियोजना की प्रगति की <strong>निगरानी करने का अधिकार</strong> होगा।</p>
+          <p>4.2 सदस्य को व्यवसाय की प्रगति, धन के उपयोग का विवरण और आवश्यक दस्तावेज प्रदान करने होंगे।</p>
+          <p>4.3 FWF के प्रतिनिधि आवश्यकता होने पर <strong>व्यवसाय स्थल का निरीक्षण</strong> कर सकते हैं।</p>
+          <h5>5. पुनर्भुगतान</h5>
+          <p>5.1 यदि सहायता ऋण के रूप में है, तो सदस्य को <strong>निर्धारित EMI या किस्तों के अनुसार राशि वापस करनी होगी।</strong></p>
+          <p>5.2 समय पर भुगतान करना अनिवार्य होगा।</p>
+          <p>5.3 यदि <strong>EMI bounce की संख्या 5 से अधिक</strong> हो जाती है, तो सदस्य भविष्य की सहायता के लिए पात्र नहीं रहेगा।</p>
+          <h5>6. भविष्य में सहायता की पात्रता</h5>
+          <p>6.1 सदस्य तभी पुनः सहायता के लिए आवेदन कर सकता है जब पिछली सभी जिम्मेदारियाँ पूरी कर दी गई हों।</p>
+          <p>6.2 भविष्य की स्वीकृति <strong>FWF प्रबंधन समिति के निर्णय</strong> पर निर्भर करेगी।</p>
+          <h5>7. NGO और प्रायोजकों का उल्लेख</h5>
+          <p>7.1 आवश्यकता होने पर सदस्य को <strong>उत्पाद की पैकेजिंग, प्रचार सामग्री या विपणन में NGO और प्रायोजकों का नाम</strong> उल्लेख करना होगा।</p>
+          <h5>8. व्यवसाय की जिम्मेदारी</h5>
+          <p>8.1 व्यवसाय का स्वामित्व, संचालन और प्रबंधन <strong>पूरी तरह सदस्य की जिम्मेदारी</strong> होगी।</p>
+          <p>8.2 लाभ, हानि या जोखिम के लिए <strong>FWF जिम्मेदार नहीं</strong> होगा।</p>
+          <h5>9. भुगतान में चूक और वसूली</h5>
+          <p>9.1 यदि सदस्य भुगतान में असफल रहता है, धन का दुरुपयोग करता है या गलत जानकारी देता है, तो FWF सदस्यता समाप्त कर सकता है और राशि की वसूली कर सकता है।</p>
+          <h5>10. गलत या भ्रामक जानकारी</h5>
+          <p>10.1 यदि जानकारी <strong>गलत, अधूरी या भ्रामक</strong> पाई जाती है, तो FWF सदस्यता और सहायता रद्द कर सकता है।</p>
+          <h5>11. नियमों में संशोधन</h5>
+          <p>FWF को इन नियमों और शर्तों में <strong>समय-समय पर संशोधन</strong> करने का अधिकार होगा।</p>
+          <h5>सदस्य घोषणा</h5>
+          <ul><li>मैंने इस समझौते को पढ़ लिया है और समझ लिया है।</li><li>मेरे द्वारा दी गई सभी जानकारी सही और सत्य है।</li><li>मैं Foundris Welfare Foundation के सभी नियमों और शर्तों का पालन करूंगा/करूंगी।</li></ul>
         </div>
       </div>
-      <div class="footer-socials">
-        <a href="https://www.facebook.com/fwfindia" target="_blank" aria-label="Facebook" class="fs-fb"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/fwfindia" target="_blank" aria-label="Instagram" class="fs-ig"><i class="fab fa-instagram"></i></a>
-        <a href="https://wa.me/919580118412" target="_blank" aria-label="WhatsApp" class="fs-wa"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://youtube.com/@fwf_india" target="_blank" aria-label="YouTube" class="fs-yt"><i class="fab fa-youtube"></i></a>
-      </div>
-      <div class="footer-badges">
-        <span class="fbadge"><i class="fas fa-certificate" style="color:#f59e0b"></i> 12A Certified</span>
-        <span class="fbadge"><i class="fas fa-receipt" style="color:#60a5fa"></i> 80G Tax Benefit</span>
-        <span class="fbadge"><i class="fas fa-handshake" style="color:#4ade80"></i> CSR-1 Registered</span>
+      <div class="tc-foot">
+        <p class="tc-scroll-hint" id="memberTcScrollHint"><span data-tc-hint="en"><i class="fa-solid fa-angles-down"></i> Scroll to the end to continue</span><span data-tc-hint="hi" style="display:none"><i class="fa-solid fa-angles-down"></i> आगे बढ़ने के लिए अंत तक स्क्रॉल करें</span></p>
+        <button class="tc-accept-btn" id="memberTcAgreeBtn" type="button" onclick="acceptMemberTc()" disabled><i class="fa-solid fa-check"></i> <span data-tc-btn="en">I Agree &amp; Accept</span><span data-tc-btn="hi" style="display:none">मैं सहमत हूँ</span></button>
       </div>
     </div>
-    <div class="footer-divider"></div>
-    <div class="footer-made">Made with &#10084;&#65039; in India &#127470;&#127475;</div>
-    <div class="footer-bar">
-      <span class="footer-bar-copy">&copy; 2024 FWF. All rights reserved.</span>
-      <div class="footer-bar-links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-      </div>
-    </div>
-  </footer>
+  </div>
 
-  <!-- Bottom Tab Bar -->
+  <div class="popup-overlay" id="supporterPopup">
+    <div class="popup-card">
+      <div class="popup-head ph-supporter">
+        <button class="popup-close" type="button" onclick="closePopup('supporterPopup')"><i class="fas fa-times"></i></button>
+        <div><h3 class="popup-title">Supporter Sign Up</h3><p class="subtle">Tell us how you'd like to help</p></div>
+      </div>
+      <div class="popup-body">
+        <form class="popup-form" id="supporterPopupForm">
+          <div class="fl-group"><i class="fl-icon fa-regular fa-user"></i><input class="fl-input" type="text" placeholder=" " required><label class="fl-label">Full Name</label></div>
+          <div class="fl-group"><i class="fl-icon fa-solid fa-mobile-screen-button"></i><input class="fl-input" type="tel" placeholder=" " required><label class="fl-label">Phone</label></div>
+          <div class="fl-group"><i class="fl-icon fa-regular fa-envelope"></i><input class="fl-input" type="email" placeholder=" " required><label class="fl-label">Email</label></div>
+          <label class="opt-row"><input type="checkbox" id="supDonateChk" style="width:18px;height:18px;margin-top:2px;accent-color:#f59e0b;flex-shrink:0"><span>💛 I also want to make a donation along with my support</span></label>
+          <div id="supDonateAmtRow" style="display:none;margin-bottom:4px"><div class="fl-group" style="margin-bottom:0"><i class="fl-icon fa-solid fa-indian-rupee-sign"></i><input class="fl-input" type="number" min="1" placeholder=" "><label class="fl-label">Donation Amount (₹)</label></div></div>
+          <button class="btn-primary" type="submit" style="background:linear-gradient(135deg,#6153ff,#8b5cf6);margin-top:6px"><i class="fa-solid fa-user-plus"></i> Register as Supporter</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-ft">
+    <div class="ft-copy">&copy; <span id="yr"></span> FWF · <a href="https://www.fwfindia.org/privacy">Privacy</a> · <a href="https://www.fwfindia.org/terms">Terms</a></div>
+  </div>
+
   <nav class="app-tabs">
-    <a href="/app/home" class="tab-item">
-      <i class="fas fa-home"></i><span>Home</span>
-    </a>
-    <a href="/app/projects" class="tab-item">
-      <i class="fas fa-briefcase"></i><span>Projects</span>
-    </a>
-    <a href="https://www.fwfindia.org/donation#memberModal" class="tab-item tab-join">
-      <div class="tab-fab"><i class="fas fa-plus"></i></div>
-      <span>Join</span>
-    </a>
-    <a href="https://www.fwfindia.org/donation#donateModal" class="tab-item active">
-      <i class="fas fa-heart"></i><span>Donate</span>
-    </a>
-    <a href="/app/login" class="tab-item">
-      <i class="fas fa-user"></i><span>Login</span>
-    </a>
+    <a href="/app/home" class="tab-item" id="t-h"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/app/projects" class="tab-item" id="t-p"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+    <a href="/app/donate#memberModal" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
+    <a href="/app/donate" class="tab-item active" id="t-d"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/login" class="tab-item" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
   </nav>
 
   <script>
-    let selectedAmount = null;
+    document.getElementById('yr').textContent=new Date().getFullYear();
 
-    /* â”€â”€ Language support â”€â”€ */
-    const T_DON = {
-      en: { 'impact.title': 'â¤ï¸ Your Impact', 'impact.sub': 'Every rupee directly supports livelihoods and self-reliance', 'impact.d1': 'Provides skill training materials for one woman', 'impact.d2': "Supports one woman's training for a month", 'impact.d3': 'Funds complete training & job placement for one woman', 'form.title': 'Make a Donation' },
-      hi: { 'impact.title': 'â¤ï¸ à¤†à¤ªà¤•à¤¾ à¤¯à¥‹à¤—à¤¦à¤¾à¤¨', 'impact.sub': 'à¤¹à¤° à¤°à¥à¤ªà¤¯à¤¾ à¤¸à¥€à¤§à¥‡ à¤†à¤œà¥€à¤µà¤¿à¤•à¤¾ à¤”à¤° à¤†à¤¤à¥à¤®à¤¨à¤¿à¤°à¥à¤­à¤°à¤¤à¤¾ à¤•à¥‹ à¤¸à¤¹à¤¾à¤°à¤¾ à¤¦à¥‡à¤¤à¤¾ à¤¹à¥ˆà¥¤', 'impact.d1': 'à¤à¤• à¤®à¤¹à¤¿à¤²à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤•à¥Œà¤¶à¤² à¤ªà¥à¤°à¤¶à¤¿à¤•à¥à¤·à¤£ à¤¸à¤¾à¤®à¤—à¥à¤°à¥€ à¤ªà¥à¤°à¤¦à¤¾à¤¨ à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤', 'impact.d2': 'à¤à¤• à¤®à¤¹à¤¿à¤²à¤¾ à¤•à¤¾ à¤à¤• à¤®à¤¹à¥€à¤¨à¥‡ à¤•à¤¾ à¤ªà¥à¤°à¤¶à¤¿à¤•à¥à¤·à¤£ à¤•à¤¾ à¤–à¤°à¥à¤š à¤‰à¤ à¤¾à¤¤à¤¾ à¤¹à¥ˆà¥¤', 'impact.d3': 'à¤à¤• à¤®à¤¹à¤¿à¤²à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤ªà¥‚à¤°à¤¾ à¤ªà¥à¤°à¤¶à¤¿à¤•à¥à¤·à¤£ à¤µ à¤¨à¥Œà¤•à¤°à¥€ à¤ªà¥à¤²à¥‡à¤¸à¤®à¥‡à¤‚à¤Ÿ à¤«à¤‚à¤¡ à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤', 'form.title': 'à¤¦à¤¾à¤¨ à¤•à¤°à¥‡à¤‚' }
-    };
-    function setLanguage(lang) {
-      const l = (lang === 'hi' || lang === 'en') ? lang : 'en';
-      document.documentElement.setAttribute('data-lang', l);
-      const t = T_DON[l];
-      document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (t[k] !== undefined) el.textContent = t[k]; });
-      document.getElementById('langEN').classList.toggle('active', l === 'en');
-      document.getElementById('langHI').classList.toggle('active', l === 'hi');
-      try { localStorage.setItem('fwf_lang', l); } catch(e) {}
+    const TAB_HASH={donate:'donateModal',member:'memberModal',supporter:'supporterModal',csr:'csrModal'};
+    const POPUP_BY_TAB={donate:'donatePopup',member:'memberPopup',supporter:'supporterPopup'};
+    let memberTcAccepted=false;
+    let popupCloseGuardUntil=0;
+
+    function closeAllPopups(){
+      document.querySelectorAll('.popup-overlay').forEach(el=>el.classList.remove('show'));
     }
-    try { const s = localStorage.getItem('fwf_lang'); if (s === 'en' || s === 'hi') setLanguage(s); } catch(e) {}
 
-    function selectAmount(amount, el) {
-      document.querySelectorAll('.amount-pill').forEach(p => p.classList.remove('sel'));
-      el.classList.add('sel');
-      if (amount === 'custom') {
-        document.getElementById('customAmountField').style.display = 'block';
-        document.getElementById('donationAmount').value = '';
-      } else {
-        document.getElementById('customAmountField').style.display = 'none';
-        document.getElementById('donationAmount').value = amount;
-        selectedAmount = amount;
+    function closePopup(id){
+      const popup=document.getElementById(id);
+      if(popup) popup.classList.remove('show');
+      if(id==='memberPopup') closeMemberTcModal(false);
+      if(['#donateModal','#memberModal','#supporterModal'].includes(location.hash)) history.replaceState(null,'','/app/donate');
+    }
+
+    function guardPopupClose(duration=320){
+      popupCloseGuardUntil=Date.now()+duration;
+    }
+
+    function isPopupCloseGuarded(){
+      return Date.now()<popupCloseGuardUntil;
+    }
+
+    function syncMemberTcLanguage(){
+      const lang=document.documentElement.getAttribute('data-lang')==='hi'?'hi':'en';
+      document.querySelectorAll('[data-tc-lang]').forEach(el=>{el.style.display=el.getAttribute('data-tc-lang')===lang?'block':'none';});
+      document.querySelectorAll('[data-tc-hint]').forEach(el=>{el.style.display=el.getAttribute('data-tc-hint')===lang?'inline':'none';});
+      document.querySelectorAll('[data-tc-btn]').forEach(el=>{el.style.display=el.getAttribute('data-tc-btn')===lang?'inline':'none';});
+    }
+
+    function updateMemberTcProgress(){
+      const body=document.getElementById('memberTcBody');
+      const fill=document.getElementById('memberTcProgFill');
+      const hint=document.getElementById('memberTcScrollHint');
+      const btn=document.getElementById('memberTcAgreeBtn');
+      if(!body || !fill || !hint || !btn) return;
+      const maxScroll=Math.max(body.scrollHeight-body.clientHeight,1);
+      const progress=Math.min(100,Math.max(0,(body.scrollTop/maxScroll)*100));
+      const reachedEnd=body.scrollTop+body.clientHeight>=body.scrollHeight-6;
+      fill.style.width=(reachedEnd?100:progress)+'%';
+      btn.disabled=!(reachedEnd || memberTcAccepted);
+      hint.style.display=reachedEnd || memberTcAccepted?'none':'block';
+    }
+
+    function openMemberTcModal(event){
+      if(event){
+        event.preventDefault();
+        event.stopPropagation();
       }
-    }
-
-    function setCustomAmount() {
-      const v = document.getElementById('customAmount').value;
-      document.getElementById('donationAmount').value = v;
-      selectedAmount = v;
-    }
-
-    function togglePaymentInfo(method) {
-      const box = document.getElementById('paymentInfo');
-      document.getElementById('upiInfo').style.display = 'none';
-      document.getElementById('bankInfo').style.display = 'none';
-      if (method) {
-        box.classList.add('show');
-        if (method === 'upi')  document.getElementById('upiInfo').style.display = 'block';
-        if (method === 'bank') document.getElementById('bankInfo').style.display = 'block';
-      } else {
-        box.classList.remove('show');
-      }
-    }
-
-    function previewFile(input) {
-      const preview = document.getElementById('filePreview');
-      const file = input.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          preview.innerHTML = `<img src="${e.target.result}" style="max-width:100%;max-height:180px;border-radius:8px;" alt="Preview">`;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function showAlert(msg, type) {
-      const a = document.getElementById('alertBox');
-      a.textContent = msg;
-      a.className = 'app-alert show ' + type;
-      window.scrollTo(0, 0);
-      setTimeout(() => a.classList.remove('show'), 5000);
-    }
-
-    document.getElementById('donationForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      if (!document.getElementById('donationAmount').value) {
-        showAlert('Please select or enter donation amount', 'error');
-        return;
-      }
-      const btn = document.getElementById('submitBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-      try {
-        const fd = new FormData(this);
-        const res = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: fd.get('name'), mobile: fd.get('mobile'), email: fd.get('email'),
-            message: `Donation: â‚¹${fd.get('amount')} | Payment: ${fd.get('paymentMethod')} | PAN: ${fd.get('pan')||'N/A'} | Ref: ${fd.get('transactionId')||'N/A'} | Note: ${fd.get('message')||'N/A'}`,
-            subject: 'Donation Received'
-          })
-        });
-        const data = await res.json();
-        if (data.ok || res.ok) {
-          showAlert('ðŸ™ Thank you for your generous donation! We will contact you shortly.', 'success');
-          this.reset();
-          document.querySelectorAll('.amount-pill').forEach(p => p.classList.remove('sel'));
-          document.getElementById('customAmountField').style.display = 'none';
-          document.getElementById('filePreview').innerHTML = '<i class="fas fa-cloud-upload-alt"></i><p><strong>Tap to upload proof</strong></p><p style="font-size:11px;color:var(--text3);margin:0;">Optional Â· JPG, PNG</p>';
-          selectedAmount = null;
-        } else {
-          throw new Error(data.error || 'Donation submission failed');
+      syncMemberTcLanguage();
+      const modal=document.getElementById('memberTcModal');
+      if(!modal) return false;
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden','false');
+      const body=document.getElementById('memberTcBody');
+      if(body){
+        if(memberTcAccepted){
+          body.scrollTop=body.scrollHeight;
+        }else{
+          body.scrollTop=0;
         }
-      } catch(err) {
-        showAlert('âŒ ' + err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-heart"></i> Donate Now';
+      }
+      updateMemberTcProgress();
+      return false;
+    }
+
+    function closeMemberTcModal(restoreFocus=true){
+      const modal=document.getElementById('memberTcModal');
+      if(!modal) return;
+      guardPopupClose();
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden','true');
+      if(restoreFocus){
+        const trigger=document.getElementById('memberTc1Row');
+        if(trigger) trigger.focus();
+      }
+    }
+
+    function acceptMemberTc(){
+      memberTcAccepted=true;
+      const checkbox=document.getElementById('memberTc1');
+      if(checkbox) checkbox.checked=true;
+      syncMemberSubmitState();
+      closeMemberTcModal();
+    }
+
+    function openPopup(id){
+      closeAllPopups();
+      const popup=document.getElementById(id);
+      if(popup) popup.classList.add('show');
+    }
+
+    function activateTab(id, options={}){
+      const {syncHash=true, scrollToCard=false}=options;
+      const section=document.getElementById('s-'+id);
+      const btn=document.querySelector('.tab-btn[data-tab="'+id+'"]');
+      if(!section || !btn) return false;
+      document.querySelectorAll('.sec-card').forEach(s=>s.classList.add('sec-hidden'));
+      section.classList.remove('sec-hidden');
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+
+      if(syncHash){
+        const nextHash='#'+(TAB_HASH[id]||'donateModal');
+        if(location.hash!==nextHash) history.replaceState(null,'',nextHash);
+      }
+
+      if(scrollToCard){
+        section.scrollIntoView({behavior:'smooth',block:'start'});
+      }
+
+      return false;
+    }
+
+    function openActionModal(event,id){
+      if(event) event.preventDefault();
+      activateTab(id,{syncHash:true,scrollToCard:true});
+      const popupId=POPUP_BY_TAB[id];
+      if(popupId) openPopup(popupId);
+      return false;
+    }
+
+    function syncTabFromHash(){
+      const hash=location.hash.replace('#','');
+      const tab=Object.keys(TAB_HASH).find(key=>TAB_HASH[key]===hash) || 'donate';
+      activateTab(tab,{syncHash:false});
+      const popupId=POPUP_BY_TAB[tab];
+      if(hash && popupId) openPopup(popupId); else closeAllPopups();
+    }
+
+    document.getElementById('popupAmountChips').addEventListener('click',event=>{
+      const chip=event.target.closest('[data-amount]');
+      if(!chip) return;
+      document.querySelectorAll('#popupAmountChips .amount-chip').forEach(btn=>btn.classList.remove('on'));
+      chip.classList.add('on');
+      document.getElementById('popupDonateAmount').value=chip.dataset.amount;
+    });
+
+    function syncMemberSubmitState(){
+      const c1=document.getElementById('memberTc1');
+      const c2=document.getElementById('memberTc2');
+      const btn=document.getElementById('memberSubmitBtn');
+      const enabled=memberTcAccepted && c1.checked && c2.checked;
+      btn.disabled=!enabled;
+      document.getElementById('memberTc1Row').classList.toggle('accepted',c1.checked);
+      document.getElementById('memberTc2Row').classList.toggle('accepted',c2.checked);
+    }
+    document.getElementById('memberTc1').addEventListener('click',event=>{
+      event.preventDefault();
+      openMemberTcModal(event);
+    });
+    document.getElementById('memberTc2').addEventListener('change',syncMemberSubmitState);
+
+    document.getElementById('memberTc1Row').addEventListener('click',openMemberTcModal);
+    document.getElementById('memberTc1Row').addEventListener('keydown',event=>{
+      if(event.key==='Enter' || event.key===' '){
+        event.preventDefault();
+        openMemberTcModal(event);
       }
     });
+
+    document.getElementById('memberTcBody').addEventListener('scroll',updateMemberTcProgress);
+    document.querySelector('#memberTcModal .tc-card').addEventListener('click',event=>event.stopPropagation());
+    document.getElementById('memberTcModal').addEventListener('click',event=>{
+      if(event.target===event.currentTarget) closeMemberTcModal(false);
+    });
+
+    document.getElementById('supDonateChk').addEventListener('change',event=>{
+      document.getElementById('supDonateAmtRow').style.display=event.target.checked?'block':'none';
+    });
+
+    document.querySelectorAll('.popup-overlay').forEach(overlay=>{
+      overlay.addEventListener('click',event=>{
+        if(isPopupCloseGuarded()) return;
+        if(event.target===overlay) closePopup(overlay.id);
+      });
+    });
+
+    document.getElementById('donatePopupForm').addEventListener('submit',event=>{
+      event.preventDefault();
+      location.href='https://www.fwfindia.org/donation#donateModal';
+    });
+
+    document.getElementById('memberPopupForm').addEventListener('submit',event=>{
+      event.preventDefault();
+      location.href='https://www.fwfindia.org/donation#memberModal';
+    });
+
+    document.getElementById('supporterPopupForm').addEventListener('submit',event=>{
+      event.preventDefault();
+      location.href='https://www.fwfindia.org/donation#supporterModal';
+    });
+
+    /* Check hash for direct tab */
+    syncTabFromHash();
+    window.addEventListener('hashchange',syncTabFromHash);
+
+    const T={
+      en:{
+        'd.badge':'Small gift. Big livelihood.','d.h1':'You can be the reason a family smiles 😊','d.sub':'Your small contribution is a new ray of hope for the unemployed.',
+        'd.tab1':'Donate','d.tab2':'Rojgar','d.tab3':'Supporter','d.tab4':'CSR Tie-up',
+        'd.don.h':'Make a Donation','d.don.desc':'Every ₹ you give helps train skills, fund real projects & open a livelihood door.','d.don.f1':'80G receipt support','d.don.f2':'Direct impact tracking','d.don.f3':'UPI / Bank transfer','d.don.btn':'Donate Now',
+        'd.mem.h':'Membership Program','d.mem.desc':'Skill training, micro-enterprise support & livelihood opportunities.','d.mem.f1':'Hands-on skill training','d.mem.f2':'Micro-enterprise project funding','d.mem.f3':'Market linkage & self-employment','d.mem.btn':'Join Now',
+        'd.sup.h':'Supporter Program','d.sup.desc':'Teach, mentor & help set up micro-business.','d.sup.f1':'Flexible time','d.sup.f2':'Teach real skills','d.sup.f3':'Community reach','d.sup.btn':'Sign Up',
+        'd.csr.h':'CSR Tie-up / Corporate Partnership','d.csr.desc':'Projects, internships, hiring or CSR for sustainable impact.','d.csr.f1':'CSR alignment','d.csr.f2':'Project outsourcing','d.csr.f3':'Direct placements','d.csr.btn':'Partner'
+      },
+      hi:{
+        'd.badge':'छोटा दान। बड़ी आजीविका।','d.h1':'आप किसी परिवार की मुस्कान का कारण बन सकते हैं 😊','d.sub':'आपका छोटा योगदान बेरोज़गारों के लिए एक नई उम्मीद की किरण है।',
+        'd.tab1':'दान','d.tab2':'रोज़गार','d.tab3':'सपोर्टर','d.tab4':'CSR टाई-अप',
+        'd.don.h':'दान करें','d.don.desc':'आपका हर रुपया स्किल ट्रेनिंग, प्रोजेक्ट और आजीविका का दरवाज़ा खोलता है।','d.don.f1':'80G रसीद सपोर्ट','d.don.f2':'डायरेक्ट इम्पैक्ट ट्रैकिंग','d.don.f3':'UPI / बैंक ट्रांसफर','d.don.btn':'अभी दान करें',
+        'd.mem.h':'सदस्यता कार्यक्रम','d.mem.desc':'स्किल ट्रेनिंग, माइक्रो-एंटरप्राइज सपोर्ट और आजीविका के अवसर।','d.mem.f1':'प्रैक्टिकल स्किल ट्रेनिंग','d.mem.f2':'माइक्रो-एंटरप्राइज प्रोजेक्ट फंडिंग','d.mem.f3':'मार्केट लिंकेज और स्व-रोज़गार','d.mem.btn':'अभी जुड़ें',
+        'd.sup.h':'सपोर्टर कार्यक्रम','d.sup.desc':'पढ़ाएं, मेंटर करें और माइक्रो-बिज़नेस शुरू करने में मदद करें।','d.sup.f1':'फ्लेक्सिबल समय','d.sup.f2':'असली स्किल सिखाएं','d.sup.f3':'समुदाय तक पहुंच','d.sup.btn':'साइन अप',
+        'd.csr.h':'CSR टाई-अप / कॉर्पोरेट पार्टनरशिप','d.csr.desc':'प्रोजेक्ट, इंटर्नशिप, हायरिंग या CSR से स्थायी प्रभाव।','d.csr.f1':'CSR अलाइनमेंट','d.csr.f2':'प्रोजेक्ट आउटसोर्सिंग','d.csr.f3':'डायरेक्ट प्लेसमेंट','d.csr.btn':'पार्टनर'
+      }
+    };
+    function setLang(l){
+      document.documentElement.setAttribute('data-lang',l);localStorage.setItem('fwfLang',l);
+      const t=T[l];
+      document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.getAttribute('data-i18n')];if(v!==undefined)el.textContent=v});
+      syncMemberTcLanguage();
+    }
+    setLang(localStorage.getItem('fwfLang')||'en');
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/',updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
   </script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 </body>
 </html>
