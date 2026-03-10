@@ -563,7 +563,7 @@
         </div>
         <p style="font-weight:900;font-size:1.4rem;color:#0f172a;margin:12px 0">Amount: ₹<span id="donateAmountDisplay">0</span><span id="donateAmountSuffix"></span></p>
       </div>
-      <button id="razorpayDonateBtn" class="btn-solid" style="background:linear-gradient(135deg,#5f259f,#7c3aed);font-size:1.05rem;padding:14px 0"><i class="fa-solid fa-mobile-screen-button"></i> Pay with PhonePe</button>
+      <button id="razorpayDonateBtn" class="btn-solid" style="background:linear-gradient(135deg,#5f259f,#7c3aed);font-size:1.05rem;padding:14px 0"><i class="fa-solid fa-mobile-screen-button"></i> Pay for a Noble Cause</button>
       <p id="donateGatewayNote" style="text-align:center;margin-top:10px;font-size:0.82rem;color:#94a3b8"><i class="fas fa-shield-alt"></i> One-time donations use PhonePe · Monthly donations use Razorpay AutoPay</p>
     </div>
     </div><!-- /padding wrapper -->
@@ -873,7 +873,7 @@
       note.innerHTML = '<i class="fas fa-shield-alt"></i> Monthly donations are secured by Razorpay AutoPay';
     } else {
       btn.style.background = 'linear-gradient(135deg,#5f259f,#7c3aed)';
-      btn.innerHTML = '<i class="fa-solid fa-mobile-screen-button"></i> Pay with PhonePe';
+      btn.innerHTML = '<i class="fa-solid fa-mobile-screen-button"></i> Pay for a Noble Cause';
       note.innerHTML = '<i class="fas fa-shield-alt"></i> One-time donations use PhonePe · Monthly donations use Razorpay AutoPay';
     }
   }
@@ -1096,7 +1096,7 @@
     const isRecurring = donateFormData.recurring;
     const BTN_LABEL = isRecurring
       ? '<i class="fa-solid fa-rotate"></i> Set Up Monthly Donation'
-      : '<i class="fa-solid fa-mobile-screen-button"></i> Pay with PhonePe';
+      : '<i class="fa-solid fa-mobile-screen-button"></i> Pay for a Noble Cause';
     btn.disabled = true;
     btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (isRecurring ? 'Setting up subscription...' : 'Opening PhonePe...');
     
