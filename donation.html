@@ -1610,16 +1610,22 @@
       const donationId = p.get('donationId') || '';
       const paymentId = p.get('paymentId') || '';
       const _donor = JSON.parse(sessionStorage.getItem('fwfLastDonor') || '{}');
-      showDonationSuccess({
+      const successPayload = {
         amount, donationId, paymentId,
         name:    _donor.name  || '',
         email:   _donor.email || '',
         want80g: _donor.want80g,
         gateway: 'PhonePe',
         date: new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
-      });
-      sessionStorage.removeItem('fwfDonRefCode');
-      sessionStorage.removeItem('fwfLastDonor');
+      };
+      // This handler runs in an earlier script block, so queue data if modal helpers are defined later.
+      if (typeof showDonationSuccess === 'function') {
+        showDonationSuccess(successPayload);
+        sessionStorage.removeItem('fwfDonRefCode');
+        sessionStorage.removeItem('fwfLastDonor');
+      } else {
+        sessionStorage.setItem('fwfPhonePeSuccessPayload', JSON.stringify(successPayload));
+      }
       cleanup(false);
       return;
     }
@@ -1817,6 +1823,20 @@ function showDonationSuccess(data){
   m.style.display='flex';
   document.body.style.overflow='hidden';
 }
+
+(function renderQueuedPhonePeSuccess(){
+  const raw = sessionStorage.getItem('fwfPhonePeSuccessPayload');
+  if(!raw) return;
+  try{
+    const data = JSON.parse(raw);
+    if(data && typeof data === 'object') showDonationSuccess(data);
+  }catch(_e){
+    // Ignore malformed cached payload and clear it.
+  }
+  sessionStorage.removeItem('fwfPhonePeSuccessPayload');
+  sessionStorage.removeItem('fwfDonRefCode');
+  sessionStorage.removeItem('fwfLastDonor');
+})();
 
 function downloadDonationReceipt(data){
   if(!data) return;
