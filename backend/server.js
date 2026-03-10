@@ -59,10 +59,12 @@ const AUTH_COOKIE_OPTIONS = {
   ...(IS_PRODUCTION ? { domain: process.env.COOKIE_DOMAIN || '.fwfindia.org' } : {})
 };
 const SITE_URL = (process.env.SITE_URL || 'https://www.fwfindia.org').replace(/\/$/, '');
-const PHONEPE_BASE_URL = (process.env.PHONEPE_BASE_URL || 'https://api.phonepe.com/apis/hermes').replace(/\/$/, '');
-const PHONEPE_MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || '';
-const PHONEPE_SALT_KEY = process.env.PHONEPE_SALT_KEY || '';
-const PHONEPE_SALT_INDEX = process.env.PHONEPE_SALT_INDEX || '';
+const PHONEPE_AUTH_URL = (process.env.PHONEPE_AUTH_URL || 'https://api.phonepe.com/apis/identity-manager/v1/oauth/token').replace(/\/$/, '');
+const PHONEPE_API_BASE_URL = (process.env.PHONEPE_API_BASE_URL || process.env.PHONEPE_BASE_URL || 'https://api.phonepe.com/apis/pg').replace(/\/$/, '');
+const PHONEPE_CLIENT_ID = process.env.PHONEPE_CLIENT_ID || process.env.PHONEPE_MERCHANT_ID || '';
+const PHONEPE_CLIENT_SECRET = process.env.PHONEPE_CLIENT_SECRET || process.env.PHONEPE_SALT_KEY || '';
+const PHONEPE_CLIENT_VERSION = process.env.PHONEPE_CLIENT_VERSION || process.env.PHONEPE_SALT_INDEX || '1';
+let phonePeAuthTokenCache = null;
 
 // --- Razorpay instance ---
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -299,48 +301,74 @@ async function createAndSendReceipt({ type, userId, memberId, customerName, cust
 }
 
 function isPhonePeConfigured() {
-  return !!(PHONEPE_MERCHANT_ID && PHONEPE_SALT_KEY && PHONEPE_SALT_INDEX);
+  return !!(PHONEPE_CLIENT_ID && PHONEPE_CLIENT_SECRET && PHONEPE_CLIENT_VERSION);
 }
 
-function buildPhonePeChecksum(value, endpointPath) {
-  return crypto.createHash('sha256').update(String(value) + endpointPath + PHONEPE_SALT_KEY).digest('hex') + '###' + PHONEPE_SALT_INDEX;
-}
+async function getPhonePeAuthToken(forceRefresh = false) {
+  const nowEpochSeconds = Math.floor(Date.now() / 1000);
+  if (!forceRefresh && phonePeAuthTokenCache?.accessToken && phonePeAuthTokenCache.expiresAt > nowEpochSeconds + 60) {
+    return phonePeAuthTokenCache.accessToken;
+  }
 
-async function callPhonePePay(payload) {
-  const endpointPath = '/pg/v1/pay';
-  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
-  const response = await fetch(PHONEPE_BASE_URL + endpointPath, {
+  const form = new URLSearchParams({
+    client_id: PHONEPE_CLIENT_ID,
+    client_secret: PHONEPE_CLIENT_SECRET,
+    client_version: String(PHONEPE_CLIENT_VERSION),
+    grant_type: 'client_credentials'
+  });
+
+  const response = await fetch(PHONEPE_AUTH_URL, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      'X-VERIFY': buildPhonePeChecksum(encodedPayload, endpointPath)
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
-    body: JSON.stringify({ request: encodedPayload })
+    body: form.toString()
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok || data.success === false) {
-    throw new Error(data.message || data.error || 'PhonePe payment creation failed');
+  if (!response.ok || !data?.access_token) {
+    throw new Error(data.message || data.error_description || data.error || 'PhonePe authorization failed');
   }
-  return data;
+
+  phonePeAuthTokenCache = {
+    accessToken: data.access_token,
+    expiresAt: Number(data.expires_at || nowEpochSeconds + 300)
+  };
+  return phonePeAuthTokenCache.accessToken;
 }
 
-async function fetchPhonePeStatus(merchantTransactionId) {
-  const endpointPath = `/pg/v1/status/${PHONEPE_MERCHANT_ID}/${merchantTransactionId}`;
-  const response = await fetch(PHONEPE_BASE_URL + endpointPath, {
-    method: 'GET',
+async function callPhonePeApi(endpointPath, options = {}, allowRetry = true) {
+  const token = await getPhonePeAuthToken();
+  const response = await fetch(PHONEPE_API_BASE_URL + endpointPath, {
+    ...options,
     headers: {
-      Accept: 'application/json',
       'Content-Type': 'application/json',
-      'X-VERIFY': buildPhonePeChecksum('', endpointPath),
-      'X-MERCHANT-ID': PHONEPE_MERCHANT_ID
+      Accept: 'application/json',
+      Authorization: `O-Bearer ${token}`,
+      ...(options.headers || {})
     }
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok || data.success === false) {
-    throw new Error(data.message || data.error || 'PhonePe status lookup failed');
+  if ((response.status === 401 || response.status === 403) && allowRetry) {
+    await getPhonePeAuthToken(true);
+    return callPhonePeApi(endpointPath, options, false);
+  }
+  if (!response.ok) {
+    throw new Error(data.message || data.error_description || data.error || data.code || 'PhonePe request failed');
   }
   return data;
+}
+
+async function callPhonePePay(payload) {
+  return callPhonePeApi('/checkout/v2/pay', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+async function fetchPhonePeStatus(merchantOrderId) {
+  return callPhonePeApi(`/checkout/v2/order/${encodeURIComponent(merchantOrderId)}/status?details=true&errorContext=true`, {
+    method: 'GET',
+  });
 }
 
 async function recordDonationPayment({
@@ -576,8 +604,10 @@ async function finalizePhonePeDonation(merchantTransactionId) {
   }
 
   const statusData = await fetchPhonePeStatus(merchantTransactionId);
-  const paymentData = statusData.data || {};
-  const paymentState = paymentData.state || statusData.state || 'PENDING';
+  const paymentState = statusData.state || 'PENDING';
+  const latestPayment = Array.isArray(statusData.paymentDetails) && statusData.paymentDetails.length
+    ? statusData.paymentDetails[statusData.paymentDetails.length - 1]
+    : null;
 
   if (paymentState !== 'COMPLETED') {
     await PhonePeDonationIntent.updateOne({ _id: intent._id }, {
@@ -589,7 +619,7 @@ async function finalizePhonePeDonation(merchantTransactionId) {
     return { ok: false, state: paymentState, amount: intent.amount };
   }
 
-  const paymentId = paymentData.transactionId || paymentData.providerReferenceId || merchantTransactionId;
+  const paymentId = latestPayment?.transactionId || statusData.orderId || merchantTransactionId;
   const result = await recordDonationPayment({
     paymentGateway: 'phonepe',
     name: intent.donor_name,
@@ -1161,7 +1191,6 @@ app.post('/api/pay/create-phonepe-donation', async (req, res) => {
 
     const merchantTransactionId = `PPDON${Date.now()}${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
     const redirectUrl = `${SITE_URL}/api/pay/phonepe/donation/redirect/${merchantTransactionId}`;
-    const callbackUrl = `${SITE_URL}/api/pay/phonepe/donation/callback/${merchantTransactionId}`;
 
     await PhonePeDonationIntent.create({
       merchant_transaction_id: merchantTransactionId,
@@ -1180,20 +1209,27 @@ app.post('/api/pay/create-phonepe-donation', async (req, res) => {
     });
 
     const payload = {
-      merchantId: PHONEPE_MERCHANT_ID,
-      merchantTransactionId,
-      merchantUserId: mobile || email || merchantTransactionId,
+      merchantOrderId: merchantTransactionId,
       amount: Math.round(Number(amount) * 100),
-      redirectUrl,
-      redirectMode: 'REDIRECT',
-      callbackUrl,
-      mobileNumber: mobile || undefined,
-      paymentInstrument: { type: 'PAY_PAGE' }
+      expireAfter: 1200,
+      paymentFlow: {
+        type: 'PG_CHECKOUT',
+        message: 'FWF donation payment',
+        merchantUrls: {
+          redirectUrl
+        }
+      },
+      metaInfo: {
+        udf1: name || 'Anonymous',
+        udf2: email || '',
+        udf3: mobile || '',
+        udf4: want80g ? '80G' : 'STANDARD',
+        udf5: ref || ''
+      }
     };
 
     const phonePeData = await callPhonePePay(payload);
-    const redirectInfo = phonePeData?.data?.instrumentResponse?.redirectInfo || phonePeData?.data?.redirectInfo || {};
-    const paymentUrl = redirectInfo.url || redirectInfo.redirectUrl;
+    const paymentUrl = phonePeData?.redirectUrl;
     if (!paymentUrl) throw new Error('PhonePe redirect URL not received');
 
     await PhonePeDonationIntent.updateOne({ merchant_transaction_id: merchantTransactionId }, {
