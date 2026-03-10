@@ -27,6 +27,11 @@ const receiptSchema = new mongoose.Schema({
   total:          { type: Number, required: true },
   currency:       { type: String, default: 'INR' },
 
+  // Generic gateway metadata
+  payment_gateway: { type: String, default: null },
+  payment_txn_id:  { type: String, default: null },
+  payment_order_ref:{ type: String, default: null },
+
   // Razorpay
   razorpay_payment_id:     { type: String, default: null },
   razorpay_order_id:       { type: String, default: null },
@@ -53,6 +58,7 @@ const receiptSchema = new mongoose.Schema({
 });
 
 receiptSchema.index({ member_id: 1, created_at: -1 });
+receiptSchema.index({ payment_txn_id: 1 });
 receiptSchema.index({ razorpay_payment_id: 1 });
 receiptSchema.index({ token: 1 });
 receiptSchema.index({ type: 1, created_at: -1 });

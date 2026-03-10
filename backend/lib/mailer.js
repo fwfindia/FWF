@@ -305,7 +305,7 @@ export async function sendSupporterWelcome({ name, email, supporterId, password,
 /**
  * Send donation receipt / thank-you email to donor (always, regardless of 80G).
  */
-export async function sendDonationConfirmation({ name, email, amount, donationId, paymentId, recurring = false, pointsEarned = 0, receiptUrl = null }) {
+export async function sendDonationConfirmation({ name, email, amount, donationId, paymentId, paymentGateway = 'Razorpay', recurring = false, pointsEarned = 0, receiptUrl = null }) {
   if (!email) return;
   const transporter = getTransporter();
   const formatted = Number(amount).toLocaleString('en-IN');
@@ -346,7 +346,7 @@ export async function sendDonationConfirmation({ name, email, amount, donationId
             ${infoRow('Donation ID', `<span style="font-family:monospace;font-weight:800;color:#be185d">${donationId}</span>`, '#fdf2f8')}
             ${infoRow('Payment ID', `<span style="font-family:monospace;font-size:12px">${paymentId}</span>`, '#fff')}
             ${infoRow('Date', date, '#fdf2f8')}
-            ${infoRow('Mode', 'Online (Razorpay)', '#fff')}
+            ${infoRow('Mode', recurring ? 'Online (Razorpay AutoPay)' : `Online (${paymentGateway})`, '#fff')}
             ${infoRow('Type', recurring ? '🔄 Monthly Subscription' : '✅ One-time Payment', '#fdf2f8')}
             ${pointsEarned ? infoRow('Reward Points', `<span style="color:#E87722;font-weight:900">+${Math.round(pointsEarned)} pts</span> credited to your wallet`, '#fff') : ''}
           </table>

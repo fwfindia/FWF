@@ -32,6 +32,7 @@ import PaymentLink from './models/PaymentLink.js';
 import Receipt from './models/Receipt.js';
 import AppConfig from './models/AppConfig.js';
 import RedeemRequest from './models/RedeemRequest.js';
+import PhonePeDonationIntent from './models/PhonePeDonationIntent.js';
 import { syncReceiptToZoho, checkZohoConnection, getAuthUrl, exchangeCodeForTokens } from './lib/zoho.js';
 import { getTransporter, send80GReceipt, sendMemberWelcome, sendSupporterWelcome, sendDonationConfirmation, sendAdminAlert } from './lib/mailer.js';
 import { sendWhatsAppCredentials, sendWhatsAppDonation, sendQuizParticipationSms, sendQuizResultSms, sendDonationReceiptSms, sendDonationReceipt80GSms, sendSmsOtp } from './lib/msg91.js';
@@ -57,6 +58,11 @@ const AUTH_COOKIE_OPTIONS = {
   secure: true,
   ...(IS_PRODUCTION ? { domain: process.env.COOKIE_DOMAIN || '.fwfindia.org' } : {})
 };
+const SITE_URL = (process.env.SITE_URL || 'https://www.fwfindia.org').replace(/\/$/, '');
+const PHONEPE_BASE_URL = (process.env.PHONEPE_BASE_URL || 'https://api.phonepe.com/apis/hermes').replace(/\/$/, '');
+const PHONEPE_MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || '';
+const PHONEPE_SALT_KEY = process.env.PHONEPE_SALT_KEY || '';
+const PHONEPE_SALT_INDEX = process.env.PHONEPE_SALT_INDEX || '';
 
 // --- Razorpay instance ---
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -259,6 +265,9 @@ async function createAndSendReceipt({ type, userId, memberId, customerName, cust
       description: description || '',
       line_items: lineItems,
       subtotal, tax, total,
+      payment_gateway: razorpayPaymentId || razorpayOrderId || razorpaySubscriptionId ? 'razorpay' : null,
+      payment_txn_id: razorpayPaymentId || null,
+      payment_order_ref: razorpaySubscriptionId || razorpayOrderId || null,
       razorpay_payment_id: razorpayPaymentId || null,
       razorpay_order_id: razorpayOrderId || null,
       razorpay_subscription_id: razorpaySubscriptionId || null,
@@ -287,6 +296,328 @@ async function createAndSendReceipt({ type, userId, memberId, customerName, cust
     console.error('⚠️ Receipt creation failed (non-fatal):', err.message);
     return null;
   }
+}
+
+function isPhonePeConfigured() {
+  return !!(PHONEPE_MERCHANT_ID && PHONEPE_SALT_KEY && PHONEPE_SALT_INDEX);
+}
+
+function buildPhonePeChecksum(value, endpointPath) {
+  return crypto.createHash('sha256').update(String(value) + endpointPath + PHONEPE_SALT_KEY).digest('hex') + '###' + PHONEPE_SALT_INDEX;
+}
+
+async function callPhonePePay(payload) {
+  const endpointPath = '/pg/v1/pay';
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
+  const response = await fetch(PHONEPE_BASE_URL + endpointPath, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'X-VERIFY': buildPhonePeChecksum(encodedPayload, endpointPath)
+    },
+    body: JSON.stringify({ request: encodedPayload })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.success === false) {
+    throw new Error(data.message || data.error || 'PhonePe payment creation failed');
+  }
+  return data;
+}
+
+async function fetchPhonePeStatus(merchantTransactionId) {
+  const endpointPath = `/pg/v1/status/${PHONEPE_MERCHANT_ID}/${merchantTransactionId}`;
+  const response = await fetch(PHONEPE_BASE_URL + endpointPath, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-VERIFY': buildPhonePeChecksum('', endpointPath),
+      'X-MERCHANT-ID': PHONEPE_MERCHANT_ID
+    }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.success === false) {
+    throw new Error(data.message || data.error || 'PhonePe status lookup failed');
+  }
+  return data;
+}
+
+async function recordDonationPayment({
+  paymentGateway = 'razorpay',
+  name,
+  mobile,
+  email,
+  pan,
+  address,
+  amount,
+  memberIdInput,
+  want80g,
+  ref,
+  paymentId,
+  orderId = null,
+  subscriptionId = null,
+  recurring = false,
+  verifiedToken = null,
+  source = null
+}) {
+  if (!amount || !paymentId) throw new Error('Payment details required');
+
+  const numAmount = Number(amount);
+  const kycRequired = numAmount >= 50000;
+  let otpVerified = false;
+
+  if (kycRequired) {
+    if (!verifiedToken) {
+      throw new Error('OTP verification is required for donations of ₹50,000 or more');
+    }
+    const otpRecord = await DonationOtp.findOne({
+      verified: true,
+      verified_token: verifiedToken,
+      expires_at: { $gt: new Date(Date.now() - 30 * 60 * 1000) }
+    });
+    if (!otpRecord) {
+      throw new Error('OTP verification token is invalid or expired. Please verify again.');
+    }
+    otpVerified = true;
+  }
+
+  const donationSource = source || (paymentGateway === 'phonepe' ? 'phonepe' : (recurring ? 'razorpay_recurring' : 'razorpay'));
+  const existingDonation = await Donation.findOne({ payment_id: paymentId, source: donationSource }).select('donation_id points_earned').lean();
+  if (existingDonation) {
+    return {
+      ok: true,
+      donationId: existingDonation.donation_id,
+      message: `Thank you for your ₹${numAmount} donation!`,
+      paymentId,
+      pointsEarned: existingDonation.points_earned || 0,
+      receipt80GSent: false,
+      duplicate: true
+    };
+  }
+
+  let user = null;
+  if (memberIdInput) user = await User.findOne({ member_id: memberIdInput });
+  if (!user && ref) user = await User.findOne({ referral_code: ref });
+
+  const donationId = await nextDonationId();
+  const gatewayLabel = paymentGateway === 'phonepe' ? 'PhonePe' : 'Razorpay';
+  const donationData = {
+    donation_id: donationId,
+    amount: numAmount,
+    donor_name: name || 'Anonymous',
+    donor_email: email || null,
+    donor_mobile: mobile || null,
+    donor_pan: pan || null,
+    donor_address: address || null,
+    source: donationSource,
+    payment_id: paymentId,
+    order_id: orderId || null,
+    subscription_id: subscriptionId || null,
+    recurring: !!recurring,
+    kyc_required: kycRequired,
+    otp_verified: otpVerified,
+    kyc_status: kycRequired ? (otpVerified ? 'otp_verified' : 'pending_docs') : 'not_required'
+  };
+
+  if (user) {
+    donationData.member_id = user._id;
+    const pointsRupees = numAmount * (DONATION_POINTS_PERCENT / 100);
+    const points = amountToPoints(pointsRupees);
+    donationData.points_earned = points;
+    await User.updateOne({ _id: user._id }, {
+      $inc: {
+        'wallet.balance_inr': pointsRupees,
+        'wallet.lifetime_earned_inr': pointsRupees,
+        'wallet.points_balance': points,
+        'wallet.total_points_earned': points,
+        'wallet.points_from_donations': points
+      }
+    });
+    await PointsLedger.create({
+      user_id: user._id,
+      points,
+      type: 'donation',
+      description: `₹${numAmount} donation via ${gatewayLabel}${recurring ? ' subscription' : ''} → ${points} points`
+    });
+  }
+
+  const donationRecord = await Donation.create(donationData);
+  addBreadcrumb('payment', 'Donation recorded', { donationId, amount: numAmount, gateway: paymentGateway, kycRequired, otpVerified });
+
+  const backendUrl = process.env.BACKEND_URL || 'https://api.fwfindia.org';
+  const rcpt = await createAndSendReceipt({
+    type: 'donation',
+    userId: user?._id,
+    memberId: user?.member_id || null,
+    customerName: name || 'Anonymous',
+    customerEmail: email || null,
+    customerMobile: mobile || null,
+    customerPan: pan || null,
+    customerAddress: address || null,
+    lineItems: [{ name: `Donation to FWF${recurring ? ' (Monthly Recurring)' : ''}`, description: 'Charitable donation — Foundation for Women\'s Future', amount: numAmount, quantity: 1 }],
+    total: numAmount,
+    razorpayPaymentId: paymentGateway === 'razorpay' ? paymentId : null,
+    razorpayOrderId: paymentGateway === 'razorpay' ? orderId : null,
+    razorpaySubscriptionId: paymentGateway === 'razorpay' ? subscriptionId : null,
+    referenceId: donationId,
+    is80g: !!(want80g && pan),
+    description: `Donation ₹${numAmount}${recurring ? ' (Recurring)' : ''}`
+  });
+
+  if (rcpt && paymentGateway !== 'razorpay') {
+    await Receipt.updateOne({ _id: rcpt._id }, {
+      $set: {
+        payment_gateway: paymentGateway,
+        payment_txn_id: paymentId,
+        payment_order_ref: orderId || subscriptionId || null
+      }
+    }).catch(() => {});
+  }
+
+  const receiptUrl = rcpt ? `${backendUrl}/receipt/${rcpt.token}` : null;
+  if (rcpt) console.log(`🧾 Donation receipt created: ${rcpt.receipt_id}`);
+
+  let receipt80GSent = false;
+  if (want80g && email && pan) {
+    try {
+      await send80GReceipt({
+        donationId,
+        name: name || 'Donor',
+        email,
+        pan,
+        address: address || '',
+        amount: numAmount,
+        paymentId,
+        date: new Date()
+      });
+      receipt80GSent = true;
+      addBreadcrumb('email', '80G receipt sent', { donationId, email, gateway: paymentGateway });
+    } catch (mailErr) {
+      console.error('80G receipt email failed:', mailErr.message);
+      captureError(mailErr, { context: '80g-receipt-email', donationId });
+    }
+  }
+
+  if (email) {
+    sendDonationConfirmation({
+      name: name || 'Donor',
+      email,
+      amount: numAmount,
+      donationId,
+      paymentId,
+      paymentGateway: gatewayLabel,
+      recurring: !!recurring,
+      pointsEarned: donationData.points_earned || 0,
+      receiptUrl
+    })
+      .then(() => console.log(`✅ Donation confirmation email sent → ${email}`))
+      .catch(e => console.error('⚠️ Donation confirmation email failed:', e.message));
+  }
+
+  if (mobile) {
+    sendWhatsAppDonation({
+      mobile,
+      name: name || 'Donor',
+      amount: numAmount,
+      donationId,
+      paymentId
+    }).catch(e => console.error('⚠️ WhatsApp donation confirmation failed:', e.message));
+
+    const smsName = name || 'Donor';
+    if (receipt80GSent) {
+      sendDonationReceipt80GSms({ mobile, name: smsName, amount: numAmount })
+        .catch(e => console.error('⚠️ 80G receipt SMS failed:', e.message));
+    } else {
+      sendDonationReceiptSms({ mobile, name: smsName, amount: numAmount })
+        .catch(e => console.error('⚠️ Donation receipt SMS failed:', e.message));
+    }
+  }
+
+  sendAdminAlert({
+    subject: `New Donation: ₹${numAmount} — ${name || 'Anonymous'}`,
+    rows: [
+      ['Donation ID', donationId],
+      ['Amount', `₹${numAmount.toLocaleString('en-IN')}`],
+      ['Donor', name || 'Anonymous'],
+      ['Email', email || '—'],
+      ['Mobile', mobile || '—'],
+      ['Type', recurring ? 'Recurring (Monthly)' : 'One-time'],
+      ['Gateway', gatewayLabel],
+      ['Payment ID', paymentId],
+      ['80G Sent', receipt80GSent ? 'Yes' : 'No']
+    ]
+  }).catch(() => {});
+
+  return {
+    ok: true,
+    donationId,
+    message: `Thank you for your ₹${numAmount} donation!`,
+    paymentId,
+    pointsEarned: donationData.points_earned || 0,
+    receipt80GSent,
+    donationRecord
+  };
+}
+
+async function finalizePhonePeDonation(merchantTransactionId) {
+  const intent = await PhonePeDonationIntent.findOne({ merchant_transaction_id: merchantTransactionId });
+  if (!intent) throw new Error('PhonePe donation intent not found');
+
+  if (intent.status === 'completed' && intent.donation_id) {
+    return {
+      ok: true,
+      donationId: intent.donation_id,
+      paymentId: intent.payment_id || merchantTransactionId,
+      receipt80GSent: false,
+      amount: intent.amount,
+      duplicate: true
+    };
+  }
+
+  const statusData = await fetchPhonePeStatus(merchantTransactionId);
+  const paymentData = statusData.data || {};
+  const paymentState = paymentData.state || statusData.state || 'PENDING';
+
+  if (paymentState !== 'COMPLETED') {
+    await PhonePeDonationIntent.updateOne({ _id: intent._id }, {
+      $set: {
+        status: paymentState === 'PENDING' ? 'pending' : 'failed',
+        phonepe_response: statusData
+      }
+    });
+    return { ok: false, state: paymentState, amount: intent.amount };
+  }
+
+  const paymentId = paymentData.transactionId || paymentData.providerReferenceId || merchantTransactionId;
+  const result = await recordDonationPayment({
+    paymentGateway: 'phonepe',
+    name: intent.donor_name,
+    mobile: intent.donor_mobile,
+    email: intent.donor_email,
+    pan: intent.donor_pan,
+    address: intent.donor_address,
+    amount: intent.amount,
+    memberIdInput: intent.member_id_input,
+    want80g: intent.want_80g,
+    ref: intent.ref_code,
+    paymentId,
+    orderId: merchantTransactionId,
+    verifiedToken: intent.verified_token,
+    source: 'phonepe'
+  });
+
+  await PhonePeDonationIntent.updateOne({ _id: intent._id }, {
+    $set: {
+      status: 'completed',
+      payment_id: paymentId,
+      donation_id: result.donationId,
+      completed_at: new Date(),
+      phonepe_response: statusData
+    }
+  });
+
+  return { ...result, amount: intent.amount };
 }
 function randPass(len = 10) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#$%';
@@ -543,7 +874,7 @@ app.get('/', (req, res) => {
       auth: ['/api/auth/login', '/api/admin/login', '/api/auth/logout'],
       member: ['/api/member/me', '/api/member/invoices', '/api/member/apply-wallet', '/api/member/weekly-task', '/api/member/complete-task', '/api/member/all-tasks', '/api/member/task-history', '/api/member/feed', '/api/member/create-post', '/api/member/active-quizzes', '/api/member/quiz-enroll', '/api/member/quiz-submit', '/api/member/quiz-history', '/api/member/affiliate'],
       admin: ['/api/admin/overview', '/api/admin/invoices', '/api/admin/invoice/:id/resend', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/create-quiz', '/api/admin/quiz-draw/:quizId', '/api/admin/quizzes', '/api/admin/quiz-auto-create', '/api/admin/quiz-auto-draw', '/api/admin/quiz-scheduler-status', '/api/admin/quiz-purge-all', '/api/admin/quiz-seed', '/api/admin/quiz/:quizId/detail', '/api/admin/quiz/:quizId/participants', '/api/admin/social-stats', '/api/admin/social-posts', '/api/admin/social-posts/:id/approve', '/api/admin/social-posts/:id/reject'],
-      payment: ['/api/pay/check-member', '/api/pay/simulate-join', '/api/pay/create-order', '/api/pay/create-subscription', '/api/pay/create-donation-subscription', '/api/pay/verify', '/api/pay/membership', '/api/pay/donation'],
+      payment: ['/api/pay/check-member', '/api/pay/simulate-join', '/api/pay/create-order', '/api/pay/create-subscription', '/api/pay/create-donation-subscription', '/api/pay/create-phonepe-donation', '/api/pay/phonepe/donation/redirect/:transactionId', '/api/pay/phonepe/donation/callback/:transactionId', '/api/pay/verify', '/api/pay/membership', '/api/pay/donation'],
       referral: ['/api/referral/click'],
       debug: ['/api/debug/users (development only)']
     }
@@ -817,6 +1148,105 @@ app.post('/api/pay/create-order', async (req, res) => {
     console.error('Razorpay create-order error:', err);
     captureError(err, { context: 'razorpay-create-order' });
     res.status(500).json({ error: 'Failed to create payment order' });
+  }
+});
+
+app.post('/api/pay/create-phonepe-donation', async (req, res) => {
+  try {
+    if (!isPhonePeConfigured()) return res.status(503).json({ error: 'PhonePe is not configured yet' });
+
+    const { amount, name, email, mobile, pan, address, want80g, ref, memberId, verified_token, recurring } = req.body;
+    if (!amount || Number(amount) < 1) return res.status(400).json({ error: 'Valid amount required (min ₹1)' });
+    if (recurring) return res.status(400).json({ error: 'Monthly donations continue on Razorpay AutoPay. Please uncheck monthly to pay with PhonePe.' });
+
+    const merchantTransactionId = `PPDON${Date.now()}${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+    const redirectUrl = `${SITE_URL}/api/pay/phonepe/donation/redirect/${merchantTransactionId}`;
+    const callbackUrl = `${SITE_URL}/api/pay/phonepe/donation/callback/${merchantTransactionId}`;
+
+    await PhonePeDonationIntent.create({
+      merchant_transaction_id: merchantTransactionId,
+      merchant_user_id: mobile || email || merchantTransactionId,
+      amount: Number(amount),
+      donor_name: name || 'Anonymous',
+      donor_email: email || null,
+      donor_mobile: mobile || null,
+      donor_pan: pan || null,
+      donor_address: address || null,
+      want_80g: !!want80g,
+      verified_token: verified_token || null,
+      ref_code: ref || null,
+      member_id_input: memberId || null,
+      status: 'created'
+    });
+
+    const payload = {
+      merchantId: PHONEPE_MERCHANT_ID,
+      merchantTransactionId,
+      merchantUserId: mobile || email || merchantTransactionId,
+      amount: Math.round(Number(amount) * 100),
+      redirectUrl,
+      redirectMode: 'REDIRECT',
+      callbackUrl,
+      mobileNumber: mobile || undefined,
+      paymentInstrument: { type: 'PAY_PAGE' }
+    };
+
+    const phonePeData = await callPhonePePay(payload);
+    const redirectInfo = phonePeData?.data?.instrumentResponse?.redirectInfo || phonePeData?.data?.redirectInfo || {};
+    const paymentUrl = redirectInfo.url || redirectInfo.redirectUrl;
+    if (!paymentUrl) throw new Error('PhonePe redirect URL not received');
+
+    await PhonePeDonationIntent.updateOne({ merchant_transaction_id: merchantTransactionId }, {
+      $set: {
+        status: 'initiated',
+        redirect_url: paymentUrl,
+        phonepe_response: phonePeData
+      }
+    });
+
+    res.json({ ok: true, provider: 'phonepe', merchantTransactionId, redirectUrl: paymentUrl });
+  } catch (err) {
+    console.error('PhonePe create-donation error:', err);
+    captureError(err, { context: 'phonepe-create-donation' });
+    res.status(500).json({ error: err.message || 'Failed to initiate PhonePe payment' });
+  }
+});
+
+app.all('/api/pay/phonepe/donation/callback/:transactionId', async (req, res) => {
+  try {
+    const result = await finalizePhonePeDonation(req.params.transactionId);
+    if (!result.ok) return res.status(200).json({ ok: false, state: result.state || 'FAILED' });
+    res.status(200).json({ ok: true, donationId: result.donationId, paymentId: result.paymentId });
+  } catch (err) {
+    console.error('PhonePe donation callback error:', err);
+    captureError(err, { context: 'phonepe-donation-callback' });
+    res.status(500).json({ ok: false, error: err.message || 'PhonePe callback failed' });
+  }
+});
+
+app.all('/api/pay/phonepe/donation/redirect/:transactionId', async (req, res) => {
+  const failUrl = new URL('/donation', SITE_URL);
+  failUrl.hash = 'donateModal';
+  try {
+    const result = await finalizePhonePeDonation(req.params.transactionId);
+    if (!result.ok) {
+      failUrl.searchParams.set('phonepe', result.state === 'PENDING' ? 'pending' : 'failed');
+      failUrl.searchParams.set('phonepe_message', result.state === 'PENDING' ? 'Your PhonePe payment is still pending. Please check and try again in a moment.' : 'PhonePe payment was not completed. Please try again.');
+      return res.redirect(failUrl.toString());
+    }
+
+    const successUrl = new URL('/donation', SITE_URL);
+    successUrl.searchParams.set('phonepe', 'success');
+    successUrl.searchParams.set('donationId', result.donationId || '');
+    successUrl.searchParams.set('amount', String(result.amount || ''));
+    successUrl.searchParams.set('paymentId', result.paymentId || '');
+    return res.redirect(successUrl.toString());
+  } catch (err) {
+    console.error('PhonePe donation redirect error:', err);
+    captureError(err, { context: 'phonepe-donation-redirect' });
+    failUrl.searchParams.set('phonepe', 'failed');
+    failUrl.searchParams.set('phonepe_message', 'We could not verify your PhonePe payment. Please contact support if money was debited.');
+    return res.redirect(failUrl.toString());
   }
 });
 
@@ -1160,26 +1590,6 @@ app.post('/api/pay/donation', async (req, res) => {
     } = req.body;
     if (!amount || !razorpay_payment_id) return res.status(400).json({ error: 'Payment details required' });
 
-    const numAmount = Number(amount);
-    const kycRequired = numAmount >= 50000;
-
-    // For donations ≥ ₹50,000 — verify OTP token from MongoDB
-    let otpVerified = false;
-    if (kycRequired) {
-      if (!verified_token) {
-        return res.status(400).json({ error: 'OTP verification is required for donations of ₹50,000 or more' });
-      }
-      const otpRecord = await DonationOtp.findOne({
-        verified: true,
-        verified_token,
-        expires_at: { $gt: new Date(Date.now() - 30 * 60 * 1000) } // token valid for 30 mins after verify
-      });
-      if (!otpRecord) {
-        return res.status(400).json({ error: 'OTP verification token is invalid or expired. Please verify again.' });
-      }
-      otpVerified = true;
-    }
-
     // Verify Razorpay signature (order for one-time; subscription for recurring)
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     const { razorpay_subscription_id, recurring } = req.body;
@@ -1201,159 +1611,26 @@ app.post('/api/pay/donation', async (req, res) => {
       return res.status(400).json({ ok: false, error: 'Payment verification failed' });
     }
 
-    // Award points if linked member (by memberId or referral code from donation link)
-    let user = null;
-    if (memberIdInput) user = await User.findOne({ member_id: memberIdInput });
-    if (!user && ref) user = await User.findOne({ referral_code: ref });
-
-    const donationId = await nextDonationId();
-    const donationData = {
-      donation_id:  donationId,
-      amount:       numAmount,
-      donor_name:   name  || 'Anonymous',
-      donor_email:  email || null,
-      donor_mobile: mobile || null,
-      donor_pan:    pan   || null,
-      donor_address: address || null,
-      source:       recurring ? 'razorpay_recurring' : 'razorpay',
-      payment_id:   razorpay_payment_id,
-      order_id:     razorpay_order_id || null,
-      subscription_id: razorpay_subscription_id || null,
-      recurring:    !!recurring,
-      kyc_required: kycRequired,
-      otp_verified: otpVerified,
-      kyc_status:   kycRequired ? (otpVerified ? 'otp_verified' : 'pending_docs') : 'not_required'
-    };
-
-    if (user) {
-      donationData.member_id = user._id;
-      const pointsRupees = numAmount * (DONATION_POINTS_PERCENT / 100);
-      const points = amountToPoints(pointsRupees);
-      donationData.points_earned = points;
-      await User.updateOne({ _id: user._id }, {
-        $inc: {
-          'wallet.balance_inr': pointsRupees,
-          'wallet.lifetime_earned_inr': pointsRupees,
-          'wallet.points_balance': points,
-          'wallet.total_points_earned': points,
-          'wallet.points_from_donations': points
-        }
-      });
-      await PointsLedger.create({
-        user_id: user._id, points, type: 'donation',
-        description: `₹${numAmount} donation via Razorpay → ${points} points`
-      });
-    }
-
-    const donationRecord = await Donation.create(donationData);
-    addBreadcrumb('payment', 'Donation recorded', { donationId, amount: numAmount, kycRequired, otpVerified });
-
-    const backendUrl = process.env.BACKEND_URL || 'https://api.fwfindia.org';
-    const rcpt = await createAndSendReceipt({
-      type: 'donation',
-      userId: user?._id,
-      memberId: user?.member_id || null,
-      customerName: name || 'Anonymous',
-      customerEmail: email || null,
-      customerMobile: mobile || null,
-      customerPan: pan || null,
-      customerAddress: address || null,
-      lineItems: [{ name: `Donation to FWF${recurring ? ' (Monthly Recurring)' : ''}`, description: 'Charitable donation — Foundation for Women\'s Future', amount: numAmount, quantity: 1 }],
-      total: numAmount,
-      razorpayPaymentId: razorpay_payment_id,
-      razorpayOrderId: razorpay_order_id || null,
-      razorpaySubscriptionId: razorpay_subscription_id || null,
-      referenceId: donationId,
-      is80g: !!(want80g && pan),
-      description: `Donation ₹${numAmount}${recurring ? ' (Recurring)' : ''}`
-    });
-    const receiptUrl = rcpt ? `${backendUrl}/receipt/${rcpt.token}` : null;
-    if (rcpt) console.log(`🧾 Donation receipt created: ${rcpt.receipt_id}`);
-    // Sync receipt to Zoho (non-blocking)
-    if (rcpt) syncReceiptToZoho(rcpt.toObject ? rcpt.toObject() : rcpt).catch(err => console.warn('⚠️ Zoho sync:', err.message));
-
-    // Send 80G receipt email if donor opted in and has PAN + email
-    let receipt80GSent = false;
-    if (want80g && email && pan) {
-      try {
-        await send80GReceipt({
-          donationId,
-          name: name || 'Donor',
-          email,
-          pan,
-          address: address || '',
-          amount: numAmount,
-          paymentId: razorpay_payment_id,
-          date: new Date()
-        });
-        receipt80GSent = true;
-        addBreadcrumb('email', '80G receipt sent', { donationId, email });
-      } catch (mailErr) {
-        console.error('80G receipt email failed:', mailErr.message);
-        captureError(mailErr, { context: '80g-receipt-email', donationId });
-      }
-    }
-
-    // Always send donation confirmation email with receipt link
-    if (email) {
-      sendDonationConfirmation({
-        name: name || 'Donor',
-        email,
-        amount: numAmount,
-        donationId,
-        paymentId: razorpay_payment_id,
-        recurring: !!recurring,
-        pointsEarned: donationData.points_earned || 0,
-        receiptUrl
-      })
-        .then(() => console.log(`✅ Donation confirmation email sent → ${email}`))
-        .catch(e => console.error('⚠️ Donation confirmation email failed:', e.message));
-    }
-
-    // Send WhatsApp donation confirmation (non-blocking)
-    if (mobile) {
-      sendWhatsAppDonation({
-        mobile,
-        name: name || 'Donor',
-        amount: numAmount,
-        donationId,
-        paymentId: razorpay_payment_id
-      }).catch(e => console.error('⚠️ WhatsApp donation confirmation failed:', e.message));
-
-      // Send donation receipt SMS (based on 80G eligibility)
-      const smsName = name || 'Donor';
-      if (receipt80GSent) {
-        sendDonationReceipt80GSms({ mobile, name: smsName, amount: numAmount })
-          .catch(e => console.error('⚠️ 80G receipt SMS failed:', e.message));
-      } else {
-        sendDonationReceiptSms({ mobile, name: smsName, amount: numAmount })
-          .catch(e => console.error('⚠️ Donation receipt SMS failed:', e.message));
-      }
-    }
-
-    // Admin alert for donation (non-blocking)
-    sendAdminAlert({
-      subject: `New Donation: ₹${numAmount} — ${name || 'Anonymous'}`,
-      rows: [
-        ['Donation ID', donationId],
-        ['Amount', `₹${numAmount.toLocaleString('en-IN')}`],
-        ['Donor', name || 'Anonymous'],
-        ['Email', email || '—'],
-        ['Mobile', mobile || '—'],
-        ['Type', recurring ? 'Recurring (Monthly)' : 'One-time'],
-        ['Payment ID', razorpay_payment_id],
-        ['80G Sent', receipt80GSent ? 'Yes' : 'No']
-      ]
-    }).catch(() => {});
-
-    res.json({
-      ok: true,
-      donationId,
-      message: `Thank you for your ₹${numAmount} donation!`,
+    const result = await recordDonationPayment({
+      paymentGateway: 'razorpay',
+      name,
+      mobile,
+      email,
+      pan,
+      address,
+      amount,
+      memberIdInput,
+      want80g,
+      ref,
       paymentId: razorpay_payment_id,
-      pointsEarned: donationData.points_earned || 0,
-      receipt80GSent
+      orderId: razorpay_order_id || null,
+      subscriptionId: razorpay_subscription_id || null,
+      recurring: !!recurring,
+      verifiedToken: verified_token,
+      source: recurring ? 'razorpay_recurring' : 'razorpay'
     });
+
+    res.json(result);
   } catch (err) {
     console.error('Razorpay donation error:', err);
     captureError(err, { context: 'razorpay-donation' });

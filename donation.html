@@ -563,8 +563,8 @@
         </div>
         <p style="font-weight:900;font-size:1.4rem;color:#0f172a;margin:12px 0">Amount: ₹<span id="donateAmountDisplay">0</span><span id="donateAmountSuffix"></span></p>
       </div>
-      <button id="razorpayDonateBtn" class="btn-solid" style="background:linear-gradient(135deg,#6153ff,#8b5cf6);font-size:1.05rem;padding:14px 0"><i class="fa-solid fa-lock"></i> Pay Securely Now</button>
-      <p style="text-align:center;margin-top:10px;font-size:0.82rem;color:#94a3b8"><i class="fas fa-shield-alt"></i> Secured by Razorpay</p>
+      <button id="razorpayDonateBtn" class="btn-solid" style="background:linear-gradient(135deg,#5f259f,#7c3aed);font-size:1.05rem;padding:14px 0"><i class="fa-solid fa-mobile-screen-button"></i> Pay with PhonePe</button>
+      <p id="donateGatewayNote" style="text-align:center;margin-top:10px;font-size:0.82rem;color:#94a3b8"><i class="fas fa-shield-alt"></i> One-time donations use PhonePe · Monthly donations use Razorpay AutoPay</p>
     </div>
     </div><!-- /padding wrapper -->
   </div>
@@ -864,6 +864,20 @@
   const donateStep2=document.getElementById('donateStep2');
   const HIGH_VALUE = 50000;
 
+  function setDonateGatewayUI(isRecurring){
+    const btn = document.getElementById('razorpayDonateBtn');
+    const note = document.getElementById('donateGatewayNote');
+    if(isRecurring){
+      btn.style.background = 'linear-gradient(135deg,#6153ff,#8b5cf6)';
+      btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Set Up Monthly Donation';
+      note.innerHTML = '<i class="fas fa-shield-alt"></i> Monthly donations are secured by Razorpay AutoPay';
+    } else {
+      btn.style.background = 'linear-gradient(135deg,#5f259f,#7c3aed)';
+      btn.innerHTML = '<i class="fa-solid fa-mobile-screen-button"></i> Pay with PhonePe';
+      note.innerHTML = '<i class="fas fa-shield-alt"></i> One-time donations use PhonePe · Monthly donations use Razorpay AutoPay';
+    }
+  }
+
   function resetDonate(){ 
     donateForm.reset(); 
     donateStep2.style.display='none';
@@ -888,7 +902,7 @@
     setRecurringVisual(false);
     document.getElementById('donateRecurringInfo').style.display = 'none';
     document.getElementById('donateAmountSuffix').textContent = '';
-    document.getElementById('razorpayDonateBtn').innerHTML = '<i class="fa-solid fa-lock"></i> Pay Securely Now';
+    setDonateGatewayUI(false);
     document.querySelectorAll('.amount-chip').forEach(c => c.classList.remove('active'));
     // Safe check for optional elements
     const doneWrap = document.getElementById('doneWrap');
@@ -989,9 +1003,7 @@
     const isRecurring = donateFormData.recurring;
     document.getElementById('donateRecurringInfo').style.display = isRecurring ? 'block' : 'none';
     document.getElementById('donateAmountSuffix').textContent = isRecurring ? '/month' : '';
-    document.getElementById('razorpayDonateBtn').innerHTML = isRecurring
-      ? '<i class="fa-solid fa-rotate"></i> Set Up Monthly Donation'
-      : '<i class="fa-solid fa-lock"></i> Pay Securely Now';
+    setDonateGatewayUI(isRecurring);
 
     if(Number(donateFormData.amount) >= HIGH_VALUE) {
       // Require OTP verification
@@ -1084,9 +1096,9 @@
     const isRecurring = donateFormData.recurring;
     const BTN_LABEL = isRecurring
       ? '<i class="fa-solid fa-rotate"></i> Set Up Monthly Donation'
-      : '<i class="fa-solid fa-lock"></i> Pay Securely Now';
+      : '<i class="fa-solid fa-mobile-screen-button"></i> Pay with PhonePe';
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (isRecurring ? 'Setting up subscription...' : 'Creating Order...');
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (isRecurring ? 'Setting up subscription...' : 'Opening PhonePe...');
     
     try {
       let options;
@@ -1153,67 +1165,31 @@
         };
 
       } else {
-        // ── ONE-TIME: create a Razorpay order ──
-        const orderRes = await fetch('/api/pay/create-order', {
+        const phonePeRes = await fetch('/api/pay/create-phonepe-donation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: Number(donateFormData.amount), type: 'donation', notes: { name: donateFormData.name, email: donateFormData.email } })
+          body: JSON.stringify({
+            amount: Number(donateFormData.amount),
+            name: donateFormData.name,
+            mobile: donateFormData.mobile,
+            email: donateFormData.email,
+            pan: donateFormData.pan,
+            address: donateFormData.address,
+            want80g: donateFormData.want80g,
+            verified_token: donateFormData.verified_token,
+            ref: sessionStorage.getItem('fwfDonRefCode') || ''
+          })
         });
-        const orderData = await orderRes.json();
-        if (!orderData.ok) { FWF_Notify.toast(orderData.error || 'Failed to create order', 'error'); btn.disabled = false; btn.innerHTML = BTN_LABEL; return; }
+        const phonePeData = await phonePeRes.json();
+        if (!phonePeRes.ok || !phonePeData.ok || !phonePeData.redirectUrl) {
+          FWF_Notify.toast(phonePeData.error || 'Failed to start PhonePe payment', 'error');
+          btn.disabled = false;
+          btn.innerHTML = BTN_LABEL;
+          return;
+        }
 
-        btn.innerHTML = BTN_LABEL;
-
-        options = {
-          key: orderData.key,
-          amount: orderData.order.amount,
-          currency: orderData.order.currency,
-          name: "FWF - Foundation for Livelihood",
-          description: 'Donation ₹' + donateFormData.amount,
-          image: '/assets/images/logo.png',
-          order_id: orderData.order.id,
-          prefill: { name: donateFormData.name, email: donateFormData.email, contact: donateFormData.mobile },
-          theme: { color: '#ff416c' },
-          handler: async function(response) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Recording Donation...';
-            try {
-              const res = await fetch('/api/pay/donation', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: donateFormData.name,
-                  mobile: donateFormData.mobile,
-                  email: donateFormData.email,
-                  pan: donateFormData.pan,
-                  address: donateFormData.address,
-                  amount: Number(donateFormData.amount),
-                  want80g: donateFormData.want80g,
-                  verified_token: donateFormData.verified_token,
-                  ref: sessionStorage.getItem('fwfDonRefCode') || '',
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_signature: response.razorpay_signature
-                })
-              });
-              const data = await res.json();
-              if (data.ok) {
-                FWF_Notify.modal({
-                  title: '🎉 Thank You!',
-                  message: `Your donation of ₹${donateFormData.amount} has been received successfully!${data.receipt80GSent ? '<br><br><span style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:6px 10px;border-radius:8px;font-size:0.85rem;display:inline-block">📄 80G Receipt sent to <strong>' + donateFormData.email + '</strong></span>' : (donateFormData.want80g ? '<br><br><small style="color:#ef4444">80G receipt could not be sent — our team will follow up.</small>' : '')}<br><br><small style="color:#64748b">Payment ID: ${response.razorpay_payment_id}</small>${data.pointsEarned ? '<br><small style="color:#22c55e">Points earned: ' + data.pointsEarned + '</small>' : ''}`,
-                  type: 'success',
-                  confirmText: 'OK',
-                  onConfirm: () => { closeModal(donateModal); resetDonate(); sessionStorage.removeItem('fwfDonRefCode'); }
-                });
-              } else {
-                FWF_Notify.toast(data.error || 'Error recording donation', 'error', 5000);
-              }
-            } catch(e) {
-              FWF_Notify.toast('Payment successful but recording failed. Contact support with ID: ' + response.razorpay_payment_id, 'warning', 8000);
-            } finally { btn.disabled = false; btn.innerHTML = BTN_LABEL; }
-          },
-          modal: { ondismiss: () => { btn.disabled = false; btn.innerHTML = BTN_LABEL; } }
-        };
+        window.location.href = phonePeData.redirectUrl;
+        return;
       }
 
       const rzp = new Razorpay(options);
@@ -1614,6 +1590,42 @@
   document.getElementById('closePartner').addEventListener('click', ()=> closeModal(partnerModal));
   partnerModal.addEventListener('click', (e)=>{ if(e.target===partnerModal) closeModal(partnerModal); });
   document.getElementById('partnerForm').addEventListener('submit', (e)=>{ e.preventDefault(); if(!e.target.checkValidity()){ e.target.reportValidity(); return;} FWF_Notify.toast('Thanks! CSR partnership request received. Our team will contact you.', 'success', 5000); closeModal(partnerModal); });
+
+  (function handlePhonePeReturn(){
+    const p = new URLSearchParams(location.search);
+    const status = p.get('phonepe');
+    if(!status) return;
+
+    const cleanup = (keepHash=false) => {
+      const next = new URL(location.href);
+      ['phonepe','phonepe_message','donationId','amount','paymentId'].forEach(key => next.searchParams.delete(key));
+      const finalUrl = next.pathname + (next.search ? next.search : '') + (keepHash ? next.hash : '');
+      history.replaceState({}, '', finalUrl || location.pathname);
+    };
+
+    if(status === 'success'){
+      const amount = p.get('amount') || '0';
+      const donationId = p.get('donationId') || '';
+      const paymentId = p.get('paymentId') || '';
+      FWF_Notify.modal({
+        title: '🎉 Thank You!',
+        message: `Your donation of ₹${amount} has been received successfully through PhonePe!${donationId ? '<br><br><small style="color:#64748b">Donation ID: ' + donationId + '</small>' : ''}${paymentId ? '<br><small style="color:#64748b">Payment ID: ' + paymentId + '</small>' : ''}`,
+        type: 'success',
+        confirmText: 'OK',
+        onConfirm: () => { sessionStorage.removeItem('fwfDonRefCode'); cleanup(false); }
+      });
+      return;
+    }
+
+    if(status === 'pending'){
+      FWF_Notify.toast(p.get('phonepe_message') || 'Your PhonePe payment is still pending. Please wait a moment and try again.', 'warning', 6000);
+      cleanup(true);
+      return;
+    }
+
+    FWF_Notify.toast(p.get('phonepe_message') || 'PhonePe payment was not completed. Please try again.', 'error', 6000);
+    cleanup(true);
+  })();
 
   // Auto-open donateModal when navigated via URL hash (placed last, after all vars/fns are defined)
   if(window.location.hash === '#donateModal') {
