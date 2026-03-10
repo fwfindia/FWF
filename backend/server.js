@@ -51,6 +51,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) { console.error('❌ JWT_SECRET is required'); process.exit(1); }
 const ORG_PREFIX = process.env.ORG_PREFIX || 'FWF';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT === 'production';
+const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  sameSite: 'none',
+  secure: true,
+  ...(IS_PRODUCTION ? { domain: process.env.COOKIE_DOMAIN || '.fwfindia.org' } : {})
+};
 
 // --- Razorpay instance ---
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -1045,7 +1051,7 @@ app.post('/api/pay/upgrade-to-member', auth('supporter'), async (req, res) => {
 
     // Issue new JWT cookie with updated role
     const newToken = signToken({ uid: supporter._id.toString(), role: 'member', memberId, name: supporter.name });
-    res.cookie('token', newToken, { httpOnly: true, sameSite: 'none', secure: true });
+    res.cookie('token', newToken, AUTH_COOKIE_OPTIONS);
 
     // Send member welcome email (non-blocking)
     sendMemberWelcome({ name: supporter.name, email: supporter.email, memberId, password: plain, mobile: supporter.mobile })
@@ -1443,7 +1449,7 @@ app.post('/api/auth/login', rateLimit(60000, 5), async (req, res) => {
     return res.status(400).json({ error: 'Invalid Member ID or password' });
   }
   const token = signToken({ uid: u._id.toString(), role: u.role, memberId: u.member_id, name: u.name });
-  res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
+  res.cookie('token', token, AUTH_COOKIE_OPTIONS);
   addBreadcrumb('auth', 'Member logged in', { memberId: u.member_id });
   res.json({ ok: true, role: u.role });
 });
@@ -1454,12 +1460,12 @@ app.post('/api/admin/login', rateLimit(60000, 5), async (req, res) => {
   if (!u) return res.status(400).json({ error: 'Invalid credentials' });
   if (!bcrypt.compareSync(password, u.password_hash)) return res.status(400).json({ error: 'Invalid credentials' });
   const token = signToken({ uid: u._id.toString(), role: u.role, memberId: u.member_id, name: u.name });
-  res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
+  res.cookie('token', token, AUTH_COOKIE_OPTIONS);
   res.json({ ok: true });
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  res.clearCookie('token', { httpOnly: true, sameSite: 'none', secure: true });
+  res.clearCookie('token', AUTH_COOKIE_OPTIONS);
   res.json({ ok: true });
 });
 
