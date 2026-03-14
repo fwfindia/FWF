@@ -5765,8 +5765,21 @@ function renderCourses(){
 
 function openCourseModal(idx){
   const c = COURSES_DATA[idx];
+  _activeCourseIdx = idx;
+  window._modalVideos = {};
+  closeCourseVideoPlayer();
+
   document.getElementById('courseModalTitle').textContent = c.title;
-  document.getElementById('courseModalDesc').textContent = c.desc;
+  document.getElementById('courseModalDesc').textContent  = c.desc || '';
+
+  const { done, total } = getCourseProgress(idx);
+  const pct   = total > 0 ? Math.round(done/total*100) : 0;
+  const prog  = total > 0
+    ? `<span id="courseProgressMeta" style="background:${pct===100?'#dcfce7':'#f0f9ff'};color:${pct===100?'#16a34a':'#0369a1'};padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700">
+         <i class="fa-solid fa-chart-simple"></i> ${done}/${total} Videos (${pct}%)
+       </span>`
+    : '<span id="courseProgressMeta"></span>';
+
   document.getElementById('courseModalMeta').innerHTML = `
     <span style="background:${c.color}22;color:${c.color};padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700">
       <i class="fa-solid fa-clock"></i> ${c.weeks} Weeks
@@ -5776,29 +5789,52 @@ function openCourseModal(idx){
     </span>
     <span style="background:#f0f9ff;color:#0369a1;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700">
       <i class="fa-solid fa-list-ol"></i> ${c.chapters.length} Chapters
-    </span>`;
-  document.getElementById('courseChaptersList').innerHTML = c.chapters.map((ch, ci) => `
-    <div style="border:1px solid var(--card-border,#e5e7eb);border-radius:12px;overflow:hidden">
+    </span>
+    ${prog}`;
+
+  document.getElementById('courseChaptersList').innerHTML = c.chapters.map((ch, ci) => {
+    const linksHtml = (ch.links||[]).map((l, li) => {
+      const ytId = getYTVideoId(l.url);
+      if (ytId) {
+        const vkey = 'v' + ci + '_' + li;
+        window._modalVideos[vkey] = { videoId: ytId, label: l.label, color: c.color };
+        const done = isVidDone(ytId);
+        return `<div id="vidrow_${ytId}" onclick="playVideoInModal2('${vkey}')"
+          style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${done?'#f0fdf4':'var(--bg-0,#fff)'};border:1px solid ${done?'#86efac':'var(--card-border,#e5e7eb)'};border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s">
+          <span class="vid-status-icon" style="flex-shrink:0">
+            ${done ? '<i class="fa-solid fa-circle-check" style="color:#22c55e;font-size:16px"></i>'
+                   : `<i class="fa-solid fa-play-circle" style="color:${c.color};font-size:16px"></i>`}
+          </span>
+          <span style="flex:1">${l.label}</span>
+          <span class="vid-watch-badge" style="font-size:10px;white-space:nowrap;padding:2px 8px;border-radius:6px;${done?'color:#16a34a;background:#dcfce7':'color:var(--muted,#9ca3af);background:var(--soft,#f1f5f9)'}">
+            ${done ? '✓ Watched' : '▶ Watch'}
+          </span>
+        </div>`;
+      } else {
+        return `<a href="${l.url}" target="_blank" rel="noopener noreferrer"
+          style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-0,#fff);border:1px solid var(--card-border,#e5e7eb);border-radius:8px;text-decoration:none;color:inherit;font-size:12px;font-weight:600">
+          <i class="fa-solid fa-file-lines" style="color:${c.color};font-size:15px;flex-shrink:0"></i>
+          <span style="flex:1">${l.label}</span>
+          <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;color:var(--muted,#9ca3af)"></i>
+        </a>`;
+      }
+    }).join('');
+    return `<div style="border:1px solid var(--card-border,#e5e7eb);border-radius:12px;overflow:hidden">
       <div style="background:var(--bg-1,#f8fafc);padding:12px 16px;font-weight:800;font-size:13px;border-bottom:1px solid var(--card-border,#e5e7eb);display:flex;align-items:center;gap:8px">
         <span style="background:${c.color};color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">${ci+1}</span>
         ${ch.title}
       </div>
-      <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
-        ${ch.links.map(l => `
-          <a href="${l.url}" target="_blank" rel="noopener noreferrer"
-             style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-0,#fff);border:1px solid var(--card-border,#e5e7eb);border-radius:8px;text-decoration:none;color:inherit;font-size:12px;font-weight:600;transition:background .15s">
-            <i class="fa-solid fa-play-circle" style="color:${c.color};font-size:16px;flex-shrink:0"></i>
-            <span>${l.label}</span>
-            <i class="fa-solid fa-arrow-up-right-from-square" style="margin-left:auto;font-size:11px;color:var(--text-muted,#9ca3af)"></i>
-          </a>`).join('')}
-      </div>
-    </div>`).join('');
+      <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">${linksHtml}</div>
+    </div>`;
+  }).join('');
+
   const modal = document.getElementById('courseDetailModal');
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
 
 function closeCourseModal(){
+  closeCourseVideoPlayer();
   document.getElementById('courseDetailModal').style.display = 'none';
   document.body.style.overflow = '';
 }
@@ -5806,6 +5842,151 @@ function closeCourseModal(){
 document.addEventListener('click', e => {
   if(e.target.id === 'courseDetailModal') closeCourseModal();
 });
+
+/* ============================================
+   YOUTUBE VIDEO PLAYER & COMPLETION TRACKING
+   ============================================ */
+let _ytPlayer       = null;
+let _ytProgressTmr  = null;
+let _activeCourseIdx = null;
+let _ytApiReady     = false;
+let _ytPendingPlay  = null;
+
+window.onYouTubeIframeAPIReady = function() {
+  _ytApiReady = true;
+  if (_ytPendingPlay) { _ytPendingPlay(); _ytPendingPlay = null; }
+};
+(function() {
+  if (document.querySelector('script[src*="youtube.com/iframe_api"]')) return;
+  const s = document.createElement('script');
+  s.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(s);
+})();
+
+function getYTVideoId(url) {
+  if (!url) return null;
+  const m = String(url).match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function isVidDone(ytId)  { return !!ytId && localStorage.getItem('fwf_vid_' + ytId) === '1'; }
+function markVidDone(ytId) {
+  if (!ytId) return;
+  localStorage.setItem('fwf_vid_' + ytId, '1');
+  // Update the link row visually
+  const row = document.getElementById('vidrow_' + ytId);
+  if (row) {
+    row.style.background   = '#f0fdf4';
+    row.style.borderColor  = '#86efac';
+    const ico = row.querySelector('.vid-status-icon');
+    if (ico) ico.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e;font-size:16px"></i>';
+    const badge = row.querySelector('.vid-watch-badge');
+    if (badge) { badge.textContent = '✓ Watched'; badge.style.color = '#16a34a'; badge.style.background = '#dcfce7'; }
+  }
+  // Refresh overall progress counter
+  if (_activeCourseIdx !== null) _updateProgressBadge(_activeCourseIdx);
+}
+
+function getCourseProgress(idx) {
+  const c = COURSES_DATA[idx];
+  if (!c) return { done:0, total:0 };
+  let total=0, done=0;
+  (c.chapters||[]).forEach(ch => (ch.links||[]).forEach(l => {
+    const vid = getYTVideoId(l.url);
+    if (vid) { total++; if (isVidDone(vid)) done++; }
+  }));
+  return { done, total };
+}
+
+function _updateProgressBadge(idx) {
+  const { done, total } = getCourseProgress(idx);
+  const el = document.getElementById('courseProgressMeta');
+  if (!el || !total) return;
+  const pct = Math.round(done/total*100);
+  const color = pct===100 ? '#16a34a' : '#0369a1';
+  const bg    = pct===100 ? '#dcfce7'  : '#f0f9ff';
+  el.style.background = bg; el.style.color = color;
+  el.innerHTML = `<i class="fa-solid fa-chart-simple"></i> ${done}/${total} Videos (${pct}%)`;
+}
+
+window._modalVideos = {};
+
+function playVideoInModal2(vkey) {
+  const v = window._modalVideos[vkey];
+  if (!v) return;
+  const panel    = document.getElementById('courseVideoPlayer');
+  const titleEl  = document.getElementById('courseVideoTitle');
+  const statusEl = document.getElementById('courseVideoStatus');
+  if (!panel) return;
+
+  titleEl.textContent   = v.label;
+  const alreadyDone     = isVidDone(v.videoId);
+  statusEl.textContent  = alreadyDone ? '✅ Pehle dekh chuke hain — well done!' : 'Dekh rahe hain… video puri karo to complete mark hoga';
+  statusEl.style.color  = alreadyDone ? '#22c55e' : '#94a3b8';
+  panel.style.display   = 'block';
+
+  // Destroy previous player
+  clearInterval(_ytProgressTmr);
+  if (_ytPlayer) { try { _ytPlayer.destroy(); } catch(e) {} _ytPlayer = null; }
+  const container = document.getElementById('ytPlayerElem');
+  container.innerHTML = '';
+
+  function createPlayer() {
+    try {
+      const innerDiv = document.createElement('div');
+      container.appendChild(innerDiv);
+      _ytPlayer = new YT.Player(innerDiv, {
+        videoId:     v.videoId,
+        playerVars:  { autoplay:1, rel:0, modestbranding:1, playsinline:1 },
+        width:  '100%',
+        height: '100%',
+        events: {
+          onReady: function(e) {
+            e.target.playVideo();
+            _ytProgressTmr = setInterval(() => {
+              try {
+                const dur = _ytPlayer.getDuration();
+                const cur = _ytPlayer.getCurrentTime();
+                if (dur > 0 && cur/dur >= 0.8) {
+                  clearInterval(_ytProgressTmr);
+                  markVidDone(v.videoId);
+                  statusEl.textContent = '🎉 Video complete!'; statusEl.style.color = '#22c55e';
+                }
+              } catch(err) {}
+            }, 4000);
+          },
+          onStateChange: function(e) {
+            if (e.data === YT.PlayerState.ENDED) {
+              clearInterval(_ytProgressTmr);
+              markVidDone(v.videoId);
+              statusEl.textContent = '🎉 Video complete!'; statusEl.style.color = '#22c55e';
+            } else if (e.data === YT.PlayerState.PLAYING) {
+              if (!isVidDone(v.videoId)) { statusEl.textContent = '▶ Dekh rahe hain…'; statusEl.style.color = '#94a3b8'; }
+            }
+          }
+        }
+      });
+    } catch(err) {
+      // Fallback raw iframe if API fails
+      container.innerHTML = `<iframe src="https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0&modestbranding=1" style="width:100%;height:100%;border:0" allow="autoplay;encrypted-media" allowfullscreen></iframe>`;
+    }
+  }
+
+  if (_ytApiReady && window.YT && window.YT.Player) {
+    createPlayer();
+  } else {
+    _ytPendingPlay = createPlayer;
+  }
+
+  setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'start' }), 80);
+}
+
+function closeCourseVideoPlayer() {
+  const panel = document.getElementById('courseVideoPlayer');
+  if (panel) panel.style.display = 'none';
+  clearInterval(_ytProgressTmr); _ytProgressTmr = null;
+  if (_ytPlayer) { try { _ytPlayer.destroy(); } catch(e) {} _ytPlayer = null; }
+}
 
 /* ============================================
    INIT
@@ -5817,7 +5998,7 @@ loadCourses();
 
 <!-- ===== Course Detail Modal ===== -->
 <div id="courseDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
-  <div style="background:var(--card-bg,#fff);border-radius:16px;width:100%;max-width:680px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">
+  <div style="background:var(--card-bg,#fff);border-radius:16px;width:100%;max-width:700px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">
     <div id="courseModalHeader" style="padding:24px 24px 18px;border-bottom:1px solid var(--card-border,#e5e7eb)">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
         <div>
@@ -5828,6 +6009,21 @@ loadCourses();
         <button onclick="closeCourseModal()" style="background:none;border:1px solid var(--card-border,#e5e7eb);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px;flex-shrink:0;display:grid;place-items:center;color:var(--text-muted)">&times;</button>
       </div>
     </div>
+
+    <!-- ── Embedded Video Player (visible when a video is playing) ── -->
+    <div id="courseVideoPlayer" style="display:none;background:#0f0f0f">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#111;gap:10px">
+        <span id="courseVideoTitle" style="color:#ffffffdd;font-size:12px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+        <button onclick="closeCourseVideoPlayer()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:12px;white-space:nowrap;padding:4px 8px;border-radius:6px;border:1px solid #333">
+          <i class="fa-solid fa-xmark"></i> Player band karo
+        </button>
+      </div>
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:#000">
+        <div id="ytPlayerElem" style="position:absolute;top:0;left:0;width:100%;height:100%"></div>
+      </div>
+      <div id="courseVideoStatus" style="padding:7px 14px;background:#111;color:#94a3b8;font-size:11px;text-align:center;border-top:1px solid #222;letter-spacing:.02em"></div>
+    </div>
+
     <div style="padding:20px 24px 28px">
       <h3 style="font-size:14px;font-weight:800;margin:0 0 14px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)"><i class="fa-solid fa-list-check" style="color:var(--accent)"></i> Chapter-wise Free Resources</h3>
       <div id="courseChaptersList" style="display:flex;flex-direction:column;gap:10px"></div>
