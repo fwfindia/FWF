@@ -2888,6 +2888,7 @@ function switchPage(page, updateHash = true){
   if(page === 'marketplace') loadMarketProducts();
   if(page === 'seller')      loadSellerData();
   if(page === 'events')      loadEventsPage();
+  if(page === 'training')    loadCourses();
 }
 
 document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
@@ -5399,7 +5400,27 @@ loadDashboard();
 /* ============================================
    COURSES DATA & RENDERER
    ============================================ */
-const COURSES_DATA = [
+let COURSES_DATA = [];
+let _coursesLoaded = false;
+
+async function loadCourses() {
+  if (_coursesLoaded) { renderCourses(); return; }
+  const grid = document.getElementById('coursesGrid');
+  if (grid) grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fa-solid fa-spinner fa-spin" style="font-size:24px"></i><p style="margin-top:12px">Loading courses...</p></div>';
+  try {
+    const data = await fetch('/api/courses', { credentials: 'include' }).then(r => r.json());
+    if (data.ok && data.courses && data.courses.length) {
+      COURSES_DATA = data.courses;
+      _coursesLoaded = true;
+    }
+  } catch(e) {
+    console.warn('Could not load courses from API:', e);
+  }
+  renderCourses();
+}
+
+// Legacy fallback data (used if API is unreachable) — admin manages courses via dashboard
+const _LEGACY_COURSES = [
   {
     id: 'tailoring',
     title: 'Tailoring & Stitching',
@@ -5717,6 +5738,10 @@ const COURSES_DATA = [
     ]
   }
 ];
+// If API not yet loaded, prefill with legacy data as fallback
+if (!_coursesLoaded) {
+  COURSES_DATA = _LEGACY_COURSES.map(c => ({ ...c, courseId: c.id }));
+}
 
 function renderCourses(){
   const grid = document.getElementById('coursesGrid');
@@ -5726,7 +5751,7 @@ function renderCourses(){
       <div class="course-thumb" style="background:${c.color}"><i class="fa-solid ${c.icon}"></i></div>
       <div class="course-info">
         <h4>${c.title}</h4>
-        <p>${c.desc}</p>
+        <p>${c.desc || ''}</p>
         <div class="course-status">
           <span style="color:var(--success)"><i class="fa-solid fa-clock"></i> ${c.weeks} Weeks</span>
           <span class="badge b-active">Free</span>
@@ -5787,7 +5812,7 @@ document.addEventListener('click', e => {
    ============================================ */
 loadDashboard();
 loadStoreCategories();
-renderCourses();
+loadCourses();
 </script>
 
 <!-- ===== Course Detail Modal ===== -->

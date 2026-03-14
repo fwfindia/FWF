@@ -1155,113 +1155,118 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 
   <!-- ===================== COURSE MANAGEMENT ===================== -->
   <div class="page" id="page-courses">
+    <!-- Stats -->
     <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
       <div class="stat-card">
         <div class="s-icon s-purple"><i class="fa-solid fa-book-open"></i></div>
         <div class="s-label">Total Courses</div>
-        <div class="s-value">6</div>
+        <div class="s-value" id="crsTotal">—</div>
       </div>
       <div class="stat-card">
-        <div class="s-icon s-green"><i class="fa-solid fa-users"></i></div>
-        <div class="s-label">Total Enrollments</div>
-        <div class="s-value">0</div>
+        <div class="s-icon s-green"><i class="fa-solid fa-toggle-on"></i></div>
+        <div class="s-label">Active</div>
+        <div class="s-value" id="crsActive">—</div>
       </div>
       <div class="stat-card">
-        <div class="s-icon s-blue"><i class="fa-solid fa-check-circle"></i></div>
-        <div class="s-label">Completed</div>
-        <div class="s-value">0</div>
+        <div class="s-icon s-blue"><i class="fa-solid fa-list"></i></div>
+        <div class="s-label">Total Chapters</div>
+        <div class="s-value" id="crsChapters">—</div>
       </div>
       <div class="stat-card">
-        <div class="s-icon s-amber"><i class="fa-solid fa-certificate"></i></div>
-        <div class="s-label">Certificates Issued</div>
-        <div class="s-value">0</div>
+        <div class="s-icon s-amber"><i class="fa-solid fa-link"></i></div>
+        <div class="s-label">Total Links</div>
+        <div class="s-value" id="crsLinks">—</div>
       </div>
     </div>
 
+    <!-- Header + Add Button -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <h3 style="font-size:16px;font-weight:800"><i class="fa-solid fa-graduation-cap" style="color:var(--accent)"></i> Course Management</h3>
-      <button class="btn btn-primary" onclick="openModal('addCourseModal')"><i class="fa-solid fa-plus"></i> Add Course</button>
+      <button class="btn btn-primary" onclick="openAddCourseModal()"><i class="fa-solid fa-plus"></i> Add Course</button>
     </div>
 
-    <div class="content-card">
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>Course</th><th>Category</th><th>Duration</th><th>Enrollments</th><th>Completed</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            <tr>
-              <td style="font-weight:800">Tailoring & Stitching</td>
-              <td><span class="badge b-active">Skill</span></td>
-              <td>4 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Basic Computer Skills</td>
-              <td><span class="badge b-open">Digital</span></td>
-              <td>6 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Food Processing & Packaging</td>
-              <td><span class="badge b-progress">Business</span></td>
-              <td>3 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Handicraft & Mehndi Art</td>
-              <td><span class="badge b-active">Skill</span></td>
-              <td>3 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Digital Marketing</td>
-              <td><span class="badge b-open">Digital</span></td>
-              <td>5 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Organic Farming</td>
-              <td><span class="badge b-resolved">Agriculture</span></td>
-              <td>4 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Courses List -->
+    <div id="crsListWrap">
+      <div class="content-card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Course</th><th>Icon</th><th>Weeks</th><th>Chapters</th><th>Links</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="crsTbody"><tr><td colspan="7" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chapter Manager Panel (shown inline below list) -->
+    <div id="crsChapterPanel" style="display:none;margin-top:16px">
+      <div class="content-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px">
+          <h4 style="font-size:14px;font-weight:800;margin:0">
+            <i class="fa-solid fa-list-check" style="color:var(--accent)"></i>
+            Chapters: <span id="chPanelTitle">—</span>
+          </h4>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="chAddChapter()"><i class="fa-solid fa-plus"></i> Add Chapter</button>
+            <button class="btn btn-ghost btn-sm" onclick="closeChapterPanel()"><i class="fa-solid fa-times"></i> Close</button>
+          </div>
+        </div>
+        <div id="chEditorBody"></div>
+        <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="closeChapterPanel()">Cancel</button>
+          <button class="btn btn-success btn-sm" onclick="saveChapters()"><i class="fa-solid fa-save"></i> Save Chapters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Course Modal -->
+  <div class="modal-overlay" id="courseFormModal" style="display:none">
+    <div class="modal-box" style="max-width:480px">
+      <div class="modal-head">
+        <span id="courseFormTitle">Add New Course</span>
+        <button class="modal-close" onclick="closeCourseFormModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+        <input type="hidden" id="cfEditId" value="">
+        <div>
+          <label class="form-label">Course ID (unique slug) *</label>
+          <input type="text" id="cfCourseId" class="form-input" placeholder="e.g. tailoring" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-')">
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Lowercase letters, numbers and hyphens only. Cannot change after creation.</div>
+        </div>
+        <div>
+          <label class="form-label">Course Title *</label>
+          <input type="text" id="cfTitle" class="form-input" placeholder="e.g. Tailoring & Stitching">
+        </div>
+        <div>
+          <label class="form-label">Short Description</label>
+          <input type="text" id="cfDesc" class="form-input" placeholder="One line about this course">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div>
+            <label class="form-label">FontAwesome Icon</label>
+            <input type="text" id="cfIcon" class="form-input" placeholder="fa-scissors" value="fa-book">
+          </div>
+          <div>
+            <label class="form-label">Color</label>
+            <input type="color" id="cfColor" class="form-input" value="#2563EB" style="height:38px;padding:4px">
+          </div>
+          <div>
+            <label class="form-label">Duration (weeks)</label>
+            <input type="number" id="cfWeeks" class="form-input" value="4" min="1" max="52">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">Sort Order</label>
+          <input type="number" id="cfOrder" class="form-input" value="0" min="0">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="cfActive" checked style="width:16px;height:16px">
+          <label for="cfActive" class="form-label" style="margin:0">Active (visible to members)</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeCourseFormModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCourseForm()"><i class="fa-solid fa-save"></i> Save Course</button>
       </div>
     </div>
   </div>
@@ -2292,6 +2297,7 @@ function switchPage(page, updateHash = true){
   if(page === 'points')      loadPointsActivity();
   if(page === 'reports')     loadReports();
   if(page === 'marketplace') loadMarketplaceAdmin();
+  if(page === 'courses')     loadCoursesAdmin();
   if(page === 'projectcosts') renderCostEditor();
   if(page === 'fundraiser')  { loadFundRaiser(); }
   if(page === 'invoices')    { loadZohoStatus(); loadInvoices(); }
@@ -3450,6 +3456,255 @@ document.getElementById('logoutBtn').addEventListener('click', ()=>{
     }
   }
 });
+
+/* ============================================
+   COURSES ADMIN
+   ============================================ */
+let allAdminCourses = [];
+let chEditCourseId = null;   // courseId currently open in chapter editor
+
+async function loadCoursesAdmin() {
+  try {
+    const data = await AUTH.api('/api/admin/courses');
+    allAdminCourses = data.courses || [];
+    if (data.stats) {
+      document.getElementById('crsTotal').textContent    = data.stats.total;
+      document.getElementById('crsActive').textContent   = data.stats.active;
+      document.getElementById('crsChapters').textContent = data.stats.chapters;
+      document.getElementById('crsLinks').textContent    = data.stats.links;
+    }
+    renderCoursesList();
+  } catch(e) {
+    notify(e.message || 'Failed to load courses', 'error');
+  }
+}
+
+function renderCoursesList() {
+  const tbody = document.getElementById('crsTbody');
+  if (!allAdminCourses.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fa-solid fa-graduation-cap"></i><p>No courses yet</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = allAdminCourses.map(c => {
+    const chCount = (c.chapters || []).length;
+    const lkCount = (c.chapters || []).reduce((s, ch) => s + (ch.links || []).length, 0);
+    return `<tr>
+      <td>
+        <div style="font-weight:800;font-size:13px">${escHtml(c.title)}</div>
+        <div style="font-size:11px;color:var(--muted)">${escHtml(c.courseId)}</div>
+        <div style="font-size:11px;color:var(--muted)">${escHtml(c.desc || '')}</div>
+      </td>
+      <td><span style="font-size:18px;color:${escHtml(c.color||'#666')}"><i class="fa-solid ${escHtml(c.icon||'fa-book')}"></i></span></td>
+      <td style="font-weight:700">${c.weeks}w</td>
+      <td style="text-align:center">${chCount}</td>
+      <td style="text-align:center">${lkCount}</td>
+      <td>${c.active
+        ? '<span style="font-size:11px;font-weight:800;color:#22c55e;background:#22c55e15;padding:3px 10px;border-radius:8px">Active</span>'
+        : '<span style="font-size:11px;font-weight:800;color:#94a3b8;background:#94a3b815;padding:3px 10px;border-radius:8px">Hidden</span>'
+      }</td>
+      <td style="white-space:nowrap">
+        <button class="btn-icon" title="Edit course" onclick="openEditCourseModal('${escHtml(c.courseId)}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-icon" title="Manage chapters" onclick="openChapterPanel('${escHtml(c.courseId)}')"><i class="fa-solid fa-list-check"></i></button>
+        <button class="btn-icon" title="${c.active ? 'Hide from members' : 'Make active'}" onclick="toggleCourseActive('${escHtml(c.courseId)}',${!c.active})">
+          <i class="fa-solid ${c.active ? 'fa-toggle-on' : 'fa-toggle-off'}" style="color:${c.active ? '#22c55e' : '#94a3b8'}"></i>
+        </button>
+        <button class="btn-icon" title="Delete course" style="color:#ef4444" onclick="deleteCourse('${escHtml(c.courseId)}')"><i class="fa-solid fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function openAddCourseModal() {
+  document.getElementById('cfEditId').value = '';
+  document.getElementById('cfCourseId').value = '';
+  document.getElementById('cfCourseId').disabled = false;
+  document.getElementById('cfTitle').value = '';
+  document.getElementById('cfDesc').value = '';
+  document.getElementById('cfIcon').value = 'fa-book';
+  document.getElementById('cfColor').value = '#2563EB';
+  document.getElementById('cfWeeks').value = '4';
+  document.getElementById('cfOrder').value = '0';
+  document.getElementById('cfActive').checked = true;
+  document.getElementById('courseFormTitle').textContent = 'Add New Course';
+  document.getElementById('courseFormModal').style.display = 'flex';
+}
+
+function openEditCourseModal(courseId) {
+  const c = allAdminCourses.find(x => x.courseId === courseId);
+  if (!c) return;
+  document.getElementById('cfEditId').value = c.courseId;
+  document.getElementById('cfCourseId').value = c.courseId;
+  document.getElementById('cfCourseId').disabled = true;
+  document.getElementById('cfTitle').value = c.title;
+  document.getElementById('cfDesc').value = c.desc || '';
+  document.getElementById('cfIcon').value = c.icon || 'fa-book';
+  document.getElementById('cfColor').value = c.color || '#2563EB';
+  document.getElementById('cfWeeks').value = c.weeks || 4;
+  document.getElementById('cfOrder').value = c.order || 0;
+  document.getElementById('cfActive').checked = !!c.active;
+  document.getElementById('courseFormTitle').textContent = 'Edit Course';
+  document.getElementById('courseFormModal').style.display = 'flex';
+}
+
+function closeCourseFormModal() {
+  document.getElementById('courseFormModal').style.display = 'none';
+}
+
+async function saveCourseForm() {
+  const editId = document.getElementById('cfEditId').value;
+  const courseId = document.getElementById('cfCourseId').value.trim();
+  const title = document.getElementById('cfTitle').value.trim();
+  if (!title) return notify('Course title is required', 'error');
+  if (!editId && !courseId) return notify('Course ID is required', 'error');
+
+  const payload = {
+    title,
+    desc:   document.getElementById('cfDesc').value.trim(),
+    icon:   document.getElementById('cfIcon').value.trim() || 'fa-book',
+    color:  document.getElementById('cfColor').value,
+    weeks:  parseInt(document.getElementById('cfWeeks').value) || 4,
+    order:  parseInt(document.getElementById('cfOrder').value) || 0,
+    active: document.getElementById('cfActive').checked
+  };
+  if (!editId) payload.courseId = courseId;
+
+  try {
+    if (editId) {
+      await AUTH.api('/api/admin/courses/' + editId, { method: 'PUT', body: payload });
+      notify('Course updated!', 'success');
+    } else {
+      await AUTH.api('/api/admin/courses', { method: 'POST', body: payload });
+      notify('Course created!', 'success');
+    }
+    closeCourseFormModal();
+    loadCoursesAdmin();
+  } catch(e) { notify(e.message || 'Save failed', 'error'); }
+}
+
+async function toggleCourseActive(courseId, active) {
+  try {
+    await AUTH.api('/api/admin/courses/' + courseId, { method: 'PUT', body: { active } });
+    notify(active ? 'Course activated' : 'Course hidden', 'success');
+    loadCoursesAdmin();
+  } catch(e) { notify(e.message || 'Failed', 'error'); }
+}
+
+async function deleteCourse(courseId) {
+  if (!confirm(`Delete course "${courseId}"? This cannot be undone.`)) return;
+  try {
+    await AUTH.api('/api/admin/courses/' + courseId, { method: 'DELETE' });
+    notify('Course deleted', 'success');
+    if (chEditCourseId === courseId) closeChapterPanel();
+    loadCoursesAdmin();
+  } catch(e) { notify(e.message || 'Delete failed', 'error'); }
+}
+
+/* ---------- Chapter Manager ---------- */
+function openChapterPanel(courseId) {
+  const c = allAdminCourses.find(x => x.courseId === courseId);
+  if (!c) return;
+  chEditCourseId = courseId;
+  document.getElementById('chPanelTitle').textContent = c.title;
+  renderChapterEditor(JSON.parse(JSON.stringify(c.chapters || [])));
+  document.getElementById('crsChapterPanel').style.display = 'block';
+  document.getElementById('crsChapterPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeChapterPanel() {
+  chEditCourseId = null;
+  document.getElementById('crsChapterPanel').style.display = 'none';
+}
+
+// We store draft chapters in a JS array bound to the DOM editor
+let chDraftChapters = [];
+
+function renderChapterEditor(chapters) {
+  chDraftChapters = chapters;
+  const body = document.getElementById('chEditorBody');
+  if (!chDraftChapters.length) {
+    body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px">No chapters yet. Click "Add Chapter" to begin.</div>';
+    return;
+  }
+  body.innerHTML = chDraftChapters.map((ch, ci) => `
+    <div class="content-card" style="margin-bottom:12px;padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:11px;font-weight:800;color:var(--muted);background:var(--soft);padding:3px 8px;border-radius:6px">Ch ${ci+1}</span>
+        <input type="text" value="${escHtml(ch.title)}" onchange="chDraftChapters[${ci}].title=this.value"
+          class="form-input" style="flex:1;font-size:13px;font-weight:700" placeholder="Chapter title">
+        <button class="btn btn-ghost btn-sm" style="color:#ef4444" onclick="chRemoveChapter(${ci})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      <div id="linksArea_${ci}">
+        ${(ch.links || []).map((lk, li) => `
+          <div style="display:flex;gap:6px;margin-bottom:6px;align-items:center" id="linkRow_${ci}_${li}">
+            <select onchange="chDraftChapters[${ci}].links[${li}].type=this.value"
+              class="form-input" style="width:110px;font-size:11px;padding:6px 8px">
+              <option value="youtube" ${lk.type==='youtube'?'selected':''}>YouTube</option>
+              <option value="article" ${lk.type==='article'?'selected':''}>Article</option>
+              <option value="pdf"     ${lk.type==='pdf'    ?'selected':''}>PDF</option>
+              <option value="other"   ${lk.type==='other'  ?'selected':''}>Other</option>
+            </select>
+            <input type="text" value="${escHtml(lk.label)}" onchange="chDraftChapters[${ci}].links[${li}].label=this.value"
+              class="form-input" style="flex:1;font-size:12px" placeholder="Link label">
+            <input type="url" value="${escHtml(lk.url)}" onchange="chDraftChapters[${ci}].links[${li}].url=this.value"
+              class="form-input" style="flex:1.2;font-size:12px" placeholder="https://...">
+            <button class="btn-icon" style="color:#ef4444" onclick="chRemoveLink(${ci},${li})"><i class="fa-solid fa-times"></i></button>
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:6px;font-size:11px" onclick="chAddLink(${ci})">
+        <i class="fa-solid fa-plus"></i> Add Link
+      </button>
+    </div>`).join('');
+}
+
+function chAddChapter() {
+  chDraftChapters.push({ title: 'New Chapter', links: [] });
+  renderChapterEditor(chDraftChapters);
+}
+
+function chRemoveChapter(i) {
+  if (!confirm('Remove this chapter and all its links?')) return;
+  chDraftChapters.splice(i, 1);
+  renderChapterEditor(chDraftChapters);
+}
+
+function chAddLink(ci) {
+  if (!chDraftChapters[ci].links) chDraftChapters[ci].links = [];
+  chDraftChapters[ci].links.push({ label: '', url: '', type: 'youtube' });
+  renderChapterEditor(chDraftChapters);
+}
+
+function chRemoveLink(ci, li) {
+  chDraftChapters[ci].links.splice(li, 1);
+  renderChapterEditor(chDraftChapters);
+}
+
+async function saveChapters() {
+  if (!chEditCourseId) return;
+  // Validate: collect current values from DOM inputs before saving
+  // (onchange handlers update chDraftChapters as user types, but let's also read final values)
+  const chapterTitleInputs = document.querySelectorAll('#chEditorBody input[placeholder="Chapter title"]');
+  chDraftChapters.forEach((ch, ci) => {
+    if (chapterTitleInputs[ci]) ch.title = chapterTitleInputs[ci].value.trim();
+    (ch.links || []).forEach((lk, li) => {
+      const row = document.getElementById(`linkRow_${ci}_${li}`);
+      if (row) {
+        const inputs = row.querySelectorAll('input');
+        if (inputs[0]) lk.label = inputs[0].value.trim();
+        if (inputs[1]) lk.url = inputs[1].value.trim();
+      }
+    });
+    ch.links = (ch.links || []).filter(lk => lk.label || lk.url);
+  });
+  const valid = chDraftChapters.filter(ch => ch.title.trim());
+  try {
+    await AUTH.api('/api/admin/courses/' + chEditCourseId, { method: 'PUT', body: { chapters: valid } });
+    notify('Chapters saved!', 'success');
+    closeChapterPanel();
+    loadCoursesAdmin();
+  } catch(e) { notify(e.message || 'Save failed', 'error'); }
+}
 
 /* ============================================
    MARKETPLACE ADMIN

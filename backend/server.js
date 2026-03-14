@@ -33,6 +33,7 @@ import Receipt from './models/Receipt.js';
 import AppConfig from './models/AppConfig.js';
 import RedeemRequest from './models/RedeemRequest.js';
 import PhonePeDonationIntent from './models/PhonePeDonationIntent.js';
+import Course from './models/Course.js';
 import { syncReceiptToZoho, checkZohoConnection, getAuthUrl, exchangeCodeForTokens } from './lib/zoho.js';
 import { getTransporter, send80GReceipt, sendMemberWelcome, sendSupporterWelcome, sendDonationConfirmation, sendAdminAlert } from './lib/mailer.js';
 import { sendWhatsAppCredentials, sendWhatsAppDonation, sendQuizParticipationSms, sendQuizResultSms, sendDonationReceiptSms, sendDonationReceipt80GSms, sendSmsOtp } from './lib/msg91.js';
@@ -867,6 +868,85 @@ async function seedData() {
     ];
     await Quiz.insertMany(sampleQuizzes);
     console.log('✅ Seeded 5 sample quizzes');
+  }
+
+  // Seed training courses if none exist
+  const existingCourses = await Course.countDocuments();
+  if (existingCourses === 0) {
+    const INITIAL_COURSES = [
+      { courseId: 'tailoring', title: 'Tailoring & Stitching', desc: 'Basic se advanced level tak poori tailoring seekhein', icon: 'fa-scissors', color: '#E87722', weeks: 4, order: 1, chapters: [
+        { title: 'Chapter 1 – Sewing Machine Basics', links: [{ label: 'Sewing Machine Parts & Threading (YouTube)', url: 'https://www.youtube.com/watch?v=gCLyq0dBxPw', type: 'youtube' }, { label: 'How to Thread a Sewing Machine (YouTube)', url: 'https://www.youtube.com/watch?v=mW_EzwSL3lc', type: 'youtube' }] },
+        { title: 'Chapter 2 – Basic Stitching Techniques', links: [{ label: 'Hand Stitching Basics (YouTube)', url: 'https://www.youtube.com/watch?v=HHFi_QFvSR4', type: 'youtube' }, { label: 'Machine Stitching for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=AaP8yBplYKU', type: 'youtube' }] },
+        { title: 'Chapter 3 – Taking Measurements', links: [{ label: 'Body Measurement for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=ZIEuujLoqVw', type: 'youtube' }, { label: 'How to Measure for Blouse (YouTube)', url: 'https://www.youtube.com/watch?v=6mIFG1h1O04', type: 'youtube' }] },
+        { title: 'Chapter 4 – Salwar Suit Cutting', links: [{ label: 'Simple Salwar Cutting Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=M1vWzVvhZ-A', type: 'youtube' }, { label: 'Salwar Stitching Step by Step (YouTube)', url: 'https://www.youtube.com/watch?v=Vq4xUiVPpRA', type: 'youtube' }] },
+        { title: 'Chapter 5 – Blouse Cutting & Stitching', links: [{ label: 'Blouse Cutting Tutorial in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=bfhtyUHMOJw', type: 'youtube' }, { label: 'Simple Blouse Stitching – Full Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=DIXMhJMkdUQ', type: 'youtube' }] },
+        { title: 'Chapter 6 – Running a Tailoring Business', links: [{ label: 'Tailoring Business Ideas (YouTube)', url: 'https://www.youtube.com/watch?v=7Gs_tOHMO4Q', type: 'youtube' }, { label: 'How to Price Your Stitching Work (YouTube)', url: 'https://www.youtube.com/watch?v=5r_gStCEV8g', type: 'youtube' }] }
+      ]},
+      { courseId: 'computer', title: 'Basic Computer Skills', desc: 'Typing se lekar internet aur Excel tak seekhein', icon: 'fa-laptop', color: '#2563EB', weeks: 6, order: 2, chapters: [
+        { title: 'Chapter 1 – Intro to Computers', links: [{ label: 'Basic Computer Parts (YouTube)', url: 'https://www.youtube.com/watch?v=NvTyRTr8tKA', type: 'youtube' }, { label: 'How to Use a Computer – Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=eRzMKpEdBsE', type: 'youtube' }] },
+        { title: 'Chapter 2 – Typing Practice', links: [{ label: 'Hindi Typing Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=hV4A3CDaXLA', type: 'youtube' }, { label: 'Typing Speed Practice (YouTube)', url: 'https://www.youtube.com/watch?v=ekECqF6R6qU', type: 'youtube' }] },
+        { title: 'Chapter 3 – MS Word Basics', links: [{ label: 'MS Word Tutorial in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=XPZA9VGX6gE', type: 'youtube' }, { label: 'Word Document Formatting (YouTube)', url: 'https://www.youtube.com/watch?v=0VCkTzJhDZs', type: 'youtube' }] },
+        { title: 'Chapter 4 – MS Excel Basics', links: [{ label: 'Excel Tutorial for Beginners in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=K3h4r_rABHE', type: 'youtube' }, { label: 'Basic Excel Formulas (YouTube)', url: 'https://www.youtube.com/watch?v=E2yMBcZKurc', type: 'youtube' }] },
+        { title: 'Chapter 5 – Internet & Email', links: [{ label: 'How to Use the Internet (YouTube)', url: 'https://www.youtube.com/watch?v=UiMBMPLJF28', type: 'youtube' }, { label: 'Gmail for Beginners in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=hknFBvuClVs', type: 'youtube' }] },
+        { title: 'Chapter 6 – Govt Portals & Online Forms', links: [{ label: 'Online Form Kaise Bhare (YouTube)', url: 'https://www.youtube.com/watch?v=KiXYWEqQGmM', type: 'youtube' }, { label: 'Aadhaar & PAN Online Services (YouTube)', url: 'https://www.youtube.com/watch?v=MJqPPpPi8lM', type: 'youtube' }] }
+      ]},
+      { courseId: 'food', title: 'Food Processing & Packaging', desc: 'Ghar se food business shuru karna seekhein', icon: 'fa-bowl-food', color: '#D97706', weeks: 3, order: 3, chapters: [
+        { title: 'Chapter 1 – Food Safety Basics', links: [{ label: 'Food Hygiene & Safety Tips (YouTube)', url: 'https://www.youtube.com/watch?v=wgJJr70gLyk', type: 'youtube' }, { label: 'FSSAI Licensing Guide (YouTube)', url: 'https://www.youtube.com/watch?v=aMqgOfbvuMs', type: 'youtube' }] },
+        { title: 'Chapter 2 – Pickling & Preserving', links: [{ label: 'Homemade Pickle Business (YouTube)', url: 'https://www.youtube.com/watch?v=nywWNV5oQvs', type: 'youtube' }, { label: 'Aachar Making & Selling Tips (YouTube)', url: 'https://www.youtube.com/watch?v=6E5WyMRIl-s', type: 'youtube' }] },
+        { title: 'Chapter 3 – Packaging & Labelling', links: [{ label: 'Food Packaging Ideas for Home Business (YouTube)', url: 'https://www.youtube.com/watch?v=cAhGFJUuLvA', type: 'youtube' }, { label: 'Label Design for Home Products (YouTube)', url: 'https://www.youtube.com/watch?v=Bv7OXnf3m7Y', type: 'youtube' }] }
+      ]},
+      { courseId: 'mehndi', title: 'Handicraft & Mehndi Art', desc: 'Mehndi designs aur handicraft se income kamao', icon: 'fa-hand-sparkles', color: '#7C3AED', weeks: 3, order: 4, chapters: [
+        { title: 'Chapter 1 – Mehndi Basics', links: [{ label: 'Simple Mehndi Designs for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=qrxA6HRBLas', type: 'youtube' }, { label: 'Cone Filling & Handling Tips (YouTube)', url: 'https://www.youtube.com/watch?v=cHSo0yIrFaM', type: 'youtube' }] },
+        { title: 'Chapter 2 – Bridal Mehndi', links: [{ label: 'Full Hand Bridal Mehndi Design (YouTube)', url: 'https://www.youtube.com/watch?v=N_Q-s3vNiIA', type: 'youtube' }, { label: 'Rajasthani Bridal Mehndi (YouTube)', url: 'https://www.youtube.com/watch?v=V5O_-RXASC4', type: 'youtube' }] },
+        { title: 'Chapter 3 – Handicraft Projects', links: [{ label: 'Handmade Craft Selling on Meesho (YouTube)', url: 'https://www.youtube.com/watch?v=StsPxqopMOo', type: 'youtube' }, { label: 'Warli Art for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=QyFR8N8K9rI', type: 'youtube' }] }
+      ]},
+      { courseId: 'digital-marketing', title: 'Digital Marketing', desc: 'Social media se business badhaana seekhein', icon: 'fa-bullhorn', color: '#0891B2', weeks: 5, order: 5, chapters: [
+        { title: 'Chapter 1 – Social Media Basics', links: [{ label: 'Facebook for Business in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=h4HlCVRImFc', type: 'youtube' }, { label: 'Instagram Marketing Basics (YouTube)', url: 'https://www.youtube.com/watch?v=J-qdPaX4YKs', type: 'youtube' }] },
+        { title: 'Chapter 2 – Content Creation', links: [{ label: 'Canva Tutorial for Beginners in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=g2Ri2qmHNQI', type: 'youtube' }, { label: 'How to Make Reels for Business (YouTube)', url: 'https://www.youtube.com/watch?v=Bp-7IlJA4C8', type: 'youtube' }] },
+        { title: 'Chapter 3 – WhatsApp Business', links: [{ label: 'WhatsApp Business Setup in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=kfQMeNFvuBU', type: 'youtube' }, { label: 'WhatsApp Catalog & Broadcast (YouTube)', url: 'https://www.youtube.com/watch?v=_VVT1pRmxxk', type: 'youtube' }] },
+        { title: 'Chapter 4 – Selling on Meesho & Amazon', links: [{ label: 'Meesho Supplier Registration (YouTube)', url: 'https://www.youtube.com/watch?v=A7WM-VWmUfc', type: 'youtube' }, { label: 'Amazon Seller Account (YouTube)', url: 'https://www.youtube.com/watch?v=WxCq0wI6oUs', type: 'youtube' }] },
+        { title: 'Chapter 5 – Google My Business', links: [{ label: 'Google Business Profile Setup (YouTube)', url: 'https://www.youtube.com/watch?v=YmJCpZSNdHs', type: 'youtube' }, { label: 'Local SEO Basics (YouTube)', url: 'https://www.youtube.com/watch?v=DUFnbvBKJGQ', type: 'youtube' }] }
+      ]},
+      { courseId: 'farming', title: 'Organic Farming', desc: 'Organic kheti aur agri-business ke techniques', icon: 'fa-seedling', color: '#16A34A', weeks: 4, order: 6, chapters: [
+        { title: 'Chapter 1 – Soil & Compost', links: [{ label: 'Vermicompost at Home (YouTube)', url: 'https://www.youtube.com/watch?v=qp10-OdRLno', type: 'youtube' }, { label: 'Soil Testing Guide (YouTube)', url: 'https://www.youtube.com/watch?v=FyeE0MUDXeE', type: 'youtube' }] },
+        { title: 'Chapter 2 – Organic Pest Control', links: [{ label: 'Neem Pesticide at Home (YouTube)', url: 'https://www.youtube.com/watch?v=BkfkSqpB6_Q', type: 'youtube' }, { label: 'Bio-Pesticides Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=pBLPJnVuwAE', type: 'youtube' }] },
+        { title: 'Chapter 3 – Kitchen Garden', links: [{ label: 'Kitchen Garden Setup (YouTube)', url: 'https://www.youtube.com/watch?v=fBuR_8JiIKY', type: 'youtube' }, { label: 'Container Vegetable Gardening (YouTube)', url: 'https://www.youtube.com/watch?v=X8KGJXkBGWo', type: 'youtube' }] },
+        { title: 'Chapter 4 – Selling Produce', links: [{ label: 'Selling Organic Produce Online (YouTube)', url: 'https://www.youtube.com/watch?v=GInPsN5q-WA', type: 'youtube' }, { label: 'Farmer Market Tips (YouTube)', url: 'https://www.youtube.com/watch?v=v4KS_dUnT2U', type: 'youtube' }] }
+      ]},
+      { courseId: 'beauty', title: 'Beauty & Wellness', desc: 'Parlour skills aur salon business seekhein', icon: 'fa-spa', color: '#DB2777', weeks: 4, order: 7, chapters: [
+        { title: 'Chapter 1 – Facial & Skin Care', links: [{ label: 'Basic Facial Steps (YouTube)', url: 'https://www.youtube.com/watch?v=WP-bm74xHMI', type: 'youtube' }, { label: 'Skin Types & Care in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=9Uh0Nt2xfaI', type: 'youtube' }] },
+        { title: 'Chapter 2 – Threading & Waxing', links: [{ label: 'Threading Tutorial for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=yCGHBiJ6k8E', type: 'youtube' }, { label: 'Waxing Techniques at Home (YouTube)', url: 'https://www.youtube.com/watch?v=l3A_UD0GtxY', type: 'youtube' }] },
+        { title: 'Chapter 3 – Hairstyling', links: [{ label: 'Basic Hairstyling Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=TKjFbevdqeM', type: 'youtube' }, { label: 'Bridal Hair Setup (YouTube)', url: 'https://www.youtube.com/watch?v=FPVLRiINNHs', type: 'youtube' }] },
+        { title: 'Chapter 4 – Parlour Business Setup', links: [{ label: 'Beauty Parlour Business Plan (YouTube)', url: 'https://www.youtube.com/watch?v=v2SuWzZQ3LA', type: 'youtube' }, { label: 'Pricing Your Services (YouTube)', url: 'https://www.youtube.com/watch?v=0HM21Bak3f4', type: 'youtube' }] }
+      ]},
+      { courseId: 'accounting', title: 'Basic Accounting & GST', desc: 'Tally, GST aur basic accounting seekhein', icon: 'fa-calculator', color: '#64748B', weeks: 5, order: 8, chapters: [
+        { title: 'Chapter 1 – Accounting Concepts', links: [{ label: 'Accounting Basics in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=ZzIoTBASUkM', type: 'youtube' }, { label: 'Debit Credit Rules (YouTube)', url: 'https://www.youtube.com/watch?v=6tCnGY3kFiA', type: 'youtube' }] },
+        { title: 'Chapter 2 – Tally Prime', links: [{ label: 'Tally Prime Full Course (YouTube)', url: 'https://www.youtube.com/watch?v=5R1sGvBRcGo', type: 'youtube' }, { label: 'Tally Entries Practical (YouTube)', url: 'https://www.youtube.com/watch?v=J8S3FVwHG4A', type: 'youtube' }] },
+        { title: 'Chapter 3 – GST Basics', links: [{ label: 'GST Complete Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=xjqT23W2YWI', type: 'youtube' }, { label: 'GST Filing Step by Step (YouTube)', url: 'https://www.youtube.com/watch?v=jd4bkNgxzA8', type: 'youtube' }] }
+      ]},
+      { courseId: 'communication', title: 'Communication Skills', desc: 'Spoken English aur public speaking seekhein', icon: 'fa-comments', color: '#0EA5E9', weeks: 4, order: 9, chapters: [
+        { title: 'Chapter 1 – Hindi Communication', links: [{ label: 'Effective Communication in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=SHvAhRBHJmg', type: 'youtube' }, { label: 'Body Language Tips (YouTube)', url: 'https://www.youtube.com/watch?v=zmxRGjq1hKI', type: 'youtube' }] },
+        { title: 'Chapter 2 – Basic English Speaking', links: [{ label: 'English Speaking in 30 Days (YouTube)', url: 'https://www.youtube.com/watch?v=Y3Sxm04MBeo', type: 'youtube' }, { label: 'Basic English Sentences (YouTube)', url: 'https://www.youtube.com/watch?v=vZ8Zx4kF4eY', type: 'youtube' }] },
+        { title: 'Chapter 3 – Interview Skills', links: [{ label: 'Job Interview Tips in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=X1FiPJTTAnQ', type: 'youtube' }, { label: 'Common Interview Questions (YouTube)', url: 'https://www.youtube.com/watch?v=wkp4iFSH7OU', type: 'youtube' }] }
+      ]},
+      { courseId: 'yoga', title: 'Yoga & Wellness Instructor', desc: 'Yoga instructor bano aur classes conduct karo', icon: 'fa-person-rays', color: '#F59E0B', weeks: 6, order: 10, chapters: [
+        { title: 'Chapter 1 – Yoga Basics', links: [{ label: 'Yoga for Absolute Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE', type: 'youtube' }, { label: 'Pranayama & Breathing Exercises (YouTube)', url: 'https://www.youtube.com/watch?v=lf_lXN0JGSM', type: 'youtube' }] },
+        { title: 'Chapter 2 – Asanas & Sequences', links: [{ label: 'Surya Namaskar Step by Step (YouTube)', url: 'https://www.youtube.com/watch?v=pqSWMgxX1SA', type: 'youtube' }, { label: 'Morning Yoga Routine (YouTube)', url: 'https://www.youtube.com/watch?v=Eml2xnoLpYE', type: 'youtube' }] },
+        { title: 'Chapter 3 – Teaching Yoga', links: [{ label: 'How to Become a Yoga Instructor (YouTube)', url: 'https://www.youtube.com/watch?v=TKU0jQDq3Xg', type: 'youtube' }, { label: 'Starting a Yoga Class (YouTube)', url: 'https://www.youtube.com/watch?v=KrSBZmFzb0A', type: 'youtube' }] }
+      ]},
+      { courseId: 'financial', title: 'Financial Literacy', desc: 'Bachat, niveshan aur financial planning seekhein', icon: 'fa-piggy-bank', color: '#10B981', weeks: 3, order: 11, chapters: [
+        { title: 'Chapter 1 – Saving & Budgeting', links: [{ label: 'Personal Finance Basics in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=KSBE38BLKZ4', type: 'youtube' }, { label: 'How to Create a Monthly Budget (YouTube)', url: 'https://www.youtube.com/watch?v=Oaafm_hfkNc', type: 'youtube' }] },
+        { title: 'Chapter 2 – Bank & Investment Basics', links: [{ label: 'Post Office Savings Schemes (YouTube)', url: 'https://www.youtube.com/watch?v=Ov66gXzB-lc', type: 'youtube' }, { label: 'Mutual Funds Explained Simply (YouTube)', url: 'https://www.youtube.com/watch?v=kx4ROhE37r4', type: 'youtube' }] },
+        { title: 'Chapter 3 – Govt Schemes for Women', links: [{ label: 'Sukanya Samriddhi Yojana (YouTube)', url: 'https://www.youtube.com/watch?v=4EtnN47jFIM', type: 'youtube' }, { label: 'PM Mudra Loan Guide (YouTube)', url: 'https://www.youtube.com/watch?v=r5lOlV4FH-0', type: 'youtube' }] }
+      ]},
+      { courseId: 'childcare', title: 'Child Care & Early Education', desc: 'Bacchon ki parvarish aur nursery skills seekhein', icon: 'fa-child-reaching', color: '#EC4899', weeks: 4, order: 12, chapters: [
+        { title: 'Chapter 1 – Early Childhood Development', links: [{ label: 'Child Development Stages (YouTube)', url: 'https://www.youtube.com/watch?v=A7Mao4CsOh8', type: 'youtube' }, { label: 'Activities for Kids 0-5 Years (YouTube)', url: 'https://www.youtube.com/watch?v=IpxN3U9s0ck', type: 'youtube' }] },
+        { title: 'Chapter 2 – Nutrition & Health', links: [{ label: 'Child Nutrition Guide in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=x0N6eBqwnJk', type: 'youtube' }, { label: 'Balanced Diet for Kids (YouTube)', url: 'https://www.youtube.com/watch?v=Qp7R57L0VAw', type: 'youtube' }] },
+        { title: 'Chapter 3 – Running a Creche / Daycare', links: [{ label: 'How to Start a Daycare Business (YouTube)', url: 'https://www.youtube.com/watch?v=hCHe87LYWJI', type: 'youtube' }, { label: 'Anganwadi Helper Training (YouTube)', url: 'https://www.youtube.com/watch?v=W0VJL7y0VLk', type: 'youtube' }] }
+      ]}
+    ];
+    await Course.insertMany(INITIAL_COURSES);
+    console.log(`✅ Seeded ${INITIAL_COURSES.length} training courses`);
   }
 }
 
@@ -3422,6 +3502,92 @@ app.post('/api/member/quiz/generate-ticket', auth(['member','supporter']), async
     res.status(500).json({ error: 'Ticket generation failed: ' + err.message });
   }
 });
+
+// ===================== TRAINING COURSES API =====================
+
+// GET /api/courses — public endpoint for member dashboard
+app.get('/api/courses', async (req, res) => {
+  try {
+    const courses = await Course.find({ active: true }).sort({ order: 1, created_at: 1 }).lean();
+    res.json({ ok: true, courses });
+  } catch (err) {
+    captureError(err, { context: 'get-courses' });
+    res.status(500).json({ error: 'Failed to load courses' });
+  }
+});
+
+// GET /api/admin/courses — all courses for admin
+app.get('/api/admin/courses', auth('admin'), async (req, res) => {
+  try {
+    const courses = await Course.find({}).sort({ order: 1, created_at: 1 }).lean();
+    const stats = {
+      total: courses.length,
+      active: courses.filter(c => c.active).length,
+      chapters: courses.reduce((s, c) => s + (c.chapters ? c.chapters.length : 0), 0),
+      links: courses.reduce((s, c) => s + (c.chapters || []).reduce((cs, ch) => cs + (ch.links ? ch.links.length : 0), 0), 0)
+    };
+    res.json({ ok: true, courses, stats });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/courses — create new course
+app.post('/api/admin/courses', auth('admin'), async (req, res) => {
+  const { courseId, title, desc, icon, color, weeks, chapters, order } = req.body;
+  if (!courseId || !title) return res.status(400).json({ error: 'courseId and title are required' });
+  // Sanitize courseId
+  const safeId = courseId.toLowerCase().replace(/[^a-z0-9\-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  try {
+    const course = await Course.create({
+      courseId: safeId, title, desc: desc || '', icon: icon || 'fa-book',
+      color: color || '#666666', weeks: parseInt(weeks) || 4,
+      chapters: chapters || [], order: order || 0
+    });
+    res.json({ ok: true, course });
+  } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ error: 'Course ID already exists' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/admin/courses/:courseId — update course
+app.put('/api/admin/courses/:courseId', auth('admin'), async (req, res) => {
+  const { title, desc, icon, color, weeks, active, chapters, order } = req.body;
+  try {
+    const update = { updated_at: new Date() };
+    if (title !== undefined) update.title = title;
+    if (desc !== undefined) update.desc = desc;
+    if (icon !== undefined) update.icon = icon;
+    if (color !== undefined) update.color = color;
+    if (weeks !== undefined) update.weeks = parseInt(weeks) || 4;
+    if (active !== undefined) update.active = !!active;
+    if (chapters !== undefined) update.chapters = chapters;
+    if (order !== undefined) update.order = order;
+    const course = await Course.findOneAndUpdate(
+      { courseId: req.params.courseId },
+      { $set: update },
+      { new: true }
+    );
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+    res.json({ ok: true, course });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/admin/courses/:courseId — permanently delete course
+app.delete('/api/admin/courses/:courseId', auth('admin'), async (req, res) => {
+  try {
+    const deleted = await Course.findOneAndDelete({ courseId: req.params.courseId });
+    if (!deleted) return res.status(404).json({ error: 'Course not found' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===================== END COURSES API =====================
 
 // GET seller's own quiz tickets (for tracking in Referral & Earn tab)
 app.get('/api/member/my-quiz-tickets', auth(['member','supporter']), async (req, res) => {
