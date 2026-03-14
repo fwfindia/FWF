@@ -5921,8 +5921,13 @@ function playVideoInModal2(vkey) {
 
   titleEl.textContent   = v.label;
   const alreadyDone     = isVidDone(v.videoId);
-  statusEl.textContent  = alreadyDone ? '✅ Pehle dekh chuke hain — well done!' : 'Dekh rahe hain… video puri karo to complete mark hoga';
-  statusEl.style.color  = alreadyDone ? '#22c55e' : '#94a3b8';
+  if (alreadyDone) {
+    statusEl.textContent = '✅ Pehle dekh chuke hain — well done!';
+    statusEl.style.display = 'block';
+  } else {
+    statusEl.style.display = 'none';
+    statusEl.textContent = '';
+  }
   panel.style.display   = 'block';
 
   // Destroy previous player
@@ -5950,7 +5955,7 @@ function playVideoInModal2(vkey) {
                 if (dur > 0 && cur/dur >= 0.8) {
                   clearInterval(_ytProgressTmr);
                   markVidDone(v.videoId);
-                  statusEl.textContent = '🎉 Video complete!'; statusEl.style.color = '#22c55e';
+                  statusEl.textContent = '🎉 Video complete!'; statusEl.style.display = 'block';
                 }
               } catch(err) {}
             }, 4000);
@@ -5959,9 +5964,7 @@ function playVideoInModal2(vkey) {
             if (e.data === YT.PlayerState.ENDED) {
               clearInterval(_ytProgressTmr);
               markVidDone(v.videoId);
-              statusEl.textContent = '🎉 Video complete!'; statusEl.style.color = '#22c55e';
-            } else if (e.data === YT.PlayerState.PLAYING) {
-              if (!isVidDone(v.videoId)) { statusEl.textContent = '▶ Dekh rahe hain…'; statusEl.style.color = '#94a3b8'; }
+              statusEl.textContent = '🎉 Video complete!'; statusEl.style.display = 'block';
             }
           }
         }
@@ -5988,6 +5991,33 @@ function closeCourseVideoPlayer() {
   if (_ytPlayer) { try { _ytPlayer.destroy(); } catch(e) {} _ytPlayer = null; }
 }
 
+function ytGoFullscreen() {
+  let iframe = null;
+  if (_ytPlayer && _ytPlayer.getIframe) iframe = _ytPlayer.getIframe();
+  if (!iframe) { const w = document.getElementById('ytPlayerElem'); iframe = w && w.querySelector('iframe'); }
+  if (!iframe) return;
+  if (iframe.requestFullscreen)           iframe.requestFullscreen();
+  else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+  else if (iframe.mozRequestFullScreen)    iframe.mozRequestFullScreen();
+}
+
+function ytPiP() {
+  let iframe = null;
+  if (_ytPlayer && _ytPlayer.getIframe) iframe = _ytPlayer.getIframe();
+  if (!iframe) { const w = document.getElementById('ytPlayerElem'); iframe = w && w.querySelector('iframe'); }
+  if (!iframe) { ytGoFullscreen(); return; }
+  // Try accessing video element inside iframe for native PiP
+  try {
+    const vid = iframe.contentDocument && iframe.contentDocument.querySelector('video');
+    if (vid && document.pictureInPictureEnabled && vid.requestPictureInPicture) {
+      vid.requestPictureInPicture().catch(() => ytGoFullscreen());
+      return;
+    }
+  } catch(e) {}
+  // Browsers block cross-origin iframe PiP — use fullscreen as fallback
+  ytGoFullscreen();
+}
+
 /* ============================================
    INIT
    ============================================ */
@@ -6012,16 +6042,25 @@ loadCourses();
 
     <!-- ── Embedded Video Player (visible when a video is playing) ── -->
     <div id="courseVideoPlayer" style="display:none;background:#0f0f0f">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#111;gap:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#111;gap:8px">
         <span id="courseVideoTitle" style="color:#ffffffdd;font-size:12px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-        <button onclick="closeCourseVideoPlayer()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:12px;white-space:nowrap;padding:4px 8px;border-radius:6px;border:1px solid #333">
-          <i class="fa-solid fa-xmark"></i> Player band karo
-        </button>
+        <div style="display:flex;gap:4px;align-items:center;flex-shrink:0">
+          <button onclick="ytGoFullscreen()" title="Full Screen" style="background:none;border:1px solid #333;color:#ccc;cursor:pointer;width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-size:13px">
+            <i class="fa-solid fa-expand"></i>
+          </button>
+          <button onclick="ytPiP()" title="Picture-in-Picture" style="background:none;border:1px solid #333;color:#ccc;cursor:pointer;width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-size:13px">
+            <i class="fa-solid fa-clone"></i>
+          </button>
+          <button onclick="closeCourseVideoPlayer()" title="Close player" style="background:none;border:1px solid #333;color:#ccc;cursor:pointer;width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-size:14px">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
       </div>
       <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:#000">
         <div id="ytPlayerElem" style="position:absolute;top:0;left:0;width:100%;height:100%"></div>
       </div>
-      <div id="courseVideoStatus" style="padding:7px 14px;background:#111;color:#94a3b8;font-size:11px;text-align:center;border-top:1px solid #222;letter-spacing:.02em"></div>
+      <!-- Completion toast (hidden until video is done) -->
+      <div id="courseVideoStatus" style="display:none;padding:6px 14px;background:#14532d;color:#86efac;font-size:12px;text-align:center;font-weight:700"></div>
     </div>
 
     <div style="padding:20px 24px 28px">
