@@ -1464,16 +1464,20 @@ app.post('/api/pay/membership', async (req, res) => {
     if (referrerCode) {
       try {
         const referrer = await User.findOne({ referral_code: referrerCode }).select('_id wallet');
-        const newUser  = await User.findOne({ member_id: memberId }).select('_id');
+        const newUser  = await User.findOne({ member_id: memberId }).select('_id role');
         if (referrer && newUser) {
           const REFERRAL_PCT = REFERRAL_POINTS_PERCENT || 50; // % of payment as points
           const pointsRupees = 500 * (REFERRAL_PCT / 100);
           const points = amountToPoints(pointsRupees);
           referralPoints = points;
+          
+          // Determine referral type based on referred user's role
+          const referralType = newUser.role === 'supporter' ? 'supporter' : 'member';
 
           await Referral.create({
             referrer_id:      referrer._id,
             referred_user_id: newUser._id,
+            referral_type:    referralType,
             status:           'active',
             payment_amount:   500,
             referral_points:  points,
@@ -2052,9 +2056,18 @@ app.post('/api/member/register-referral', async (req, res) => {
   if (!referralCode || !newUserId) return res.status(400).json({ error: 'referralCode & newUserId required' });
 
   const referrer = await User.findOne({ referral_code: referralCode }).select('_id');
+  const newUser = await User.findById(newUserId).select('role');
   if (!referrer) return res.status(404).json({ error: 'Invalid referral code' });
+  
+  // Determine referral type based on referred user's role
+  const referralType = newUser?.role === 'supporter' ? 'supporter' : 'member';
 
-  await Referral.create({ referrer_id: referrer._id, referred_user_id: newUserId, status: 'pending' });
+  await Referral.create({ 
+    referrer_id: referrer._id, 
+    referred_user_id: newUserId, 
+    referral_type: referralType,
+    status: 'pending' 
+  });
   await User.updateOne({ _id: newUserId }, { referred_by: referrer._id });
 
   res.json({ ok: true });
@@ -2409,6 +2422,36 @@ app.get('/api/admin/referrals', auth('admin'), async (req, res) => {
     if (referrer) { r.referrer_name = referrer.name; r.referrer_member_id = referrer.member_id; }
     if (referred) { r.referred_name = referred.name; r.referred_member_id = referred.member_id; }
   }
+  res.json({ ok: true, referrals });
+});
+
+// Admin: get detailed referrals with tracking (separated by type)
+app.get('/api/admin/referrals/detailed', auth('admin'), async (req, res) => {
+  const referrals = await Referral.find().sort({ created_at: -1 }).lean();
+  
+  for (const r of referrals) {
+    const referrer = await User.findById(r.referrer_id).select('name member_id role').lean();
+    const referred = await User.findById(r.referred_user_id).select('name member_id role').lean();
+    
+    if (referrer) { 
+      r.referrer_name = referrer.name; 
+      r.referrer_member_id = referrer.member_id;
+      r.referrer_role = referrer.role;
+    }
+    if (referred) { 
+      r.referred_name = referred.name; 
+      r.referred_member_id = referred.member_id;
+      r.referred_role = referred.role;
+    }
+
+    // Get click data from ReferralClick if referral code exists
+    if (r.referral_code) {
+      const clicks = await ReferralClick.find({ referral_code: r.referral_code }).lean();
+      r.click_count = clicks.length;
+      r.conversion_count = clicks.filter(c => c.converted).length;
+    }
+  }
+  
   res.json({ ok: true, referrals });
 });
 

@@ -421,6 +421,17 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 .tab-content{ display:none; }
 .tab-content.active{ display:block; }
 
+/* Referral Sub Tabs */
+.referral-sub-tab{
+  padding:10px 16px; border:1px solid var(--card-border);
+  background:var(--card-bg); border-radius:8px;
+  font-size:13px; font-weight:700;
+  color:var(--text-secondary); cursor:pointer;
+  transition:all .2s; display:inline-flex; align-items:center; gap:6px;
+}
+.referral-sub-tab:hover{ background:var(--accent-soft); color:var(--accent); border-color:var(--accent); }
+.referral-sub-tab.active{ background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(236,72,153,.1)); color:var(--accent); border-color:var(--accent); box-shadow:0 4px 12px rgba(99,102,241,.1); }
+
 /* ==============================
    RESPONSIVE
    ============================== */
@@ -1081,13 +1092,150 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </div>
 
     <div class="tab-content" id="referrals-tab">
-      <div class="content-card">
-        <h3><i class="fa-solid fa-user-plus"></i> Referral Records</h3>
+      <!-- Tabs for referral types -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 2px solid var(--card-border); flex-wrap: wrap;">
+        <button class="referral-sub-tab active" data-type="member">
+          <i class="fa-solid fa-users"></i> Member Referrals
+        </button>
+        <button class="referral-sub-tab" data-type="supporter">
+          <i class="fa-solid fa-heart"></i> Supporter Referrals
+        </button>
+        <button class="referral-sub-tab" data-type="quiz">
+          <i class="fa-solid fa-ticket"></i> Quiz Ticket Referrals
+        </button>
+        <button class="referral-sub-tab" data-type="all">
+          <i class="fa-solid fa-chart-line"></i> All Referrals Summary
+        </button>
+      </div>
+
+      <!-- Member Referrals Table -->
+      <div class="content-card" id="memberReferralsSection">
+        <h3><i class="fa-solid fa-users"></i> Member Referrals Tracking</h3>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Track all member signups through referral links</div>
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr><th>Referrer</th><th>Referred Member</th><th>Payment</th><th>Points</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-            <tbody id="referralsBody">
-              <tr><td colspan="7" class="empty-state"><p>No referrals yet</p></td></tr>
+            <thead>
+              <tr>
+                <th>Referrer</th>
+                <th>Referred Member</th>
+                <th>Referral Code</th>
+                <th>Stage</th>
+                <th>Clicks</th>
+                <th>Points</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="memberReferralsBody">
+              <tr><td colspan="8" class="empty-state"><p>No member referrals yet</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Supporter Referrals Table -->
+      <div class="content-card" id="supporterReferralsSection" style="display: none;">
+        <h3><i class="fa-solid fa-heart"></i> Supporter Referrals Tracking</h3>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Track all supporter signups through referral links</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Referrer</th>
+                <th>Referred Supporter</th>
+                <th>Referral Code</th>
+                <th>Stage</th>
+                <th>Clicks</th>
+                <th>Points</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="supporterReferralsBody">
+              <tr><td colspan="8" class="empty-state"><p>No supporter referrals yet</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quiz Ticket Referrals Table -->
+      <div class="content-card" id="quizReferralsSection" style="display: none;">
+        <h3><i class="fa-solid fa-ticket"></i> Quiz Ticket Referrals Tracking</h3>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Track quiz ticket sales through referral links</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Referrer</th>
+                <th>Buyer</th>
+                <th>Quiz</th>
+                <th>Ticket Price</th>
+                <th>Stage</th>
+                <th>Clicks → Conversions</th>
+                <th>Points Earned</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="quizReferralsBody">
+              <tr><td colspan="8" class="empty-state"><p>No quiz ticket referrals yet</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- All Referrals Summary -->
+      <div class="content-card" id="allReferralsSummary" style="display: none;">
+        <h3><i class="fa-solid fa-chart-line"></i> Referral Performance Summary</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+          <div class="stat-card">
+            <div class="s-label">Total Referrals</div>
+            <div class="s-value" id="totalReferralsCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Member Referrals</div>
+            <div class="s-value" id="memberRefCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Supporter Referrals</div>
+            <div class="s-value" id="supporterRefCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Quiz Referrals</div>
+            <div class="s-value" id="quizRefCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Total Clicks</div>
+            <div class="s-value" id="totalClicksCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Conversion Rate</div>
+            <div class="s-value" id="conversionRate">0%</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Total Points Earned</div>
+            <div class="s-value" id="totalPointsEarned">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Active Referrers</div>
+            <div class="s-value" id="activeReferrersCount">0</div>
+          </div>
+        </div>
+
+        <h4 style="margin-top: 20px; margin-bottom: 12px;">Top Referrers</h4>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Referrer</th>
+                <th>Member Ref</th>
+                <th>Supporter Ref</th>
+                <th>Quiz Ticket Ref</th>
+                <th>Total Points</th>
+                <th>Activity</th>
+              </tr>
+            </thead>
+            <tbody id="topReferrersBody">
+              <tr><td colspan="6" class="empty-state"><p>No referral activity yet</p></td></tr>
             </tbody>
           </table>
         </div>
@@ -2294,7 +2442,16 @@ function switchPage(page, updateHash = true){
   if(page === 'csr')         loadCSRPartners();
   if(page === 'support')     loadSupportTickets();
   if(page === 'payments')    { loadMembershipFees(); loadDonations(); }
-  if(page === 'points')      loadPointsActivity();
+  if(page === 'points')      {
+    loadPointsActivity();
+    // Initialize first referral sub-tab
+    setTimeout(() => {
+      const firstTab = document.querySelector('.referral-sub-tab');
+      if(firstTab && !document.querySelector('.referral-sub-tab.active')) {
+        firstTab.click();
+      }
+    }, 100);
+  }
   if(page === 'reports')     loadReports();
   if(page === 'marketplace') loadMarketplaceAdmin();
   if(page === 'courses')     loadCoursesAdmin();
@@ -2357,6 +2514,26 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     parentPage.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Referral Sub Tabs
+document.querySelectorAll('.referral-sub-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const type = btn.dataset.type;
+    document.querySelectorAll('.referral-sub-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.content-card[id*="Referrals"], #allReferralsSummary').forEach(c => c.style.display = 'none');
+    btn.classList.add('active');
+    
+    if(type === 'member') {
+      document.getElementById('memberReferralsSection').style.display = 'block';
+    } else if(type === 'supporter') {
+      document.getElementById('supporterReferralsSection').style.display = 'block';
+    } else if(type === 'quiz') {
+      document.getElementById('quizReferralsSection').style.display = 'block';
+    } else if(type === 'all') {
+      document.getElementById('allReferralsSummary').style.display = 'block';
+    }
   });
 });
 
@@ -3238,7 +3415,7 @@ async function loadPointsActivity(){
   try{
     const [dons, refs, tix] = await Promise.all([
       AUTH.api('/api/admin/donations'),
-      AUTH.api('/api/admin/referrals'),
+      AUTH.api('/api/admin/referrals/detailed'),
       AUTH.api('/api/admin/tickets')
     ]);
 
@@ -3256,21 +3433,111 @@ async function loadPointsActivity(){
       dBody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>No donations yet</p></td></tr>';
     }
 
-    // Referrals
-    const rBody = document.getElementById('referralsBody');
-    if(refs.referrals.length){
-      rBody.innerHTML = refs.referrals.map(r => `<tr>
-        <td style="font-weight:700">${r.referrer_member_id} <span style="color:var(--text-muted)">${r.referrer_name||''}</span></td>
-        <td>${r.referred_member_id} <span style="color:var(--text-muted)">${r.referred_name||''}</span></td>
-        <td style="font-weight:700">₹${fmtN(r.payment_amount)}</td>
+    // Referrals - Member
+    const memberRefs = refs.referrals.filter(r => r.referral_type === 'member' || !r.referral_type);
+    const memberBody = document.getElementById('memberReferralsBody');
+    if(memberRefs.length){
+      memberBody.innerHTML = memberRefs.map(r => `<tr>
+        <td style="font-weight:700">${r.referrer_member_id} <br><span style="color:var(--text-muted);font-size:11px">${r.referrer_name||''}</span></td>
+        <td>${r.referred_member_id||'—'} <br><span style="color:var(--text-muted);font-size:11px">${r.referred_name||''}</span></td>
+        <td style="font-family:monospace;font-size:11px">${r.referral_code || '—'}</td>
+        <td>${getStageBadge(r.status || 'pending')}</td>
+        <td style="text-align:center">${r.click_count || 0}</td>
         <td style="font-weight:800;color:var(--accent)">+${r.referral_points||0}</td>
-        <td>${statusBadge(r.status)}</td>
-        <td style="color:var(--text-muted)">${fmtDate(r.created_at)}</td>
-        <td>${r.status==='pending' ? `<button class="btn btn-sm btn-success" onclick="activateReferral('${r.referred_member_id}')"><i class="fa-solid fa-check"></i> Activate</button>` : ''}</td>
+        <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.created_at)}</td>
+        <td>${r.status==='pending' ? `<button class="btn btn-sm btn-success" onclick="activateReferral('${r.referred_member_id}')"><i class="fa-solid fa-check"></i></button>` : ''}</td>
       </tr>`).join('');
     } else {
-      rBody.innerHTML = '<tr><td colspan="7" class="empty-state"><p>No referrals yet</p></td></tr>';
+      memberBody.innerHTML = '<tr><td colspan="8" class="empty-state"><p>No member referrals yet</p></td></tr>';
     }
+
+    // Referrals - Supporter
+    const supporterRefs = refs.referrals.filter(r => r.referral_type === 'supporter');
+    const supporterBody = document.getElementById('supporterReferralsBody');
+    if(supporterRefs.length){
+      supporterBody.innerHTML = supporterRefs.map(r => `<tr>
+        <td style="font-weight:700">${r.referrer_member_id} <br><span style="color:var(--text-muted);font-size:11px">${r.referrer_name||''}</span></td>
+        <td>${r.referred_member_id||'—'} <br><span style="color:var(--text-muted);font-size:11px">${r.referred_name||''}</span></td>
+        <td style="font-family:monospace;font-size:11px">${r.referral_code || '—'}</td>
+        <td>${getStageBadge(r.status || 'pending')}</td>
+        <td style="text-align:center">${r.click_count || 0}</td>
+        <td style="font-weight:800;color:var(--accent)">+${r.referral_points||0}</td>
+        <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.created_at)}</td>
+        <td>${r.status==='pending' ? `<button class="btn btn-sm btn-success" onclick="activateReferral('${r.referred_member_id}')"><i class="fa-solid fa-check"></i></button>` : ''}</td>
+      </tr>`).join('');
+    } else {
+      supporterBody.innerHTML = '<tr><td colspan="8" class="empty-state"><p>No supporter referrals yet</p></td></tr>';
+    }
+
+    // Referrals - Quiz Tickets
+    const quizRefs = refs.referrals.filter(r => r.referral_type === 'quiz');
+    const quizBody = document.getElementById('quizReferralsBody');
+    if(quizRefs.length){
+      quizBody.innerHTML = quizRefs.map(r => `<tr>
+        <td style="font-weight:700">${r.referrer_member_id} <br><span style="color:var(--text-muted);font-size:11px">${r.referrer_name||''}</span></td>
+        <td>${r.referred_name||'—'}</td>
+        <td style="font-size:12px">${r.quiz_ref || '—'}</td>
+        <td style="font-weight:700">₹${fmtN(r.payment_amount || 100)}</td>
+        <td>${getStageQuizBadge(r.status || 'pending')}</td>
+        <td style="text-align:center"><span style="display:inline-block; background:rgba(99,102,241,.1); padding:4px 8px; border-radius:4px;"><span style="color:var(--accent);font-weight:700">${r.click_count || 0}</span> → <span style="color:var(--success);font-weight:700">${r.conversion_count || 0}</span></span></td>
+        <td style="font-weight:800;color:var(--accent)">+${r.referral_points||0}</td>
+        <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.created_at)}</td>
+      </tr>`).join('');
+    } else {
+      quizBody.innerHTML = '<tr><td colspan="8" class="empty-state"><p>No quiz ticket referrals yet</p></td></tr>';
+    }
+
+    // All Referrals Summary
+    const allRefs = refs.referrals || [];
+    const memberRefCount = allRefs.filter(r => r.referral_type === 'member' || !r.referral_type).length;
+    const supporterRefCount = allRefs.filter(r => r.referral_type === 'supporter').length;
+    const quizRefCount = allRefs.filter(r => r.referral_type === 'quiz').length;
+    const totalClicks = allRefs.reduce((sum, r) => sum + (r.click_count || 0), 0);
+    const totalConversions = allRefs.reduce((sum, r) => sum + (r.conversion_count || 0), 0);
+    const totalPoints = allRefs.reduce((sum, r) => sum + (r.referral_points || 0), 0);
+    const conversionRate = totalClicks > 0 ? ((totalConversions / totalClicks) * 100).toFixed(1) : '0';
+    
+    // Get unique referrers
+    const referrersMap = {};
+    allRefs.forEach(r => {
+      if(!referrersMap[r.referrer_id]) {
+        referrersMap[r.referrer_id] = {
+          referrer_id: r.referrer_id,
+          referrer_member_id: r.referrer_member_id,
+          referrer_name: r.referrer_name,
+          member: 0, supporter: 0, quiz: 0, total_points: 0
+        };
+      }
+      if(r.referral_type === 'member' || !r.referral_type) referrersMap[r.referrer_id].member++;
+      else if(r.referral_type === 'supporter') referrersMap[r.referrer_id].supporter++;
+      else if(r.referral_type === 'quiz') referrersMap[r.referrer_id].quiz++;
+      referrersMap[r.referrer_id].total_points += (r.referral_points || 0);
+    });
+    
+    const topReferrers = Object.values(referrersMap).sort((a, b) => b.total_points - a.total_points).slice(0, 10);
+    const topBody = document.getElementById('topReferrersBody');
+    if(topReferrers.length){
+      topBody.innerHTML = topReferrers.map(ref => `<tr>
+        <td style="font-weight:700">${ref.referrer_member_id} <br><span style="color:var(--text-muted);font-size:11px">${ref.referrer_name||''}</span></td>
+        <td><span style="display:inline-block;background:rgba(99,102,241,.1);padding:4px 8px;border-radius:4px;font-weight:700;color:var(--accent)">${ref.member}</span></td>
+        <td><span style="display:inline-block;background:rgba(236,72,153,.1);padding:4px 8px;border-radius:4px;font-weight:700;color:var(--accent2)">${ref.supporter}</span></td>
+        <td><span style="display:inline-block;background:rgba(34,197,94,.1);padding:4px 8px;border-radius:4px;font-weight:700;color:var(--success)">${ref.quiz}</span></td>
+        <td style="font-weight:800;color:var(--accent)">${fmtN(ref.total_points)}</td>
+        <td><button class="btn btn-sm btn-info" onclick="viewMember('${ref.referrer_member_id}')"><i class="fa-solid fa-eye"></i> View</button></td>
+      </tr>`).join('');
+    } else {
+      topBody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>No referral data yet</p></td></tr>';
+    }
+
+    // Update summary stats
+    document.getElementById('totalReferralsCount').textContent = allRefs.length;
+    document.getElementById('memberRefCount').textContent = memberRefCount;
+    document.getElementById('supporterRefCount').textContent = supporterRefCount;
+    document.getElementById('quizRefCount').textContent = quizRefCount;
+    document.getElementById('totalClicksCount').textContent = totalClicks;
+    document.getElementById('conversionRate').textContent = conversionRate + '%';
+    document.getElementById('totalPointsEarned').textContent = fmtN(totalPoints);
+    document.getElementById('activeReferrersCount').textContent = topReferrers.length;
 
     // Tickets
     const tBody = document.getElementById('ticketsBody');
@@ -3285,7 +3552,28 @@ async function loadPointsActivity(){
     } else {
       tBody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>No tickets sold yet</p></td></tr>';
     }
-  } catch(e){ notify('Failed to load activity','error'); }
+  } catch(e){ 
+    console.error('Activity load error:', e);
+    notify('Failed to load activity','error'); 
+  }
+}
+
+function getStageBadge(status) {
+  const stages = {
+    'pending': '<span style="background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-hourglass-end"></i> Pending</span>',
+    'active': '<span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-check-circle"></i> Active</span>',
+    'expired': '<span style="background:#fee2e2;color:#991b1b;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-times-circle"></i> Expired</span>'
+  };
+  return stages[status] || stages['pending'];
+}
+
+function getStageQuizBadge(status) {
+  const stages = {
+    'pending': '<span style="background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-link"></i> Not Clicked</span>',
+    'active': '<span style="background:#dbeafe;color:#0c4a6e;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-mouse"></i> Clicked</span>',
+    'converted': '<span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-check-circle"></i> Converted</span>'
+  };
+  return stages[status] || stages['pending'];
 }
 
 async function activateReferral(referredMemberId){
