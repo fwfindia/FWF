@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>FWF Fundraiser — App</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/logo.png">
+  <link href="/assets/css/fwf-app.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+    [data-lang="hi"] body{font-family:'Mukta','Noto Sans Devanagari',sans-serif}
+    body{padding-bottom:calc(var(--tab-h)+env(safe-area-inset-bottom));animation:fadeUp .35s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .page-head{margin:12px 16px 0;padding:24px 20px;border-radius:22px;background:linear-gradient(135deg,#be123c,#f43f5e);color:#fff;position:relative;overflow:hidden}
+    .page-head::before{content:'';position:absolute;top:-36px;right:-36px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,.16) 0%,transparent 70%);border-radius:50%}
+    .page-head .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);font-size:.78rem;font-weight:800;color:#fff;padding:6px 14px;border-radius:999px;margin-bottom:14px;position:relative;z-index:1}
+    .page-head h1{font-size:1.9rem;font-weight:900;line-height:1.1;position:relative;z-index:1;margin:0 0 10px}
+    .page-head p{margin:0;line-height:1.6;color:rgba(255,255,255,.92);position:relative;z-index:1}
+    .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 16px 0}
+    .feature-card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 12px 30px rgba(15,23,42,.08);border:1px solid rgba(226,232,240,.9)}
+    .feature-card h2{font-size:1rem;margin:0 0 8px;color:#0f172a}
+    .feature-card p{margin:0;color:#475569;line-height:1.6;font-size:.95rem}
+    .feature-card .foot{margin-top:12px;display:flex;justify-content:space-between;align-items:center}
+    .feat-btn{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:800;font-size:.92rem;cursor:pointer}
+    .steps-list{margin:16px 16px 0;display:grid;gap:14px}
+    .step-card{background:#fff;border-radius:18px;padding:18px;border:1px solid #e2e8f0;display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start;box-shadow:0 12px 24px rgba(15,23,42,.08)}
+    .step-num{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#d97706);display:grid;place-items:center;color:#fff;font-weight:900;font-size:1rem}
+    .step-content h3{margin:0 0 6px;font-size:1rem;color:#0f172a}
+    .step-content p{margin:0;color:#475569;line-height:1.5;font-size:.95rem}
+    .support-section{margin:16px 16px 0;background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:22px;box-shadow:0 12px 30px rgba(15,23,42,.06)}
+    .support-section h2{margin:0 0 10px;font-size:1.1rem;color:#0f172a}
+    .support-section p{margin:0 0 18px;color:#475569;line-height:1.7}
+    .support-grid{display:grid;gap:12px}
+    .support-card{padding:16px;border-radius:16px;background:linear-gradient(135deg,#fef3c7,#fbbf24);color:#92400e;font-weight:700;font-size:.95rem}
+    .app-tabs{padding-bottom:env(safe-area-inset-bottom);height:calc(var(--tab-h)+env(safe-area-inset-bottom))}
+  </style>
+</head>
+<body>
+  <div class="page-head">
+    <span class="badge">Aatmnirbhar Bharat Fundraiser</span>
+    <h1>Fund Small Businesses with FWF</h1>
+    <p>Support artisans, women and youth entrepreneurs with seed capital, equipment and mentoring to start a real manufacturing unit.</p>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h2>Transparent Funding</h2>
+      <p>Your donation goes directly to shop setup, raw materials, licences and first production cycle.</p>
+    </div>
+    <div class="feature-card">
+      <h2>Impact with Mentorship</h2>
+      <p>FWF supports every recipient with market access, business coaching and local demand planning.</p>
+    </div>
+  </div>
+
+  <div class="steps-list">
+    <div class="step-card"><div class="step-num">1</div><div class="step-content"><h3>Choose the Cause</h3><p>See the fundraiser focus areas and understand how your support will be used.</p></div></div>
+    <div class="step-card"><div class="step-num">2</div><div class="step-content"><h3>Collect Funds</h3><p>Funds are pooled transparently for production, certification and market entry.</p></div></div>
+    <div class="step-card"><div class="step-num">3</div><div class="step-content"><h3>Launch the Unit</h3><p>We deploy funds to equipment, FSSAI/Udyam registration and the first batch of raw materials.</p></div></div>
+    <div class="step-card"><div class="step-num">4</div><div class="step-content"><h3>Grow the Livelihood</h3><p>Ongoing mentoring, buyer linkages and customer support help the business become self-sustaining.</p></div></div>
+  </div>
+
+  <section class="support-section">
+    <h2>Support Now</h2>
+    <p>Every contribution creates a direct path to dignity. Start with ₹5,000 and help a new micro-unit move from idea to income.</p>
+    <div class="support-grid">
+      <div class="support-card">Seed Support ₹5,000</div>
+      <div class="support-card">Business Backer ₹50,000</div>
+      <div class="support-card">Full Sponsor ₹3,00,000+</div>
+    </div>
+    <div class="foot" style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+      <a class="feat-btn" href="/donation#donateModal">Donate Now</a>
+      <a class="feat-btn" href="/donation#memberModal">Join FWF</a>
+    </div>
+  </section>
+
+  <nav class="app-tabs">
+    <a href="/app/home" class="tab-item" id="t-h"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/app/projects" class="tab-item" id="t-p"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+    <a href="/app/fundraiser" class="tab-item active" id="t-f"><i class="fas fa-hand-holding-heart"></i><span>Fundraiser</span></a>
+    <a href="/app/donate#memberModal" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span>Join</span></a>
+    <a href="/app/donate" class="tab-item" id="t-d"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/login" class="tab-item" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
+  </nav>
+</body>
+</html>
