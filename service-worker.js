@@ -85,6 +85,11 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Skip non-HTTP(S) schemes like browser extensions
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    return;
+  }
+
   event.respondWith(
     cacheFirst(request)
       .catch(() => networkFirst(request))
@@ -123,8 +128,8 @@ async function networkFirst(request) {
   try {
     const response = await fetch(request);
     
-    // Cache successful responses
-    if (response.ok) {
+    // Cache successful same-origin responses only
+    if (response.ok && request.url.startsWith(self.location.origin)) {
       const cache = await caches.open(DYNAMIC_CACHE);
       cache.put(request, response.clone());
       await setCacheTime(request.url);
@@ -152,7 +157,7 @@ async function networkFirst(request) {
 async function updateCache(request) {
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    if (response.ok && request.url.startsWith(self.location.origin)) {
       const cache = await caches.open(CACHE_NAME);
       await cache.put(request, response);
       await setCacheTime(request.url);
