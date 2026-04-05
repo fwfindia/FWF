@@ -3,7 +3,7 @@
  * Provides offline capability and faster loading through caching
  */
 
-const CACHE_VERSION = 'fwf-v1.0.1';
+const CACHE_VERSION = 'fwf-v1.0.2';
 const CACHE_NAME = `fwf-cache-${CACHE_VERSION}`;
 
 // Assets to cache immediately on install
@@ -19,7 +19,7 @@ const STATIC_ASSETS = [
 ];
 
 // Assets to cache on first request
-const DYNAMIC_CACHE = 'fwf-dynamic-v1';
+const DYNAMIC_CACHE = 'fwf-dynamic-v1.0.2';
 
 // Maximum age for cached items (7 days)
 const MAX_AGE = 7 * 24 * 60 * 60 * 1000;
