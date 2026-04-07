@@ -1077,7 +1077,7 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
     <p class="csrDonation__sub">
       Your CSR funds directly support small manufacturing units and livelihood setups for beneficiaries.
     </p>
-    <button class="csrDonation__cta" id="donateNowBtn">
+    <button class="csrDonation__cta" id="donateNowBtn" type="button">
       <i class="fa-solid fa-indian-rupee-sign"></i> Donate Now
     </button>
     <div id="thankYouMsg" class="csrDonation__thank hidden">
@@ -1402,6 +1402,98 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
   })();
 
   /* =========================================================
+     CSR DONATION CARD
+     ========================================================= */
+  (function(){
+    const donateNowBtn = document.getElementById('donateNowBtn');
+    const donationModalOverlay = document.getElementById('donationModalOverlay');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const donorTypeToggle = document.getElementById('donorTypeToggle');
+    const donationForm = document.getElementById('donationForm');
+
+    if(!donateNowBtn || !donationModalOverlay || !donationForm) return;
+
+    const donorTypeButtons = Array.from(donorTypeToggle.querySelectorAll('button'));
+    const donorFieldGroups = Array.from(donationForm.querySelectorAll('.donorFields'));
+    const amountButtons = Array.from(donationForm.querySelectorAll('.amtBtns button'));
+
+    let activeDonorType = 'individual';
+
+    function openDonationModal(){
+      donationModalOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDonationModal(){
+      donationModalOverlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function setDonorType(type){
+      activeDonorType = type;
+      donorTypeButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
+      donorFieldGroups.forEach(group => group.classList.toggle('hidden', group.dataset.type !== type));
+    }
+
+    function setSelectedAmount(clickedBtn){
+      const group = clickedBtn.closest('.amtBtns');
+      if(!group) return;
+      group.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+      clickedBtn.classList.add('selected');
+      const customInput = group.querySelector('input[type="number"]');
+      if(customInput) customInput.value = clickedBtn.dataset.amt || '';
+    }
+
+    function getSelectedAmount(){
+      if(activeDonorType === 'corporate'){
+        return donationForm.elements.corpCustomAmt?.value || '10000';
+      }
+      return donationForm.elements.customAmt?.value || '500';
+    }
+
+    donateNowBtn.addEventListener('click', openDonationModal);
+    closeModalBtn.addEventListener('click', closeDonationModal);
+
+    donationModalOverlay.addEventListener('click', (e) => {
+      if(e.target === donationModalOverlay) closeDonationModal();
+    });
+
+    donorTypeButtons.forEach(btn => {
+      btn.addEventListener('click', () => setDonorType(btn.dataset.type));
+    });
+
+    amountButtons.forEach(btn => {
+      btn.addEventListener('click', () => setSelectedAmount(btn));
+    });
+
+    donationForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const amount = getSelectedAmount();
+      const name = activeDonorType === 'corporate'
+        ? donationForm.elements.contactName?.value?.trim()
+        : donationForm.elements.fullName?.value?.trim();
+      const email = activeDonorType === 'corporate'
+        ? donationForm.elements.corpEmail?.value?.trim()
+        : donationForm.elements.email?.value?.trim();
+      const mobile = activeDonorType === 'corporate'
+        ? donationForm.elements.corpMobile?.value?.trim()
+        : donationForm.elements.mobile?.value?.trim();
+
+      const params = new URLSearchParams();
+      if(name) params.set('n', name);
+      if(email) params.set('e', email);
+      if(mobile) params.set('m', mobile);
+      if(amount) params.set('da', amount);
+      params.set('src', activeDonorType === 'corporate' ? 'csr-corporate' : 'csr-individual');
+
+      window.location.href = `/donation?${params.toString()}#donateModal`;
+    });
+
+    setDonorType('individual');
+  })();
+
+  /* =========================================================
      WAYS TABS + CTA Fill (left pane)
      ========================================================= */
   (function(){
@@ -1434,5 +1526,3 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
   </script>
 </body>
 </html>
-
-
