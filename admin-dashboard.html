@@ -3968,14 +3968,18 @@ async function generateQuizQuestionsAI(){
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
   try {
-    const topic = (document.getElementById('qmAiTopic').value || '').trim() || 'Scholarship aptitude and reasoning';
     const difficulty = document.getElementById('qmAiDifficulty').value || 'medium';
     const count = Number(document.getElementById('qmAiCount').value || 10);
-    const includeRelationshipLogic = !!document.getElementById('qmAiRelationship').checked;
 
     const data = await AUTH.api('/api/quiz-ai-generate', {
       method: 'POST',
-      body: { topic, difficulty, count, includeRelationshipLogic, language: 'hi' }
+      body: {
+        topic: 'General Knowledge and Relationship Logic',
+        difficulty,
+        count,
+        includeRelationshipLogic: true,
+        language: 'hi'
+      }
     });
     if(!data.ok) throw new Error(data.error || 'AI generation failed');
 
