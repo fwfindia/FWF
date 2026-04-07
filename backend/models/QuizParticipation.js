@@ -17,7 +17,9 @@ const quizParticipationSchema = new mongoose.Schema({
   }],
   score: { type: Number, default: 0 },
   quiz_submitted: { type: Boolean, default: false },
+  quiz_started_at: { type: Date },
   submitted_at: { type: Date },
+  speed_seconds: { type: Number },
   referred_by: { type: String }, // referral code of who referred
   referrer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status: {

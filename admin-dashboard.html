@@ -1777,6 +1777,60 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </div>
   </div>
 
+  <!-- ===== QUIZ MANAGE MODAL ===== -->
+  <div id="modalQuizManage" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2100;overflow-y:auto;padding:20px">
+    <div style="max-width:980px;margin:30px auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35)">
+      <div style="background:linear-gradient(135deg,#0f172a,#1e293b);padding:18px 24px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h2 id="qmTitle" style="margin:0;color:#fff;font-size:20px">Manage Quiz</h2>
+          <p id="qmSubtitle" style="margin:4px 0 0;color:#cbd5e1;font-size:12px"></p>
+        </div>
+        <button onclick="closeQuizManage()" style="background:rgba(255,255,255,.18);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer">✕</button>
+      </div>
+
+      <div style="padding:18px 22px;border-bottom:1px solid #e2e8f0;display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px">
+        <input id="qmQuizTitle" class="form-input" placeholder="Quiz title">
+        <select id="qmGameType" class="form-input">
+          <option value="mcq">MCQ</option>
+          <option value="true_false">True/False</option>
+          <option value="speed">Speed</option>
+          <option value="puzzle">Puzzle</option>
+          <option value="general">General</option>
+          <option value="picture">Picture</option>
+        </select>
+        <input id="qmEntryFee" type="number" min="0" class="form-input" placeholder="Entry fee">
+      </div>
+
+      <div style="padding:18px 22px;border-bottom:1px solid #e2e8f0;background:#f8fafc">
+        <div style="font-size:13px;font-weight:800;margin-bottom:10px;color:#334155"><i class="fa-solid fa-robot" style="color:#4f46e5"></i> Frame Questions with ChatGPT</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:center">
+          <input id="qmAiTopic" class="form-input" placeholder="Topic e.g. scholarship aptitude, logical reasoning">
+          <select id="qmAiDifficulty" class="form-input">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+          <input id="qmAiCount" type="number" min="5" max="20" value="10" class="form-input" placeholder="Count">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#334155;font-weight:700"><input id="qmAiRelationship" type="checkbox" checked> Relationship Logic</label>
+          <button id="qmAiGenerateBtn" onclick="generateQuizQuestionsAI()" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border:none;color:#fff;padding:9px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px;white-space:nowrap"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate</button>
+        </div>
+      </div>
+
+      <div style="padding:18px 22px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:800;color:#334155">Questions JSON (editable)</div>
+          <small style="color:#64748b">Format: [{"question":"...","options":["A","B","C","D"],"correct_answer":1,"points":1}]</small>
+        </div>
+        <textarea id="qmQuestionsJson" class="form-input" style="min-height:300px;font-family:Consolas,monospace;font-size:12px;line-height:1.5"></textarea>
+      </div>
+
+      <div style="padding:14px 22px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:10px">
+        <button onclick="closeQuizManage()" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#334155;padding:9px 14px;border-radius:8px;font-weight:700;cursor:pointer">Cancel</button>
+        <button onclick="saveQuizManage()" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;padding:9px 16px;border-radius:8px;font-weight:800;cursor:pointer"><i class="fa-solid fa-save"></i> Save Quiz</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== PARTICIPANTS MODAL ===== -->
   <div id="modalParticipants" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;overflow-y:auto;padding:20px">
     <div style="max-width:1000px;margin:40px auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3)">
@@ -3606,6 +3660,7 @@ let frAllQuizzesCache = [];
 let pCurrentQuizId = '';
 let pCurrentPage = 1;
 let pParticipantsCache = [];
+let qmCurrentQuizId = '';
 
 /* ---------- TABS ---------- */
 function switchFRTab(tab) {
@@ -3669,6 +3724,7 @@ async function loadFundRaiser(){
           <td style="font-weight:700">₹${(q.total_collection||0).toLocaleString('en-IN')}</td>
           <td>${frStatusBadge(q.status)}</td>
           <td style="white-space:nowrap">
+            <button onclick="openQuizManage('${q.quiz_id}')" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:4px">⚙️ Manage</button>
             <button onclick="openQuizDetail('${q.quiz_id}')" style="background:#dbeafe;color:#1e40af;border:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:4px">📋 Detail</button>
             <button onclick="openParticipants('${q.quiz_id}')" style="background:#ede9fe;color:#6d28d9;border:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:4px">👥 Members</button>
             <button onclick="manualDraw('${q.quiz_id}')" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#fff;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">🎲 Run Draw</button>
@@ -3687,6 +3743,7 @@ async function loadFundRaiser(){
           <td style="font-weight:700">₹${(q.total_collection||0).toLocaleString('en-IN')}</td>
           <td style="color:#ef4444;font-weight:700">${fmtDt(q.result_date)}</td>
           <td style="white-space:nowrap">
+            <button onclick="openQuizManage('${q.quiz_id}')" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:4px">⚙️ Manage</button>
             <button onclick="openParticipants('${q.quiz_id}')" style="background:#ede9fe;color:#6d28d9;border:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:4px">👥 Members</button>
             <button onclick="manualDraw('${q.quiz_id}')" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#fff;padding:5px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:11px">🎲 Draw Now</button>
           </td>
@@ -3746,6 +3803,7 @@ function filterAllQuizzes(){
         <td style="font-weight:700;color:#6366f1">${q.total_participants||0}</td>
         <td style="font-weight:700">₹${(q.total_collection||0).toLocaleString('en-IN')}</td>
         <td style="white-space:nowrap">
+          <button onclick="openQuizManage('${q.quiz_id}')" style="background:#f1f5f9;color:#334155;border:none;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:3px">⚙️</button>
           <button onclick="openQuizDetail('${q.quiz_id}')" style="background:#dbeafe;color:#1e40af;border:none;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:3px">📋</button>
           <button onclick="openParticipants('${q.quiz_id}')" style="background:#ede9fe;color:#6d28d9;border:none;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:3px">👥</button>
           ${q.status === 'closed' || (q.status === 'active' && new Date(q.result_date) < new Date()) ? `<button onclick="manualDraw('${q.quiz_id}')" style="background:#fef3c7;color:#92400e;border:none;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">🎲</button>` : ''}
@@ -3857,6 +3915,7 @@ async function openQuizDetail(quizId){
         </div>`;
       }).join('')||'<p style="color:#94a3b8;font-size:13px">No questions data</p>'}
       <div style="text-align:right;margin-top:16px">
+        <button onclick="openQuizManage('${quizId}')" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#334155;padding:10px 18px;border-radius:10px;font-weight:700;cursor:pointer;margin-right:8px">⚙️ Manage Quiz</button>
         <button onclick="openParticipants('${quizId}')" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border:none;color:#fff;padding:10px 20px;border-radius:10px;font-weight:700;cursor:pointer;margin-right:8px">👥 View All Participants</button>
         <button onclick="closeQuizDetail()" style="background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;padding:10px 18px;border-radius:10px;font-weight:600;cursor:pointer">Close</button>
       </div>`;
@@ -3865,6 +3924,95 @@ async function openQuizDetail(quizId){
   }
 }
 function closeQuizDetail(){ document.getElementById('modalQuizDetail').style.display = 'none'; }
+
+/* ---------- QUIZ MANAGE MODAL ---------- */
+async function openQuizManage(quizId){
+  qmCurrentQuizId = quizId;
+  document.getElementById('modalQuizManage').style.display = '';
+  document.getElementById('qmTitle').textContent = 'Manage Quiz';
+  document.getElementById('qmSubtitle').textContent = quizId;
+  document.getElementById('qmQuizTitle').value = '';
+  document.getElementById('qmQuestionsJson').value = 'Loading...';
+  try {
+    const data = await AUTH.api(`/api/admin/quiz/${quizId}/detail`);
+    if(!data.ok) throw new Error(data.error || 'Failed to load quiz details');
+    const q = data.quiz;
+    document.getElementById('qmTitle').textContent = `Manage: ${q.title}`;
+    document.getElementById('qmSubtitle').textContent = `${q.quiz_id} • ${q.type} • ${q.status}`;
+    document.getElementById('qmQuizTitle').value = q.title || '';
+    document.getElementById('qmGameType').value = q.game_type || 'mcq';
+    document.getElementById('qmEntryFee').value = q.entry_fee || 0;
+    document.getElementById('qmAiTopic').value = q.title || 'Scholarship aptitude and reasoning';
+    const simpleQuestions = (q.questions || []).map(qq => ({
+      question: qq.question,
+      options: qq.options,
+      correct_answer: qq.correct_answer,
+      points: qq.points || 1
+    }));
+    document.getElementById('qmQuestionsJson').value = JSON.stringify(simpleQuestions, null, 2);
+  } catch(err){
+    document.getElementById('qmQuestionsJson').value = '[]';
+    FWF_Notify.toast('❌ ' + err.message, 'error');
+  }
+}
+
+function closeQuizManage(){
+  document.getElementById('modalQuizManage').style.display = 'none';
+  qmCurrentQuizId = '';
+}
+
+async function generateQuizQuestionsAI(){
+  if(!qmCurrentQuizId){ FWF_Notify.toast('❌ Quiz not selected', 'error'); return; }
+  const btn = document.getElementById('qmAiGenerateBtn');
+  const oldHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+  try {
+    const topic = (document.getElementById('qmAiTopic').value || '').trim() || 'Scholarship aptitude and reasoning';
+    const difficulty = document.getElementById('qmAiDifficulty').value || 'medium';
+    const count = Number(document.getElementById('qmAiCount').value || 10);
+    const includeRelationshipLogic = !!document.getElementById('qmAiRelationship').checked;
+
+    const data = await AUTH.api('/api/admin/quiz-ai-generate', {
+      method: 'POST',
+      body: { topic, difficulty, count, includeRelationshipLogic, language: 'hi' }
+    });
+    if(!data.ok) throw new Error(data.error || 'AI generation failed');
+
+    document.getElementById('qmQuestionsJson').value = JSON.stringify(data.questions || [], null, 2);
+    FWF_Notify.toast('✅ AI questions generated', 'success');
+  } catch(err){
+    FWF_Notify.toast('❌ ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = oldHtml;
+  }
+}
+
+async function saveQuizManage(){
+  if(!qmCurrentQuizId){ FWF_Notify.toast('❌ Quiz not selected', 'error'); return; }
+  try {
+    const title = (document.getElementById('qmQuizTitle').value || '').trim();
+    const game_type = document.getElementById('qmGameType').value;
+    const entry_fee = Number(document.getElementById('qmEntryFee').value || 0);
+    const raw = document.getElementById('qmQuestionsJson').value || '[]';
+    const questions = JSON.parse(raw);
+    if(!Array.isArray(questions) || !questions.length) throw new Error('Questions JSON must be a non-empty array');
+
+    const data = await AUTH.api(`/api/admin/quiz/${qmCurrentQuizId}`, {
+      method: 'PATCH',
+      body: { title, game_type, entry_fee, questions }
+    });
+    if(!data.ok) throw new Error(data.error || 'Failed to save quiz');
+
+    FWF_Notify.toast('✅ Quiz updated successfully', 'success');
+    closeQuizManage();
+    loadFundRaiser();
+    loadAllQuizzesList();
+  } catch(err){
+    FWF_Notify.toast('❌ ' + err.message, 'error');
+  }
+}
 
 /* ---------- PARTICIPANTS MODAL ---------- */
 async function openParticipants(quizId, page=1){
