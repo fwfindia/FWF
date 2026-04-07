@@ -1,6 +1,34 @@
 import { withSentry } from "../lib/sentry.js";
 import { connectDB } from "../lib/db.js";
-import Quiz from "../backend/models/Quiz.js";
+import mongoose from "mongoose";
+
+const quizQuestionSchema = new mongoose.Schema(
+  {
+    q_no: Number,
+    question: String,
+    options: [String],
+    correct_answer: Number,
+    points: { type: Number, default: 1 }
+  },
+  { _id: false }
+);
+
+const quizSchema = new mongoose.Schema(
+  {
+    quiz_id: { type: String, unique: true, required: true },
+    title: { type: String, required: true },
+    game_type: {
+      type: String,
+      enum: ["mcq", "true_false", "picture", "speed", "puzzle", "general"],
+      default: "mcq"
+    },
+    entry_fee: { type: Number, required: true },
+    questions: [quizQuestionSchema]
+  },
+  { strict: false }
+);
+
+const Quiz = mongoose.models.Quiz || mongoose.model("Quiz", quizSchema);
 
 function send(res, code, ok, payload) {
   return res.status(code).json(ok ? { ok: true, ...payload } : { ok: false, error: payload.error });
@@ -60,6 +88,6 @@ export default withSentry(async function handler(req, res) {
     return send(res, 200, true, { quiz });
   } catch (err) {
     console.error("quiz-save error:", err);
-    return send(res, 500, false, { error: "Failed to save quiz" });
+    return send(res, 500, false, { error: `Failed to save quiz: ${err.message}` });
   }
 });

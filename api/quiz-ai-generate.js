@@ -83,20 +83,16 @@ export default withSentry(async function handler(req, res) {
   if (!apiKey) return bad(res, 500, "OPENAI_API_KEY not configured");
 
   const {
-    topic = "Scholarship aptitude and reasoning",
     difficulty = "medium",
     count = 10,
-    includeRelationshipLogic = false,
     language = "hi"
   } = req.body || {};
 
   const safeCount = Math.min(20, Math.max(5, Number(count) || 10));
   const langHint = language === "en" ? "English" : "Hindi";
-  const relationHint = includeRelationshipLogic
-    ? "Include at least 2 relationship/blood-relation logic questions."
-    : "Relationship-logic questions are optional.";
+  const minRelationship = Math.max(3, Math.floor(safeCount * 0.35));
 
-  const generationPrompt = `Create ${safeCount} high-quality multiple-choice quiz questions for: ${topic}.\nDifficulty: ${difficulty}.\nLanguage: ${langHint}.\n${relationHint}\nRules:\n1) Exactly 4 options per question.\n2) Exactly one option must be unquestionably correct.\n3) Avoid ambiguous or partially-correct options.\n4) Keep questions practical and exam-like.\nReturn strict JSON only in this format:\n{"questions":[{"question":"...","options":["A","B","C","D"],"correct_answer":1,"correct_answer_text":"B","points":1}]}`;
+  const generationPrompt = `Create ${safeCount} high-quality multiple-choice quiz questions.\nDifficulty: ${difficulty}.\nLanguage: ${langHint}.\n\nAllowed categories only:\n1) General Knowledge (India/world GK, civics, history, geography, basic current affairs)\n2) Relationship Logic (blood relation and family relation reasoning)\n\nMandatory distribution:\n- At least ${minRelationship} questions must be Relationship Logic.\n- Remaining can be GK only.\n- Do not include math-only, physics-only, coding, or unrelated aptitude categories.\n\nRules:\n1) Exactly 4 options per question.\n2) Exactly one option must be unquestionably correct.\n3) Avoid ambiguous or partially-correct options.\n4) Keep questions practical and exam-like for scholarship quizzes.\nReturn strict JSON only in this format:\n{"questions":[{"question":"...","options":["A","B","C","D"],"correct_answer":1,"correct_answer_text":"B","points":1}]}`;
 
   try {
     const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
