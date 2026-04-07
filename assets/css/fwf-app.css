@@ -1573,6 +1573,25 @@ input, select, textarea { font-family: inherit; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
 .rounded-full { border-radius: 9999px; }
 
+/* ══════════════════════════════════════════════
+   QUIZ EVENT CARDS (Monthly / Half-Yearly / Annual)
+══════════════════════════════════════════════ */
+.eq-grid{display:flex;flex-direction:column;gap:12px;padding:0 16px}
+.eq-card{border-radius:18px;padding:16px;border:1px solid var(--b2);background:var(--s2)}
+.eq-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.eq-icon{font-size:34px;flex-shrink:0}
+.eq-info{flex:1;min-width:0}
+.eq-freq{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.eq-title{font-size:15px;font-weight:800;color:var(--t1);margin:3px 0 2px}
+.eq-desc{font-size:11px;color:var(--t3)}
+.eq-prize{text-align:right;flex-shrink:0}
+.eq-amount{font-size:17px;font-weight:900;color:var(--green);line-height:1}
+.eq-plbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.eq-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--b1)}
+.eq-entry{font-size:12px;color:var(--t2)}
+.eq-entry strong{color:var(--t1);font-size:14px}
+.eq-btn{padding:7px 18px!important;font-size:12px!important;border-radius:10px!important}
+
 /* Gradient text utility */
 .text-grad {
   background: var(--grad-brand);

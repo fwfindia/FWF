@@ -13,7 +13,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="/assets/css/fwf-app.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+</head>
+<body>
+<header class="app-topbar">
   <a href="/app/home" class="brand"><img class="brand-logo" src="/assets/images/logo.png" alt="FWF"><div><div class="brand-text">FWF Quiz</div><div class="brand-sub">Win Cash Prizes</div></div></a>
   <div class="topbar-right">
     <a href="/app/profile" class="tb-btn" id="topbar-user">&#128100;</a>
@@ -22,6 +25,74 @@
 <div id="toast-container"></div>
 
 <div class="page">
+  <!-- Quiz Events -->
+  <div class="section fade-up">
+    <div class="section-head"><h2>&#127942; Quiz Events</h2></div>
+    <div class="eq-grid">
+
+      <!-- Monthly -->
+      <div class="eq-card" style="background:linear-gradient(135deg,rgba(249,115,22,.08),var(--s2));border-color:rgba(249,115,22,.3)">
+        <div class="eq-row">
+          <div class="eq-icon">&#128197;</div>
+          <div class="eq-info">
+            <div class="eq-freq" style="color:var(--orange)">Monthly</div>
+            <div class="eq-title">Monthly Quiz</div>
+            <div class="eq-desc">Every month &middot; Open to all members</div>
+          </div>
+          <div class="eq-prize">
+            <div class="eq-amount">&#8377;5,000</div>
+            <div class="eq-plbl">Prize Pool</div>
+          </div>
+        </div>
+        <div class="eq-footer">
+          <div class="eq-entry">Entry: <strong>&#8377;50</strong></div>
+          <button onclick="enrollEvent('monthly')" class="btn btn-primary eq-btn">Enroll &#8594;</button>
+        </div>
+      </div>
+
+      <!-- Half-Yearly -->
+      <div class="eq-card" style="background:linear-gradient(135deg,rgba(139,92,246,.08),var(--s2));border-color:rgba(139,92,246,.3)">
+        <div class="eq-row">
+          <div class="eq-icon">&#128336;</div>
+          <div class="eq-info">
+            <div class="eq-freq" style="color:var(--purple-l)">Half-Yearly</div>
+            <div class="eq-title">Half-Yearly Quiz</div>
+            <div class="eq-desc">Twice a year &middot; Members only</div>
+          </div>
+          <div class="eq-prize">
+            <div class="eq-amount">&#8377;25,000</div>
+            <div class="eq-plbl">Prize Pool</div>
+          </div>
+        </div>
+        <div class="eq-footer">
+          <div class="eq-entry">Entry: <strong>&#8377;150</strong></div>
+          <button onclick="enrollEvent('halfyearly')" class="btn btn-primary eq-btn" style="background:linear-gradient(135deg,var(--purple-l),var(--purple-d))">Enroll &#8594;</button>
+        </div>
+      </div>
+
+      <!-- Annual -->
+      <div class="eq-card" style="background:linear-gradient(135deg,rgba(245,158,11,.08),var(--s2));border-color:rgba(245,158,11,.3)">
+        <div class="eq-row">
+          <div class="eq-icon">&#127941;</div>
+          <div class="eq-info">
+            <div class="eq-freq" style="color:#f59e0b">Annual</div>
+            <div class="eq-title">Annual Championship</div>
+            <div class="eq-desc">Once a year &middot; Grand prize event</div>
+          </div>
+          <div class="eq-prize">
+            <div class="eq-amount">&#8377;1,00,000</div>
+            <div class="eq-plbl">Prize Pool</div>
+          </div>
+        </div>
+        <div class="eq-footer">
+          <div class="eq-entry">Entry: <strong>&#8377;300</strong></div>
+          <button onclick="enrollEvent('annual')" class="btn btn-primary eq-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706)">Enroll &#8594;</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Active Quizzes -->
   <div class="section fade-up">
     <div class="section-head">
@@ -178,6 +249,14 @@ function updateTopbarUser() {
 const BACKEND = 'https://fwf-production.up.railway.app';
 let activeQuizzes = [];
 let selectedQuiz = null;
+
+function enrollEvent(type) {
+  const keywords = { monthly: 'monthly', halfyearly: 'half', annual: 'annual' };
+  const kw = keywords[type] || type;
+  const q = activeQuizzes.find(x => (x.title||'').toLowerCase().includes(kw));
+  if (q) { openEnrollModal(q.quiz_id || q._id); return; }
+  showToast('No active ' + type + ' quiz right now. Check back soon!', 'info');
+}
 
 async function loadQuizzes() {
   try {
