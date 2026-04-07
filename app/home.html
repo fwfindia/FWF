@@ -160,10 +160,10 @@
     <div class="sec-sub" data-i18n="how.sub">We guide you — you stay worry-free.</div>
   </div>
   <div class="steps">
-    <div class="step"><div class="sn">1</div><div><h4 data-i18n="how.s1.title">Become Member</h4><p data-i18n="how.s1.desc">Sign up for membership</p></div></div>
-    <div class="step"><div class="sn">2</div><div><h4 data-i18n="how.s2.title">Choose Project</h4><p data-i18n="how.s2.desc">Choose from the project list or share your own idea</p></div></div>
-    <div class="step"><div class="sn">3</div><div><h4 data-i18n="how.s3.title">Fundraiser</h4><p data-i18n="how.s3.desc">We run a campaign to raise funds for you</p></div></div>
-    <div class="step"><div class="sn">4</div><div><h4 data-i18n="how.s4.title">Start Your Business</h4><p data-i18n="how.s4.desc">Launch your home-based business</p></div></div>
+    <div class="step"><div class="sn">1</div><div><h4 data-i18n="how.s1.title">Enter Basic Details</h4><p data-i18n="how.s1.desc">Quick sign-up and KYC</p></div></div>
+    <div class="step"><div class="sn">2</div><div><h4 data-i18n="how.s2.title">Compare & Choose Project</h4><p data-i18n="how.s2.desc">Pick what suits your time & interest</p></div></div>
+    <div class="step"><div class="sn">3</div><div><h4 data-i18n="how.s3.title">Join Training</h4><p data-i18n="how.s3.desc">Hands-on, task-based learning</p></div></div>
+    <div class="step"><div class="sn">4</div><div><h4 data-i18n="how.s4.title">Start Earning</h4><p data-i18n="how.s4.desc">Work-links & project allotment</p></div></div>
   </div>
 
   <!-- CTA Cards – Your Support Creates Real Change -->
@@ -271,10 +271,11 @@
     <div class="ft-tagline" data-i18n="footer.tagline">Uniting skills, opportunities and livelihoods on one platform.</div>
 
     <div class="ft-socials">
-      <a href="https://www.facebook.com/share/1GP3dAT621/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://www.instagram.com/fwf_india?igsh=ZWNsMHAwanBpNHM3" target="_blank"><i class="fab fa-instagram"></i></a>
-      <a href="https://whatsapp.com/channel/0029Vanlwo3AYlUCWQ8rkK35" target="_blank" aria-label="WhatsApp Channel" title="Follow FWF on WhatsApp Channel"><i class="fab fa-whatsapp"></i></a>
+      <a href="https://www.facebook.com/fwfindia" target="_blank"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/fwfindia" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.linkedin.com/company/fwfindia" target="_blank"><i class="fab fa-linkedin-in"></i></a>
       <a href="https://youtube.com/@fwf_india" target="_blank"><i class="fab fa-youtube"></i></a>
+      <a href="https://wa.me/919580118412" target="_blank"><i class="fab fa-whatsapp"></i></a>
     </div>
 
     <div class="ft-row">
@@ -286,6 +287,7 @@
 
     <div class="ft-contact">
       <div><i class="fas fa-map-marker-alt"></i> 1398/1850 Sagarpuri Gallamandi, Kanpur - 208021 U.P India</div>
+      <div><i class="fas fa-phone"></i> <a href="tel:+919580118412">+91-9580118412</a></div>
       <div><i class="fas fa-envelope"></i> <a href="mailto:info@fwfindia.org">info@fwfindia.org</a></div>
       <div><i class="fab fa-whatsapp"></i> <a href="https://wa.me/919580118412" data-i18n="footer.whatsapp">WhatsApp</a></div>
     </div>
@@ -304,13 +306,25 @@
 
   <!-- Bottom Tabs -->
   <nav class="app-tabs">
-    <a href="/app/home" class="tab-item active" id="t-h"><i class="fas fa-home"></i><span data-i18n="nav.home">Home</span></a>
-    <a href="/app/projects" class="tab-item" id="t-p"><i class="fas fa-briefcase"></i><span data-i18n="nav.projects">Projects</span></a>
-    <a href="/app/fundraiser" class="tab-item" id="t-f"><i class="fas fa-hand-holding-heart"></i><span>Fundraiser</span></a>
-    <a href="/app/donate#memberModal" class="tab-item tab-join"><div class="tab-fab"><i class="fas fa-plus"></i></div><span data-i18n="nav.join">Join</span></a>
-    <a href="/app/donate" class="tab-item" id="t-d"><i class="fas fa-heart"></i><span data-i18n="nav.donate">Donate</span></a>
-    <a href="/app/login" class="tab-item" id="t-l"><i class="fas fa-user"></i><span>Login</span></a>
+    <a href="/app/home" class="tab-item active"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/app/projects" class="tab-item"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+    <a href="/app/login" class="tab-item"><i class="fas fa-user"></i><span>Login</span></a>
+    <button class="tab-item" onclick="openMore()"><i class="fas fa-bars"></i><span>More</span></button>
   </nav>
+  <div class="more-overlay" id="more-overlay" onclick="closeMore()"></div>
+  <div class="more-sheet" id="more-sheet">
+    <div class="more-handle" onclick="closeMore()"></div>
+    <div class="more-title">More</div>
+    <div class="more-grid">
+      <a href="/app/donate" class="more-item"><i class="fas fa-heart"></i><span>Donate</span></a>
+      <a href="/app/donate#memberModal" class="more-item"><i class="fas fa-user-plus"></i><span>Join</span></a>
+      <a href="/fundraiser" class="more-item"><i class="fas fa-hand-holding-heart"></i><span>Fundraiser</span></a>
+      <a href="/csr" class="more-item"><i class="fas fa-building"></i><span>CSR</span></a>
+      <a href="/app/store" class="more-item"><i class="fas fa-store"></i><span>Store</span></a>
+      <a href="/app/quiz" class="more-item"><i class="fas fa-dice"></i><span>Quiz</span></a>
+    </div>
+  </div>
+  <script>function openMore(){document.getElementById('more-sheet').classList.add('open');document.getElementById('more-overlay').classList.add('open')}function closeMore(){document.getElementById('more-sheet').classList.remove('open');document.getElementById('more-overlay').classList.remove('open')}</script>
 
   <script>
     document.getElementById('yr').textContent=new Date().getFullYear();
@@ -329,10 +343,10 @@
         'hero.lead':'We connect people with market-ready training and real business projects, so you can earn with dignity.<br><b>Training → Livelihood → Direct Earning Pipeline</b>',
         'hero.journeyBtn':'Start Your Journey',
         'how.titleMain':'Get Started in','how.titleAccent':'4 Easy Steps','how.sub':'We guide you — you stay worry-free.',
-        'how.s1.title':'Become Member','how.s1.desc':'Sign up for membership',
-        'how.s2.title':'Choose Project','how.s2.desc':'Choose from the project list or share your own idea',
-        'how.s3.title':'Fundraiser','how.s3.desc':'We run a campaign to raise funds for you',
-        'how.s4.title':'Start Your Business','how.s4.desc':'Launch your home-based business',
+        'how.s1.title':'Enter Basic Details','how.s1.desc':'Quick sign-up and KYC',
+        'how.s2.title':'Compare & Choose Project','how.s2.desc':'Pick what suits your time & interest',
+        'how.s3.title':'Join Training','how.s3.desc':'Hands-on, task-based learning',
+        'how.s4.title':'Start Earning','how.s4.desc':'Work-links & project allotment',
         'cta.titleMain':'Your support creates real change','cta.subtitle':'Choose your next step',
         'cta.cards.donate.title':'Donate Now','cta.cards.donate.desc':'Your donation helps people access training and projects to earn their livelihood.','cta.cards.donate.btn':'Donate',
         'cta.cards.member.title':'Become a Member','cta.cards.member.desc':'Get priority training, project access and business support.','cta.cards.member.btn':'Apply',

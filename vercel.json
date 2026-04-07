@@ -48,6 +48,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/fundraiser",             "destination": "/fundraiser" },
     { "source": "/terms",                  "destination": "/terms-conditions" },
     { "source": "/privacy",                "destination": "/privacy-policy" },
     { "source": "/about",                  "destination": "/about" },
