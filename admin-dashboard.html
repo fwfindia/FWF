@@ -3973,7 +3973,7 @@ async function generateQuizQuestionsAI(){
     const count = Number(document.getElementById('qmAiCount').value || 10);
     const includeRelationshipLogic = !!document.getElementById('qmAiRelationship').checked;
 
-    const data = await AUTH.api('/api/admin/quiz-ai-generate', {
+    const data = await AUTH.api('/api/quiz-ai-generate', {
       method: 'POST',
       body: { topic, difficulty, count, includeRelationshipLogic, language: 'hi' }
     });
@@ -3982,7 +3982,11 @@ async function generateQuizQuestionsAI(){
     document.getElementById('qmQuestionsJson').value = JSON.stringify(data.questions || [], null, 2);
     FWF_Notify.toast('✅ AI questions generated', 'success');
   } catch(err){
-    FWF_Notify.toast('❌ ' + err.message, 'error');
+    if (err && err.status === 404) {
+      FWF_Notify.toast('❌ AI endpoint unavailable. Auto-create will still generate fresh quiz questions.', 'error');
+    } else {
+      FWF_Notify.toast('❌ ' + err.message, 'error');
+    }
   } finally {
     btn.disabled = false;
     btn.innerHTML = oldHtml;
