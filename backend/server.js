@@ -5212,6 +5212,44 @@ function getRandomQuestions(questionPool, take = 10) {
   return shuffled.slice(0, take).map((q, idx) => ({ ...q, q_no: idx + 1 }));
 }
 
+function normalizeQuestionKey(text) {
+  return String(text || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+async function buildFreshMonthlyQuestions(take = 10) {
+  const pool = quizTemplates.monthly.questions || [];
+  if (!pool.length) return [];
+
+  // Avoid repeating questions that appeared in recent monthly quizzes.
+  const recentMonthly = await Quiz.find({ type: 'monthly' })
+    .sort({ created_at: -1 })
+    .limit(6)
+    .select('questions')
+    .lean();
+
+  const recentlyUsed = new Set();
+  for (const quiz of recentMonthly) {
+    for (const q of (quiz.questions || [])) {
+      recentlyUsed.add(normalizeQuestionKey(q.question));
+    }
+  }
+
+  const freshPool = pool.filter(q => !recentlyUsed.has(normalizeQuestionKey(q.question)));
+  const backupPool = pool.filter(q => recentlyUsed.has(normalizeQuestionKey(q.question)));
+
+  const pickShuffled = (arr, n) => [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+  const pickedFresh = pickShuffled(freshPool, take);
+
+  if (pickedFresh.length >= take) {
+    return pickedFresh.map((q, idx) => ({ ...q, q_no: idx + 1 }));
+  }
+
+  const needed = take - pickedFresh.length;
+  const pickedBackup = pickShuffled(backupPool, needed);
+  const combined = [...pickedFresh, ...pickedBackup].slice(0, take);
+  return combined.map((q, idx) => ({ ...q, q_no: idx + 1 }));
+}
+
 async function refreshEditableMonthlyQuizQuestions() {
   const activeMonthly = await Quiz.findOne({ type: 'monthly', status: { $in: ['active', 'upcoming'] } });
   if (!activeMonthly) return;
@@ -5223,7 +5261,7 @@ async function refreshEditableMonthlyQuizQuestions() {
 
   if (submittedCount > 0) return;
 
-  const refreshedQuestions = getRandomQuestions(quizTemplates.monthly.questions, 10);
+  const refreshedQuestions = await buildFreshMonthlyQuestions(10);
   await Quiz.updateOne(
     { _id: activeMonthly._id },
     {
@@ -5268,7 +5306,7 @@ async function autoCreateQuizzes() {
         result_date: monthResult,
         status: 'active',
         prizes: t.prizes,
-        questions: getRandomQuestions(t.questions, 10)
+        questions: await buildFreshMonthlyQuestions(10)
       });
       console.log(`✅ Auto-created monthly quiz: ${monthId}`);
     }
