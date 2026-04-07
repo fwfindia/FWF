@@ -390,10 +390,10 @@ input, select, textarea { font-family: inherit; }
 .tab-fab .fab-label { line-height: 1; margin-top: 6px; }
 
 /* ── More Menu Sheet ── */
-.more-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.more-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:var(--tabbar-h,68px);background:rgba(0,0,0,.6);z-index:400;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .more-overlay.open{display:block}
-.more-sheet{position:fixed;bottom:-100vh;left:0;right:0;background:var(--bg-2);border-top:1px solid var(--b2);border-radius:24px 24px 0 0;z-index:401;padding:16px 20px calc(20px + env(safe-area-inset-bottom));transition:bottom var(--t-slow)}
-.more-sheet.open{bottom:0}
+.more-sheet{position:fixed;bottom:calc(-100vh - 68px);left:0;right:0;background:var(--bg-2);border-top:1px solid var(--b2);border-radius:24px 24px 0 0;z-index:401;padding:16px 20px 24px;transition:bottom var(--t-slow)}
+.more-sheet.open{bottom:var(--tabbar-h,68px)}
 .more-handle{width:40px;height:4px;background:var(--b3);border-radius:2px;margin:0 auto 16px;cursor:pointer}
 .more-title{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:14px;padding-left:2px}
 .more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
