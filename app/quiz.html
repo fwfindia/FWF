@@ -260,6 +260,23 @@ const STATIC_PROGRAMS = [
     status: 'active', total_participants: 0, prizes: [{label:'₹50,000 Divya Yatra'}],     result_date: null }
 ];
 
+function getResultDate(type) {
+  const now = new Date();
+  if (type === 'monthly') {
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return new Date(monthEnd.getTime() + 3 * 86400000);
+  }
+  if (type === 'half_yearly') {
+    const halfYearEnd = new Date(now.getFullYear(), now.getMonth() + 6, 0);
+    return new Date(halfYearEnd.getTime() + 5 * 86400000);
+  }
+  if (type === 'yearly') {
+    const yearEnd = new Date(now.getFullYear(), 11, 31);
+    return new Date(yearEnd.getTime() + 7 * 86400000);
+  }
+  return null;
+}
+
 function enrollEvent(type) {
   const kw = { monthly: 'udaan', half_yearly: 'saksham', yearly: 'divya' }[type] || type;
   let q = activeQuizzes.find(x => (x.title||'').toLowerCase().includes(kw) || (x.type||'') === type);
@@ -297,15 +314,13 @@ function renderQuizCards(quizzes) {
     quizzes.map(q => {
       const id  = q.quiz_id || q._id;
       const col = colMap[q.type] || '#E87722';
-      const resultTxt = q.result_date
-        ? new Date(q.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
-        : 'TBD';
+      const rd = q.result_date ? new Date(q.result_date) : getResultDate(q.type);
+      const resultTxt = rd ? rd.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'TBD';
       return '<div class="quiz-card" onclick="openEnrollModal(\'' + id + '\')" style="border-color:' + col + '55">' +
         '<div class="qc-badge live" style="background:' + col + '22;color:' + col + ';border:1px solid ' + col + '44"><span class="live-dot" style="background:' + col + ';margin-right:4px"></span>Live</div>' +
         '<div class="qc-title">' + q.title + '</div>' +
         '<div class="qc-fee">&#8377;' + (q.entry_fee||100) + '</div>' +
-        '<div class="qc-meta">&#128197; Result: ' + resultTxt + '</div>' +
-        '<div class="qc-meta" style="margin-bottom:8px">&#128101; ' + (q.total_participants||0) + ' enrolled</div>' +
+        '<div class="qc-meta" style="margin-bottom:8px">&#128197; Result: ' + resultTxt + '</div>' +
         '<div class="qc-prizes">&#127942; ' + ((q.prizes||[]).map(p=>p.label||p.prize_label||('1st: &#8377;'+(p.amount||''))).join(' | ')||'Prizes TBD') + '</div>' +
         '</div>';
     }).join('') + '</div>';
