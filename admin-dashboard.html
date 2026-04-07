@@ -4003,10 +4003,23 @@ async function saveQuizManage(){
     const questions = JSON.parse(raw);
     if(!Array.isArray(questions) || !questions.length) throw new Error('Questions JSON must be a non-empty array');
 
-    const data = await AUTH.api(`/api/admin/quiz/${qmCurrentQuizId}`, {
-      method: 'PATCH',
-      body: { title, game_type, entry_fee, questions }
-    });
+    let data;
+    try {
+      data = await AUTH.api(`/api/admin/quiz/${qmCurrentQuizId}`, {
+        method: 'PATCH',
+        body: { title, game_type, entry_fee, questions }
+      });
+    } catch (err) {
+      // Railway backend may not have the latest PATCH route yet.
+      if (err && err.status === 404) {
+        data = await AUTH.api('/api/quiz-save', {
+          method: 'POST',
+          body: { quizId: qmCurrentQuizId, title, game_type, entry_fee, questions }
+        });
+      } else {
+        throw err;
+      }
+    }
     if(!data.ok) throw new Error(data.error || 'Failed to save quiz');
 
     FWF_Notify.toast('✅ Quiz updated successfully', 'success');
