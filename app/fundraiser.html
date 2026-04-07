@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#06060d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Fundraiser — FWF</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/logo.png">
+  <link href="/assets/css/fwf-app.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+/* ── Fundraiser hero ── */
+.fr-hero{margin:12px 16px 0;border-radius:22px;padding:26px 20px 24px;background:linear-gradient(135deg,#78350f,#a16207 60%,#92400e);position:relative;overflow:hidden}
+.fr-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);border-radius:50%}
+.fr-hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);font-size:10px;font-weight:800;color:#fef3c7;padding:4px 12px;border-radius:50px;margin-bottom:12px;letter-spacing:.06em;text-transform:uppercase;position:relative;z-index:1}
+.fr-live-dot{width:6px;height:6px;border-radius:50%;background:#fbbf24;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.fr-hero h1{font-size:22px;font-weight:900;color:#fff;position:relative;z-index:1;margin-bottom:6px;line-height:1.2}
+.fr-hero h1 em{font-style:italic;color:#fde68a}
+.fr-hero p{font-size:13px;color:rgba(255,255,255,.82);position:relative;z-index:1;margin:0;line-height:1.55}
+.fr-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;position:relative;z-index:1}
+.fr-pill{font-size:11px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);padding:3px 10px;border-radius:50px}
+
+/* ── Donation card ── */
+.fr-card{margin:14px 16px 0;background:var(--s2);border:1px solid var(--b2);border-radius:20px;padding:20px 18px}
+.fr-card-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:4px}
+.fr-card-sub{font-size:12px;color:var(--t3);margin-bottom:16px;line-height:1.5}
+.fr-divider{height:1px;background:var(--b1);margin-bottom:16px}
+
+/* Frequency toggle */
+.freq-tog{display:flex;background:var(--s3);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px}
+.freq-btn{flex:1;padding:8px;background:transparent;border:none;border-radius:8px;font-size:12px;font-weight:700;color:var(--t3);cursor:pointer;font-family:inherit;transition:all .15s}
+.freq-btn.on{background:var(--s4);color:var(--t1);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+
+/* Amount presets */
+.fr-amt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.fr-amt-btn{padding:12px 8px;background:var(--s3);border:1.5px solid var(--b2);border-radius:12px;font-size:15px;font-weight:800;color:var(--t1);cursor:pointer;text-align:center;transition:all .15s;font-family:inherit}
+.fr-amt-btn span{display:block;font-size:10px;font-weight:400;color:var(--t3);margin-top:2px}
+.fr-amt-btn:active{transform:scale(.96)}
+.fr-amt-btn.on{background:rgba(184,134,42,.15);border-color:#b8862a;color:#fbbf24}
+
+/* Custom input */
+.fr-input-wrap{position:relative;margin-bottom:12px}
+.fr-prefix{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px;font-weight:700;color:#b8862a;pointer-events:none}
+.fr-input{width:100%;padding:13px 13px 13px 30px;background:var(--s3);border:1.5px solid var(--b2);border-radius:12px;font-size:18px;font-weight:700;color:var(--t1);outline:none;font-family:inherit;transition:border-color .15s}
+.fr-input:focus{border-color:#b8862a}
+.fr-form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.fr-fi{width:100%;padding:13px;background:var(--s3);border:1.5px solid var(--b2);border-radius:12px;font-size:13px;color:var(--t1);outline:none;font-family:inherit;transition:border-color .15s}
+.fr-fi::placeholder{color:var(--t3)}
+.fr-fi:focus{border-color:#b8862a}
+.monthly-info{font-size:11px;color:#fbbf24;background:rgba(184,134,42,.12);border:1px solid rgba(184,134,42,.25);border-radius:8px;padding:8px 12px;margin-bottom:12px;display:none;line-height:1.5}
+.monthly-info.show{display:block}
+.fr-donate-btn{width:100%;padding:16px;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border:none;border-radius:13px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:.03em;transition:transform .15s,opacity .15s;margin-bottom:10px}
+.fr-donate-btn:active{transform:scale(.97);opacity:.9}
+.fr-secure-note{text-align:center;font-size:11px;color:var(--t3)}
+
+/* ── How it works ── */
+.fr-steps{display:flex;flex-direction:column;gap:0;padding:0 16px}
+.fr-step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--b1);position:relative}
+.fr-step:last-child{border-bottom:none}
+.fr-step-circle{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#b45309,#d97706);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0}
+.fr-step-body{}
+.fr-step-title{font-size:14px;font-weight:800;color:var(--t1);margin-bottom:3px}
+.fr-step-desc{font-size:12px;color:var(--t3);line-height:1.5}
+
+/* ── Tiers ── */
+.fr-tier{margin:0 16px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:16px;padding:18px 16px}
+.fr-tier.featured{border-color:rgba(184,134,42,.5);background:rgba(184,134,42,.06)}
+.fr-tier-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.fr-tier-amt{font-size:22px;font-weight:900;color:var(--t1)}
+.fr-tier-tag{font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#b45309,#d97706);padding:3px 10px;border-radius:50px;letter-spacing:.05em}
+.fr-tier-name{font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px}
+.fr-tier-desc{font-size:12px;color:var(--t3);line-height:1.55;margin-bottom:12px}
+.fr-tier-list{list-style:none;padding:0;margin:0 0 14px;display:flex;flex-direction:column;gap:5px}
+.fr-tier-list li{font-size:12px;color:var(--t2);padding-left:18px;position:relative}
+.fr-tier-list li::before{content:'✦';position:absolute;left:0;color:#b8862a;font-size:9px;top:2px}
+.fr-tier-btn{width:100%;padding:12px;background:rgba(184,134,42,.15);border:1.5px solid rgba(184,134,42,.4);color:#fbbf24;border-radius:10px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;transition:all .15s}
+.fr-tier.featured .fr-tier-btn{background:linear-gradient(135deg,#b45309,#d97706);border-color:transparent;color:#fff}
+.fr-tier-btn:active{transform:scale(.97)}
+
+/* ── Businesses strip ── */
+.fr-biz-row{display:flex;gap:10px;overflow-x:auto;padding:0 16px;scroll-snap-type:x mandatory;-ms-overflow-style:none;scrollbar-width:none}
+.fr-biz-row::-webkit-scrollbar{display:none}
+.fr-biz-item{flex-shrink:0;scroll-snap-align:start;background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:12px 14px;text-align:center;min-width:100px}
+.fr-biz-icon{font-size:26px;margin-bottom:6px}
+.fr-biz-name{font-size:11px;font-weight:700;color:var(--t1);line-height:1.3}
+.fr-biz-desc{font-size:10px;color:var(--t3);margin-top:2px}
+</style>
+</head>
+<body>
+<header class="app-topbar">
+  <a href="/app/home" class="tb-back"><i class="fas fa-chevron-left"></i></a>
+  <div class="topbar-title-wrap">
+    <div class="brand-text">Fundraiser</div>
+    <div class="brand-sub">Aatmnirbhar Bharat</div>
+  </div>
+  <div class="topbar-right">
+    <a href="/app/profile" class="topbar-avatar" id="dash-avatar">U</a>
+  </div>
+</header>
+<div id="toast-container"></div>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="fr-hero fade-up">
+    <div class="fr-hero-badge"><span class="fr-live-dot"></span>Active · 2026–27</div>
+    <h1>Aatmnirbhar Bharat<br><em>Fundraiser</em></h1>
+    <p>Support skilled individuals to launch a small manufacturing business — from raw materials to market access.</p>
+    <div class="fr-pills">
+      <span class="fr-pill">🧵 Local Manufacturers</span>
+      <span class="fr-pill">📍 Pan-India</span>
+      <span class="fr-pill">🧾 80A Tax Benefit</span>
+      <span class="fr-pill">🤝 Mentorship</span>
+    </div>
+  </div>
+
+  <!-- Donation Card -->
+  <div class="fr-card fade-up-2">
+    <div class="fr-card-title">Fund a Business. Create Jobs.</div>
+    <div class="fr-card-sub">Donations go directly to machinery, raw materials, registration &amp; working capital.</div>
+    <div class="fr-divider"></div>
+
+    <div class="freq-tog">
+      <button class="freq-btn on" onclick="setFreq(this,'onetime')">One Time</button>
+      <button class="freq-btn" onclick="setFreq(this,'monthly')">Monthly</button>
+    </div>
+    <div class="monthly-info" id="monthly-info">📅 You will be charged every month. Cancel anytime from your account.</div>
+
+    <div class="fr-amt-grid">
+      <button class="fr-amt-btn" onclick="setAmt(this,500)">₹500<span>Starter</span></button>
+      <button class="fr-amt-btn on" onclick="setAmt(this,1000)">₹1,000<span>Popular</span></button>
+      <button class="fr-amt-btn" onclick="setAmt(this,2500)">₹2,500<span>Impact</span></button>
+      <button class="fr-amt-btn" onclick="setAmt(this,5000)">₹5,000<span>Champion</span></button>
+    </div>
+
+    <div class="fr-input-wrap">
+      <span class="fr-prefix">₹</span>
+      <input class="fr-input" id="fr-amt" type="number" placeholder="Custom amount" min="100" value="1000">
+    </div>
+
+    <div class="fr-form-row">
+      <input class="fr-fi" id="fr-name" type="text" placeholder="Your Name">
+      <input class="fr-fi" id="fr-phone" type="tel" placeholder="Mobile Number" maxlength="10">
+    </div>
+
+    <button class="fr-donate-btn" onclick="submitDonate()">Donate &amp; Create Jobs →</button>
+    <div class="fr-secure-note">🔒 Secure · UPI / Cards / NetBanking · 80A Tax Benefit</div>
+  </div>
+
+  <!-- Businesses We Fund -->
+  <div class="section fade-up-3">
+    <div class="section-head"><h2>Businesses We Fund</h2></div>
+    <div class="fr-biz-row">
+      <div class="fr-biz-item"><div class="fr-biz-icon">🧼</div><div class="fr-biz-name">Soap &amp; Detergent</div><div class="fr-biz-desc">Daily use demand</div></div>
+      <div class="fr-biz-item"><div class="fr-biz-icon">💆</div><div class="fr-biz-name">Hair Oil &amp; Cosmetics</div><div class="fr-biz-desc">Natural, local</div></div>
+      <div class="fr-biz-item"><div class="fr-biz-icon">🦷</div><div class="fr-biz-name">Toothpaste &amp; Care</div><div class="fr-biz-desc">Herbal &amp; ayurvedic</div></div>
+      <div class="fr-biz-item"><div class="fr-biz-icon">🌶️</div><div class="fr-biz-name">Spices &amp; Masala</div><div class="fr-biz-desc">Grinding &amp; packing</div></div>
+      <div class="fr-biz-item"><div class="fr-biz-icon">🫘</div><div class="fr-biz-name">Pulses &amp; Grains</div><div class="fr-biz-desc">Milling &amp; packaging</div></div>
+      <div class="fr-biz-item"><div class="fr-biz-icon">🍪</div><div class="fr-biz-name">Snacks &amp; Food</div><div class="fr-biz-desc">Namkeen, papad</div></div>
+      <div class="fr-biz-item"><div class="fr-biz-icon">🧴</div><div class="fr-biz-name">Agro Products</div><div class="fr-biz-desc">Processing &amp; pack</div></div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="section">
+    <div class="section-head"><h2>How It Works</h2></div>
+    <div class="fr-steps">
+      <div class="fr-step">
+        <div class="fr-step-circle">1</div>
+        <div class="fr-step-body">
+          <div class="fr-step-title">Select a Skilled Entrepreneur</div>
+          <div class="fr-step-desc">Field teams choose beneficiaries with proven skills and strong intent to build a sustainable small business.</div>
+        </div>
+      </div>
+      <div class="fr-step">
+        <div class="fr-step-circle">2</div>
+        <div class="fr-step-body">
+          <div class="fr-step-title">Build the Business Plan</div>
+          <div class="fr-step-desc">We collaborate on a local market plan, equipment needs, product pricing and an early revenue pathway.</div>
+        </div>
+      </div>
+      <div class="fr-step">
+        <div class="fr-step-circle">3</div>
+        <div class="fr-step-body">
+          <div class="fr-step-title">Raise Fundraiser Support</div>
+          <div class="fr-step-desc">Donations are raised transparently and applied directly to machinery, materials, registration and working capital.</div>
+        </div>
+      </div>
+      <div class="fr-step">
+        <div class="fr-step-circle">4</div>
+        <div class="fr-step-body">
+          <div class="fr-step-title">Mentor and Scale</div>
+          <div class="fr-step-desc">We continue mentoring, open buyer connections and track progress until the business is stable and self-sufficient.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contribution Tiers -->
+  <div class="section">
+    <div class="section-head"><h2>Your Contribution Level</h2></div>
+
+    <div class="fr-tier">
+      <div class="fr-tier-head">
+        <div class="fr-tier-amt">₹5,000</div>
+        <div class="fr-tier-tag">Seed</div>
+      </div>
+      <div class="fr-tier-name">Start the Journey</div>
+      <div class="fr-tier-desc">Pooled support for raw materials and packaging for a new micro-unit.</div>
+      <ul class="fr-tier-list">
+        <li>Impact reports from FWF</li>
+        <li>80A tax benefit certificate</li>
+        <li>Progress updates by email</li>
+      </ul>
+      <button class="fr-tier-btn" onclick="prefillAmt(5000)">Contribute ₹5,000 →</button>
+    </div>
+
+    <div class="fr-tier featured">
+      <div class="fr-tier-head">
+        <div class="fr-tier-amt">₹50,000</div>
+        <div class="fr-tier-tag">Most Impactful</div>
+      </div>
+      <div class="fr-tier-name">Fund the Setup</div>
+      <div class="fr-tier-desc">Support machinery, registration and the first production cycle for a skilled entrepreneur.</div>
+      <ul class="fr-tier-list">
+        <li>Featured donor recognition</li>
+        <li>Personal impact story</li>
+        <li>Fund utilisation report</li>
+      </ul>
+      <button class="fr-tier-btn" onclick="prefillAmt(50000)">Contribute ₹50,000 →</button>
+    </div>
+
+    <div class="fr-tier" style="margin-bottom:0">
+      <div class="fr-tier-head">
+        <div class="fr-tier-amt">₹3,00,000+</div>
+        <div class="fr-tier-tag">Full Sponsor</div>
+      </div>
+      <div class="fr-tier-name">Launch One Business</div>
+      <div class="fr-tier-desc">Sponsor the complete setup, scaling support, and one full empowered livelihood.</div>
+      <ul class="fr-tier-list">
+        <li>Dedicated video story</li>
+        <li>Audited fund report</li>
+        <li>CSR recognition letter</li>
+      </ul>
+      <button class="fr-tier-btn" onclick="prefillAmt(300000)">Become a Sponsor →</button>
+    </div>
+  </div>
+
+</div>
+
+<nav class="app-tabs">
+  <a href="/app/home" class="tab-item"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="/app/projects" class="tab-item"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+  <a href="/app/login" class="tab-item"><i class="fas fa-user"></i><span>Login</span></a>
+  <button class="tab-item" onclick="openMore()"><i class="fas fa-bars"></i><span>More</span></button>
+</nav>
+<div class="more-overlay" id="more-overlay" onclick="closeMore()"></div>
+<div class="more-sheet" id="more-sheet">
+  <div class="more-handle" onclick="closeMore()"></div>
+  <div class="more-title">More</div>
+  <div class="more-grid">
+    <a href="/app/donate" class="more-item"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/donate#memberModal" class="more-item"><i class="fas fa-user-plus"></i><span>Join</span></a>
+    <a href="/app/fundraiser" class="more-item active"><i class="fas fa-hand-holding-heart"></i><span>Fundraiser</span></a>
+    <a href="/app/csr" class="more-item"><i class="fas fa-building"></i><span>CSR</span></a>
+    <a href="/app/store" class="more-item"><i class="fas fa-store"></i><span>Store</span></a>
+    <a href="/app/quiz" class="more-item"><i class="fas fa-dice"></i><span>Quiz</span></a>
+  </div>
+</div>
+<script>function openMore(){document.getElementById('more-sheet').classList.add('open');document.getElementById('more-overlay').classList.add('open')}function closeMore(){document.getElementById('more-sheet').classList.remove('open');document.getElementById('more-overlay').classList.remove('open')}</script>
+
+<script>
+function showToast(msg, type='info') {
+  const icons = {success:'✅', error:'❌', info:'ℹ️', warning:'⚠️'};
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
+  const c = document.getElementById('toast-container');
+  if (c) c.appendChild(t);
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
+}
+function getUser() { return JSON.parse(localStorage.getItem('fwf-user') || 'null'); }
+
+// pre-fill avatar
+window.addEventListener('DOMContentLoaded', () => {
+  const user = getUser();
+  const av = document.getElementById('dash-avatar');
+  if (av && user?.name) av.textContent = user.name.charAt(0).toUpperCase();
+});
+
+let _freq = 'onetime';
+function setFreq(btn, freq) {
+  _freq = freq;
+  document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('monthly-info').classList.toggle('show', freq === 'monthly');
+}
+function setAmt(btn, amt) {
+  document.querySelectorAll('.fr-amt-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('fr-amt').value = amt;
+}
+function prefillAmt(amt) {
+  document.querySelectorAll('.fr-amt-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('fr-amt').value = amt;
+  document.querySelector('.fr-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function submitDonate() {
+  const amt   = parseInt(document.getElementById('fr-amt').value) || 0;
+  const name  = document.getElementById('fr-name').value.trim();
+  const phone = document.getElementById('fr-phone').value.trim();
+  if (!amt || amt < 100) { showToast('Minimum donation is ₹100', 'warning'); return; }
+  if (!name)  { showToast('Please enter your name', 'warning'); return; }
+  if (!phone || !/^[6-9]\d{9}$/.test(phone)) { showToast('Enter a valid 10-digit mobile number', 'warning'); return; }
+  // Redirect to Razorpay / donation page with pre-filled params
+  const params = new URLSearchParams({ amount: amt, name, mobile: phone, freq: _freq, source: 'fundraiser-app' });
+  window.location.href = 'https://fwfindia.org/donation?' + params.toString() + '#donateModal';
+}
+</script>
+</body>
+</html>
