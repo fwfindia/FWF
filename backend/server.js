@@ -3388,6 +3388,12 @@ app.get('/api/member/quiz-questions/:quizId', auth(['member','supporter']), asyn
     if (!participation) return res.status(403).json({ error: 'पहले enroll करें' });
     if (participation.quiz_submitted) return res.status(400).json({ error: 'Quiz पहले ही submit हो चुका है' });
 
+    // Start time is recorded only once to compute quiz speed at submission.
+    if (!participation.quiz_started_at) {
+      participation.quiz_started_at = new Date();
+      await participation.save();
+    }
+
     // Send questions without correct answers
     const questions = quiz.questions.map(q => ({
       q_no: q.q_no,
@@ -3427,11 +3433,16 @@ app.post('/api/member/quiz-submit', auth(['member','supporter']), async (req, re
     const totalQ = quiz.questions.length;
     const passing_score = Math.ceil(totalQ / 2);
     const passed = score >= passing_score;
+    const now = new Date();
+    const speedSeconds = participation.quiz_started_at
+      ? Math.max(1, Math.floor((now.getTime() - new Date(participation.quiz_started_at).getTime()) / 1000))
+      : null;
 
     participation.answers = scoredAnswers;
     participation.score = score;
     participation.quiz_submitted = true;
-    participation.submitted_at = new Date();
+    participation.submitted_at = now;
+    participation.speed_seconds = speedSeconds;
     participation.status = passed ? 'submitted' : 'failed';
     await participation.save();
 
@@ -3441,6 +3452,7 @@ app.post('/api/member/quiz-submit', auth(['member','supporter']), async (req, re
       totalQuestions: totalQ,
       passing_score,
       passed,
+      speed_seconds: speedSeconds,
       enrollment_number: participation.enrollment_number,
       result_date: quiz.result_date,
       quiz_title: quiz.title,
@@ -4062,15 +4074,32 @@ app.post('/api/admin/quiz-draw/:quizId', auth('admin'), async (req, res) => {
     if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
     if (quiz.status === 'result_declared') return res.status(400).json({ error: 'Results already declared' });
 
-    // Get all paid participants (lucky draw — no score needed)
-    // Note: all QuizParticipation records are already paid (verified at enrollment)
-    const participants = await QuizParticipation.find({ quiz_id: quiz._id }).lean();
+    // Winner selection rule:
+    // 1) Highest right answers (score desc)
+    // 2) Fastest completion (speed_seconds asc)
+    // 3) If still tied, earliest quiz submission (submitted_at asc)
+    const participants = await QuizParticipation.find({ quiz_id: quiz._id, quiz_submitted: true }).lean();
 
-    if (participants.length === 0) return res.status(400).json({ error: 'No paid participants yet' });
+    if (participants.length === 0) {
+      return res.status(400).json({ error: 'No submitted participants yet' });
+    }
 
-    // Random lucky draw — pick 1 winner
-    const luckyIndex = Math.floor(Math.random() * participants.length);
-    const luckyOne = participants[luckyIndex];
+    const rankedParticipants = [...participants].sort((a, b) => {
+      const scoreDiff = (b.score || 0) - (a.score || 0);
+      if (scoreDiff !== 0) return scoreDiff;
+
+      const aSpeed = Number.isFinite(a.speed_seconds) ? a.speed_seconds : Number.MAX_SAFE_INTEGER;
+      const bSpeed = Number.isFinite(b.speed_seconds) ? b.speed_seconds : Number.MAX_SAFE_INTEGER;
+      if (aSpeed !== bSpeed) return aSpeed - bSpeed;
+
+      const aSubmitted = a.submitted_at ? new Date(a.submitted_at).getTime() : Number.MAX_SAFE_INTEGER;
+      const bSubmitted = b.submitted_at ? new Date(b.submitted_at).getTime() : Number.MAX_SAFE_INTEGER;
+      if (aSubmitted !== bSubmitted) return aSubmitted - bSubmitted;
+
+      return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+    });
+
+    const luckyOne = rankedParticipants[0];
     const prizeAmount = quiz.prizes?.first || 0;
 
     const winner = {
@@ -4113,7 +4142,7 @@ app.post('/api/admin/quiz-draw/:quizId', auth('admin'), async (req, res) => {
       }
     }
 
-    res.json({ ok: true, winners: [winner], totalParticipants: participants.length });
+    res.json({ ok: true, winners: [winner], totalParticipants: participants.length, rule: 'highest_score_then_speed_then_earliest_submission' });
   } catch (err) {
     captureError(err, { context: 'admin-quiz-draw' });
     res.status(500).json({ error: 'Draw failed: ' + err.message });
@@ -4154,6 +4183,143 @@ app.get('/api/admin/quiz/:quizId/detail', auth('admin'), async (req, res) => {
   } catch (err) {
     captureError(err, { context: 'admin-quiz-detail' });
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: Generate quiz questions using OpenAI (ChatGPT)
+app.post('/api/admin/quiz-ai-generate', auth('admin'), async (req, res) => {
+  try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'OPENAI_API_KEY not configured' });
+
+    const {
+      topic = 'General reasoning and current affairs',
+      difficulty = 'medium',
+      count = 10,
+      includeRelationshipLogic = false,
+      language = 'hi'
+    } = req.body || {};
+
+    const safeCount = Math.min(20, Math.max(5, Number(count) || 10));
+    const langHint = language === 'en' ? 'English' : 'Hindi';
+    const relationHint = includeRelationshipLogic
+      ? 'Include at least 2 relationship/blood-relation logic questions.'
+      : 'Relationship-logic questions are optional.';
+
+    const prompt = `Create ${safeCount} multiple-choice quiz questions for: ${topic}.\nDifficulty: ${difficulty}.\nLanguage: ${langHint}.\n${relationHint}\nEach question must have exactly 4 options and one correct option index (0-3).\nReturn strict JSON only in this format:\n{"questions":[{"question":"...","options":["...","...","...","..."],"correct_answer":0,"points":1}]}`;
+
+    const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'You are a quiz setter. Always return valid JSON only.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 2200
+      })
+    });
+
+    const aiData = await aiRes.json();
+    if (!aiRes.ok || aiData.error) {
+      return res.status(502).json({ error: aiData?.error?.message || 'AI generation failed' });
+    }
+
+    let raw = aiData?.choices?.[0]?.message?.content || '';
+    raw = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return res.status(502).json({ error: 'AI returned invalid JSON. Try again.' });
+    }
+
+    const generated = Array.isArray(parsed?.questions) ? parsed.questions : [];
+    const normalized = generated
+      .filter(q => q && typeof q.question === 'string' && Array.isArray(q.options) && q.options.length === 4)
+      .slice(0, safeCount)
+      .map((q, idx) => ({
+        q_no: idx + 1,
+        question: String(q.question).trim(),
+        options: q.options.map(o => String(o).trim()),
+        correct_answer: Number.isInteger(q.correct_answer) ? Math.max(0, Math.min(3, q.correct_answer)) : 0,
+        points: Number(q.points) > 0 ? Number(q.points) : 1
+      }));
+
+    if (!normalized.length) {
+      return res.status(502).json({ error: 'AI did not return usable questions' });
+    }
+
+    res.json({ ok: true, questions: normalized });
+  } catch (err) {
+    captureError(err, { context: 'admin-quiz-ai-generate' });
+    res.status(500).json({ error: 'Failed to generate AI quiz questions' });
+  }
+});
+
+// Admin: Update/manage an existing quiz
+app.patch('/api/admin/quiz/:quizId', auth('admin'), async (req, res) => {
+  try {
+    const quiz = await Quiz.findOne({ quiz_id: req.params.quizId });
+    if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
+
+    const {
+      title,
+      description,
+      game_type,
+      entry_fee,
+      status,
+      start_date,
+      end_date,
+      result_date,
+      prizes,
+      questions
+    } = req.body || {};
+
+    if (typeof title === 'string') quiz.title = title.trim();
+    if (typeof description === 'string') quiz.description = description.trim();
+    if (typeof game_type === 'string') quiz.game_type = game_type;
+    if (entry_fee !== undefined && Number(entry_fee) >= 0) quiz.entry_fee = Number(entry_fee);
+    if (typeof status === 'string') quiz.status = status;
+    if (start_date) quiz.start_date = new Date(start_date);
+    if (end_date) quiz.end_date = new Date(end_date);
+    if (result_date) quiz.result_date = new Date(result_date);
+    if (prizes && typeof prizes === 'object') {
+      quiz.prizes = {
+        first: Number(prizes.first) || 0,
+        second: Number(prizes.second) || 0,
+        third: Number(prizes.third) || 0
+      };
+    }
+
+    if (Array.isArray(questions)) {
+      const normalizedQuestions = questions
+        .filter(q => q && typeof q.question === 'string' && Array.isArray(q.options) && q.options.length === 4)
+        .map((q, idx) => ({
+          q_no: idx + 1,
+          question: String(q.question).trim(),
+          options: q.options.map(o => String(o).trim()),
+          correct_answer: Number.isInteger(q.correct_answer) ? Math.max(0, Math.min(3, q.correct_answer)) : 0,
+          points: Number(q.points) > 0 ? Number(q.points) : 1
+        }));
+
+      if (!normalizedQuestions.length) {
+        return res.status(400).json({ error: 'Questions must contain valid MCQ items' });
+      }
+      quiz.questions = normalizedQuestions;
+    }
+
+    await quiz.save();
+    res.json({ ok: true, quiz });
+  } catch (err) {
+    captureError(err, { context: 'admin-quiz-update' });
+    res.status(500).json({ error: 'Failed to update quiz' });
   }
 });
 
@@ -4988,22 +5154,27 @@ app.post('/api/pay/link/:linkId/confirm', async (req, res) => {
 // Quiz templates for auto-creation
 const quizTemplates = {
   monthly: {
-    titlePrefix: 'Monthly Lucky Draw',
-    description: 'Monthly lucky draw — 1 random winner wins the prize!',
+    titlePrefix: 'Monthly Scholarship Challenge',
+    description: 'Performance-based monthly scholarship quiz. Winner is selected by score, speed, then earliest submission.',
     game_type: 'mcq',
     entry_fee: 100,
     prizes: { first: 5000, second: 0, third: 0 },
     questions: [
-      { q_no: 1, question: 'भारत की राजधानी क्या है?', options: ['मुंबई', 'दिल्ली', 'कोलकाता', 'चेन्नई'], correct_answer: 1, points: 1 },
-      { q_no: 2, question: 'गंगा नदी कहाँ से निकलती है?', options: ['गंगोत्री', 'यमुनोत्री', 'केदारनाथ', 'बद्रीनाथ'], correct_answer: 0, points: 1 },
-      { q_no: 3, question: 'भारत का सबसे बड़ा राज्य कौन सा है?', options: ['मध्य प्रदेश', 'उत्तर प्रदेश', 'राजस्थान', 'महाराष्ट्र'], correct_answer: 2, points: 1 },
-      { q_no: 4, question: 'हमारे राष्ट्रीय ध्वज में कितने रंग हैं?', options: ['2', '3', '4', '5'], correct_answer: 1, points: 1 },
-      { q_no: 5, question: 'भारत के पहले राष्ट्रपति कौन थे?', options: ['महात्मा गांधी', 'जवाहरलाल नेहरू', 'डॉ. राजेंद्र प्रसाद', 'सरदार पटेल'], correct_answer: 2, points: 1 },
-      { q_no: 6, question: 'TAJ MAHAL किसने बनवाया था?', options: ['अकबर', 'शाहजहाँ', 'जहाँगीर', 'औरंगज़ेब'], correct_answer: 1, points: 1 },
-      { q_no: 7, question: 'भारत का राष्ट्रीय खेल कौन सा है?', options: ['क्रिकेट', 'कबड्डी', 'हॉकी', 'फुटबॉल'], correct_answer: 2, points: 1 },
-      { q_no: 8, question: 'सूरज किस दिशा में उगता है?', options: ['पश्चिम', 'उत्तर', 'दक्षिण', 'पूर्व'], correct_answer: 3, points: 1 },
-      { q_no: 9, question: '1 किलोमीटर में कितने मीटर होते हैं?', options: ['100', '500', '1000', '10000'], correct_answer: 2, points: 1 },
-      { q_no: 10, question: 'भारत का सबसे लंबा नदी पुल कौन सा है?', options: ['हावड़ा ब्रिज', 'भूपेन हजारिका सेतु', 'महात्मा गांधी सेतु', 'राजीव गांधी सेतु'], correct_answer: 1, points: 1 }
+      { q_no: 1, question: 'श्रृंखला पूरी करें: 3, 7, 15, 31, ?', options: ['47', '55', '63', '71'], correct_answer: 2, points: 1 },
+      { q_no: 2, question: 'यदि A, B का भाई है; B, C की बेटी है; C, D की बहन है। तो A का D से क्या संबंध है?', options: ['भाई', 'भांजा', 'चचेरा भाई', 'निर्धारित नहीं'], correct_answer: 3, points: 1 },
+      { q_no: 3, question: 'एक कूट भाषा में CAT को DBU लिखा जाता है। उसी नियम से MATH कैसे लिखा जाएगा?', options: ['NBUJ', 'NBUH', 'MBUI', 'NATH'], correct_answer: 0, points: 1 },
+      { q_no: 4, question: 'यदि 8 मजदूर 12 दिनों में काम पूरा करते हैं, तो 6 मजदूर वही काम कितने दिनों में करेंगे?', options: ['14', '16', '18', '20'], correct_answer: 1, points: 1 },
+      { q_no: 5, question: 'राम उत्तर की ओर 10 किमी चलता है, फिर पूर्व की ओर 6 किमी, फिर दक्षिण की ओर 4 किमी। प्रारंभ बिंदु से वह किस दिशा में है?', options: ['उत्तर-पूर्व', 'दक्षिण-पूर्व', 'उत्तर-पश्चिम', 'पूर्व'], correct_answer: 0, points: 1 },
+      { q_no: 6, question: 'पाँच मित्र A, B, C, D, E एक पंक्ति में बैठे हैं। C बीच में है, A सबसे बाएं नहीं है, E सबसे दाएं है, B, A के दाएं है। बीच में कौन है?', options: ['A', 'B', 'C', 'D'], correct_answer: 2, points: 1 },
+      { q_no: 7, question: 'यदि TODAY = 98 (T=20,O=15,D=4,A=1,Y=25), तो QUIZ का मान क्या होगा?', options: ['67', '68', '69', '70'], correct_answer: 2, points: 1 },
+      { q_no: 8, question: 'रिश्ता बताइए: एक महिला कहती है, "यह व्यक्ति मेरे पिता की इकलौती बेटी का पुत्र है।" वह व्यक्ति महिला का कौन है?', options: ['भाई', 'पुत्र', 'भतीजा', 'पिता'], correct_answer: 1, points: 1 },
+      { q_no: 9, question: 'यदि किसी संख्या का 40% = 72 है, तो उस संख्या का 25% कितना होगा?', options: ['40', '45', '50', '55'], correct_answer: 1, points: 1 },
+      { q_no: 10, question: 'तीन कथन: (1) सभी गुलाब फूल हैं। (2) कुछ फूल जल्दी मुरझाते हैं। (3) कोई भी कमल गुलाब नहीं है। निश्चित निष्कर्ष कौन सा है?', options: ['कुछ गुलाब जल्दी मुरझाते हैं', 'कोई कमल फूल नहीं है', 'कुछ फूल गुलाब हैं', 'सभी फूल गुलाब हैं'], correct_answer: 2, points: 1 },
+      { q_no: 11, question: 'यदि P, Q का पिता है और Q, R की बहन है; S, R का पुत्र है। तो P का S से क्या संबंध है?', options: ['दादा', 'नाना', 'चाचा', 'मामा'], correct_answer: 0, points: 1 },
+      { q_no: 12, question: 'एक ट्रेन 72 किमी/घंटा की गति से चलती है। 250 मीटर लंबे प्लेटफॉर्म को पार करने में 25 सेकंड लगते हैं। ट्रेन की लंबाई कितनी है?', options: ['200 मीटर', '225 मीटर', '250 मीटर', '300 मीटर'], correct_answer: 2, points: 1 },
+      { q_no: 13, question: 'श्रृंखला में गलत पद चुनें: 2, 6, 12, 20, 30, 40, 56', options: ['20', '30', '40', '56'], correct_answer: 2, points: 1 },
+      { q_no: 14, question: 'A और B मिलकर 12 दिन में काम करते हैं। B और C मिलकर 15 दिन में। A और C मिलकर 20 दिन में। A अकेला काम कितने दिन में करेगा?', options: ['20 दिन', '24 दिन', '30 दिन', '36 दिन'], correct_answer: 2, points: 1 },
+      { q_no: 15, question: 'दिशा परीक्षण: P दक्षिण की ओर 5 किमी, फिर पश्चिम 4 किमी, फिर उत्तर 5 किमी चलता है। प्रारंभिक बिंदु से अब P कहाँ है?', options: ['4 किमी पूर्व', '4 किमी पश्चिम', '5 किमी पश्चिम', '5 किमी पूर्व'], correct_answer: 1, points: 1 }
     ]
   },
   half_yearly: {
@@ -5035,6 +5206,35 @@ const quizTemplates = {
     ]
   }
 };
+
+function getRandomQuestions(questionPool, take = 10) {
+  const shuffled = [...questionPool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, take).map((q, idx) => ({ ...q, q_no: idx + 1 }));
+}
+
+async function refreshEditableMonthlyQuizQuestions() {
+  const activeMonthly = await Quiz.findOne({ type: 'monthly', status: { $in: ['active', 'upcoming'] } });
+  if (!activeMonthly) return;
+
+  const submittedCount = await QuizParticipation.countDocuments({
+    quiz_ref: activeMonthly.quiz_id,
+    quiz_submitted: true
+  });
+
+  if (submittedCount > 0) return;
+
+  const refreshedQuestions = getRandomQuestions(quizTemplates.monthly.questions, 10);
+  await Quiz.updateOne(
+    { _id: activeMonthly._id },
+    {
+      $set: {
+        questions: refreshedQuestions,
+        game_type: quizTemplates.monthly.game_type,
+        description: quizTemplates.monthly.description
+      }
+    }
+  );
+}
 
 // Auto-create quiz for next period if not exists (max 1 active per type)
 async function autoCreateQuizzes() {
@@ -5068,7 +5268,7 @@ async function autoCreateQuizzes() {
         result_date: monthResult,
         status: 'active',
         prizes: t.prizes,
-        questions: t.questions
+        questions: getRandomQuestions(t.questions, 10)
       });
       console.log(`✅ Auto-created monthly quiz: ${monthId}`);
     }
@@ -5123,6 +5323,8 @@ async function autoCreateQuizzes() {
       });
       console.log(`✅ Auto-created yearly quiz: ${yearId}`);
     }
+
+    await refreshEditableMonthlyQuizQuestions();
   } catch(err) {
     console.error('❌ Auto-create quizzes error:', err.message);
     captureError(err, { context: 'auto-create-quizzes' });
@@ -5146,9 +5348,10 @@ async function autoDrawResults() {
         quiz.status = 'closed';
       }
 
-      // Get all participants (all are paid — payment verified at enrollment time)
+      // Consider only submitted quiz participants for performance-based ranking.
       const participants = await QuizParticipation.find({
-        quiz_ref: quiz.quiz_id
+        quiz_ref: quiz.quiz_id,
+        quiz_submitted: true
       }).lean();
 
       if (participants.length === 0) {
@@ -5159,9 +5362,22 @@ async function autoDrawResults() {
         continue;
       }
 
-      // Random lucky draw — pick 1 winner from paid participants
-      const luckyIndex = Math.floor(Math.random() * participants.length);
-      const luckyOne = participants[luckyIndex];
+      const rankedParticipants = [...participants].sort((a, b) => {
+        const scoreDiff = (b.score || 0) - (a.score || 0);
+        if (scoreDiff !== 0) return scoreDiff;
+
+        const aSpeed = Number.isFinite(a.speed_seconds) ? a.speed_seconds : Number.MAX_SAFE_INTEGER;
+        const bSpeed = Number.isFinite(b.speed_seconds) ? b.speed_seconds : Number.MAX_SAFE_INTEGER;
+        if (aSpeed !== bSpeed) return aSpeed - bSpeed;
+
+        const aSubmitted = a.submitted_at ? new Date(a.submitted_at).getTime() : Number.MAX_SAFE_INTEGER;
+        const bSubmitted = b.submitted_at ? new Date(b.submitted_at).getTime() : Number.MAX_SAFE_INTEGER;
+        if (aSubmitted !== bSubmitted) return aSubmitted - bSubmitted;
+
+        return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+      });
+
+      const luckyOne = rankedParticipants[0];
       const prizeAmount = quiz.prizes?.first || 0;
       const user = await User.findById(luckyOne.user_id).lean();
 
@@ -5208,7 +5424,7 @@ async function autoDrawResults() {
           .catch(e => console.error('⚠️ SMS quiz result (auto-draw):', e.message));
       }
 
-      console.log(`� Quiz ${quiz.quiz_id}: Lucky draw result! Winner: ${winner.name} (₹${prizeAmount})`);
+      console.log(`🏆 Quiz ${quiz.quiz_id}: Result declared by performance ranking. Winner: ${winner.name} (₹${prizeAmount})`);
     }
 
     // Also close quizzes past end_date that are still 'active'
