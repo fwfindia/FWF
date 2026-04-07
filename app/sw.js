@@ -3,7 +3,7 @@
  * Cache-first for static assets · Network-first for pages · Offline fallback
  */
 
-const CACHE = 'fwf-app-v7';
+const CACHE = 'fwf-app-v8';
 const OFFLINE_URL = '/app/offline';
 
 const PRECACHE = [
