@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#06060d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Quiz Ticket — FWF</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/logo.png">
+  <link href="/assets/css/fwf-app.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+    .qt-wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 12px 16px 100px;
+    }
+    .qt-card {
+      background: var(--s2);
+      border: 1px solid var(--b2);
+      border-radius: 22px;
+      overflow: hidden;
+    }
+    /* ── Header band (colored by tier) ── */
+    .qt-header {
+      padding: 26px 22px 22px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .qt-header::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 130px; height: 130px;
+      background: radial-gradient(circle,rgba(255,255,255,.12),transparent);
+      border-radius: 50%;
+    }
+    .qt-brand {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px; font-size: 12px; font-weight: 800; opacity: .9; position: relative; z-index: 1;
+    }
+    .qt-tier-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.22);
+      padding: 4px 14px; border-radius: 20px;
+      font-size: 11px; font-weight: 800; letter-spacing: .6px;
+      margin-bottom: 10px; position: relative; z-index: 1;
+    }
+    .qt-program-name { font-size: 22px; font-weight: 900; margin-bottom: 4px; line-height: 1.2; position: relative; z-index: 1; }
+    .qt-schol-label  { font-size: 11px; opacity: .8; font-weight: 600; position: relative; z-index: 1; }
+    .qt-schol-amt    { font-size: 34px; font-weight: 900; letter-spacing: -1px; margin-top: 2px; position: relative; z-index: 1; }
+    .qt-purpose      { font-size: 12px; opacity: .82; line-height: 1.5; margin-top: 6px; position: relative; z-index: 1; }
+    /* ── Card body ── */
+    .qt-body { padding: 20px; }
+    .qt-seller-row {
+      background: var(--s3); border: 1px solid var(--b2); border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .qt-seller-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg,#E87722,#ff9a3c);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px; flex-shrink: 0;
+    }
+    .qt-seller-name { font-size: 14px; font-weight: 800; color: var(--t1); }
+    .qt-seller-sub  { font-size: 11px; color: var(--t3); margin-top: 2px; }
+    .qt-info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;
+    }
+    .qt-info-box {
+      background: var(--s3); border: 1px solid var(--b1); border-radius: 10px; padding: 10px 13px;
+    }
+    .qt-info-label { font-size: 9px; color: var(--t3); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+    .qt-info-value { font-size: 14px; font-weight: 800; color: var(--t1); }
+    .qt-info-value.green { color: #4ade80; }
+    .qt-info-value.amber { color: #fbbf24; }
+    .qt-buyer-confirm {
+      background: rgba(59,130,246,.1); border: 1.5px solid rgba(59,130,246,.3);
+      border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    }
+    .qt-buyer-lbl  { font-size: 10px; color: #60a5fa; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+    .qt-buyer-name { font-size: 16px; font-weight: 900; color: var(--t1); }
+    .qt-buyer-contact { font-size: 12px; color: #60a5fa; margin-top: 2px; }
+    .qt-tnc-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 16px; font-size: 12px; color: var(--t2); line-height: 1.5;
+    }
+    .qt-tnc-row input[type=checkbox] { width: 18px; height: 18px; accent-color: #E87722; flex-shrink: 0; margin-top: 2px; }
+    .qt-btn-pay {
+      width: 100%; background: linear-gradient(135deg,#22c55e,#16a34a);
+      color: #fff; border: none; border-radius: 14px; padding: 15px;
+      font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .2s;
+    }
+    .qt-btn-pay:disabled { opacity: .5; cursor: not-allowed; }
+    /* ── Spinner ── */
+    .qt-spinner {
+      width: 48px; height: 48px; border: 5px solid var(--s4);
+      border-top-color: #E87722; border-radius: 50%;
+      animation: qtSpin .8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes qtSpin { to { transform: rotate(360deg); } }
+    /* ── Result header ── */
+    .qt-result-header { padding: 32px 22px 24px; text-align: center; color: #fff; }
+    .qt-enroll-id-box {
+      background: rgba(34,197,94,.1); border: 1.5px solid rgba(34,197,94,.3);
+      border-radius: 14px; padding: 18px; text-align: center; margin-bottom: 12px;
+    }
+    .qt-enroll-id-lbl  { font-size: 10px; color: var(--t3); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .qt-enroll-id-val  { font-size: 22px; font-weight: 900; color: #4ade80; font-family: monospace; letter-spacing: 1.5px; }
+    .qt-enroll-id-note { font-size: 11px; color: #86efac; margin-top: 4px; }
+    .qt-support-id-box {
+      background: rgba(249,115,22,.1); border: 1.5px solid rgba(249,115,22,.3);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; text-align: center;
+    }
+    .qt-support-id-lbl { font-size: 10px; color: #fb923c; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+    .qt-support-id-val { font-size: 15px; font-weight: 900; color: #fdba74; font-family: monospace; }
+    /* ── Error ── */
+    .qt-error-card { text-align: center; padding: 48px 24px; }
+    .qt-error-icon { font-size: 52px; margin-bottom: 12px; }
+    .qt-error-msg  { font-size: 15px; font-weight: 700; color: #f87171; margin-bottom: 8px; }
+    .qt-error-sub  { font-size: 12px; color: var(--t3); }
+    /* ── Quiz question area ── */
+    .qt-q-progress { display: flex; gap: 4px; margin-bottom: 16px; }
+    .qt-q-bar      { height: 6px; flex: 1; border-radius: 3px; }
+    .qt-q-opt {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px; border-radius: 12px;
+      border: 2px solid var(--b2); cursor: pointer;
+      background: var(--s3); margin-bottom: 8px; transition: all .15s;
+    }
+    .qt-q-opt.selected { border-color: #10b981; background: rgba(16,185,129,.12); }
+    .qt-q-opt input[type=radio] { accent-color: #10b981; flex-shrink: 0; }
+    .qt-q-opt-text { font-size: 14px; color: var(--t1); }
+    .qt-q-nav {
+      padding: 14px 0 0; display: flex; justify-content: space-between;
+      border-top: 1px solid var(--b1); margin-top: 8px;
+    }
+    .qt-q-nav-btn {
+      padding: 10px 20px; border-radius: 10px; font-weight: 700;
+      cursor: pointer; font-size: 13px; font-family: inherit;
+      border: 2px solid var(--b2); background: var(--s3); color: var(--t1);
+    }
+    .qt-q-nav-btn.primary { background: linear-gradient(135deg,#3b82f6,#1d4ed8); color: #fff; border-color: transparent; }
+    .qt-q-nav-btn.success { background: linear-gradient(135deg,#22c55e,#16a34a); color: #fff; border-color: transparent; font-weight: 800; font-size: 14px; }
+    .qt-back-link {
+      display: block; text-align: center; padding: 12px;
+      margin-top: 16px; color: var(--t3); font-size: 13px;
+      font-weight: 600; text-decoration: none;
+    }
+    .qt-back-link:active { color: var(--t1); }
+  </style>
+</head>
+<body>
+
+<header class="app-topbar">
+  <a href="/app/quiz" class="tb-back"><i class="fas fa-chevron-left"></i></a>
+  <div class="topbar-title-wrap">
+    <div class="brand-text" id="topbar-title">Quiz Ticket</div>
+    <div class="brand-sub" id="topbar-sub">FWF Scholarship</div>
+  </div>
+  <div class="topbar-right">
+    <a href="/app/profile" class="tb-btn" id="topbar-user"><i class="fas fa-user"></i></a>
+  </div>
+</header>
+
+<div id="toast-container"></div>
+
+<div class="qt-wrap">
+
+  <!-- ══ LOADING ══ -->
+  <div id="stateLoading" class="qt-card">
+    <div style="padding:60px 24px;text-align:center">
+      <div class="qt-spinner"></div>
+      <p style="font-size:14px;color:var(--t3);font-weight:600">Loading quiz details...</p>
+    </div>
+  </div>
+
+  <!-- ══ ERROR ══ -->
+  <div id="stateError" class="qt-card" style="display:none">
+    <div class="qt-error-card">
+      <div class="qt-error-icon">❌</div>
+      <div class="qt-error-msg" id="errorMsg">Link invalid or expired</div>
+      <div class="qt-error-sub" id="errorSub">Please contact the person who shared this link.</div>
+      <a href="/app/quiz" class="btn btn-primary btn-block" style="margin-top:24px;display:block;padding:12px;text-align:center">← Back to Quiz Hub</a>
+    </div>
+  </div>
+
+  <!-- ══ MAIN (Quiz info + payment) ══ -->
+  <div id="stateMain" class="qt-card" style="display:none">
+    <div class="qt-header" id="cardHeader">
+      <div class="qt-brand"><i class="fa-solid fa-graduation-cap"></i> Foundris Welfare Foundation</div>
+      <span class="qt-tier-badge" id="tierBadge">🗓️ MONTHLY SCHOLARSHIP</span>
+      <div class="qt-program-name" id="programName">Udaan Scholarship</div>
+      <div class="qt-schol-label">छात्रवृत्ति राशि</div>
+      <div class="qt-schol-amt" id="scholAmt">₹5,000</div>
+      <div class="qt-purpose" id="purpose">महिलाओं के कौशल विकास व स्वरोजगार सहयोग हेतु</div>
+    </div>
+    <div class="qt-body">
+      <!-- Seller row -->
+      <div class="qt-seller-row">
+        <div class="qt-seller-avatar"><i class="fa-solid fa-user-tie"></i></div>
+        <div>
+          <div class="qt-seller-name" id="sellerName">FWF Agent</div>
+          <div class="qt-seller-sub">FWF Certified Seller</div>
+        </div>
+      </div>
+      <!-- Buyer confirm -->
+      <div class="qt-buyer-confirm">
+        <div class="qt-buyer-lbl">Buyer Name</div>
+        <div class="qt-buyer-name" id="buyerName">-</div>
+        <div class="qt-buyer-contact" id="buyerContact">-</div>
+      </div>
+      <p style="font-size:12px;color:var(--t3);margin-bottom:14px;text-align:center">
+        ऊपर दी जानकारी सही है तो नीचे T&amp;C accept करके payment करें।
+      </p>
+      <!-- Dates -->
+      <div class="qt-info-grid">
+        <div class="qt-info-box">
+          <div class="qt-info-label">📅 Last Date</div>
+          <div class="qt-info-value amber" id="lastDate">-</div>
+        </div>
+        <div class="qt-info-box">
+          <div class="qt-info-label">🏆 Result Date</div>
+          <div class="qt-info-value green" id="resultDate">-</div>
+        </div>
+      </div>
+      <!-- T&C -->
+      <label class="qt-tnc-row">
+        <input type="checkbox" id="tncCheck" onchange="document.getElementById('payBtn').disabled=!this.checked">
+        <span>मैं FWF की <a href="/terms" target="_blank" style="color:#E87722;font-weight:700">Terms &amp; Conditions</a> और <a href="/privacy" target="_blank" style="color:#E87722;font-weight:700">Privacy Policy</a> से सहमत हूँ। Quiz में भाग लेकर Scholarship जीतने का मौका पाऊँगा/पाऊँगी।</span>
+      </label>
+      <!-- Pay button -->
+      <button class="qt-btn-pay" id="payBtn" disabled onclick="startPayment()">
+        <i class="fa-solid fa-lock"></i>
+        <span id="payBtnText">Pay ₹100 &amp; Enroll</span>
+      </button>
+      <p style="text-align:center;font-size:11px;color:var(--t3);margin-top:10px">
+        <i class="fa-solid fa-shield-halved"></i> Secured by Razorpay
+      </p>
+    </div>
+  </div>
+
+  <!-- ══ QUIZ (active questions after payment) ══ -->
+  <div id="stateQuiz" class="qt-card" style="display:none">
+    <div class="qt-header" id="quizCardHeader" style="background:linear-gradient(135deg,#E87722,#d97706)">
+      <div class="qt-brand"><i class="fa-solid fa-graduation-cap"></i> FWF Scholarship Quiz</div>
+      <div style="font-size:13px;opacity:.85;margin-bottom:4px;position:relative;z-index:1" id="quizEnrollIdLine">-</div>
+      <div style="font-size:16px;font-weight:800;position:relative;z-index:1" id="quizTitleLine">-</div>
+    </div>
+    <div class="qt-body">
+      <div class="qt-q-progress" id="quizProgressBar"></div>
+      <div id="quizQuestionBody"></div>
+      <div class="qt-q-nav" id="quizNavActions"></div>
+    </div>
+  </div>
+
+  <!-- ══ RESULT ══ -->
+  <div id="stateResult" class="qt-card" style="display:none">
+    <div class="qt-result-header" id="resultHeader">
+      <div style="font-size:56px;margin-bottom:10px" id="resultEmoji">📝</div>
+      <h2 style="font-size:22px;font-weight:900;margin-bottom:4px" id="resultTitle">Quiz Submitted!</h2>
+      <p style="font-size:13px;opacity:.88" id="resultScore">-</p>
+    </div>
+    <div class="qt-body">
+      <div class="qt-enroll-id-box">
+        <div class="qt-enroll-id-lbl">Participation ID</div>
+        <div class="qt-enroll-id-val" id="resEnrollId">-</div>
+        <div class="qt-enroll-id-note">📸 Screenshot लेकर सहेज लें!</div>
+      </div>
+      <div class="qt-support-id-box" id="resSupportBox">
+        <div class="qt-support-id-lbl">Seller Support ID (Share with seller)</div>
+        <div class="qt-support-id-val" id="resSupportId">-</div>
+      </div>
+      <div id="resBuyerAccount" style="display:none;background:rgba(34,197,94,.1);border:1.5px solid rgba(34,197,94,.3);border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Your FWF Supporter Account</div>
+        <div style="display:grid;gap:6px">
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:12px;color:var(--t2);font-weight:600">User ID:</span>
+            <span id="resBuyerUserId" style="font-family:monospace;font-size:13px;font-weight:900;color:#4ade80"></span>
+          </div>
+          <div id="resBuyerPassRow" style="display:flex;justify-content:space-between">
+            <span style="font-size:12px;color:var(--t2);font-weight:600">Password:</span>
+            <span id="resBuyerPass" style="font-family:monospace;font-size:13px;font-weight:900;color:#4ade80"></span>
+          </div>
+        </div>
+        <p id="resBuyerNote" style="font-size:11px;color:#86efac;margin:8px 0 0"></p>
+      </div>
+      <div id="resDateInfo" style="display:none;background:rgba(253,224,71,.1);border:1px solid rgba(253,224,71,.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#fde047;text-align:center"></div>
+      <div id="resWhatsAppBtns" style="display:none;gap:8px"></div>
+      <a href="/app/quiz" class="qt-back-link">← Back to Quiz Hub</a>
+    </div>
+  </div>
+
+</div><!-- /qt-wrap -->
+
+<nav class="app-tabs">
+  <a href="/app/home"     class="tab-item"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="/app/projects" class="tab-item"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+  <a href="/app/login"    class="tab-item"><i class="fas fa-user"></i><span>Login</span></a>
+  <button class="tab-item active" onclick="openMore()"><i class="fas fa-bars"></i><span>More</span></button>
+</nav>
+<div class="more-overlay" id="more-overlay" onclick="closeMore()"></div>
+<div class="more-sheet" id="more-sheet">
+  <div class="more-handle" onclick="closeMore()"></div>
+  <div class="more-title">More</div>
+  <div class="more-grid">
+    <a href="/app/donate"          class="more-item"><i class="fas fa-heart"></i><span>Donate</span></a>
+    <a href="/app/donate#memberModal" class="more-item"><i class="fas fa-user-plus"></i><span>Join</span></a>
+    <a href="/app/fundraiser"      class="more-item"><i class="fas fa-hand-holding-heart"></i><span>Fundraiser</span></a>
+    <a href="/app/csr"             class="more-item"><i class="fas fa-building"></i><span>CSR</span></a>
+    <a href="/app/store"           class="more-item"><i class="fas fa-store"></i><span>Store</span></a>
+    <a href="/app/quiz"            class="more-item active"><i class="fas fa-dice"></i><span>Quiz</span></a>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+/* ── More sheet ── */
+function openMore(){document.getElementById('more-sheet').classList.add('open');document.getElementById('more-overlay').classList.add('open')}
+function closeMore(){document.getElementById('more-sheet').classList.remove('open');document.getElementById('more-overlay').classList.remove('open')}
+
+/* ── Toast ── */
+function showToast(msg, type='info') {
+  const icons = {success:'✅', error:'❌', info:'ℹ️', warning:'⚠️'};
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<i>' + (icons[type]||icons.info) + '</i><span>' + msg + '</span>';
+  const c = document.getElementById('toast-container');
+  if (c) c.appendChild(t);
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 350); }, 3200);
+}
+
+/* ── Shared vars ── */
+const API_BASE = '';
+const token = new URLSearchParams(window.location.search).get('token');
+
+const tierStyles = {
+  monthly:     { gradient: 'linear-gradient(135deg,#3b82f6,#2563eb)', badge: '🗓️ MONTHLY SCHOLARSHIP' },
+  half_yearly: { gradient: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', badge: '📅 HALF-YEARLY SCHOLARSHIP' },
+  yearly:      { gradient: 'linear-gradient(135deg,#e11d48,#be123c)', badge: '🏆 YEARLY SCHOLARSHIP' }
+};
+
+let ticketData = null;
+let quizData   = null;
+let _enrollmentNumber = '';
+let _quizQuestions    = [];
+let _quizAnswers      = {};
+let _currentQ         = 0;
+
+/* ── State switcher ── */
+function show(id) {
+  ['stateLoading','stateError','stateMain','stateQuiz','stateResult'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+}
+
+/* ── Load ticket ── */
+async function loadTicket() {
+  if (!token) { showError('Link invalid', 'Ticket token missing from URL. Please use the link shared with you.'); return; }
+  try {
+    const res  = await fetch(`${API_BASE}/api/quiz-ticket/${token}`);
+    const data = await res.json();
+    if (!data.ok) {
+      showError(data.error || 'Link invalid or expired', data.converted ? 'यह link पहले ही use हो चुकी है।' : '');
+      return;
+    }
+    ticketData = data.ticket;
+    quizData   = data.quiz;
+    renderMain();
+  } catch(e) {
+    showError('Network error', 'Please check your connection and try again.');
+  }
+}
+
+function showError(msg, sub) {
+  document.getElementById('errorMsg').textContent  = msg;
+  document.getElementById('errorSub').textContent  = sub || '';
+  show('stateError');
+}
+
+function renderMain() {
+  const ts = tierStyles[quizData.type] || tierStyles.monthly;
+  document.getElementById('cardHeader').style.background  = ts.gradient;
+  document.getElementById('tierBadge').textContent        = ts.badge;
+  document.getElementById('programName').textContent      = quizData.program_name;
+  document.getElementById('scholAmt').textContent         = '₹' + (quizData.scholarship_amount || 0).toLocaleString('en-IN');
+  document.getElementById('sellerName').textContent       = ticketData.seller_name;
+  document.getElementById('buyerName').textContent        = ticketData.buyer_name;
+  document.getElementById('buyerContact').textContent     = ticketData.buyer_contact;
+  document.getElementById('lastDate').textContent         = quizData.end_date_fmt;
+  document.getElementById('resultDate').textContent       = quizData.result_date_fmt;
+  document.getElementById('payBtnText').textContent       = `Pay ₹${ticketData.ticket_price} & Enroll`;
+  document.getElementById('topbar-title').textContent     = quizData.program_name || 'Quiz Ticket';
+  show('stateMain');
+}
+
+/* ── Payment ── */
+async function startPayment() {
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
+  try {
+    const orderRes  = await fetch(`${API_BASE}/api/quiz-ticket/${token}/create-order`, { method: 'POST' });
+    const orderData = await orderRes.json();
+    if (!orderData.ok) throw new Error(orderData.error || 'Order creation failed');
+
+    const options = {
+      key:      orderData.key,
+      amount:   orderData.order.amount,
+      currency: 'INR',
+      name:     'FWF Scholarship Quiz',
+      description: `${quizData.program_name} — Entry Fee`,
+      image:    '/assets/images/logo.png',
+      order_id: orderData.order.id,
+      prefill: {
+        name:    ticketData.buyer_name,
+        contact: ticketData.buyer_contact,
+        email:   ticketData.buyer_email || ''
+      },
+      theme: { color: '#E87722' },
+      handler: async function(response) {
+        try {
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enrolling...';
+          const enrollRes  = await fetch(`${API_BASE}/api/quiz-ticket/${token}/enroll`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id:   response.razorpay_order_id,
+              razorpay_signature:  response.razorpay_signature
+            })
+          });
+          const enrollData = await enrollRes.json();
+          if (enrollData.ok) {
+            _enrollmentNumber  = enrollData.enrollment_number;
+            _quizQuestions     = enrollData.questions || [];
+            _quizAnswers       = {};
+            _currentQ          = 0;
+            document.getElementById('quizEnrollIdLine').textContent = 'ID: ' + _enrollmentNumber;
+            document.getElementById('quizTitleLine').textContent    = enrollData.quiz_title || quizData.program_name;
+            renderQuizQuestion();
+            show('stateQuiz');
+          } else {
+            alert('Enrollment failed: ' + (enrollData.error || 'Please contact support'));
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-lock"></i> Pay ₹${ticketData.ticket_price} & Enroll`;
+          }
+        } catch(e) {
+          alert('Network error during enrollment. Please contact support.');
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-lock"></i> Pay ₹${ticketData.ticket_price} & Enroll`;
+        }
+      },
+      modal: {
+        ondismiss: function() {
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-lock"></i> Pay ₹${ticketData.ticket_price} & Enroll`;
+        }
+      }
+    };
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch(e) {
+    alert(e.message || 'Payment failed');
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-lock"></i> Pay & Enroll`;
+  }
+}
+
+/* ── Quiz questions ── */
+function renderQuizQuestion() {
+  if (!_quizQuestions.length) { submitQuiz(); return; }
+  const q     = _quizQuestions[_currentQ];
+  const total = _quizQuestions.length;
+
+  /* Progress bar */
+  document.getElementById('quizProgressBar').innerHTML = _quizQuestions.map((_,i) => {
+    const c = i < _currentQ ? '#22c55e' : i === _currentQ ? '#E87722' : 'var(--s4)';
+    return `<div class="qt-q-bar" style="background:${c}"></div>`;
+  }).join('');
+
+  /* Question + options */
+  document.getElementById('quizQuestionBody').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="background:rgba(59,130,246,.15);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">Q ${_currentQ+1}/${total}</span>
+      <span style="font-size:11px;color:var(--t3)">${Object.keys(_quizAnswers).length}/${total} answered</span>
+    </div>
+    <h4 style="font-size:15px;margin-bottom:16px;line-height:1.5;color:var(--t1)">${q.question}</h4>
+    <div>
+      ${q.options.map((opt,i) => `
+        <div class="qt-q-opt${_quizAnswers[_currentQ]===i?' selected':''}" onclick="selectAnswer(${i})">
+          <input type="radio" name="qtq" value="${i}" ${_quizAnswers[_currentQ]===i?'checked':''}>
+          <span class="qt-q-opt-text">${opt}</span>
+        </div>
+      `).join('')}
+    </div>`;
+
+  /* Nav buttons */
+  document.getElementById('quizNavActions').innerHTML = `
+    ${_currentQ > 0
+      ? `<button class="qt-q-nav-btn" onclick="quizPrev()">← Previous</button>`
+      : '<span></span>'}
+    ${_currentQ < total-1
+      ? `<button class="qt-q-nav-btn primary" onclick="quizNext()">Next →</button>`
+      : `<button class="qt-q-nav-btn success" onclick="submitQuiz()">✓ Submit Quiz</button>`}`;
+}
+
+function selectAnswer(i) { _quizAnswers[_currentQ] = i; renderQuizQuestion(); }
+function quizPrev()      { if (_currentQ > 0) { _currentQ--; renderQuizQuestion(); } }
+function quizNext()      { if (_currentQ < _quizQuestions.length-1) { _currentQ++; renderQuizQuestion(); } }
+
+async function submitQuiz() {
+  const unanswered = _quizQuestions.filter((_,i) => _quizAnswers[i] === undefined).length;
+  if (unanswered > 0 && !confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
+  const submitBtn = document.querySelector('#quizNavActions button:last-child');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
+  try {
+    const answers = _quizQuestions.map((q,i) => ({ q_no: q.q_no, selected: _quizAnswers[i] ?? -1 }));
+    const res  = await fetch(`${API_BASE}/api/quiz-ticket/${token}/submit-quiz`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showResult(data);
+    } else {
+      alert('Submit failed: ' + (data.error || 'Please contact support'));
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '✓ Submit Quiz'; }
+    }
+  } catch(e) {
+    alert('Network error. Please try again.');
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '✓ Submit Quiz'; }
+  }
+}
+
+/* ── Result display ── */
+function showResult(data) {
+  const passed       = data.passed;
+  const score        = data.score;
+  const total        = data.totalQuestions;
+  const passingScore = data.passing_score || Math.ceil(total / 2);
+
+  document.getElementById('resultHeader').style.background = passed
+    ? 'linear-gradient(135deg,#22c55e,#16a34a)'
+    : 'linear-gradient(135deg,#ef4444,#dc2626)';
+  document.getElementById('resultEmoji').textContent = passed ? '🎉' : '😔';
+  document.getElementById('resultTitle').textContent = passed ? 'Congratulations! 🌟' : 'Quiz Failed! ❌';
+  document.getElementById('resultScore').textContent = passed
+    ? `Score: ${score}/${total} — आपने quiz pass कर लिया! 🎊`
+    : `Score: ${score}/${total} — Pass के लिए ${passingScore}/${total} सही होने चाहिए थे`;
+
+  document.getElementById('resEnrollId').textContent = data.enrollment_number || _enrollmentNumber || '—';
+
+  if (data.support_id) {
+    document.getElementById('resSupportId').textContent = data.support_id;
+  } else {
+    document.getElementById('resSupportBox').style.display = 'none';
+  }
+
+  const ba = data.buyer_account;
+  if (ba) {
+    document.getElementById('resBuyerAccount').style.display = 'block';
+    document.getElementById('resBuyerUserId').textContent = ba.user_id;
+    if (ba.is_new && ba.password) {
+      document.getElementById('resBuyerPass').textContent  = ba.password;
+      document.getElementById('resBuyerNote').textContent  = '📸 Screenshot this! Login at fwfindia.org/member-login';
+    } else {
+      document.getElementById('resBuyerPassRow').style.display = 'none';
+      document.getElementById('resBuyerNote').textContent = '✅ Account already exists. Login with your existing password.';
+    }
+  }
+
+  const waDiv = document.getElementById('resWhatsAppBtns');
+  waDiv.style.display = 'grid';
+  if (!passed) {
+    waDiv.innerHTML = `
+      <div style="background:rgba(239,68,68,.1);border:2px solid rgba(239,68,68,.3);border-radius:14px;padding:20px 16px;text-align:center;margin-bottom:8px">
+        <div style="font-size:40px;margin-bottom:8px">🍀</div>
+        <div style="font-size:17px;font-weight:900;color:#f87171;margin-bottom:6px">Try Your Luck Next Time!</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px">
+          इस बार किस्मत ने साथ नहीं दिया — कोई बात नहीं! 💪<br>
+          नया ticket खरीदकर दोबारा quiz दें और जीतें।
+        </div>
+        <a href="/app/quiz" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none">
+          🎫 New Ticket Purchase करें
+        </a>
+      </div>
+      <a href="https://wa.me/919580118412" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--s3);color:var(--t1);padding:10px;border-radius:12px;font-weight:700;font-size:12px;text-decoration:none">
+        <i class="fa-brands fa-whatsapp" style="color:#25d366"></i> FWF WhatsApp Support
+      </a>`;
+  } else {
+    const enrollId  = data.enrollment_number || _enrollmentNumber;
+    const supportId = data.support_id || '';
+    const waText    = encodeURIComponent(
+      `🎓 FWF Quiz Passed!\nParticipation ID: ${enrollId}${supportId ? '\nSeller Support ID: ' + supportId : ''}\nScore: ${score}/${total}\nResult Date: ${data.result_date_fmt || 'TBD'}`
+    );
+    waDiv.innerHTML = `
+      <a href="https://wa.me/?text=${waText}" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(37,211,102,.15);border:1.5px solid rgba(37,211,102,.4);color:#4ade80;padding:12px;border-radius:12px;font-weight:700;font-size:13px;text-decoration:none">
+        <i class="fa-brands fa-whatsapp" style="color:#25d366;font-size:18px"></i> Share Result on WhatsApp
+      </a>`;
+  }
+  show('stateResult');
+}
+
+/* ── Init ── */
+(function init() {
+  const user = JSON.parse(localStorage.getItem('fwf-user') || 'null');
+  const btn  = document.getElementById('topbar-user');
+  if (user && btn) {
+    btn.href       = '/app/dashboard';
+    btn.innerHTML  = `<span style="font-size:13px;font-weight:800">${(user.name||'U').charAt(0).toUpperCase()}</span>`;
+    btn.style.cssText = 'background:linear-gradient(135deg,var(--orange),var(--orange-d));color:#fff;border-radius:50%;width:36px;height:36px;border:2px solid rgba(255,255,255,.2)';
+  }
+  loadTicket();
+})();
+</script>
+</body>
+</html>
