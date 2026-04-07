@@ -65,10 +65,16 @@ nav ul li a:hover{color:var(--gold)}
 .prog-fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:4px;transition:width 1.8s cubic-bezier(.16,1,.3,1);position:relative}
 .prog-fill::after{content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:16px;height:16px;border-radius:50%;background:var(--gold-mid);border:3px solid var(--white);box-shadow:0 0 0 2px var(--gold-mid)}
 .prog-pct{font-size:12px;color:var(--gold);font-weight:600;text-align:right;margin-bottom:18px}
-.card-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:16px;border-top:1px solid var(--border);margin-bottom:22px}
-.cs{text-align:center}
-.cs-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--ink);line-height:1}
-.cs-lbl{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.freq-toggle{display:flex;background:var(--gold-pale);border-radius:4px;padding:3px;gap:3px;margin-bottom:14px}
+.ft-btn{flex:1;padding:8px 4px;background:transparent;border:none;border-radius:3px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.03em}
+.ft-btn.active{background:var(--white);color:var(--gold);box-shadow:0 1px 4px rgba(184,134,42,.2)}
+.mini-amt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.mab2{padding:9px 2px;background:var(--white);border:1px solid var(--border);border-radius:4px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;text-align:center;transition:all .2s;line-height:1.2}
+.mab2 span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:400;color:var(--muted);margin-top:2px}
+.mab2:hover{border-color:var(--gold-mid)}.mab2.on{background:var(--gold-pale);border-color:var(--gold);color:var(--gold)}
+.mini-frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.monthly-note{font-size:11px;color:var(--gold);background:var(--gold-pale);border:1px solid var(--border);border-radius:4px;padding:7px 10px;margin-bottom:10px;display:none;line-height:1.5}
+.monthly-note.show{display:block}
 .hero-btn{display:block;width:100%;padding:15px;background:var(--gold);color:var(--white);border:none;border-radius:4px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;text-align:center;cursor:pointer;text-decoration:none;transition:background .2s,transform .15s;margin-bottom:10px}
 .hero-btn:hover{background:var(--gold-mid);transform:translateY(-1px)}
 .card-note{text-align:center;font-size:11px;color:var(--muted)}
@@ -231,7 +237,7 @@ nav ul li a:hover{color:var(--gold)}
     </g>
   </svg>
   <div>
-    <div class="live-tag"><span class="live-dot"></span>Active Fundraiser · 2024–25</div>
+    <div class="live-tag"><span class="live-dot"></span>Active Fundraiser · 2026–27</div>
     <h1 class="hero-title">Aatmnirbhar Bharat Fundraiser<br><em>Support One Business at a Time.</em></h1>
     <p class="hero-desc">We mobilize donors, mentors and transparent funding to help skilled individuals launch a small manufacturing business — from raw materials to registration, machinery and market access.</p>
     <div class="hero-pills">
@@ -246,14 +252,32 @@ nav ul li a:hover{color:var(--gold)}
     <div class="card-heading">Fund a Business. Create Jobs.</div>
     <div class="card-sub">Each supported unit is chosen for skill, demand and dignity. Donations are pooled for high-impact setup costs, then tracked and reported transparently.</div>
     <div class="card-divider"></div>
-    <div class="card-stats">
-      <div class="cs"><div class="cs-val" id="donors">1,142</div><div class="cs-lbl">Donors</div></div>
-      <div class="cs"><div class="cs-val">18</div><div class="cs-lbl">Days Left</div></div>
-      <div class="cs"><div class="cs-val">214</div><div class="cs-lbl">Units Funded</div></div>
-      <div class="cs"><div class="cs-val">80A</div><div class="cs-lbl">Tax Benefit</div></div>
+    <!-- Frequency Toggle -->
+    <div class="freq-toggle">
+      <button class="ft-btn active" onclick="setFreq(this,'onetime')">One Time</button>
+      <button class="ft-btn" onclick="setFreq(this,'monthly')">Monthly</button>
     </div>
-    <a href="https://www.fwfindia.org/donation#donateModal" class="hero-btn">Donate & Create Jobs →</a>
-    <div class="card-note">🔒 Secure · UPI / Cards / NetBanking</div>
+    <!-- Monthly note -->
+    <div class="monthly-note" id="monthly-note">📅 You will be charged every month. Cancel anytime from your account.</div>
+    <!-- Amount Presets -->
+    <div class="mini-amt-grid">
+      <button class="mab2" onclick="setAmt(this,500)">₹500<span>Starter</span></button>
+      <button class="mab2 on" onclick="setAmt(this,1000)">₹1,000<span>Popular</span></button>
+      <button class="mab2" onclick="setAmt(this,2500)">₹2,500<span>Impact</span></button>
+      <button class="mab2" onclick="setAmt(this,5000)">₹5,000<span>Champion</span></button>
+    </div>
+    <!-- Custom Amount -->
+    <div class="cw" style="margin-bottom:12px">
+      <span class="cpre">₹</span>
+      <input class="cf" id="hc-amt" type="number" placeholder="Enter custom amount" min="100" value="1000">
+    </div>
+    <!-- Name & Phone -->
+    <div class="mini-frow">
+      <input class="fi" id="hc-name" type="text" placeholder="Your Name">
+      <input class="fi" id="hc-phone" type="tel" placeholder="Mobile Number" maxlength="10">
+    </div>
+    <button class="hero-btn" onclick="submitHeroDonate()">Donate & Create Jobs →</button>
+    <div class="card-note">🔒 Secure · UPI / Cards / NetBanking · 80A Tax Benefit</div>
   </div>
 </section>
 
@@ -360,19 +384,28 @@ nav ul li a:hover{color:var(--gold)}
 </footer>
 
 <script>
-window.addEventListener('load',()=>{
-  const donorCount=1142;
-  setTimeout(()=>{
-    animNum(0,donorCount,1800,document.getElementById('donors'),v=>Math.round(v).toLocaleString('en-IN'));
-  },300);
-});
-function animNum(from,to,dur,el,fmt){
-  const t0=performance.now();
-  (function tick(now){
-    const p=Math.min((now-t0)/dur,1),e=1-Math.pow(1-p,3);
-    el.textContent=fmt(from+(to-from)*e);
-    if(p<1)requestAnimationFrame(tick);
-  })(performance.now());
+let _freq='onetime';
+function setFreq(btn,freq){
+  _freq=freq;
+  document.querySelectorAll('.ft-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const note=document.getElementById('monthly-note');
+  note.classList.toggle('show', freq==='monthly');
+}
+function setAmt(btn,amt){
+  document.querySelectorAll('.mab2').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('hc-amt').value=amt;
+}
+function submitHeroDonate(){
+  const amt=parseInt(document.getElementById('hc-amt').value)||0;
+  const name=document.getElementById('hc-name').value.trim();
+  const phone=document.getElementById('hc-phone').value.trim();
+  if(!amt||amt<100){alert('Please enter an amount of at least ₹100');return;}
+  if(!name){alert('Please enter your name');return;}
+  if(!phone||phone.length<10){alert('Please enter a valid 10-digit mobile number');return;}
+  const params=new URLSearchParams({amt,name,phone,freq:_freq});
+  window.location.href='/donation?'+params.toString()+'#donateModal';
 }
 </script>
 </body>
