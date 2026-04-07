@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
   <meta name="theme-color" content="#06060d">
   <meta name="description" content="FWF Quiz competitions - win cash prizes by answering correctly">
-  <title>Quiz Hub Ã¢â‚¬â€œ FWF</title>
+  <title>Quiz Hub â€“ FWF</title>
   <link rel="manifest" href="/app/manifest.json">
   <link rel="icon" href="/assets/images/logo.png">
   <link rel="apple-touch-icon" href="/assets/images/logo.png">
@@ -250,12 +250,26 @@ const BACKEND = 'https://fwf-production.up.railway.app';
 let activeQuizzes = [];
 let selectedQuiz = null;
 
+// Static program definitions — always available as fallback
+const STATIC_PROGRAMS = [
+  { quiz_id: 'monthly',     type: 'monthly',     title: 'Udaan Scholarship',  entry_fee: 100,
+    status: 'active', total_participants: 0, prizes: [{label:'₹5,000 Scholarship'}],     result_date: null },
+  { quiz_id: 'half_yearly', type: 'half_yearly', title: 'Saksham Program',    entry_fee: 500,
+    status: 'active', total_participants: 0, prizes: [{label:'₹25,000 Business Support'}], result_date: null },
+  { quiz_id: 'yearly',      type: 'yearly',      title: 'Divya Yatra Sahyog', entry_fee: 1000,
+    status: 'active', total_participants: 0, prizes: [{label:'₹50,000 Divya Yatra'}],     result_date: null }
+];
+
 function enrollEvent(type) {
-  const keywords = { monthly: 'udaan', half_yearly: 'saksham', yearly: 'divya' };
-  const kw = keywords[type] || type;
-  const q = activeQuizzes.find(x => (x.title||'').toLowerCase().includes(kw) || (x.type||'') === type);
-  if (q) { openEnrollModal(q.quiz_id || q._id); return; }
-  showToast('No active ' + type.replace('_',' ') + ' program right now. Check back soon!', 'info');
+  const kw = { monthly: 'udaan', half_yearly: 'saksham', yearly: 'divya' }[type] || type;
+  let q = activeQuizzes.find(x => (x.title||'').toLowerCase().includes(kw) || (x.type||'') === type);
+  if (!q) {
+    // Fallback: use static program so enrollment always works
+    q = STATIC_PROGRAMS.find(x => x.type === type);
+    if (q && !activeQuizzes.find(x => x.quiz_id === q.quiz_id)) activeQuizzes.push(q);
+  }
+  if (q) { openEnrollModal(q.quiz_id); return; }
+  showToast('Program not available right now. Try again shortly.', 'info');
 }
 
 async function loadQuizzes() {
@@ -265,29 +279,37 @@ async function loadQuizzes() {
       headers: getToken() ? {Authorization:'Bearer '+getToken()} : {}
     }).then(r=>r.json()).catch(()=>null);
 
-    if (!data?.quizzes?.length) {
-      document.getElementById('quiz-list').innerHTML = '<div class="empty-state"><div class="es-icon">&#127922;</div><h3>No active quizzes</h3><p>Check back soon for new quiz competitions!</p></div>';
-      return;
-    }
-    activeQuizzes = data.quizzes;
-    document.getElementById('quiz-list').innerHTML = '<div class="scroll-row">' +
-      data.quizzes.map(q => `
-        <div class="quiz-card" onclick="openEnrollModal('${q.quiz_id || q._id}')">
-          <div class="qc-badge ${q.status==='active'?'live':q.status==='upcoming'?'upcoming':'closed'}">${q.status==='active'?'<span class=\"live-dot\" style=\"margin-right:4px\"></span>Live':q.status==='upcoming'?'Upcoming':'Closed'}</div>
-          <div class="qc-title">${q.title}</div>
-          <div class="qc-fee">&#8377;${q.entry_fee||100}</div>
-          <div class="qc-meta">&#128197; Result: ${q.result_date ? new Date(q.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'TBD'}</div>
-          <div class="qc-meta" style="margin-bottom:8px">&#128101; ${q.total_participants||0} enrolled</div>
-          <div class="qc-prizes">&#127942; ${q.prizes?.map(p=>p.label||p.prize_label||('1st: &#8377;'+p.amount)).join(' | ')||'Prizes TBD'}</div>
-        </div>
-      `).join('') + '</div>';
-
-    // Populate sell dropdown
+    activeQuizzes = data?.quizzes?.length ? data.quizzes : [...STATIC_PROGRAMS];
+    renderQuizCards(activeQuizzes);
     const sel = document.getElementById('sell-quiz');
-    if (sel) sel.innerHTML = '<option value="">-- Choose Quiz --</option>' + data.quizzes.filter(q=>q.status!=='closed').map(q=>`<option value="${q.quiz_id||q._id}">${q.title} Ã¢â‚¬â€œ &#8377;${q.entry_fee||100}</option>`).join('');
-  } catch(e) { console.error(e); }
+    if (sel) sel.innerHTML = '<option value="">-- Choose Quiz --</option>' +
+      activeQuizzes.filter(q=>q.status!=='closed').map(q=>`<option value="${q.quiz_id||q._id}">${q.title} - Rs.${q.entry_fee||100}</option>`).join('');
+  } catch(e) {
+    console.error(e);
+    activeQuizzes = [...STATIC_PROGRAMS];
+    renderQuizCards(activeQuizzes);
+  }
 }
 
+function renderQuizCards(quizzes) {
+  const colMap = { monthly:'#3b82f6', half_yearly:'#8b5cf6', yearly:'#e11d48' };
+  document.getElementById('quiz-list').innerHTML = '<div class="scroll-row">' +
+    quizzes.map(q => {
+      const id  = q.quiz_id || q._id;
+      const col = colMap[q.type] || '#E87722';
+      const resultTxt = q.result_date
+        ? new Date(q.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+        : 'TBD';
+      return '<div class="quiz-card" onclick="openEnrollModal(\'' + id + '\')" style="border-color:' + col + '55">' +
+        '<div class="qc-badge live" style="background:' + col + '22;color:' + col + ';border:1px solid ' + col + '44"><span class="live-dot" style="background:' + col + ';margin-right:4px"></span>Live</div>' +
+        '<div class="qc-title">' + q.title + '</div>' +
+        '<div class="qc-fee">&#8377;' + (q.entry_fee||100) + '</div>' +
+        '<div class="qc-meta">&#128197; Result: ' + resultTxt + '</div>' +
+        '<div class="qc-meta" style="margin-bottom:8px">&#128101; ' + (q.total_participants||0) + ' enrolled</div>' +
+        '<div class="qc-prizes">&#127942; ' + ((q.prizes||[]).map(p=>p.label||p.prize_label||('1st: &#8377;'+(p.amount||''))).join(' | ')||'Prizes TBD') + '</div>' +
+        '</div>';
+    }).join('') + '</div>';
+}
 async function loadQuizHistory() {
   if (!isLoggedIn()) return;
   try {
