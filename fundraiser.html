@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FWF India Fundraiser — Aatmnirbhar Bharat Mission</title>
+<meta name="description" content="Support the Aatmnirbhar Bharat Fundraiser by FWF India. Donate to fund small manufacturing businesses, create jobs, and empower women and youth entrepreneurs across India.">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1e3a8a">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:       #B8862A;
+  --gold-mid:   #D4A043;
+  --gold-light: #EEC96A;
+  --gold-pale:  #FDF3DC;
+  --gold-wash:  #FBF5E8;
+  --white:      #FEFCF8;
+  --off:        #F7F2EA;
+  --ink:        #1A1208;
+  --ink-2:      #2E2010;
+  --ink-3:      #4A3820;
+  --muted:      #7A6A50;
+  --border:     #E8D9B8;
+  --border-mid: #D4BC88;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:64px}
+.nav-left{display:flex;align-items:center;gap:20px}
+.nav-back{display:flex;align-items:center;gap:7px;text-decoration:none;color:var(--muted);font-size:13px;transition:color .2s}
+.nav-back:hover{color:var(--gold)}
+.nav-back svg{width:14px;height:14px}
+.nav-divider{width:1px;height:20px;background:var(--border)}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ink);text-decoration:none}
+.nav-brand em{font-style:italic;color:var(--gold)}
+.nav-badge{background:var(--gold-wash);border:1px solid var(--border);padding:4px 12px;border-radius:100px;font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.08em;text-transform:uppercase}
+.nav-cta{background:var(--gold);color:var(--white);padding:10px 24px;border-radius:4px;font-size:13px;font-weight:600;letter-spacing:.04em;text-decoration:none;transition:background .2s,transform .15s;border:none;cursor:pointer}
+.nav-cta:hover{background:var(--gold-mid);transform:translateY(-1px)}
+nav ul{display:flex;gap:24px;list-style:none}
+nav ul li a{color:var(--ink);text-decoration:none;font-weight:600;transition:color .2s}
+nav ul li a:hover{color:var(--gold)}
+.hero{background:var(--ink);border-bottom:1px solid rgba(184,134,42,.2);padding:72px 56px 80px;display:grid;grid-template-columns:1fr 420px;gap:80px;align-items:center;position:relative;overflow:hidden}
+.hero-watermark{position:absolute;right:-30px;top:50%;transform:translateY(-50%);font-family:'Cormorant Garamond',serif;font-size:200px;font-weight:700;color:var(--gold);opacity:.04;line-height:1;pointer-events:none;user-select:none;white-space:nowrap}
+.hero-mandala{position:absolute;right:-60px;top:50%;transform:translateY(-50%);width:580px;height:580px;opacity:.18;animation:slowRotate 60s linear infinite;pointer-events:none}
+@keyframes slowRotate{from{transform:translateY(-50%) rotate(0deg)}to{transform:translateY(-50%) rotate(360deg)}}
+.live-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(184,134,42,.15);border:1px solid rgba(184,134,42,.35);padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;color:var(--gold-light);letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px;animation:up .6s ease both}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--gold-light);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(44px,5.5vw,72px);font-weight:700;line-height:1.06;color:#FEFCF8;margin-bottom:22px;animation:up .6s .1s ease both}
+.hero-title em{font-style:italic;color:var(--gold-light)}
+.hero-desc{font-size:17px;color:rgba(242,234,217,.7);line-height:1.75;max-width:520px;margin-bottom:32px;font-weight:300;animation:up .6s .2s ease both}
+.hero-pills{display:flex;flex-wrap:wrap;gap:10px;animation:up .6s .3s ease both}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid rgba(184,134,42,.25);border-radius:100px;font-size:12px;color:rgba(242,234,217,.75);background:rgba(184,134,42,.08)}
+.card-heading{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.card-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:18px;font-weight:300}
+.card-divider{height:1px;background:var(--border);margin-bottom:18px}
+.goal-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:36px 32px;box-shadow:0 4px 32px rgba(184,134,42,.08),0 1px 4px rgba(0,0,0,.04);animation:up .6s .2s ease both;position:relative}
+.goal-card::before{content:'';position:absolute;top:0;left:32px;right:32px;height:2px;background:linear-gradient(90deg,transparent,var(--gold-mid),transparent);border-radius:0 0 4px 4px}
+.raised-num{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px}
+.raised-label{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px}
+.prog-track{width:100%;height:8px;background:var(--gold-pale);border-radius:4px;margin-bottom:10px;position:relative}
+.prog-fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:4px;transition:width 1.8s cubic-bezier(.16,1,.3,1);position:relative}
+.prog-fill::after{content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:16px;height:16px;border-radius:50%;background:var(--gold-mid);border:3px solid var(--white);box-shadow:0 0 0 2px var(--gold-mid)}
+.prog-pct{font-size:12px;color:var(--gold);font-weight:600;text-align:right;margin-bottom:18px}
+.freq-toggle{display:flex;background:var(--gold-pale);border-radius:4px;padding:3px;gap:3px;margin-bottom:14px}
+.ft-btn{flex:1;padding:8px 4px;background:transparent;border:none;border-radius:3px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.03em}
+.ft-btn.active{background:var(--white);color:var(--gold);box-shadow:0 1px 4px rgba(184,134,42,.2)}
+.mini-amt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.mab2{padding:9px 2px;background:var(--white);border:1px solid var(--border);border-radius:4px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;text-align:center;transition:all .2s;line-height:1.2}
+.mab2 span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:400;color:var(--muted);margin-top:2px}
+.mab2:hover{border-color:var(--gold-mid)}.mab2.on{background:var(--gold-pale);border-color:var(--gold);color:var(--gold)}
+.mini-frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.monthly-note{font-size:11px;color:var(--gold);background:var(--gold-pale);border:1px solid var(--border);border-radius:4px;padding:7px 10px;margin-bottom:10px;display:none;line-height:1.5}
+.monthly-note.show{display:block}
+.hero-btn{display:block;width:100%;padding:15px;background:var(--gold);color:var(--white);border:none;border-radius:4px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;text-align:center;cursor:pointer;text-decoration:none;transition:background .2s,transform .15s;margin-bottom:10px}
+.hero-btn:hover{background:var(--gold-mid);transform:translateY(-1px)}
+.card-note{text-align:center;font-size:11px;color:var(--muted)}
+.strip{background:var(--ink);padding:28px 56px;display:flex;align-items:center;gap:40px;overflow-x:auto}
+.strip-heading{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;color:var(--gold-light);letter-spacing:.06em;white-space:nowrap;flex-shrink:0}
+.strip-div{width:1px;height:28px;background:rgba(255,255,255,.1);flex-shrink:0}
+.strip-list{display:flex;gap:36px}
+.si{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.si-icon{width:36px;height:36px;border-radius:50%;background:rgba(184,134,42,.15);display:grid;place-items:center;font-size:16px;flex-shrink:0}
+.si strong{display:block;font-size:13px;font-weight:600;color:#F2EAD9;margin-bottom:1px}
+.si span{font-size:11px;color:rgba(242,234,217,.45)}
+.steps-section{padding:88px 56px;background:var(--white)}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.sec-label::after{content:'';flex:1;max-width:40px;height:1px;background:var(--gold)}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,3.5vw,48px);font-weight:700;color:var(--ink);line-height:1.15;margin-bottom:52px}
+.sec-title em{font-style:italic;color:var(--gold)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+.steps::before{content:'';position:absolute;top:34px;left:calc(12.5% + 16px);right:calc(12.5% + 16px);height:1px;background:repeating-linear-gradient(90deg,var(--border-mid) 0,var(--border-mid) 8px,transparent 8px,transparent 18px)}
+.step{padding:0 20px;position:relative;z-index:1}
+.step-circle{width:50px;height:50px;border-radius:50%;border:1.5px solid var(--border-mid);background:var(--white);display:grid;place-items:center;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--gold);margin-bottom:22px}
+.step.hl .step-circle{background:var(--gold);color:var(--white);border-color:var(--gold);box-shadow:0 0 0 6px var(--gold-pale)}
+.step-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.step-name-hi{font-size:11px;color:var(--gold);font-weight:500;margin-bottom:8px}
+.step-info{font-size:13px;color:var(--muted);line-height:1.65}
+.tiers-section{background:var(--off);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:88px 56px}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tier{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:36px 28px;position:relative;transition:box-shadow .3s,transform .3s,border-color .3s;cursor:default}
+.tier:hover{box-shadow:0 8px 40px rgba(184,134,42,.09);transform:translateY(-4px);border-color:var(--border-mid)}
+.tier.top{border-color:var(--gold-mid);box-shadow:0 4px 24px rgba(184,134,42,.1)}
+.tier.top::before{content:'Most Impactful';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--white);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 14px;border-radius:100px;white-space:nowrap}
+.t-amt{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px}
+.t-amt-hi{font-size:12px;color:var(--gold);font-weight:500;letter-spacing:.05em;margin-bottom:18px}
+.t-div{height:1px;background:var(--border);margin:18px 0}
+.t-name{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.t-desc{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:18px}
+.t-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.t-list li{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--ink-3)}
+.t-list li::before{content:'✦';color:var(--gold-mid);font-size:9px;margin-top:4px;flex-shrink:0}
+.t-btn{display:block;width:100%;margin-top:22px;padding:12px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);border-radius:4px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:background .2s,color .2s}
+.t-btn:hover,.tier.top .t-btn{background:var(--gold);color:var(--white)}
+.form-section{padding:88px 56px;background:var(--white);display:grid;grid-template-columns:1fr 480px;gap:80px;align-items:start}
+.donate-title{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,3.5vw,50px);font-weight:700;color:var(--ink);line-height:1.1;margin-bottom:18px}
+.donate-title em{font-style:italic;color:var(--gold)}
+.donate-desc{font-size:16px;color:var(--muted);line-height:1.75;max-width:480px;margin-bottom:36px;font-weight:300}
+.trust-list{display:flex;flex-direction:column;gap:14px}
+.trust-item{display:flex;align-items:flex-start;gap:14px}
+.t-icon{width:32px;height:32px;border-radius:50%;background:var(--gold-wash);border:1px solid var(--border);display:grid;place-items:center;font-size:14px;flex-shrink:0}
+.t-text strong{display:block;font-size:14px;font-weight:600;color:var(--ink-2);margin-bottom:1px}
+.t-text span{font-size:12.5px;color:var(--muted)}
+.fbox{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:40px 36px;position:relative}
+.fbox::before{content:'';position:absolute;top:0;left:36px;right:36px;height:2px;background:var(--gold);border-radius:0 0 4px 4px}
+.f-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.f-sub{font-size:13px;color:var(--muted);margin-bottom:26px}
+.amt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.ab{padding:12px 6px;background:var(--white);border:1px solid var(--border);border-radius:4px;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--ink);cursor:pointer;text-align:center;transition:all .2s}
+.ab span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:400;color:var(--muted);margin-top:2px}
+.ab:hover{border-color:var(--gold-mid)}
+.ab.on{background:var(--gold-pale);border-color:var(--gold);color:var(--gold)}
+.cw{position:relative;margin-bottom:18px}
+.cpre{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--gold);pointer-events:none}
+.cf{width:100%;padding:12px 14px 12px 30px;background:var(--white);border:1px solid var(--border);border-radius:4px;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--ink);outline:none;transition:border-color .2s}
+.cf::placeholder{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:300;color:#C0B09A}
+.cf:focus{border-color:var(--gold)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.fi{width:100%;padding:11px 14px;background:var(--white);border:1px solid var(--border);border-radius:4px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--ink);outline:none;transition:border-color .2s}
+.fi::placeholder{color:#C0B09A}
+.fi:focus{border-color:var(--gold)}
+.fi.full{grid-column:1/-1}
+.chk{display:flex;align-items:flex-start;gap:10px;margin:12px 0;font-size:12.5px;color:var(--muted);cursor:pointer}
+.chk input{margin-top:2px;accent-color:var(--gold);flex-shrink:0;cursor:pointer}
+.sbtn{width:100%;padding:16px;background:var(--gold);color:var(--white);border:none;border-radius:4px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;cursor:pointer;margin-top:6px;margin-bottom:12px;transition:background .2s,transform .15s}
+.sbtn:hover{background:var(--gold-mid);transform:translateY(-1px)}
+.sec-note{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--muted);opacity:.8}
+.bene-section{background:var(--off);border-top:1px solid var(--border);padding:88px 56px}
+.bene-intro{font-size:16px;color:var(--muted);max-width:600px;margin-bottom:48px;font-weight:300;line-height:1.7}
+.bene-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.bene-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:24px;transition:box-shadow .3s,transform .3s}
+.bene-card:hover{box-shadow:0 6px 32px rgba(184,134,42,.1);transform:translateY(-3px)}
+.bene-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.bene-avatar{width:52px;height:52px;border-radius:50%;background:var(--gold-wash);border:2px solid var(--border-mid);display:grid;place-items:center;font-size:24px;flex-shrink:0}
+.bene-name{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.verified{font-size:11px;color:var(--gold);font-weight:500;background:var(--gold-pale);padding:2px 7px;border-radius:100px;margin-left:4px}
+.bene-type{font-size:12px;color:var(--gold);font-weight:500;margin-bottom:3px}
+.bene-loc{font-size:11.5px;color:var(--muted)}
+.bene-story{font-size:13px;color:var(--ink-3);line-height:1.65;margin-bottom:16px;font-style:italic}
+.bene-goal-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-3);margin-bottom:8px}
+.bene-goal-row strong{color:var(--ink);font-weight:700}
+.bene-raised-txt{font-size:12px;color:var(--gold);font-weight:600}
+.bene-prog-track{width:100%;height:6px;background:var(--gold-pale);border-radius:3px;margin-bottom:6px;overflow:hidden}
+.bene-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:3px}
+.bene-meta-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:16px}
+.bene-timer{color:var(--ink-3);font-weight:500}
+.bene-btn{width:100%;padding:12px;background:var(--gold);color:var(--white);border:none;border-radius:4px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:background .2s,transform .15s;margin-bottom:12px}
+.bene-btn:hover{background:var(--gold-mid);transform:translateY(-1px)}
+.bene-links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.bene-links a{font-size:11.5px;color:var(--muted);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:100px;transition:color .2s,border-color .2s}
+.bene-links a:hover{color:var(--gold);border-color:var(--gold-mid)}
+.bene-note{margin-top:32px;text-align:center;font-size:13px;color:var(--muted)}
+.bene-note a{color:var(--gold);text-decoration:none;font-weight:500}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,18,8,.6);z-index:999;place-items:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:grid}
+.modal-box{background:var(--white);border-radius:8px;padding:36px 32px;width:100%;max-width:420px;position:relative;border-top:2px solid var(--gold)}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:16px;color:var(--muted);cursor:pointer;line-height:1}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.modal-amt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.mab{padding:10px 4px;background:var(--white);border:1px solid var(--border);border-radius:4px;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;text-align:center;transition:all .2s}
+.mab:hover{border-color:var(--gold-mid)}
+.mab.on{background:var(--gold-pale);border-color:var(--gold);color:var(--gold)}
+@media(max-width:1024px){.hero{grid-template-columns:1fr;gap:40px}.hero-watermark{display:none}.tiers{grid-template-columns:1fr 1fr}.form-section{grid-template-columns:1fr;gap:48px}.steps{grid-template-columns:1fr 1fr;gap:32px}.steps::before{display:none}.story-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){nav{padding:0 20px}.hero,.strip,.steps-section,.tiers-section,.form-section,.stories{padding-left:20px;padding-right:20px}.tiers,.steps,.story-grid{grid-template-columns:1fr}.frow{grid-template-columns:1fr}.footer{flex-direction:column;text-align:center}.ftax{text-align:center}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-left">
+    <a href="https://fwfindia.org" class="nav-back">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12L6 8l4-4"/></svg>
+      fwfindia.org
+    </a>
+    <div class="nav-divider"></div>
+    <a href="/" class="nav-brand">FWF <em>India</em></a>
+    <div class="nav-badge">Aatmnirbhar Fundraiser</div>
+  </div>
+  <div>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/csr">CSR</a></li>
+      <li><a href="/fundraiser">Fundraiser</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </div>
+  <a href="https://www.fwfindia.org/donation#donateModal" class="nav-cta">Donate Now</a>
+</nav>
+
+<section class="hero">
+  <svg class="hero-mandala" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="200" cy="200" r="192" stroke="#B8862A" stroke-width="1"/>
+    <circle cx="200" cy="200" r="168" stroke="#B8862A" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="144" stroke="#B8862A" stroke-width="1"/>
+    <circle cx="200" cy="200" r="118" stroke="#B8862A" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="90" stroke="#B8862A" stroke-width="1"/>
+    <circle cx="200" cy="200" r="62" stroke="#B8862A" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="36" stroke="#B8862A" stroke-width="1"/>
+    <circle cx="200" cy="200" r="14" stroke="#B8862A" stroke-width="0.5"/>
+    <g stroke="#B8862A" stroke-width="0.7">
+      <line x1="200" y1="8" x2="200" y2="392"/>
+      <line x1="8" y1="200" x2="392" y2="200"/>
+      <line x1="57" y1="57" x2="343" y2="343"/>
+      <line x1="343" y1="57" x2="57" y2="343"/>
+      <line x1="14" y1="122" x2="386" y2="278"/>
+      <line x1="122" y1="14" x2="278" y2="386"/>
+      <line x1="386" y1="122" x2="14" y2="278"/>
+      <line x1="278" y1="14" x2="122" y2="386"/>
+      <line x1="35" y1="91" x2="365" y2="309"/>
+      <line x1="91" y1="35" x2="309" y2="365"/>
+      <line x1="365" y1="91" x2="35" y2="309"/>
+      <line x1="309" y1="35" x2="91" y2="365"/>
+    </g>
+  </svg>
+  <div>
+    <div class="live-tag"><span class="live-dot"></span>Active Fundraiser · 2026–27</div>
+    <h1 class="hero-title">Aatmnirbhar Bharat Fundraiser<br><em>Support One Business at a Time.</em></h1>
+    <p class="hero-desc">We mobilize donors, mentors and transparent funding to help skilled individuals launch a small manufacturing business — from raw materials to registration, machinery and market access.</p>
+    <div class="hero-pills">
+      <span class="pill">🧵 Local Manufacturers</span>
+      <span class="pill">📍 Pan-India Reach</span>
+      <span class="pill">🧾 80A Tax Benefit</span>
+      <span class="pill">🤝 Mentorship Included</span>
+    </div>
+  </div>
+
+  <div class="goal-card">
+    <div class="card-heading">Fund a Business. Create Jobs.</div>
+    <div class="card-sub">Each supported unit is chosen for skill, demand and dignity. Donations are pooled for high-impact setup costs, then tracked and reported transparently.</div>
+    <div class="card-divider"></div>
+    <!-- Frequency Toggle -->
+    <div class="freq-toggle">
+      <button class="ft-btn active" onclick="setFreq(this,'onetime')">One Time</button>
+      <button class="ft-btn" onclick="setFreq(this,'monthly')">Monthly</button>
+    </div>
+    <!-- Monthly note -->
+    <div class="monthly-note" id="monthly-note">📅 You will be charged every month. Cancel anytime from your account.</div>
+    <!-- Amount Presets -->
+    <div class="mini-amt-grid">
+      <button class="mab2" onclick="setAmt(this,500)">₹500<span>Starter</span></button>
+      <button class="mab2 on" onclick="setAmt(this,1000)">₹1,000<span>Popular</span></button>
+      <button class="mab2" onclick="setAmt(this,2500)">₹2,500<span>Impact</span></button>
+      <button class="mab2" onclick="setAmt(this,5000)">₹5,000<span>Champion</span></button>
+    </div>
+    <!-- Custom Amount -->
+    <div class="cw" style="margin-bottom:12px">
+      <span class="cpre">₹</span>
+      <input class="cf" id="hc-amt" type="number" placeholder="Enter custom amount" min="100" value="1000">
+    </div>
+    <!-- Name & Phone -->
+    <div class="mini-frow">
+      <input class="fi" id="hc-name" type="text" placeholder="Your Name">
+      <input class="fi" id="hc-phone" type="tel" placeholder="Mobile Number" maxlength="10">
+    </div>
+    <button class="hero-btn" onclick="submitHeroDonate()">Donate & Create Jobs →</button>
+    <div class="card-note">🔒 Secure · UPI / Cards / NetBanking · 80A Tax Benefit</div>
+  </div>
+</section>
+
+<div class="strip">
+  <div class="strip-heading">Businesses We Fund ↓</div>
+  <div class="strip-div"></div>
+  <div class="strip-list">
+    <div class="si"><div class="si-icon">🧼</div><div><strong>Soap & Detergent</strong><span>Daily use, high demand</span></div></div>
+    <div class="si"><div class="si-icon">💆</div><div><strong>Hair Oil & Cosmetics</strong><span>Natural, local production</span></div></div>
+    <div class="si"><div class="si-icon">🦷</div><div><strong>Toothpaste & Care</strong><span>Herbal & ayurvedic units</span></div></div>
+    <div class="si"><div class="si-icon">🌶️</div><div><strong>Spices & Masala</strong><span>Grinding, packing, branding</span></div></div>
+    <div class="si"><div class="si-icon">🫘</div><div><strong>Pulses & Grains</strong><span>Cleaning, milling, packaging</span></div></div>
+    <div class="si"><div class="si-icon">🍪</div><div><strong>Snacks & Food</strong><span>Namkeen, papad, pickles</span></div></div>
+    <div class="si"><div class="si-icon">🧴</div><div><strong>Agro Products</strong><span>Processing & packaging</span></div></div>
+  </div>
+</div>
+
+<section class="steps-section rv">
+  <div class="sec-label">Our Process</div>
+  <h2 class="sec-title">From selection to a <em>thriving business</em> — here's how it works.</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-circle">01</div>
+      <div class="step-name">Select a Skilled Entrepreneur</div>
+      <div class="step-name-hi">सही उद्यमी का चयन</div>
+      <div class="step-info">Our field teams choose beneficiaries with proven skill, strong intent, and an opportunity to build a sustainable small business.</div>
+    </div>
+    <div class="step hl">
+      <div class="step-circle">02</div>
+      <div class="step-name">Build the Business Plan</div>
+      <div class="step-name-hi">व्यापार योजना तैयार करना</div>
+      <div class="step-info">We collaborate on a local-market plan, equipment needs, product pricing, and a practical pathway to early revenue.</div>
+    </div>
+    <div class="step">
+      <div class="step-circle">03</div>
+      <div class="step-name">Raise Fundraiser Support</div>
+      <div class="step-name-hi">फंडरेज़र समर्थन जमा करना</div>
+      <div class="step-info">Donations are raised transparently and applied directly to machinery, raw materials, registration, and first-month working capital.</div>
+    </div>
+    <div class="step">
+      <div class="step-circle">04</div>
+      <div class="step-name">Mentor and Scale</div>
+      <div class="step-name-hi">मार्गदर्शन और वृद्धि</div>
+      <div class="step-info">We continue mentoring, help open buyer connections, and track progress until the business is stable and self-sufficient.</div>
+    </div>
+  </div>
+</section>
+
+<section class="tiers-section" id="tiers">
+  <div class="sec-label">Your Contribution, Your Impact</div>
+  <h2 class="sec-title">Launching one business costs <em>₹3 to 5 lakh.</em><br>Every rupee brings someone closer.</h2>
+  <div class="tiers">
+    <div class="tier">
+      <div class="t-amt">₹5,000</div>
+      <div class="t-amt-hi">Seed Support</div>
+      <div class="t-div"></div>
+      <div class="t-name">Start the Journey</div>
+      <div class="t-desc">Pooled support for raw materials and packaging for a new micro-unit.</div>
+      <ul class="t-list">
+        <li>Impact reports from FWF</li>
+        <li>80A tax benefit certificate</li>
+        <li>Progress updates by email</li>
+      </ul>
+      <button class="t-btn" onclick="window.location.href='https://www.fwfindia.org/donation#donateModal'">Contribute ₹5,000 →</button>
+    </div>
+    <div class="tier top">
+      <div class="t-amt">₹50,000</div>
+      <div class="t-amt-hi">Business Backer</div>
+      <div class="t-div"></div>
+      <div class="t-name">Fund the Setup</div>
+      <div class="t-desc">Support machinery, registration, and the first production cycle for a skilled entrepreneur.</div>
+      <ul class="t-list">
+        <li>Featured donor recognition</li>
+        <li>Personal impact story</li>
+        <li>Structured fund utilisation report</li>
+      </ul>
+      <button class="t-btn" onclick="window.location.href='https://www.fwfindia.org/donation#donateModal'">Contribute ₹50,000 →</button>
+    </div>
+    <div class="tier">
+      <div class="t-amt">₹3,00,000+</div>
+      <div class="t-amt-hi">Full Sponsor</div>
+      <div class="t-div"></div>
+      <div class="t-name">Launch One Business</div>
+      <div class="t-desc">Sponsor the complete setup, scaling support, and one full empowered livelihood.</div>
+      <ul class="t-list">
+        <li>Dedicated video story</li>
+        <li>Audited fund report</li>
+        <li>CSR recognition letter</li>
+      </ul>
+      <button class="t-btn" onclick="window.location.href='https://www.fwfindia.org/donation#donateModal'">Become a Sponsor →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fb">Founders Welfare Foundation<small>fwfindia.org · Aatmnirbhar Bharat Mission</small></div>
+  <ul class="flinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="/fundraiser">Fundraiser</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/projects">Projects</a></li>
+  </ul>
+  <div class="ftax">Section 8 Company · 80A Certified<br>FCRA Reg. · CIN: UXXXXXXXX</div>
+</footer>
+
+<script>
+let _freq='onetime';
+function setFreq(btn,freq){
+  _freq=freq;
+  document.querySelectorAll('.ft-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const note=document.getElementById('monthly-note');
+  note.classList.toggle('show', freq==='monthly');
+}
+function setAmt(btn,amt){
+  document.querySelectorAll('.mab2').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('hc-amt').value=amt;
+}
+function submitHeroDonate(){
+  const amt=parseInt(document.getElementById('hc-amt').value)||0;
+  const name=document.getElementById('hc-name').value.trim();
+  const phone=document.getElementById('hc-phone').value.trim();
+  if(!amt||amt<100){alert('Please enter an amount of at least ₹100');return;}
+  if(!name){alert('Please enter your name');return;}
+  if(!phone||phone.length<10){alert('Please enter a valid 10-digit mobile number');return;}
+  const params=new URLSearchParams({amt,name,phone,freq:_freq});
+  window.location.href='/donation?'+params.toString()+'#donateModal';
+}
+</script>
+</body>
+</html>
