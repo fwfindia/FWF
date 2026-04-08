@@ -996,12 +996,6 @@ textarea.form-input{ resize:vertical; min-height:80px; }
           <input type="text" id="qtSearch" placeholder="Search by seller, buyer, quiz ID...">
         </div>
         <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center">
-          <select id="qtStatusFilter" class="form-input" style="width:auto;padding:8px 12px;font-size:12px">
-            <option value="">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="converted">Converted</option>
-            <option value="failed">Failed</option>
-          </select>
           <button class="btn btn-ghost" onclick="loadQuizTicketsPayments()"><i class="fa-solid fa-refresh"></i> Refresh</button>
         </div>
       </div>
@@ -1010,7 +1004,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <div class="table-wrap">
           <table class="data-table">
             <thead><tr>
-              <th>Ticket ID</th><th>Seller</th><th>Quiz</th><th>Buyer</th><th>Amount</th><th>Points</th><th>Status</th><th>Date</th>
+              <th>Date</th><th>Buyer</th><th>Quiz</th><th>Ticket ID</th><th>Amount</th><th>Seller</th><th>Points</th><th>Status</th>
             </tr></thead>
             <tbody id="qtBody">
               <tr><td colspan="8" class="empty-state"><p>Loading...</p></td></tr>
@@ -3514,11 +3508,9 @@ let allQuizTickets = [];
 
 async function loadQuizTicketsPayments(){
   const search = (document.getElementById('qtSearch')?.value || '').trim();
-  const statusF = document.getElementById('qtStatusFilter')?.value || '';
   try{
-    const params = new URLSearchParams({ limit: 200 });
-    if(search)  params.set('search', search);
-    if(statusF) params.set('status', statusF);
+    const params = new URLSearchParams({ limit: 200, status: 'converted' });
+    if(search) params.set('search', search);
     const d = await AUTH.api('/api/admin/tickets?' + params.toString());
     allQuizTickets = d.tickets || [];
     const s = d.stats || {};
@@ -3547,26 +3539,25 @@ function renderQuizTickets(list){
     return '<span class="badge b-progress" style="font-size:10px">Pending</span>';
   };
   tb.innerHTML = list.map(t => `<tr>
-    <td><span style="font-weight:800;color:var(--accent);font-size:11px">${t.ticket_display_id || '—'}</span></td>
-    <td>
-      <div style="font-weight:700;font-size:12px">${t.seller_name || '—'}</div>
-      <div style="font-size:11px;color:var(--text-muted)">${t.seller_member_id || '—'}</div>
-    </td>
-    <td style="font-size:12px;font-weight:600;color:var(--text-muted)">${t.quiz_ref || '—'}</td>
+    <td style="color:var(--text-muted);font-size:12px">${fmtDate(t.sold_at)}</td>
     <td>
       <div style="font-weight:600;font-size:12px">${t.buyer_name || '—'}</div>
       <div style="font-size:11px;color:var(--text-muted)">${t.buyer_contact || t.buyer_email || ''}</div>
     </td>
+    <td style="font-size:12px;font-weight:600;color:var(--text-muted)">${t.quiz_ref || '—'}</td>
+    <td><span style="font-weight:800;color:var(--accent);font-size:11px">${t.ticket_display_id || '—'}</span></td>
     <td style="font-weight:900;color:#059669">₹${fmtN(t.ticket_price || 0)}</td>
+    <td>
+      <div style="font-weight:700;font-size:12px">${t.seller_name || '—'}</div>
+      <div style="font-size:11px;color:var(--text-muted)">${t.seller_member_id || '—'}</div>
+    </td>
     <td style="font-weight:700;color:var(--accent)">+${t.points_earned || 0}</td>
     <td>${statusBadgeQt(t.ticket_status)}</td>
-    <td style="color:var(--text-muted);font-size:12px">${fmtDate(t.sold_at)}</td>
   </tr>`).join('');
 }
 
-// Search & filter for quiz tickets
+// Search for quiz tickets
 document.getElementById('qtSearch')?.addEventListener('input', loadQuizTicketsPayments);
-document.getElementById('qtStatusFilter')?.addEventListener('change', loadQuizTicketsPayments);
 
 /* ============================================
    REPORTS & ANALYTICS
