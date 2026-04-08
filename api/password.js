@@ -204,6 +204,65 @@ async function handler(req, res) {
     }
   }
 
+  /* ── RESET TO DEFAULT PASSWORD (No OTP required) ───────────── */
+  if (action === "reset-default") {
+    try {
+      const { memberId } = req.body;
+      if (!memberId) {
+        return res.status(400).json({ error: "Member ID is required" });
+      }
+
+      const backendUrl = process.env.BACKEND_URL || "https://fwf-production.up.railway.app";
+      const internalKey = process.env.INTERNAL_API_KEY;
+
+      // Verify member exists first
+      let verifyRes;
+      try {
+        verifyRes = await fetch(`${backendUrl}/api/auth/get-user-email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-internal-api-key": internalKey },
+          body: JSON.stringify({ memberId })
+        });
+      } catch (fetchErr) {
+        return res.status(502).json({ error: "Could not connect to authentication server. Please try again later." });
+      }
+
+      if (verifyRes.status === 403) {
+        return res.status(503).json({ error: "Authentication service misconfigured. Contact support." });
+      }
+      if (!verifyRes.ok) {
+        return res.status(404).json({ error: "Member ID not found. Please check and try again." });
+      }
+
+      // Reset password to default
+      let updateRes;
+      try {
+        updateRes = await fetch(`${backendUrl}/api/auth/update-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-internal-api-key": internalKey },
+          body: JSON.stringify({ memberId, newPassword: "Welcome@123" })
+        });
+      } catch (fetchErr) {
+        return res.status(502).json({ error: "Could not connect to authentication server. Please try again later." });
+      }
+
+      if (!updateRes.ok) {
+        const err = await updateRes.json().catch(() => ({}));
+        return res.status(400).json({ error: err.error || "Failed to reset password" });
+      }
+
+      console.log(`[password/reset-default] Password reset to default for ${memberId}`);
+      return res.json({
+        ok: true,
+        message: "Password reset to default (Welcome@123). Please login and change it immediately."
+      });
+
+    } catch (error) {
+      console.error("[password/reset-default] Error:", error);
+      return res.status(500).json({ error: "Failed to reset password. Please try again." });
+    }
+  }
+
   return res.status(400).json({ error: "Invalid action. Use ?action=forgot or ?action=reset" });
 }
 

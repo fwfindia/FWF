@@ -814,6 +814,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center">
         <button class="btn btn-ghost" onclick="loadSupporters()"><i class="fa-solid fa-refresh"></i> Refresh</button>
+        <button class="btn btn-primary" onclick="openResetPasswordModal()"><i class="fa-solid fa-key"></i> Reset Password</button>
       </div>
     </div>
 
@@ -2197,7 +2198,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 <div class="modal-overlay hidden" id="resetPwdModal">
   <div class="modal-card" style="max-width:440px">
     <div class="modal-head">
-      <h3><i class="fa-solid fa-key"></i> Reset Member Password</h3>
+      <h3><i class="fa-solid fa-key"></i> Reset Password</h3>
       <button class="modal-close" onclick="closeModal('resetPwdModal')">&times;</button>
     </div>
     <div class="form-group">
@@ -2207,6 +2208,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     <div class="form-group">
       <label>New Password</label>
       <input type="text" class="form-input" id="rpNewPass" placeholder="Enter new password">
+      <button type="button" onclick="document.getElementById('rpNewPass').value='Welcome@123'" style="margin-top:6px;width:100%;padding:6px 12px;background:#f3f4f6;border:1.5px dashed #9ca3af;border-radius:7px;font-size:12px;color:#4b5563;cursor:pointer" title="Auto-fill default password"><i class="fa-solid fa-wand-magic-sparkles" style="color:#8b5cf6"></i> Set Default Password (Welcome@123)</button>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('resetPwdModal')">Cancel</button>
