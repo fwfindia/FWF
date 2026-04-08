@@ -8,6 +8,7 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1e3a8a">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 <style>
 :root {
   --gold:       #B8862A;
@@ -205,9 +206,30 @@ nav ul li a:hover{color:var(--gold)}
   .amt-grid{grid-template-columns:repeat(2,1fr)}
   .footer{flex-direction:column;text-align:center;padding:32px 20px;gap:16px}
   .ftax{text-align:center}
+  .F{grid-template-columns:1fr!important;gap:16px}
   .card-heading{font-size:18px}
   .raised-num{font-size:36px}
 }
+
+footer{background:linear-gradient(135deg,#18181b 70%,#3b82f6 100%);color:#e2e8f0;padding:54px 0 26px}
+.F{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.3fr .7fr .7fr;gap:32px;padding:0 24px}
+@media(max-width:980px){.F{grid-template-columns:1fr;gap:16px}}
+.footer-logo{width:56px;height:56px;border-radius:14px;box-shadow:0 2px 14px #60a5fa94;margin-bottom:8px}
+.newsletter{display:flex;gap:11px;margin:18px 0 0}
+.newsletter input{flex:1;padding:11px 13px;border-radius:12px;border:1px solid #334155;background:#262b3a;color:#e2e8f0;font-size:15px}
+.newsletter button{padding:11px 21px;border-radius:12px;border:0;background:linear-gradient(90deg,#60a5fa,#a78bfa);color:#fff;font-weight:800;font-size:15px;cursor:pointer}
+.footer-tagline{color:#cbd5e1;margin-top:10px;margin-bottom:12px;font-size:15px;line-height:1.4;font-weight:500}
+.social{margin:17px 0 0;display:flex;gap:17px}
+.social a{color:#cbd5e1;font-size:24px;transition:.14s}
+.social a:hover{color:#22c55e}
+.foot-links h4,.foot-contact h4{margin-bottom:19px}
+.foot-links ul{list-style:none;padding:0;margin:0}
+.foot-links a{color:#e2e8f0;text-decoration:none;font-size:15px}
+.foot-links a:hover{color:#a78bfa}
+.foot-links li{margin-bottom:10px}
+.foot-contact div{margin-bottom:12px;color:#cbd5e1}
+.footbar{max-width:1240px;margin:30px auto 0;padding:17px 24px 0;border-top:1px solid #334155;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:#94a3b8;font-size:15px}
+.footbar a{color:#9fb3c8;text-decoration:none}
 </style>
 </head>
 <body>
@@ -395,14 +417,44 @@ nav ul li a:hover{color:var(--gold)}
 </section>
 
 <footer>
-  <div class="fb">Founders Welfare Foundation<small>fwfindia.org · Aatmnirbhar Bharat Mission</small></div>
-  <ul class="flinks">
-    <li><a href="/">Home</a></li>
-    <li><a href="/fundraiser">Fundraiser</a></li>
-    <li><a href="/about">About</a></li>
-    <li><a href="/projects">Projects</a></li>
-  </ul>
-  <div class="ftax">Section 8 Company · 80A Certified<br>FCRA Reg. · CIN: UXXXXXXXX</div>
+  <div class="F">
+    <div>
+      <img class="footer-logo" src="assets/images/logo.png" alt="FWF" />
+      <div class="footer-tagline">Uniting skills, opportunities and livelihoods on one platform.</div>
+      <form class="newsletter" id="subscribeFormFundraiser">
+        <input type="email" id="nlEmailFundraiser" placeholder="Your email for updates" required />
+        <button type="submit">Subscribe</button>
+      </form>
+      <div id="subscribeMessageFundraiser" style="margin-top:10px;font-size:14px;display:none;"></div>
+      <div class="social">
+        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="foot-links">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/projects">Projects</a></li>
+        <li><a href="/join">Join</a></li>
+        <li><a href="/donation">Donate</a></li>
+        <li><a href="/about">About</a></li>
+      </ul>
+    </div>
+    <div class="foot-contact">
+      <h4>Contact</h4>
+      <div><i class="fas fa-map-marker-alt" style="color:#ef4444;margin-right:8px"></i><span>Address:</span> <span>1398/1850 Sagarpuri Gallamandi, Kanpur - 208021 U.P India</span></div>
+      <div><i class="fas fa-phone" style="color:#22c55e;margin-right:8px"></i><span>Phone:</span> <a href="tel:+919580118412" style="color:#cbd5e1;text-decoration:none">+91-9580118412</a></div>
+      <div><i class="fas fa-envelope" style="color:#3b82f6;margin-right:8px"></i><span>Email:</span> <a href="mailto:info@fwfindia.org" style="color:#cbd5e1;text-decoration:none">info@fwfindia.org</a></div>
+      <div><i class="fab fa-whatsapp" style="color:#25d366;margin-right:8px"></i><a href="https://wa.me/919580118412" target="_blank" rel="noopener" style="color:#cbd5e1;text-decoration:none">WhatsApp</a></div>
+      <div style="margin-top:10px;color:#94a3b8"><i class="fas fa-certificate" style="color:#f59e0b;margin-right:8px"></i>Reg: 12A • 80G • CSR-1</div>
+    </div>
+  </div>
+  <div class="footbar">
+    <div>© <span id="footerYear"></span> FWF – All Rights Reserved</div>
+    <div><a href="/privacy">Privacy</a> • <a href="/terms">Terms</a></div>
+  </div>
 </footer>
 
 <script>
@@ -429,6 +481,38 @@ function submitHeroDonate(){
   const params=new URLSearchParams({amt,name,phone,freq:_freq});
   window.location.href='/donation?'+params.toString()+'#donateModal';
 }
+
+// Footer year
+const fy = document.getElementById('footerYear'); if(fy) fy.textContent = new Date().getFullYear();
+
+// Newsletter subscribe
+document.getElementById('subscribeFormFundraiser').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('nlEmailFundraiser').value.trim();
+  const msg = document.getElementById('subscribeMessageFundraiser');
+  msg.style.display = 'block';
+  msg.style.color = '#94a3b8';
+  msg.textContent = 'Subscribing...';
+  try {
+    const res = await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      msg.style.color = '#22c55e';
+      msg.textContent = 'Subscribed successfully! Thank you.';
+      this.reset();
+    } else {
+      msg.style.color = '#f87171';
+      msg.textContent = data.error || 'Subscription failed. Please try again.';
+    }
+  } catch(err) {
+    msg.style.color = '#f87171';
+    msg.textContent = 'Network error. Please try again.';
+  }
+});
 </script>
 </body>
 </html>
