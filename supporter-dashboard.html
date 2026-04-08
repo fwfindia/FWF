@@ -3798,15 +3798,17 @@ loadDashboard();
 <!-- ============ FLOATING DONATE BUTTON ============ -->
 <button id="fabDonate" onclick="openSelfDonateModal()" title="Donate to FWF" style="
   position:fixed; bottom:88px; right:22px; z-index:8000;
-  width:56px; height:56px; border-radius:50%;
+  height:48px; border-radius:99px;
+  padding:0 20px 0 16px;
   background:linear-gradient(135deg,#6366f1,#4f46e5);
   color:#fff; border:none; cursor:pointer;
   box-shadow:0 4px 18px rgba(99,102,241,.45);
-  display:flex; align-items:center; justify-content:center;
-  font-size:22px; transition:transform .2s,box-shadow .2s;
-" onmouseenter="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 24px rgba(99,102,241,.6)'"
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  font-size:14px; font-weight:800; font-family:inherit;
+  transition:transform .2s,box-shadow .2s;
+" onmouseenter="this.style.transform='scale(1.06)';this.style.boxShadow='0 6px 24px rgba(99,102,241,.6)'"
    onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='0 4px 18px rgba(99,102,241,.45)'">
-  <i class="fa-solid fa-heart"></i>
+  <i class="fa-solid fa-heart" style="font-size:16px"></i> Donate
 </button>
 
 <!-- ============ MODAL: Self Donate ============ -->
