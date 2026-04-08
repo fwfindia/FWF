@@ -2024,6 +2024,50 @@ app.post('/api/member/record-donation', auth('member'), async (req, res) => {
   res.json({ ok: true, points, message: `₹${amt} donation recorded. You earned ${points} points!` });
 });
 
+// Self-donate → member/supporter donates in their own name
+app.post('/api/member/self-donate', auth(['member', 'supporter']), async (req, res) => {
+  const { amount, paymentRef, note } = req.body;
+  const amt = parseFloat(amount);
+  if (!amt || amt <= 0) return res.status(400).json({ error: 'Valid amount required' });
+
+  const u = await User.findById(req.user.uid).select('name email mobile member_id').lean();
+  if (!u) return res.status(404).json({ error: 'User not found' });
+
+  const pointsRupees = amt * (DONATION_POINTS_PERCENT / 100);
+  const points = amountToPoints(pointsRupees);
+  const donationId = await nextDonationId();
+
+  await Donation.create({
+    donation_id: donationId,
+    member_id: req.user.uid,
+    amount: amt,
+    points_earned: points,
+    donor_name: u.name,
+    donor_email: u.email || null,
+    donor_mobile: u.mobile || null,
+    source: 'self',
+    payment_id: paymentRef || null,
+    kyc_status: 'not_required',
+    admin_notes: note || null
+  });
+
+  await User.updateOne({ _id: req.user.uid }, {
+    $inc: {
+      'wallet.points_balance': points,
+      'wallet.points_from_donations': points,
+      'wallet.total_points_earned': points
+    },
+    'wallet.updated_at': new Date()
+  });
+
+  await PointsLedger.create({
+    user_id: req.user.uid, points, type: 'donation',
+    description: `Self donation ₹${amt} by ${u.name} → ${points} points`
+  });
+
+  res.json({ ok: true, donationId, points, message: `₹${amt} donation recorded successfully!` });
+});
+
 // Sell quiz ticket → 10% as points
 app.post('/api/member/sell-ticket', auth('member'), async (req, res) => {
   const { buyerName, buyerContact, ticketPrice } = req.body;

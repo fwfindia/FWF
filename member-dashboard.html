@@ -6069,5 +6069,90 @@ loadCourses();
     </div>
   </div>
 </div>
+
+<!-- ============ FLOATING DONATE BUTTON ============ -->
+<button id="fabDonate" onclick="openSelfDonateModal()" title="Donate to FWF" style="
+  position:fixed; bottom:88px; right:22px; z-index:8000;
+  width:56px; height:56px; border-radius:50%;
+  background:linear-gradient(135deg,#e87722,#c9621a);
+  color:#fff; border:none; cursor:pointer;
+  box-shadow:0 4px 18px rgba(232,119,34,.45);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; transition:transform .2s,box-shadow .2s;
+" onmouseenter="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 24px rgba(232,119,34,.6)'"
+   onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='0 4px 18px rgba(232,119,34,.45)'">
+  <i class="fa-solid fa-heart"></i>
+</button>
+
+<!-- ============ MODAL: Self Donate ============ -->
+<div id="modalSelfDonate" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9100;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#e87722,#c9621a);padding:18px 20px;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="color:#fff;margin:0;font-size:17px;font-weight:800"><i class="fa-solid fa-heart"></i> Donate to FWF</h3>
+      <button onclick="closeSelfDonateModal()" style="background:rgba(255,255,255,.25);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <!-- Body -->
+    <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+      <p style="font-size:13px;color:var(--text-muted);margin:0;line-height:1.5">Apna personal donation FWF ke liye record karein. Yeh donation aapke naam se show hogi.</p>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:5px">Donation Amount (₹) <span style="color:var(--danger)">*</span></label>
+        <input type="number" id="sdAmount" class="form-input" placeholder="e.g. 500" min="1" style="width:100%;padding:10px 14px;border:1.5px solid var(--card-border);border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;outline:none">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:5px">Payment ID / Reference <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+        <input type="text" id="sdPaymentRef" class="form-input" placeholder="UPI Ref / Transaction ID" style="width:100%;padding:10px 14px;border:1.5px solid var(--card-border);border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:5px">Note <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+        <input type="text" id="sdNote" class="form-input" placeholder="Any note..." style="width:100%;padding:10px 14px;border:1.5px solid var(--card-border);border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+      </div>
+      <button id="sdSubmitBtn" onclick="submitSelfDonation()" style="background:linear-gradient(135deg,#e87722,#c9621a);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s">
+        <i class="fa-solid fa-heart"></i> Submit Donation
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openSelfDonateModal(){
+  const m = document.getElementById('modalSelfDonate');
+  m.style.display = 'flex';
+  document.getElementById('sdAmount').value = '';
+  document.getElementById('sdPaymentRef').value = '';
+  document.getElementById('sdNote').value = '';
+  setTimeout(() => document.getElementById('sdAmount').focus(), 100);
+}
+function closeSelfDonateModal(){
+  document.getElementById('modalSelfDonate').style.display = 'none';
+}
+document.getElementById('modalSelfDonate').addEventListener('click', function(e){
+  if(e.target === this) closeSelfDonateModal();
+});
+
+async function submitSelfDonation(){
+  const amount = parseFloat(document.getElementById('sdAmount').value);
+  if(!amount || amount < 1){ notify('Please enter a valid amount','error'); return; }
+  const paymentRef = document.getElementById('sdPaymentRef').value.trim();
+  const note = document.getElementById('sdNote').value.trim();
+  const btn = document.getElementById('sdSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+  try{
+    await AUTH.api('/api/member/self-donate', {
+      method: 'POST',
+      body: { amount, paymentRef: paymentRef || null, note: note || null }
+    });
+    notify(`₹${amount} donation submitted successfully! 🙏`, 'success');
+    closeSelfDonateModal();
+    if(typeof loadDashboard === 'function') loadDashboard();
+  } catch(e){
+    notify(e.message || 'Failed to submit donation', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-heart"></i> Submit Donation';
+  }
+}
+</script>
 </body>
 </html>
