@@ -586,7 +586,7 @@ app.post('/api/pay/simulate-join', internalAuth, async (req, res) => {
   if (dupError) return res.status(400).json({ error: dupError });
 
   const memberId = await nextMemberId();
-  const plain = randPass();
+  const plain = 'Welcome@123';
   const hash = bcrypt.hashSync(plain, 10);
   const refCode = generateReferralCode(memberId);
 
@@ -635,7 +635,7 @@ app.post('/api/pay/register-supporter', async (req, res) => {
     if (dupError) return res.status(400).json({ error: dupError });
 
     const supporterId = await nextSupporterId();
-    const plain = randPass();
+    const plain = 'Welcome@123';
     const hash = bcrypt.hashSync(plain, 10);
     const refCode = generateReferralCode(supporterId);
 
@@ -875,7 +875,7 @@ app.post('/api/pay/membership', async (req, res) => {
 
     // Register member
     const memberId = await nextMemberId();
-    const plain = randPass();
+    const plain = 'Welcome@123';
     const hash = bcrypt.hashSync(plain, 10);
     const refCode = generateReferralCode(memberId);
 
@@ -1014,7 +1014,7 @@ app.post('/api/pay/upgrade-to-member', auth('supporter'), async (req, res) => {
 
     // Generate new member ID and password
     const memberId = await nextMemberId();
-    const plain = randPass();
+    const plain = 'Welcome@123';
     const hash = bcrypt.hashSync(plain, 10);
     const refCode = generateReferralCode(memberId);
 
@@ -3397,7 +3397,7 @@ app.post('/api/quiz-ticket/:token/submit-quiz', async (req, res) => {
         await QuizParticipation.updateOne({ _id: participation._id }, { user_id: existingUser._id });
       } else {
         const supporterId = await nextSupporterId();
-        const plain = randPass();
+        const plain = 'Welcome@123';
         const hash = bcrypt.hashSync(plain, 10);
         const refCode = generateReferralCode(supporterId);
         const newBuyer = await User.create({
