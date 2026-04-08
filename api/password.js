@@ -53,13 +53,14 @@ async function handler(req, res) {
         return res.status(404).json({ error: "Member ID not found. Please check and try again." });
       }
 
-      const { email, mobile } = await response.json();
+      const { email, mobile, memberId: actualMemberId } = await response.json();
+      const effectiveMemberId = actualMemberId || memberId;
 
       // Generate 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-      await PasswordReset.create({ memberId, email, otp, expiresAt, used: false });
+      await PasswordReset.create({ memberId: effectiveMemberId, email, otp, expiresAt, used: false });
 
       // Send SMS OTP via MSG91 (awaited so Vercel doesn't kill it early)
       if (mobile) {
@@ -88,7 +89,7 @@ async function handler(req, res) {
               </div>
               <div style="background: #f8f9fa; padding: 40px 30px; border-radius: 0 0 12px 12px;">
                 <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-                  Hello <strong>${memberId}</strong>,
+                  Hello <strong>${effectiveMemberId}</strong>,
                 </p>
                 <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
                   We received a request to reset your password. Use the OTP below to complete the process:
@@ -113,13 +114,14 @@ async function handler(req, res) {
       } catch (mailErr) {
         console.error(`[password/forgot] Email FAILED for ${memberId}:`, mailErr.message, mailErr.stack || '');
         // Delete the OTP record since we couldn't deliver it
-        await PasswordReset.deleteOne({ memberId, otp }).catch(() => {});
+        await PasswordReset.deleteOne({ memberId: effectiveMemberId, otp }).catch(() => {});
         return res.status(503).json({ error: `Email delivery failed: ${mailErr.message}` });
       }
 
       return res.json({
         ok: true,
         message: "OTP sent to your registered email" + (mobile ? " & SMS" : ""),
+        actualMemberId: effectiveMemberId,
         email: email.replace(/(.{2})(.*)(@.*)/, "$1***$3"),
         mobile: mobile ? String(mobile).replace(/\D/g,'').slice(-10).replace(/(\d{2})(\d+)(\d{2})/, '$1***$3') : null
       });
