@@ -5822,19 +5822,19 @@ renderCourses();
     </div>
     <!-- Body -->
     <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
-      <p style="font-size:13px;color:var(--text-muted);margin:0;line-height:1.5">Apna personal donation FWF ke liye record karein. Yeh donation aapke naam se show hogi.</p>
+      <p style="font-size:13px;color:var(--text-muted);margin:0;line-height:1.6;text-align:center;padding:4px 0">🌟 Aapka ek kadam hazaron zindagiyon ko roshni de sakta hai — aap sach mein ek naayak hain! 💛</p>
       <div>
         <label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:5px">Donation Amount (₹) <span style="color:var(--danger)">*</span></label>
         <input type="number" id="sdAmount" class="form-input" placeholder="e.g. 500" min="1" style="width:100%;padding:10px 14px;border:1.5px solid var(--card-border);border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;outline:none">
       </div>
-      <div>
-        <label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:5px">Payment ID / Reference <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
-        <input type="text" id="sdPaymentRef" class="form-input" placeholder="UPI Ref / Transaction ID" style="width:100%;padding:10px 14px;border:1.5px solid var(--card-border);border-radius:10px;font-size:13px;font-family:inherit;outline:none">
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:5px">Note <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
-        <input type="text" id="sdNote" class="form-input" placeholder="Any note..." style="width:100%;padding:10px 14px;border:1.5px solid var(--card-border);border-radius:10px;font-size:13px;font-family:inherit;outline:none">
-      </div>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:#fff8f3;border:1.5px solid #e87722;border-radius:10px">
+        <input type="checkbox" id="sdMonthly" style="width:16px;height:16px;accent-color:#e87722;cursor:pointer;flex-shrink:0">
+        <span style="font-size:13px;font-weight:600;color:#c9621a">🔁 Make this a Monthly Donation</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+        <input type="checkbox" id="sdTnc" style="width:16px;height:16px;accent-color:#e87722;cursor:pointer;flex-shrink:0;margin-top:2px">
+        <span style="font-size:12px;color:var(--text-muted);line-height:1.5">I agree to the <a href="/terms-conditions.html" target="_blank" style="color:#e87722;font-weight:700">Terms &amp; Conditions</a> and confirm this donation is voluntary.</span>
+      </label>
       <button id="sdSubmitBtn" onclick="submitSelfDonation()" style="background:linear-gradient(135deg,#e87722,#c9621a);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s">
         <i class="fa-solid fa-heart"></i> Submit Donation
       </button>
@@ -5847,8 +5847,8 @@ function openSelfDonateModal(){
   const m = document.getElementById('modalSelfDonate');
   m.style.display = 'flex';
   document.getElementById('sdAmount').value = '';
-  document.getElementById('sdPaymentRef').value = '';
-  document.getElementById('sdNote').value = '';
+  document.getElementById('sdMonthly').checked = false;
+  document.getElementById('sdTnc').checked = false;
   setTimeout(() => document.getElementById('sdAmount').focus(), 100);
 }
 function closeSelfDonateModal(){
@@ -5861,15 +5861,15 @@ document.getElementById('modalSelfDonate').addEventListener('click', function(e)
 async function submitSelfDonation(){
   const amount = parseFloat(document.getElementById('sdAmount').value);
   if(!amount || amount < 1){ notify('Please enter a valid amount','error'); return; }
-  const paymentRef = document.getElementById('sdPaymentRef').value.trim();
-  const note = document.getElementById('sdNote').value.trim();
+  if(!document.getElementById('sdTnc').checked){ notify('Please accept the Terms & Conditions to proceed','error'); return; }
+  const monthly = document.getElementById('sdMonthly').checked;
   const btn = document.getElementById('sdSubmitBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
   try{
     await AUTH.api('/api/member/self-donate', {
       method: 'POST',
-      body: { amount, paymentRef: paymentRef || null, note: note || null }
+      body: { amount, monthly }
     });
     notify(`₹${amount} donation submitted successfully! 🙏`, 'success');
     closeSelfDonateModal();
