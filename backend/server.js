@@ -1837,8 +1837,9 @@ app.post('/api/auth/login', rateLimit(60000, 5), async (req, res) => {
 
   let u = await User.findOne({ member_id: memberId });
   if (!u) u = await User.findOne({ email: memberId });
+  if (!u) u = await User.findOne({ mobile: memberId });
   if (!u) {
-    console.log(`Login failed: member_id/email "${memberId}" not found`);
+    console.log(`Login failed: member_id/email/mobile "${memberId}" not found`);
     return res.status(400).json({ error: 'Invalid Member ID or password' });
   }
   if (!bcrypt.compareSync(password, u.password_hash)) {
@@ -1870,9 +1871,10 @@ app.post('/api/auth/logout', (req, res) => {
 app.post('/api/auth/get-user-email', internalAuth, async (req, res) => {
   const { memberId } = req.body;
   if (!memberId) return res.status(400).json({ error: 'Member ID is required' });
-  const u = await User.findOne({ member_id: memberId }).select('email mobile');
+  let u = await User.findOne({ member_id: memberId }).select('email mobile');
+  if (!u) u = await User.findOne({ mobile: memberId }).select('email mobile member_id');
   if (!u) return res.status(404).json({ error: 'Member ID not found' });
-  res.json({ email: u.email, mobile: u.mobile || null });
+  res.json({ email: u.email, mobile: u.mobile || null, memberId: u.member_id });
 });
 
 // Update password — internal only
@@ -1880,7 +1882,8 @@ app.post('/api/auth/update-password', internalAuth, async (req, res) => {
   const { memberId, newPassword } = req.body;
   if (!memberId || !newPassword) return res.status(400).json({ error: 'Member ID and new password are required' });
 
-  const u = await User.findOne({ member_id: memberId }).select('password_hash');
+  let u = await User.findOne({ member_id: memberId }).select('password_hash');
+  if (!u) u = await User.findOne({ mobile: memberId }).select('password_hash');
   if (!u) return res.status(404).json({ error: 'Member ID not found' });
 
   const oldHashPreview = u.password_hash.substring(0, 15);

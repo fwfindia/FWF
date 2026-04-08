@@ -343,7 +343,7 @@ body::before{
 
   <form id="loginForm">
     <div class="input-group">
-      <input id="mid" class="input-field" type="text" placeholder="FWF-000001" required autocomplete="username">
+      <input id="mid" class="input-field" type="text" placeholder="FWF-000001 or Mobile Number" required autocomplete="username">
       <i class="input-icon fa-solid fa-id-card"></i>
     </div>
 
@@ -537,7 +537,7 @@ document.getElementById('requestOtpForm').addEventListener('submit', async (e) =
       throw new Error(data.error || 'Failed to send OTP');
     }
     
-    currentMemberId = memberId;
+    currentMemberId = data.actualMemberId || memberId;
     document.getElementById('maskedEmail').textContent = data.email;
     if (data.mobile) {
       document.getElementById('maskedMobile').textContent = data.mobile;
