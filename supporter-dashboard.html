@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -10,18 +10,18 @@
 
   <style>
 /* ==============================
-   CSS VARIABLES (Supporter Green Theme)
+   CSS VARIABLES (Supporter Indigo Theme)
    ============================== */
 :root {
   --bg-1:#f4f5f7; --bg-2:#ebedf0;
-  --accent:#10b981; --accent2:#059669; --accent-soft:rgba(16,185,129,.08);
-  --accent-light:#ecfdf5; --accent-dark:#047857;
+  --accent:#6366f1; --accent2:#4f46e5; --accent-soft:rgba(99,102,241,.08);
+  --accent-light:#eef2ff; --accent-dark:#4338ca;
   --sidebar-bg:#ffffff;
-  --sidebar-text:#5f6368; --sidebar-active:#10b981;
+  --sidebar-text:#5f6368; --sidebar-active:#6366f1;
   --card-bg:#ffffff; --card-border:#e0e0e0;
   --text-primary:#1a1a2e; --text-secondary:#54595f; --text-muted:#8c8c8c;
   --success:#0a8f3f; --warning:#e5a100; --danger:#d93025; --info:#1a73e8;
-  --topbar-bg:#10b981;
+  --topbar-bg:#6366f1;
   --radius-sm:8px; --radius-md:12px; --radius-lg:16px;
   --shadow-card:0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
   --shadow-hover:0 4px 12px rgba(0,0,0,.1);
@@ -174,7 +174,7 @@ a{color:inherit;text-decoration:none}
 }
 .stat-card .s-value{ font-size:26px; font-weight:900; color:var(--text-primary); }
 .stat-card .s-label{ font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-top:2px; }
-.s-green{ background:linear-gradient(135deg,#0a8f3f,#10b981); }
+.s-green{ background:linear-gradient(135deg,#4338ca,#6366f1); }
 .s-amber{ background:linear-gradient(135deg,#d97706,#f59e0b); }
 .s-purple{ background:linear-gradient(135deg,#7c3aed,#8b5cf6); }
 .s-blue{ background:#1a73e8; }
@@ -265,7 +265,7 @@ a{color:inherit;text-decoration:none}
 .app-tab.active .tab-icon{
   background:var(--accent);
   color:#fff;
-  box-shadow:0 4px 12px rgba(16,185,129,.3);
+  box-shadow:0 4px 12px rgba(99,102,241,.3);
   transform:scale(1.05);
 }
 .app-tab .tab-label{ font-size:10px; line-height:1.2; }
@@ -341,7 +341,7 @@ a{color:inherit;text-decoration:none}
 }
 .b-active{background:#dcfce7;color:#166534} .b-inactive{background:#fee2e2;color:#991b1b}
 .b-open{background:#dbeafe;color:#1e40af} .b-progress{background:#fef3c7;color:#92400e}
-.b-resolved{background:#d1fae5;color:#065f46} .b-closed{background:#f3f4f6;color:#6b7280}
+.b-resolved{background:#d1fae5;color:#3730a3} .b-closed{background:#f3f4f6;color:#6b7280}
 .b-pending{background:#fef9c3;color:#854d0e}
 .empty-state{ text-align:center; padding:30px; color:var(--text-muted); font-size:13px; }
 
@@ -438,7 +438,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   display:flex; align-items:center; justify-content:center;
   font-size:15px; font-weight:800; color:#fff; flex-shrink:0;
-  box-shadow:0 2px 8px rgba(16,185,129,.25); overflow:hidden;
+  box-shadow:0 2px 8px rgba(99,102,241,.25); overflow:hidden;
 }
 .feed-name{ font-size:14px; font-weight:800; color:var(--text-primary); }
 .feed-time{ font-size:11px; color:var(--text-muted); font-weight:500; margin-top:1px; }
@@ -471,7 +471,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
   background:none; border:none;
   cursor:pointer; transition:.15s; font-family:inherit;
 }
-.feed-actions button:hover{ color:var(--accent); background:rgba(16,185,129,.07); }
+.feed-actions button:hover{ color:var(--accent); background:rgba(99,102,241,.07); }
 .feed-actions button.liked{ color:#ef4444; }
 .feed-actions button.liked i{ animation:heartPop .25s ease; }
 @keyframes heartPop{
@@ -903,7 +903,7 @@ body.modal-open{
     </button>
 
     <div class="nav-divider">More</div>
-    <button class="nav-item" data-page="membership" style="background:linear-gradient(90deg,rgba(16,185,129,.12),transparent);color:var(--accent);font-weight:800">
+    <button class="nav-item" data-page="membership" style="background:linear-gradient(90deg,rgba(99,102,241,.12),transparent);color:var(--accent);font-weight:800">
       <i class="fa-solid fa-arrow-up-right-dots"></i> Become a Member
     </button>
     <button class="nav-item" data-page="support">
@@ -963,8 +963,8 @@ body.modal-open{
           <h3><i class="fa-solid fa-id-card" style="color:var(--accent)"></i> SUPPORTER ID CARD</h3>
         </div>
         <div class="account-overview-body" style="padding:20px">
-          <div style="background:linear-gradient(135deg,#064e3b, #065f46);border-radius:var(--radius-md);padding:20px;color:#fff;position:relative;overflow:hidden">
-            <div style="position:absolute;right:-15px;top:-15px;width:100px;height:100px;border-radius:50%;background:rgba(16,185,129,.15)"></div>
+          <div style="background:linear-gradient(135deg,#312e81, #3730a3);border-radius:var(--radius-md);padding:20px;color:#fff;position:relative;overflow:hidden">
+            <div style="position:absolute;right:-15px;top:-15px;width:100px;height:100px;border-radius:50%;background:rgba(99,102,241,.15)"></div>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;position:relative;z-index:1">
               <img src="/assets/images/logo.png" alt="FWF" style="width:32px;height:32px;border-radius:6px">
               <div>
@@ -974,9 +974,9 @@ body.modal-open{
             </div>
             <div style="position:relative;z-index:1">
               <div style="font-size:18px;font-weight:800;margin-bottom:4px" id="dashCardName">Supporter Name</div>
-              <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.25);padding:4px 10px;border-radius:6px;margin-bottom:12px">
+              <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,.25);padding:4px 10px;border-radius:6px;margin-bottom:12px">
                 <i class="fa-solid fa-id-badge" style="color:#34d399;font-size:12px"></i>
-                <span style="font-size:13px;font-weight:700;color:#6ee7b7" id="dashCardId">FWFS0000</span>
+                <span style="font-size:13px;font-weight:700;color:#a5b4fc" id="dashCardId">FWFS0000</span>
               </div>
               <div style="display:flex;gap:16px;font-size:11px;opacity:.75;font-weight:600;flex-wrap:wrap">
                 <span><i class="fa-solid fa-phone" style="margin-right:4px;color:#34d399;font-size:10px"></i><span id="dashCardMobile">—</span></span>
@@ -989,7 +989,7 @@ body.modal-open{
     </div>
 
     <!-- Upgrade to Member promo banner -->
-    <div onclick="switchPage('membership')" style="background:linear-gradient(135deg,#064e3b,#065f46);border-radius:var(--radius-md);padding:14px 18px;margin-bottom:18px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:.2s" onmouseover="this.style.opacity='.92'" onmouseout="this.style.opacity='1'">
+    <div onclick="switchPage('membership')" style="background:linear-gradient(135deg,#312e81,#3730a3);border-radius:var(--radius-md);padding:14px 18px;margin-bottom:18px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:.2s" onmouseover="this.style.opacity='.92'" onmouseout="this.style.opacity='1'">
       <div style="display:flex;align-items:center;gap:12px">
         <div style="width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <i class="fa-solid fa-arrow-up" style="font-size:16px"></i>
@@ -1054,8 +1054,8 @@ body.modal-open{
     <div class="content-card">
       <h3><i class="fa-solid fa-id-card"></i> Digital Supporter ID Card</h3>
       <div style="max-width:400px;margin:0 auto">
-        <div style="background:linear-gradient(135deg,#064e3b,#065f46);border-radius:var(--radius-md);padding:22px;color:#fff;position:relative;overflow:hidden">
-          <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(16,185,129,.2)"></div>
+        <div style="background:linear-gradient(135deg,#312e81,#3730a3);border-radius:var(--radius-md);padding:22px;color:#fff;position:relative;overflow:hidden">
+          <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(99,102,241,.2)"></div>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
             <img src="/assets/images/logo.png" alt="FWF" style="width:40px;height:40px;border-radius:8px">
             <div>
@@ -1078,7 +1078,7 @@ body.modal-open{
   <div class="page" id="page-feed">
 
     <!-- Header Banner -->
-    <div style="background:linear-gradient(135deg,#064e3b 0%,#059669 100%);border-radius:20px;padding:20px 22px;color:#fff;margin-bottom:16px;overflow:hidden;position:relative">
+    <div style="background:linear-gradient(135deg,#312e81 0%,#4f46e5 100%);border-radius:20px;padding:20px 22px;color:#fff;margin-bottom:16px;overflow:hidden;position:relative">
       <div style="position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
       <div style="position:absolute;right:30px;bottom:-40px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.05)"></div>
       <div style="display:flex;align-items:center;gap:14px;position:relative">
@@ -1100,7 +1100,7 @@ body.modal-open{
       </div>
       <div style="display:flex;gap:6px;border-top:1px solid var(--card-border);padding-top:10px">
         <button class="btn" style="flex:1;gap:6px;font-size:12px;padding:7px 8px;border-radius:10px;color:#3b82f6;border-color:#dbeafe;background:#eff6ff" onclick="openModal('postModal')"><i class="fa-solid fa-image"></i> Photo</button>
-        <button class="btn" style="flex:1;gap:6px;font-size:12px;padding:7px 8px;border-radius:10px;color:#10b981;border-color:#d1fae5;background:#f0fdf4" onclick="openModal('postModal')"><i class="fa-solid fa-leaf"></i> Activity</button>
+        <button class="btn" style="flex:1;gap:6px;font-size:12px;padding:7px 8px;border-radius:10px;color:#6366f1;border-color:#d1fae5;background:#f0fdf4" onclick="openModal('postModal')"><i class="fa-solid fa-leaf"></i> Activity</button>
         <button class="btn" style="flex:1;gap:6px;font-size:12px;padding:7px 8px;border-radius:10px;color:#8b5cf6;border-color:#ede9fe;background:#f5f3ff" onclick="openModal('postModal')"><i class="fa-solid fa-hand-holding-heart"></i> Welfare</button>
       </div>
     </div>
@@ -1213,7 +1213,7 @@ body.modal-open{
           <div id="taskSelfiePreview" style="display:none;margin-bottom:10px">
             <img id="taskSelfieImg" style="max-width:100%;max-height:200px;border-radius:12px">
           </div>
-          <label style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px">
+          <label style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px">
             <i class="fa-solid fa-camera"></i> Selfie लें / Photo चुनें
             <input type="file" accept="image/*" capture="user" id="taskSelfieInput" onchange="previewTaskSelfie(this)" style="display:none">
           </label>
@@ -1314,7 +1314,7 @@ body.modal-open{
           </details>
           <details style="margin-bottom:8px">
             <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">How do I become a Member?</summary>
-            <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">Sidebar में <strong>"Become a Member"</strong> पर click करें और ₹500 one-time fee pay करें। आपका account तुरंत upgrade हो जाएगा और नया Member ID email पर मिलेगा। <button onclick="switchPage('membership')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;font-weight:700;padding:0;text-decoration:underline">Upgrade करें →</button></p>
+            <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">Sidebar में <strong>"Become a Member"</strong> पर click करें और ₹500/month membership fee pay करें। आपका account तुरंत upgrade हो जाएगा और नया Member ID email पर मिलेगा। <button onclick="switchPage('membership')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;font-weight:700;padding:0;text-decoration:underline">Upgrade करें →</button></p>
           </details>
           <details>
             <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">How do I contact support?</summary>
@@ -1482,10 +1482,10 @@ body.modal-open{
 
       <!-- Success screen (shown after submit) -->
       <div id="redeemSuccessScreen" style="display:none;padding:32px 24px;text-align:center">
-        <div style="width:72px;height:72px;background:linear-gradient(135deg,#10b981,#059669);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:32px;color:#fff">
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:32px;color:#fff">
           <i class="fa-solid fa-check"></i>
         </div>
-        <h3 style="color:#059669;margin-bottom:10px">Request Submitted Successfully!</h3>
+        <h3 style="color:#4f46e5;margin-bottom:10px">Request Submitted Successfully!</h3>
         <p style="color:var(--text-muted);margin-bottom:6px">Your redeem request for <strong id="redeemSuccessAmt">₹0</strong> has been submitted.</p>
         <p style="color:var(--text-muted);font-size:14px">Amount will be credited to your payment account within <strong>24 hours</strong>.</p>
         <button class="btn btn-success" onclick="closeModal('redeemModal')" style="margin-top:20px">OK, Got it!</button>
@@ -1573,7 +1573,7 @@ body.modal-open{
   <div class="page" id="page-membership">
 
     <!-- Hero upgrade banner -->
-    <div style="background:linear-gradient(135deg,#064e3b,#065f46,#047857);border-radius:var(--radius-lg);padding:28px 28px 24px;margin-bottom:22px;color:#fff;position:relative;overflow:hidden">
+    <div style="background:linear-gradient(135deg,#312e81,#3730a3,#4338ca);border-radius:var(--radius-lg);padding:28px 28px 24px;margin-bottom:22px;color:#fff;position:relative;overflow:hidden">
       <div style="position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
       <div style="position:absolute;right:40px;bottom:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.04)"></div>
       <div style="position:relative;z-index:1">
@@ -1581,12 +1581,12 @@ body.modal-open{
           <i class="fa-solid fa-arrow-up"></i> UPGRADE YOUR ACCOUNT
         </div>
         <h2 style="font-size:24px;font-weight:900;margin:0 0 8px;line-height:1.2">Supporter से Member बनें</h2>
-        <p style="font-size:13px;opacity:.85;margin:0 0 18px;line-height:1.6">एक बार ₹500 pay करके FWF की Full Member बनें — Wallet, Marketplace, Projects और बहुत कुछ unlock करें।</p>
+        <p style="font-size:13px;opacity:.85;margin:0 0 18px;line-height:1.6">₹500/month pay करके FWF की Full Member बनें — Skill Development, Business Support, Funding Opportunity और बहुत कुछ unlock करें।</p>
         <div style="display:flex;flex-wrap:wrap;gap:10px">
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:20px"><i class="fa-solid fa-check-circle"></i> Referral Earnings</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:20px"><i class="fa-solid fa-check-circle"></i> Wallet & Projects</div>
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:20px"><i class="fa-solid fa-check-circle"></i> Skill Development</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:20px"><i class="fa-solid fa-check-circle"></i> Store Access</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:20px"><i class="fa-solid fa-check-circle"></i> Business Support</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:20px"><i class="fa-solid fa-check-circle"></i> Funding Opportunity</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:20px"><i class="fa-solid fa-check-circle"></i> Member ID Card</div>
         </div>
       </div>
     </div>
@@ -1601,13 +1601,13 @@ body.modal-open{
               <tr><th>Feature</th><th style="text-align:center">Supporter</th><th style="text-align:center">Member</th></tr>
             </thead>
             <tbody>
-              <tr><td style="font-size:12px">Social Book</td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
-              <tr><td style="font-size:12px">Events & Quiz</td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
-              <tr><td style="font-size:12px">Referral Earnings</td><td style="text-align:center"><i class="fa-solid fa-xmark" style="color:var(--danger)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
-              <tr><td style="font-size:12px">Wallet & Projects</td><td style="text-align:center"><i class="fa-solid fa-xmark" style="color:var(--danger)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
-              <tr><td style="font-size:12px">Skill Development</td><td style="text-align:center"><i class="fa-solid fa-xmark" style="color:var(--danger)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
-              <tr><td style="font-size:12px">Store & Marketplace</td><td style="text-align:center"><i class="fa-solid fa-xmark" style="color:var(--danger)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
-              <tr><td style="font-size:12px">Member ID Card</td><td style="text-align:center"><i class="fa-solid fa-xmark" style="color:var(--danger)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
+              <tr><td style="font-size:12px">Social Community Platform</td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
+              <tr><td style="font-size:12px">Events & Quiz Participation</td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
+              <tr><td style="font-size:12px">Learning Resources Access</td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
+              <tr><td style="font-size:12px">Referral Benefits</td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
+              <tr><td style="font-size:12px">Skill Development Programs</td><td style="text-align:center"><i class="fa-solid fa-xmark" style="color:var(--danger)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
+              <tr><td style="font-size:12px">Business Support & Guidance</td><td style="text-align:center"><i class="fa-solid fa-xmark" style="color:var(--danger)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
+              <tr><td style="font-size:12px">Funding Opportunity</td><td style="text-align:center"><i class="fa-solid fa-xmark" style="color:var(--danger)"></i></td><td style="text-align:center"><i class="fa-solid fa-check" style="color:var(--success)"></i></td></tr>
             </tbody>
           </table>
         </div>
@@ -1615,33 +1615,33 @@ body.modal-open{
 
       <!-- Payment card -->
       <div class="content-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px 24px">
-        <div style="width:68px;height:68px;background:linear-gradient(135deg,#10b981,#047857);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(16,185,129,.3)">
+        <div style="width:68px;height:68px;background:linear-gradient(135deg,#6366f1,#4338ca);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(99,102,241,.3)">
           <i class="fa-solid fa-id-badge" style="font-size:30px;color:#fff"></i>
         </div>
         <h3 style="font-size:20px;font-weight:900;margin:0 0 4px">FWF Full Membership</h3>
-        <p style="font-size:13px;color:var(--text-muted);margin:0 0 16px">एकबारगी joining fee</p>
+        <p style="font-size:13px;color:var(--text-muted);margin:0 0 16px">Monthly membership fee</p>
         <div style="font-size:40px;font-weight:900;color:var(--accent);line-height:1;margin-bottom:4px">₹500</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:22px">One-time · Annual membership</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:22px">Per month · Active membership</div>
 
         <!-- Payment button / success state -->
         <div id="membershipPaySection">
-          <button id="payMembershipBtn" onclick="startMembershipUpgrade()" style="background:linear-gradient(135deg,#10b981,#047857);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:15px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;box-shadow:0 4px 14px rgba(16,185,129,.35);transition:.2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-            <i class="fa-solid fa-lock-open"></i> Pay ₹500 & Upgrade Now
+          <button id="payMembershipBtn" onclick="startMembershipUpgrade()" style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:15px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;box-shadow:0 4px 14px rgba(99,102,241,.35);transition:.2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+            <i class="fa-solid fa-lock-open"></i> Subscribe ₹500/Month
           </button>
           <p style="font-size:11px;color:var(--text-muted);margin:10px 0 0"><i class="fa-solid fa-shield-halved" style="color:var(--success)"></i> Secured by Razorpay · 100% safe</p>
         </div>
 
         <div id="membershipSuccessBox" style="display:none;width:100%">
-          <div style="background:#ecfdf5;border:1.5px solid #6ee7b7;border-radius:14px;padding:18px;text-align:center">
+          <div style="background:#eef2ff;border:1.5px solid #a5b4fc;border-radius:14px;padding:18px;text-align:center">
             <div style="font-size:36px;margin-bottom:8px">🎉</div>
-            <h4 style="color:#065f46;font-size:16px;font-weight:800;margin:0 0 4px">Congratulations!</h4>
-            <p style="font-size:12px;color:#047857;margin:0 0 12px">आप अब FWF Member हैं!</p>
+            <h4 style="color:#3730a3;font-size:16px;font-weight:800;margin:0 0 4px">Congratulations!</h4>
+            <p style="font-size:12px;color:#4338ca;margin:0 0 12px">आप अब FWF Member हैं!</p>
             <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:12px">
               <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px">आपका नया Member ID</div>
               <div style="font-size:20px;font-weight:900;color:var(--accent)" id="newMemberId">—</div>
             </div>
             <p style="font-size:11px;color:var(--text-muted);margin:0 0 14px">नया password और Member ID आपकी email पर भेजा गया है।</p>
-            <a href="/member-login.html" style="display:inline-block;background:linear-gradient(135deg,#10b981,#047857);color:#fff;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:800;text-decoration:none">
+            <a href="/member-login.html" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:800;text-decoration:none">
               <i class="fa-solid fa-right-to-bracket"></i> Member Login करें
             </a>
           </div>
@@ -1674,7 +1674,7 @@ body.modal-open{
       <h3 class="wallet-section-header"><i class="fa-solid fa-user-plus" style="color:var(--accent)"></i> Referrals & Actions</h3>
 
       <!-- Referral Code Bar -->
-      <div style="margin:14px 20px 0;background:var(--accent-light);border:1px solid rgba(16,185,129,.3);border-radius:var(--radius-md);padding:14px 16px">
+      <div style="margin:14px 20px 0;background:var(--accent-light);border:1px solid rgba(99,102,241,.3);border-radius:var(--radius-md);padding:14px 16px">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
           <div>
             <h4 style="margin:0 0 4px;font-size:13px;color:var(--accent-dark)"><i class="fa-solid fa-link"></i> Your Referral Code</h4>
@@ -2022,7 +2022,7 @@ async function startMembershipUpgrade(){
       description: 'Supporter → Member Upgrade (₹500)',
       image: '/assets/images/logo.png',
       order_id: orderRes.order.id,
-      theme: { color: '#10b981' },
+      theme: { color: '#6366f1' },
       prefill: { name: user.name || '', email: user.email || '', contact: user.mobile || '' },
       handler: async function(response){
         try {
@@ -2043,13 +2043,13 @@ async function startMembershipUpgrade(){
         } catch(e){
           notify(e.message || 'Upgrade failed', 'error');
           btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Pay ₹500 & Upgrade Now';
+          btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Subscribe ₹500/Month';
         }
       },
       modal: {
         ondismiss: function(){
           btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Pay ₹500 & Upgrade Now';
+          btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Subscribe ₹500/Month';
         }
       }
     };
@@ -2058,7 +2058,7 @@ async function startMembershipUpgrade(){
   } catch(e){
     notify(e.message || 'Failed to initiate payment', 'error');
     btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Pay ₹500 & Upgrade Now';
+    btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Subscribe ₹500/Month';
   }
 }
 
@@ -2904,7 +2904,7 @@ async function loadFeed(loadMore = false) {
       task_completion:'Task', other:'Activity'
     };
     const typeColors = {
-      welfare:'#10b981', health:'#3b82f6', plantation:'#22c55e', education:'#8b5cf6',
+      welfare:'#6366f1', health:'#3b82f6', plantation:'#22c55e', education:'#8b5cf6',
       donation:'#f59e0b', awareness:'#06b6d4', skill:'#ec4899', training:'#f97316',
       task_completion:'#14b8a6', other:'#6b7280'
     };
@@ -2928,7 +2928,7 @@ async function loadFeed(loadMore = false) {
           }</div>` : '';
 
       // Avatar gradient based on name
-      const avatarColors = ['#10b981','#3b82f6','#8b5cf6','#f59e0b','#ec4899','#06b6d4','#f97316','#14b8a6'];
+      const avatarColors = ['#6366f1','#3b82f6','#8b5cf6','#f59e0b','#ec4899','#06b6d4','#f97316','#14b8a6'];
       const avatarBg = avatarColors[(p.user_name||'').charCodeAt(0) % avatarColors.length];
 
       const card = document.createElement('div');
@@ -3135,7 +3135,7 @@ async function loadEventsPage(){
 }
 
 const taskGradients = [
-  'linear-gradient(135deg,#065f46,#059669)',
+  'linear-gradient(135deg,#3730a3,#4f46e5)',
   'linear-gradient(135deg,#1e40af,#3b82f6)',
   'linear-gradient(135deg,#92400e,#d97706)',
   'linear-gradient(135deg,#7c2d12,#ea580c)',
@@ -3143,7 +3143,7 @@ const taskGradients = [
   'linear-gradient(135deg,#155e75,#06b6d4)',
   'linear-gradient(135deg,#9f1239,#f43f5e)',
   'linear-gradient(135deg,#1e3a5f,#3b82f6)',
-  'linear-gradient(135deg,#064e3b,#10b981)',
+  'linear-gradient(135deg,#312e81,#6366f1)',
   'linear-gradient(135deg,#78350f,#f59e0b)',
 ];
 
@@ -3209,7 +3209,7 @@ function openTaskPopup(idx){
       <div id="taskSelfiePreview" style="display:none;margin-bottom:10px">
         <img id="taskSelfieImg" style="max-width:100%;max-height:200px;border-radius:12px">
       </div>
-      <label style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px">
+      <label style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px">
         <i class="fa-solid fa-camera"></i> Selfie लें / Photo चुनें
         <input type="file" accept="image/*" capture="user" id="taskSelfieInput" onchange="previewTaskSelfie(this)" style="display:none">
       </label>`;
@@ -3315,7 +3315,7 @@ const tierConfig = {
 };
 const gameTypeIcons = {
   mcq:         { icon:'fa-solid fa-list-check', label:'MCQ Quiz', color:'#3b82f6' },
-  true_false:  { icon:'fa-solid fa-check-double', label:'True / False', color:'#10b981' },
+  true_false:  { icon:'fa-solid fa-check-double', label:'True / False', color:'#6366f1' },
   picture:     { icon:'fa-solid fa-image', label:'Picture Quiz', color:'#f59e0b' },
   speed:       { icon:'fa-solid fa-bolt', label:'Speed Round', color:'#ef4444' },
   puzzle:      { icon:'fa-solid fa-puzzle-piece', label:'Puzzle', color:'#8b5cf6' },
@@ -3576,8 +3576,8 @@ async function openQuizPlay(quizId, enrollmentNum){
         <h4 style="font-size:15px;margin-bottom:16px;line-height:1.5">${q.question}</h4>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${q.options.map((opt,i) => `
-            <label style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid ${answers[currentQ]===i?'#10b981':'#e5e7eb'};cursor:pointer;transition:all .2s;background:${answers[currentQ]===i?'#ecfdf5':'#fff'}" onclick="selectQuizAnswer(${currentQ},${i})">
-              <input type="radio" name="q${currentQ}" value="${i}" ${answers[currentQ]===i?'checked':''} style="accent-color:#10b981">
+            <label style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid ${answers[currentQ]===i?'#6366f1':'#e5e7eb'};cursor:pointer;transition:all .2s;background:${answers[currentQ]===i?'#eef2ff':'#fff'}" onclick="selectQuizAnswer(${currentQ},${i})">
+              <input type="radio" name="q${currentQ}" value="${i}" ${answers[currentQ]===i?'checked':''} style="accent-color:#6366f1">
               <span style="font-size:14px">${opt}</span>
             </label>
           `).join('')}
@@ -3799,13 +3799,13 @@ loadDashboard();
 <button id="fabDonate" onclick="openSelfDonateModal()" title="Donate to FWF" style="
   position:fixed; bottom:88px; right:22px; z-index:8000;
   width:56px; height:56px; border-radius:50%;
-  background:linear-gradient(135deg,#10b981,#059669);
+  background:linear-gradient(135deg,#6366f1,#4f46e5);
   color:#fff; border:none; cursor:pointer;
-  box-shadow:0 4px 18px rgba(16,185,129,.45);
+  box-shadow:0 4px 18px rgba(99,102,241,.45);
   display:flex; align-items:center; justify-content:center;
   font-size:22px; transition:transform .2s,box-shadow .2s;
-" onmouseenter="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 24px rgba(16,185,129,.6)'"
-   onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='0 4px 18px rgba(16,185,129,.45)'">
+" onmouseenter="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 24px rgba(99,102,241,.6)'"
+   onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='0 4px 18px rgba(99,102,241,.45)'">
   <i class="fa-solid fa-heart"></i>
 </button>
 
@@ -3813,7 +3813,7 @@ loadDashboard();
 <div id="modalSelfDonate" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9100;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:20px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
     <!-- Header -->
-    <div style="background:linear-gradient(135deg,#10b981,#059669);padding:18px 20px;display:flex;align-items:center;justify-content:space-between">
+    <div style="background:linear-gradient(135deg,#6366f1,#4f46e5);padding:18px 20px;display:flex;align-items:center;justify-content:space-between">
       <h3 style="color:#fff;margin:0;font-size:17px;font-weight:800"><i class="fa-solid fa-heart"></i> Donate to FWF</h3>
       <button onclick="closeSelfDonateModal()" style="background:rgba(255,255,255,.25);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-xmark"></i></button>
     </div>
@@ -3824,15 +3824,15 @@ loadDashboard();
         <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:5px">Donation Amount (₹) <span style="color:#ef4444">*</span></label>
         <input type="number" id="sdAmount" placeholder="e.g. 500" min="1" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;outline:none">
       </div>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:#f0fdf4;border:1.5px solid #10b981;border-radius:10px">
-        <input type="checkbox" id="sdMonthly" style="width:16px;height:16px;accent-color:#10b981;cursor:pointer;flex-shrink:0">
-        <span style="font-size:13px;font-weight:600;color:#059669">🔁 Make this a Monthly Donation</span>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:#f0fdf4;border:1.5px solid #6366f1;border-radius:10px">
+        <input type="checkbox" id="sdMonthly" style="width:16px;height:16px;accent-color:#6366f1;cursor:pointer;flex-shrink:0">
+        <span style="font-size:13px;font-weight:600;color:#4f46e5">🔁 Make this a Monthly Donation</span>
       </label>
       <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
-        <input type="checkbox" id="sdTnc" style="width:16px;height:16px;accent-color:#10b981;cursor:pointer;flex-shrink:0;margin-top:2px">
-        <span style="font-size:12px;color:#64748b;line-height:1.5">I agree to the <a href="/terms-conditions.html" target="_blank" style="color:#10b981;font-weight:700">Terms &amp; Conditions</a> and confirm this donation is voluntary.</span>
+        <input type="checkbox" id="sdTnc" style="width:16px;height:16px;accent-color:#6366f1;cursor:pointer;flex-shrink:0;margin-top:2px">
+        <span style="font-size:12px;color:#64748b;line-height:1.5">I agree to the <a href="/terms-conditions.html" target="_blank" style="color:#6366f1;font-weight:700">Terms &amp; Conditions</a> and confirm this donation is voluntary.</span>
       </label>
-      <button id="sdSubmitBtn" onclick="submitSelfDonation()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s">
+      <button id="sdSubmitBtn" onclick="submitSelfDonation()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s">
         <i class="fa-solid fa-lock-open"></i> Pay &amp; Donate
       </button>
       <p style="font-size:11px;color:#64748b;margin:0;text-align:center"><i class="fa-solid fa-shield-halved" style="color:#22c55e"></i> Secured by Razorpay · 100% safe</p>
@@ -3895,7 +3895,7 @@ async function submitSelfDonation(){
         name: 'FWF — Monthly Donation',
         description: `Monthly donation ₹${amount}/month`,
         image: '/assets/images/logo.png',
-        theme: { color: '#10b981' },
+        theme: { color: '#6366f1' },
         prefill: { name: user.name||'', email: user.email||'', contact: user.mobile||'' },
         handler: async function(response){
           try{
@@ -3937,7 +3937,7 @@ async function submitSelfDonation(){
         description: `Donation ₹${amount}`,
         image: '/assets/images/logo.png',
         order_id: orderRes.order.id,
-        theme: { color: '#10b981' },
+        theme: { color: '#6366f1' },
         prefill: { name: user.name||'', email: user.email||'', contact: user.mobile||'' },
         handler: async function(response){
           try{
