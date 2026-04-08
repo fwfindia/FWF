@@ -860,6 +860,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     <div class="tab-bar">
       <button class="tab-btn active" data-tab="pay-fees-tab">Membership Fees</button>
       <button class="tab-btn" data-tab="pay-donations-tab">Donors / Donations</button>
+      <button class="tab-btn" data-tab="pay-quiz-tickets-tab" onclick="loadQuizTicketsPayments()">Quiz Tickets</button>
     </div>
 
     <!-- Membership Fees Tab -->
@@ -975,6 +976,60 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         </div>
       </div>
     </div> <!-- /pay-donations-tab -->
+
+    <!-- Quiz Tickets Tab -->
+    <div class="tab-content" id="pay-quiz-tickets-tab">
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card">
+          <div class="s-icon s-cyan"><i class="fa-solid fa-ticket"></i></div>
+          <div class="s-label">Total Tickets Sold</div>
+          <div class="s-value" id="qtTotalCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon s-green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+          <div class="s-label">Total Revenue</div>
+          <div class="s-value" id="qtTotalRevenue">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon s-blue"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="s-label">Converted</div>
+          <div class="s-value" id="qtConverted">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon s-amber"><i class="fa-solid fa-clock"></i></div>
+          <div class="s-label">Pending</div>
+          <div class="s-value" id="qtPending">0</div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="search-bar">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" id="qtSearch" placeholder="Search by seller, buyer, quiz ID...">
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center">
+          <select id="qtStatusFilter" class="form-input" style="width:auto;padding:8px 12px;font-size:12px">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="converted">Converted</option>
+            <option value="failed">Failed</option>
+          </select>
+          <button class="btn btn-ghost" onclick="loadQuizTicketsPayments()"><i class="fa-solid fa-refresh"></i> Refresh</button>
+        </div>
+      </div>
+      <div class="content-card">
+        <h3><i class="fa-solid fa-ticket"></i> Quiz Ticket Payment Records</h3>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>Ticket ID</th><th>Seller</th><th>Quiz</th><th>Buyer</th><th>Amount</th><th>Points</th><th>Status</th><th>Date</th>
+            </tr></thead>
+            <tbody id="qtBody">
+              <tr><td colspan="8" class="empty-state"><p>Loading...</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div> <!-- /pay-quiz-tickets-tab -->
 
   </div> <!-- /page-payments -->
 
@@ -2495,7 +2550,7 @@ function switchPage(page, updateHash = true){
   if(page === 'supporters')  { loadSupporters(); loadUpgrades(); }
   if(page === 'csr')         loadCSRPartners();
   if(page === 'support')     loadSupportTickets();
-  if(page === 'payments')    { loadMembershipFees(); loadDonations(); }
+  if(page === 'payments')    { loadMembershipFees(); loadDonations(); loadQuizTicketsPayments(); }
   if(page === 'points')      {
     loadPointsActivity();
     // Initialize first referral sub-tab
@@ -3745,6 +3800,67 @@ async function processRedeemRequest(id){
     loadRedeemRequests();
   } catch(e){ notify(e.message||'Failed','error'); }
 }
+
+/* ============================================
+   QUIZ TICKET PAYMENTS
+   ============================================ */
+let allQuizTickets = [];
+
+async function loadQuizTicketsPayments(){
+  const search = (document.getElementById('qtSearch')?.value || '').trim();
+  const statusF = document.getElementById('qtStatusFilter')?.value || '';
+  try{
+    const params = new URLSearchParams({ limit: 200 });
+    if(search)  params.set('search', search);
+    if(statusF) params.set('status', statusF);
+    const d = await AUTH.api('/api/admin/tickets?' + params.toString());
+    allQuizTickets = d.tickets || [];
+    const s = d.stats || {};
+    document.getElementById('qtTotalCount').textContent   = fmtN(s.totalTickets || 0);
+    document.getElementById('qtTotalRevenue').textContent = '₹' + fmtN(s.totalRevenue || 0);
+    document.getElementById('qtConverted').textContent    = fmtN(s.converted || 0);
+    document.getElementById('qtPending').textContent      = fmtN(s.pending || 0);
+    renderQuizTickets(allQuizTickets);
+  } catch(e){
+    const tb = document.getElementById('qtBody');
+    if(tb) tb.innerHTML = '<tr><td colspan="8" class="empty-state" style="color:var(--danger)"><i class="fa-solid fa-exclamation-triangle"></i><p>Failed to load quiz ticket records<br><small>Backend may be unavailable</small></p></td></tr>';
+    console.error('Quiz tickets load error:', e);
+  }
+}
+
+function renderQuizTickets(list){
+  const tb = document.getElementById('qtBody');
+  if(!tb) return;
+  if(!list.length){
+    tb.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fa-solid fa-ticket"></i><p>No quiz ticket sales found</p></td></tr>';
+    return;
+  }
+  const statusBadgeQt = s => {
+    if(s === 'converted') return '<span class="badge b-active" style="font-size:10px">Converted</span>';
+    if(s === 'failed')    return '<span class="badge b-closed" style="font-size:10px">Failed</span>';
+    return '<span class="badge b-progress" style="font-size:10px">Pending</span>';
+  };
+  tb.innerHTML = list.map(t => `<tr>
+    <td><span style="font-weight:800;color:var(--accent);font-size:11px">${t.ticket_display_id || '—'}</span></td>
+    <td>
+      <div style="font-weight:700;font-size:12px">${t.seller_name || '—'}</div>
+      <div style="font-size:11px;color:var(--text-muted)">${t.seller_member_id || '—'}</div>
+    </td>
+    <td style="font-size:12px;font-weight:600;color:var(--text-muted)">${t.quiz_ref || '—'}</td>
+    <td>
+      <div style="font-weight:600;font-size:12px">${t.buyer_name || '—'}</div>
+      <div style="font-size:11px;color:var(--text-muted)">${t.buyer_contact || t.buyer_email || ''}</div>
+    </td>
+    <td style="font-weight:900;color:#059669">₹${fmtN(t.ticket_price || 0)}</td>
+    <td style="font-weight:700;color:var(--accent)">+${t.points_earned || 0}</td>
+    <td>${statusBadgeQt(t.ticket_status)}</td>
+    <td style="color:var(--text-muted);font-size:12px">${fmtDate(t.sold_at)}</td>
+  </tr>`).join('');
+}
+
+// Search & filter for quiz tickets
+document.getElementById('qtSearch')?.addEventListener('input', loadQuizTicketsPayments);
+document.getElementById('qtStatusFilter')?.addEventListener('change', loadQuizTicketsPayments);
 
 /* ============================================
    REPORTS & ANALYTICS

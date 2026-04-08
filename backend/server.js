@@ -2479,12 +2479,69 @@ app.get('/api/admin/referrals/detailed', auth('admin'), async (req, res) => {
 
 // Admin: get all quiz tickets
 app.get('/api/admin/tickets', auth('admin'), async (req, res) => {
-  const tickets = await QuizTicket.find().sort({ sold_at: -1 }).limit(50).lean();
+  const { search = '', status: statusFilter = '', page = 1, limit = 100 } = req.query;
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  // Build filter
+  const filter = {};
+  if (statusFilter && ['pending', 'converted', 'failed'].includes(statusFilter)) {
+    filter.ticket_status = statusFilter;
+  }
+
+  // If searching, find matching sellers first
+  if (search) {
+    const matchedUsers = await User.find({
+      $or: [
+        { name: { $regex: search, $options: 'i' } },
+        { member_id: { $regex: search, $options: 'i' } }
+      ]
+    }).select('_id').lean();
+    const userIds = matchedUsers.map(u => u._id);
+    filter.$or = [
+      { seller_id: { $in: userIds } },
+      { buyer_name: { $regex: search, $options: 'i' } },
+      { buyer_contact: { $regex: search, $options: 'i' } },
+      { quiz_ref: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  const [tickets, totalCount, statsAgg] = await Promise.all([
+    QuizTicket.find(filter).sort({ sold_at: -1 }).skip(skip).limit(parseInt(limit)).lean(),
+    QuizTicket.countDocuments(filter),
+    QuizTicket.aggregate([
+      { $group: {
+        _id: null,
+        totalTickets: { $sum: 1 },
+        totalRevenue: { $sum: '$ticket_price' },
+        converted: { $sum: { $cond: [{ $eq: ['$ticket_status', 'converted'] }, 1, 0] } },
+        pending: { $sum: { $cond: [{ $eq: ['$ticket_status', 'pending'] }, 1, 0] } },
+        failed: { $sum: { $cond: [{ $eq: ['$ticket_status', 'failed'] }, 1, 0] } }
+      }}
+    ])
+  ]);
+
+  const statsRaw = statsAgg[0] || { totalTickets: 0, totalRevenue: 0, converted: 0, pending: 0, failed: 0 };
+
+  // Populate seller info
   for (const t of tickets) {
     const u = await User.findById(t.seller_id).select('name member_id').lean();
     if (u) { t.seller_name = u.name; t.seller_member_id = u.member_id; }
+    // Format short ticket ID
+    t.ticket_display_id = 'TKT-' + String(t._id).slice(-6).toUpperCase();
   }
-  res.json({ ok: true, tickets });
+
+  res.json({
+    ok: true,
+    tickets,
+    total: totalCount,
+    stats: {
+      totalTickets: statsRaw.totalTickets,
+      totalRevenue: statsRaw.totalRevenue,
+      converted: statsRaw.converted,
+      pending: statsRaw.pending,
+      failed: statsRaw.failed
+    }
+  });
 });
 
 // ===== SUPPORT TICKETS SYSTEM =====
