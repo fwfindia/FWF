@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -10,21 +10,21 @@
 
   <style>
 /* ==============================
-   CSS VARIABLES (Supporter Indigo Theme)
+   CSS VARIABLES (Supporter Modern Theme)
    ============================== */
 :root {
-  --bg-1:#f4f5f7; --bg-2:#ebedf0;
-  --accent:#34d399; --accent2:#f59e0b; --accent-soft:rgba(52,211,153,.08);
-  --accent-light:#ecfdf5; --accent-dark:#059669;
-  --sidebar-bg:#ffffff;
-  --sidebar-text:#5f6368; --sidebar-active:#34d399;
-  --card-bg:#ffffff; --card-border:#e0e0e0;
-  --text-primary:#1a1a2e; --text-secondary:#54595f; --text-muted:#8c8c8c;
+  --bg-1:#f0fdf9; --bg-2:#ccfbf1;
+  --accent:#10b981; --accent2:#f59e0b; --accent-soft:rgba(16,185,129,.08);
+  --accent-light:rgba(16,185,129,.14); --accent-dark:#059669;
+  --sidebar-bg:#0f172a;
+  --sidebar-text:rgba(255,255,255,.62); --sidebar-active:#10b981;
+  --card-bg:#ffffff; --card-border:#e2e8f0;
+  --text-primary:#0f172a; --text-secondary:#475569; --text-muted:#94a3b8;
   --success:#0a8f3f; --warning:#e5a100; --danger:#d93025; --info:#1a73e8;
-  --topbar-bg:linear-gradient(135deg,#065f46,#78350f);
-  --radius-sm:8px; --radius-md:12px; --radius-lg:16px;
-  --shadow-card:0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
-  --shadow-hover:0 4px 12px rgba(0,0,0,.1);
+  --topbar-bg:linear-gradient(135deg,#059669 0%,#0891b2 100%);
+  --radius-sm:8px; --radius-md:12px; --radius-lg:18px;
+  --shadow-card:0 4px 20px rgba(0,0,0,.06),0 1px 4px rgba(0,0,0,.04);
+  --shadow-hover:0 8px 32px rgba(0,0,0,.12);
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -43,23 +43,23 @@ a{color:inherit;text-decoration:none}
 .sidebar{
   position:fixed; left:0; top:0; bottom:0; width:240px; z-index:100;
   background:var(--sidebar-bg);
-  border-right:1px solid var(--card-border);
+  border-right:none;
   display:flex; flex-direction:column;
   padding:0;
   transition:transform .3s ease;
-  box-shadow:1px 0 3px rgba(0,0,0,.04);
+  box-shadow:4px 0 24px rgba(0,0,0,.18);
 }
 .sidebar-brand{
   display:flex; align-items:center; gap:10px;
   padding:16px 18px;
-  border-bottom:1px solid var(--card-border);
+  border-bottom:1px solid rgba(255,255,255,.08);
 }
 .sidebar-brand img{ width:36px; height:36px; border-radius:8px; }
 .sidebar-brand span{ font-size:16px; font-weight:900; color:var(--accent); }
-.sidebar-brand small{ display:block; font-size:10px; color:var(--success); font-weight:700; margin-top:1px; letter-spacing:.3px; }
+.sidebar-brand small{ display:block; font-size:10px; color:rgba(255,255,255,.4); font-weight:700; margin-top:1px; letter-spacing:.3px; }
 .sidebar-nav{ flex:1; display:flex; flex-direction:column; gap:1px; overflow-y:auto; padding:8px 0; }
 .sidebar-nav::-webkit-scrollbar{width:3px}
-.sidebar-nav::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}
+.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
 .nav-item{
   display:flex; align-items:center; gap:12px;
   padding:10px 20px; border-radius:0;
@@ -70,9 +70,9 @@ a{color:inherit;text-decoration:none}
   font-family:inherit;
   position:relative;
 }
-.nav-item:hover{ background:var(--accent-light); color:var(--accent); }
+.nav-item:hover{ background:rgba(255,255,255,.07); color:rgba(255,255,255,.92); }
 .nav-item.active{
-  background:var(--accent-light); color:var(--accent); font-weight:700;
+  background:rgba(16,185,129,.18); color:#6ee7b7; font-weight:700;
 }
 .nav-item.active::before{
   content:''; position:absolute; left:0; top:6px; bottom:6px;
@@ -80,16 +80,16 @@ a{color:inherit;text-decoration:none}
 }
 .nav-item i{ width:18px; text-align:center; font-size:14px; }
 .nav-divider{
-  font-size:10px; font-weight:700; color:var(--text-muted);
+  font-size:10px; font-weight:700; color:rgba(255,255,255,.28);
   text-transform:uppercase; letter-spacing:.8px;
   padding:18px 20px 6px; user-select:none;
 }
 .sidebar-footer{
-  border-top:1px solid var(--card-border);
+  border-top:1px solid rgba(255,255,255,.08);
   padding:8px 0;
 }
-.nav-item.logout-btn{ color:var(--danger); }
-.nav-item.logout-btn:hover{ background:#fef2f2; }
+.nav-item.logout-btn{ color:rgba(239,68,68,.75); }
+.nav-item.logout-btn:hover{ background:rgba(239,68,68,.12); color:#f87171; }
 
 /* ==============================
    MOBILE
@@ -116,7 +116,7 @@ a{color:inherit;text-decoration:none}
   height:56px;
   display:flex; align-items:center; justify-content:space-between;
   padding:0 28px;
-  box-shadow:0 2px 4px rgba(0,0,0,.08);
+  box-shadow:0 4px 20px rgba(0,0,0,.18);
 }
 .top-header h1{
   font-size:16px; font-weight:700; color:#fff; letter-spacing:-.2px;
@@ -174,10 +174,10 @@ a{color:inherit;text-decoration:none}
 }
 .stat-card .s-value{ font-size:26px; font-weight:900; color:var(--text-primary); }
 .stat-card .s-label{ font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-top:2px; }
-.s-green{ background:linear-gradient(135deg,#059669,#34d399); }
+.s-green{ background:linear-gradient(135deg,#059669,#10b981); }
 .s-amber{ background:linear-gradient(135deg,#d97706,#f59e0b); }
-.s-purple{ background:linear-gradient(135deg,#d97706,#fbbf24); }
-.s-blue{ background:#1a73e8; }
+.s-purple{ background:linear-gradient(135deg,#7c3aed,#a78bfa); }
+.s-blue{ background:linear-gradient(135deg,#1d4ed8,#3b82f6); }
 
 /* ==============================
    WALLET SINGLE PAGE - APP STYLE
@@ -265,7 +265,7 @@ a{color:inherit;text-decoration:none}
 .app-tab.active .tab-icon{
   background:var(--accent);
   color:#fff;
-  box-shadow:0 4px 12px rgba(52,211,153,.3);
+  box-shadow:0 4px 12px rgba(16,185,129,.3);
   transform:scale(1.05);
 }
 .app-tab .tab-label{ font-size:10px; line-height:1.2; }
@@ -438,7 +438,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   display:flex; align-items:center; justify-content:center;
   font-size:15px; font-weight:800; color:#fff; flex-shrink:0;
-  box-shadow:0 2px 8px rgba(52,211,153,.25); overflow:hidden;
+  box-shadow:0 2px 8px rgba(16,185,129,.25); overflow:hidden;
 }
 .feed-name{ font-size:14px; font-weight:800; color:var(--text-primary); }
 .feed-time{ font-size:11px; color:var(--text-muted); font-weight:500; margin-top:1px; }
@@ -471,7 +471,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
   background:none; border:none;
   cursor:pointer; transition:.15s; font-family:inherit;
 }
-.feed-actions button:hover{ color:var(--accent); background:rgba(52,211,153,.07); }
+.feed-actions button:hover{ color:var(--accent); background:rgba(16,185,129,.07); }
 .feed-actions button.liked{ color:#ef4444; }
 .feed-actions button.liked i{ animation:heartPop .25s ease; }
 @keyframes heartPop{
@@ -632,7 +632,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
   font-size:10px;font-weight:800;letter-spacing:1px;border:1px solid rgba(255,255,255,.2);
   text-transform:uppercase;
 }
-.qcb-badge::before{content:'●';margin-right:4px;opacity:.8}
+.qcb-badge::before{content:'?';margin-right:4px;opacity:.8}
 .qcb-title{font-size:32px;font-weight:900;margin-bottom:8px;line-height:1.1;letter-spacing:-.5px}
 .qcb-desc{font-size:13.5px;opacity:.85;margin-bottom:24px;line-height:1.6;font-weight:400;flex-grow:1}
 .qcb-reward-pill{
@@ -813,8 +813,8 @@ body.modal-open{
 .mobile-bottom-nav{
   display:none;
   position:fixed; bottom:0; left:0; right:0; z-index:200;
-  background:#fff; border-top:1px solid var(--card-border);
-  box-shadow:0 -2px 10px rgba(0,0,0,.06);
+  background:#fff; border-top:1px solid #e2e8f0;
+  box-shadow:0 -4px 20px rgba(0,0,0,.1);
   padding:4px 0; padding-bottom:max(4px, env(safe-area-inset-bottom));
 }
 .mobile-bottom-nav .nav-row{
@@ -903,7 +903,7 @@ body.modal-open{
     </button>
 
     <div class="nav-divider">More</div>
-    <button class="nav-item" data-page="membership" style="background:linear-gradient(90deg,rgba(52,211,153,.12),transparent);color:var(--accent);font-weight:800">
+    <button class="nav-item" data-page="membership" style="background:linear-gradient(90deg,rgba(16,185,129,.12),transparent);color:var(--accent);font-weight:800">
       <i class="fa-solid fa-arrow-up-right-dots"></i> Become a Member
     </button>
     <button class="nav-item" data-page="support">
@@ -964,7 +964,7 @@ body.modal-open{
         </div>
         <div class="account-overview-body" style="padding:20px">
           <div style="background:linear-gradient(135deg,#064e3b, #065f46);border-radius:var(--radius-md);padding:20px;color:#fff;position:relative;overflow:hidden">
-            <div style="position:absolute;right:-15px;top:-15px;width:100px;height:100px;border-radius:50%;background:rgba(52,211,153,.15)"></div>
+            <div style="position:absolute;right:-15px;top:-15px;width:100px;height:100px;border-radius:50%;background:rgba(16,185,129,.15)"></div>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;position:relative;z-index:1">
               <img src="/assets/images/logo.png" alt="FWF" style="width:32px;height:32px;border-radius:6px">
               <div>
@@ -974,13 +974,13 @@ body.modal-open{
             </div>
             <div style="position:relative;z-index:1">
               <div style="font-size:18px;font-weight:800;margin-bottom:4px" id="dashCardName">Supporter Name</div>
-              <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.25);padding:4px 10px;border-radius:6px;margin-bottom:12px">
-                <i class="fa-solid fa-id-badge" style="color:#34d399;font-size:12px"></i>
+              <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.25);padding:4px 10px;border-radius:6px;margin-bottom:12px">
+                <i class="fa-solid fa-id-badge" style="color:#10b981;font-size:12px"></i>
                 <span style="font-size:13px;font-weight:700;color:#a5b4fc" id="dashCardId">FWFS0000</span>
               </div>
               <div style="display:flex;gap:16px;font-size:11px;opacity:.75;font-weight:600;flex-wrap:wrap">
-                <span><i class="fa-solid fa-phone" style="margin-right:4px;color:#34d399;font-size:10px"></i><span id="dashCardMobile">—</span></span>
-                <span><i class="fa-solid fa-calendar" style="margin-right:4px;color:#34d399;font-size:10px"></i>Joined <span id="dashCardJoined">—</span></span>
+                <span><i class="fa-solid fa-phone" style="margin-right:4px;color:#10b981;font-size:10px"></i><span id="dashCardMobile">—</span></span>
+                <span><i class="fa-solid fa-calendar" style="margin-right:4px;color:#10b981;font-size:10px"></i>Joined <span id="dashCardJoined">—</span></span>
               </div>
             </div>
           </div>
@@ -995,11 +995,11 @@ body.modal-open{
           <i class="fa-solid fa-arrow-up" style="font-size:16px"></i>
         </div>
         <div>
-          <div style="font-size:13px;font-weight:800;margin-bottom:2px">Full Member बनें — सिर्फ ₹500</div>
-          <div style="font-size:11px;opacity:.78">Wallet · Projects · Referral Earnings · Marketplace unlock करें</div>
+          <div style="font-size:13px;font-weight:800;margin-bottom:2px">Full Member ???? — ????? ?500</div>
+          <div style="font-size:11px;opacity:.78">Wallet · Projects · Referral Earnings · Marketplace unlock ????</div>
         </div>
       </div>
-      <div style="background:rgba(255,255,255,.2);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:800;white-space:nowrap;flex-shrink:0">Upgrade →</div>
+      <div style="background:rgba(255,255,255,.2);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:800;white-space:nowrap;flex-shrink:0">Upgrade ?</div>
     </div>
 
     <!-- Recent Activity -->
@@ -1067,7 +1067,7 @@ body.modal-open{
       <h3><i class="fa-solid fa-id-card"></i> Digital Supporter ID Card</h3>
       <div style="max-width:400px;margin:0 auto">
         <div style="background:linear-gradient(135deg,#064e3b,#065f46);border-radius:var(--radius-md);padding:22px;color:#fff;position:relative;overflow:hidden">
-          <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(52,211,153,.2)"></div>
+          <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(16,185,129,.2)"></div>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
             <img src="/assets/images/logo.png" alt="FWF" style="width:40px;height:40px;border-radius:8px">
             <div>
@@ -1076,7 +1076,7 @@ body.modal-open{
             </div>
           </div>
           <div style="font-size:22px;font-weight:900;margin-bottom:4px" id="cardName">Supporter Name</div>
-          <div style="font-size:14px;font-weight:700;color:#34d399;margin-bottom:16px" id="cardId">FWFS0000</div>
+          <div style="font-size:14px;font-weight:700;color:#10b981;margin-bottom:16px" id="cardId">FWFS0000</div>
           <div style="display:flex;gap:20px;font-size:11px;opacity:.7;font-weight:600">
             <span><i class="fa-solid fa-phone"></i> <span id="cardMobile">—</span></span>
             <span><i class="fa-solid fa-calendar"></i> <span id="cardJoined">—</span></span>
@@ -1094,7 +1094,7 @@ body.modal-open{
       <div style="position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
       <div style="position:absolute;right:30px;bottom:-40px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.05)"></div>
       <div style="display:flex;align-items:center;gap:14px;position:relative">
-        <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📖</div>
+        <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">??</div>
         <div>
           <h2 style="font-size:17px;font-weight:800;margin:0 0 3px">Social Book</h2>
           <p style="font-size:12px;opacity:.85;margin:0">Share your social work, inspire others!</p>
@@ -1112,7 +1112,7 @@ body.modal-open{
       </div>
       <div style="display:flex;gap:6px;border-top:1px solid var(--card-border);padding-top:10px">
         <button class="btn" style="flex:1;gap:6px;font-size:12px;padding:7px 8px;border-radius:10px;color:#3b82f6;border-color:#dbeafe;background:#eff6ff" onclick="openModal('postModal')"><i class="fa-solid fa-image"></i> Photo</button>
-        <button class="btn" style="flex:1;gap:6px;font-size:12px;padding:7px 8px;border-radius:10px;color:#34d399;border-color:#d1fae5;background:#f0fdf4" onclick="openModal('postModal')"><i class="fa-solid fa-leaf"></i> Activity</button>
+        <button class="btn" style="flex:1;gap:6px;font-size:12px;padding:7px 8px;border-radius:10px;color:#10b981;border-color:#d1fae5;background:#f0fdf4" onclick="openModal('postModal')"><i class="fa-solid fa-leaf"></i> Activity</button>
         <button class="btn" style="flex:1;gap:6px;font-size:12px;padding:7px 8px;border-radius:10px;color:#fbbf24;border-color:#ede9fe;background:#f5f3ff" onclick="openModal('postModal')"><i class="fa-solid fa-hand-holding-heart"></i> Welfare</button>
       </div>
     </div>
@@ -1152,9 +1152,9 @@ body.modal-open{
     </div>
 
     <div style="text-align:center;padding:24px 16px 8px">
-      <div style="font-size:40px;margin-bottom:4px">🙏</div>
-      <h2 style="font-size:20px;font-weight:900;margin:0 0 6px;color:var(--text-primary);line-height:1.3">बदलाव आप से शुरू होता है!</h2>
-      <p style="font-size:13px;color:var(--text-muted);margin:0;line-height:1.5">एक छोटा सा कदम — समाज के लिए बड़ा बदलाव। आज ही कोई नेक काम करें और Selfie share करें!</p>
+      <div style="font-size:40px;margin-bottom:4px">??</div>
+      <h2 style="font-size:20px;font-weight:900;margin:0 0 6px;color:var(--text-primary);line-height:1.3">????? ?? ?? ???? ???? ??!</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin:0;line-height:1.5">?? ???? ?? ??? — ???? ?? ??? ???? ?????? ?? ?? ??? ??? ??? ???? ?? Selfie share ????!</p>
     </div>
 
     <div style="margin:16px 0 24px">
@@ -1175,9 +1175,9 @@ body.modal-open{
         <div class="skeleton-loader" style="height:460px;border-radius:24px"></div>
       </div>
       <div id="quizEmptyState" style="display:none;text-align:center;padding:40px 20px">
-        <div style="font-size:48px;margin-bottom:12px">🎮</div>
-        <h4 style="color:var(--text-muted);font-weight:700;margin-bottom:6px">कोई game अभी available नहीं है</h4>
-        <p style="font-size:13px;color:var(--text-muted)">जल्दी ही नए fund raiser games आएंगे!</p>
+        <div style="font-size:48px;margin-bottom:12px">??</div>
+        <h4 style="color:var(--text-muted);font-weight:700;margin-bottom:6px">??? game ??? available ???? ??</h4>
+        <p style="font-size:13px;color:var(--text-muted)">????? ?? ?? fund raiser games ?????!</p>
       </div>
     </div>
 
@@ -1187,15 +1187,15 @@ body.modal-open{
           <i class="fa-solid fa-clock-rotate-left" style="color:var(--accent)"></i> View Task & Quiz Result
         </summary>
         <div style="padding:0 16px 16px">
-          <h4 style="font-size:13px;font-weight:700;margin:8px 0">📋 Task History</h4>
+          <h4 style="font-size:13px;font-weight:700;margin:8px 0">?? Task History</h4>
           <div id="taskHistoryList">
-            <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">अभी तक कोई task पूरा नहीं किया</p>
+            <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">??? ?? ??? task ???? ???? ????</p>
           </div>
-          <h4 style="font-size:13px;font-weight:700;margin:14px 0 8px">🎮 My Quiz Participations</h4>
+          <h4 style="font-size:13px;font-weight:700;margin:14px 0 8px">?? My Quiz Participations</h4>
           <div class="table-wrap" style="overflow-x:auto">
             <table class="data-table" style="min-width:600px;font-size:12px">
-              <thead><tr><th>Date</th><th>Quiz</th><th>Participation ID</th><th>₹ Paid</th><th>Quiz Status</th><th>Result Date</th><th>Result</th></tr></thead>
-              <tbody id="quizHistoryList"><tr><td colspan="7" class="empty-state"><p>अभी तक किसी quiz में हिस्सा नहीं लिया</p></td></tr></tbody>
+              <thead><tr><th>Date</th><th>Quiz</th><th>Participation ID</th><th>? Paid</th><th>Quiz Status</th><th>Result Date</th><th>Result</th></tr></thead>
+              <tbody id="quizHistoryList"><tr><td colspan="7" class="empty-state"><p>??? ?? ???? quiz ??? ?????? ???? ????</p></td></tr></tbody>
             </table>
           </div>
         </div>
@@ -1203,13 +1203,13 @@ body.modal-open{
     </div>
   </div>
 
-  <!-- ═══════ SOCIAL TASK POPUP MODAL ═══════ -->
+  <!-- ------- SOCIAL TASK POPUP MODAL ------- -->
   <div class="modal" id="socialTaskModal">
     <div class="modal-content" style="max-width:440px;border-radius:20px;overflow:hidden">
       <div id="taskModalHeader" style="padding:20px 20px 14px;color:#fff;position:relative">
         <div style="position:absolute;top:0;right:0;width:100px;height:100px;background:radial-gradient(circle,rgba(255,255,255,.1),transparent);pointer-events:none"></div>
         <button onclick="closeModal('socialTaskModal')" style="position:absolute;top:12px;right:14px;background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px">&times;</button>
-        <div style="font-size:36px;margin-bottom:6px" id="taskModalIcon">🌱</div>
+        <div style="font-size:36px;margin-bottom:6px" id="taskModalIcon">??</div>
         <h3 style="color:#fff;margin:0 0 4px;font-size:18px;font-weight:900" id="taskModalTitle">Task Title</h3>
       </div>
       <div style="padding:16px 20px 20px">
@@ -1217,7 +1217,7 @@ body.modal-open{
         <div style="background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:14px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
             <i class="fa-solid fa-camera" style="color:var(--accent)"></i>
-            <span style="font-size:12px;font-weight:700;color:var(--text-primary)">📸 How to participate</span>
+            <span style="font-size:12px;font-weight:700;color:var(--text-primary)">?? How to participate</span>
           </div>
           <p style="font-size:12px;color:var(--text-muted);margin:0;line-height:1.5" id="taskModalInstruction">Photo instruction...</p>
         </div>
@@ -1225,25 +1225,25 @@ body.modal-open{
           <div id="taskSelfiePreview" style="display:none;margin-bottom:10px">
             <img id="taskSelfieImg" style="max-width:100%;max-height:200px;border-radius:12px">
           </div>
-          <label style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#34d399,#f59e0b);color:#fff;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px">
-            <i class="fa-solid fa-camera"></i> Selfie लें / Photo चुनें
+          <label style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#10b981,#f59e0b);color:#fff;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px">
+            <i class="fa-solid fa-camera"></i> Selfie ??? / Photo ?????
             <input type="file" accept="image/*" capture="user" id="taskSelfieInput" onchange="previewTaskSelfie(this)" style="display:none">
           </label>
         </div>
         <button class="btn" id="taskSelfieSubmitBtn" onclick="submitTaskSelfie()" style="width:100%;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px" disabled>
-          <i class="fa-solid fa-paper-plane"></i> Selfie Share करें — Social Book पर Post होगा!
+          <i class="fa-solid fa-paper-plane"></i> Selfie Share ???? — Social Book ?? Post ????!
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ═══════ QUIZ SELL TICKET MODAL ═══════ -->
+  <!-- ------- QUIZ SELL TICKET MODAL ------- -->
   <div class="modal" id="quizSellModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:20px;width:100%;max-width:460px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto">
       <div id="sellModalHeader" style="background:linear-gradient(135deg,#f59e0b,#d97706);padding:20px 22px 16px;position:relative">
         <div style="position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle,rgba(255,255,255,.1),transparent);pointer-events:none"></div>
         <button onclick="document.getElementById('quizSellModal').style.display='none'" style="position:absolute;top:12px;right:14px;background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px">&times;</button>
-        <div style="font-size:28px;margin-bottom:6px">🎫</div>
+        <div style="font-size:28px;margin-bottom:6px">??</div>
         <h3 style="color:#fff;margin:0 0 3px;font-size:17px;font-weight:900">Sell Quiz Ticket</h3>
         <p id="sellModalSubtitle" style="color:rgba(255,255,255,.85);font-size:12px;margin:0"></p>
       </div>
@@ -1257,8 +1257,8 @@ body.modal-open{
         <button id="generateLinkBtn" onclick="generateSellLink()" style="width:100%;margin-top:16px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fa-solid fa-link"></i> Generate Quiz Link</button>
       </div>
       <div id="sellStep2" style="display:none;padding:22px 22px 24px">
-        <div style="text-align:center;margin-bottom:20px"><div style="font-size:44px;margin-bottom:8px">🎉</div><h4 style="font-weight:900;color:var(--text-primary);margin:0 0 4px">Link Ready!</h4><p style="font-size:12px;color:var(--text-muted)">Share this link with the buyer</p></div>
-        <div style="background:#fef9c3;border:1.5px solid #fde047;border-radius:12px;padding:10px 14px;margin-bottom:14px;text-align:center"><div style="font-size:10px;color:#92400e;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Support ID</div><div style="font-size:13px;font-weight:700;color:#78350f">⏳ Pending — generated after buyer pays &amp; submits quiz</div></div>
+        <div style="text-align:center;margin-bottom:20px"><div style="font-size:44px;margin-bottom:8px">??</div><h4 style="font-weight:900;color:var(--text-primary);margin:0 0 4px">Link Ready!</h4><p style="font-size:12px;color:var(--text-muted)">Share this link with the buyer</p></div>
+        <div style="background:#fef9c3;border:1.5px solid #fde047;border-radius:12px;padding:10px 14px;margin-bottom:14px;text-align:center"><div style="font-size:10px;color:#92400e;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Support ID</div><div style="font-size:13px;font-weight:700;color:#78350f">? Pending — generated after buyer pays &amp; submits quiz</div></div>
         <div style="background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px 16px;margin-bottom:14px"><div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Quiz Link</div><div style="display:flex;gap:8px;align-items:center"><input id="generatedSellLink" readonly style="flex:1;border:none;background:transparent;font-size:12px;color:var(--text-primary);font-family:monospace;outline:none;min-width:0" value=""><button onclick="copySellLink()" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0"><i class="fa-solid fa-copy"></i> Copy</button></div></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
           <button onclick="shareSellLink('whatsapp')" style="background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;border:none;border-radius:10px;padding:11px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
@@ -1269,14 +1269,14 @@ body.modal-open{
     </div>
   </div>
 
-  <!-- ═══════ QUIZ ENROLL SUCCESS MODAL ═══════ -->
+  <!-- ------- QUIZ ENROLL SUCCESS MODAL ------- -->
   <div class="modal" id="quizEnrollSuccessModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:20px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
-      <div style="background:linear-gradient(135deg,#22c55e,#16a34a);padding:24px 22px 20px;text-align:center;color:#fff"><div style="font-size:52px;margin-bottom:8px">🎓</div><h3 style="margin:0 0 4px;font-size:20px;font-weight:900">Enrollment Successful!</h3><p style="margin:0;font-size:12px;opacity:.85">आपने successfully enroll कर लिया है</p></div>
+      <div style="background:linear-gradient(135deg,#22c55e,#16a34a);padding:24px 22px 20px;text-align:center;color:#fff"><div style="font-size:52px;margin-bottom:8px">??</div><h3 style="margin:0 0 4px;font-size:20px;font-weight:900">Enrollment Successful!</h3><p style="margin:0;font-size:12px;opacity:.85">???? successfully enroll ?? ???? ??</p></div>
       <div style="padding:22px 22px 24px;text-align:center">
-        <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:16px;margin-bottom:16px"><div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Participation ID</div><div id="enrollSuccessId" style="font-size:20px;font-weight:900;color:#166534;font-family:monospace;letter-spacing:1.5px"></div><div style="font-size:11px;color:#15803d;margin-top:4px">Screenshot लेकर सहेज लें</div></div>
+        <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:16px;margin-bottom:16px"><div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Participation ID</div><div id="enrollSuccessId" style="font-size:20px;font-weight:900;color:#166534;font-family:monospace;letter-spacing:1.5px"></div><div style="font-size:11px;color:#15803d;margin-top:4px">Screenshot ???? ???? ???</div></div>
         <p id="enrollSuccessPoints" style="font-size:13px;color:var(--accent);font-weight:700;margin:0 0 16px"></p>
-        <button onclick="document.getElementById('quizEnrollSuccessModal').style.display='none'" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:14px;font-weight:800;cursor:pointer">Done 🎉</button>
+        <button onclick="document.getElementById('quizEnrollSuccessModal').style.display='none'" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:14px;font-weight:800;cursor:pointer">Done ??</button>
       </div>
     </div>
   </div>
@@ -1326,7 +1326,7 @@ body.modal-open{
           </details>
           <details style="margin-bottom:8px">
             <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">How do I become a Member?</summary>
-            <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">Sidebar में <strong>"Become a Member"</strong> पर click करें और ₹500/month membership fee pay करें। आपका account तुरंत upgrade हो जाएगा और नया Member ID email पर मिलेगा। <button onclick="switchPage('membership')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;font-weight:700;padding:0;text-decoration:underline">Upgrade करें →</button></p>
+            <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">Sidebar ??? <strong>"Become a Member"</strong> ?? click ???? ?? ?500/month membership fee pay ????? ???? account ????? upgrade ?? ????? ?? ??? Member ID email ?? ??????? <button onclick="switchPage('membership')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;font-weight:700;padding:0;text-decoration:underline">Upgrade ???? ?</button></p>
           </details>
           <details>
             <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">How do I contact support?</summary>
@@ -1362,7 +1362,7 @@ body.modal-open{
       <div class="stat-card">
         <div class="s-icon s-green"><i class="fa-solid fa-wallet"></i></div>
         <div class="s-label">Wallet Balance</div>
-        <div class="s-value" id="walletBalance">₹0</div>
+        <div class="s-value" id="walletBalance">?0</div>
       </div>
       <div class="stat-card">
         <div class="s-icon s-amber"><i class="fa-solid fa-arrow-up"></i></div>
@@ -1494,11 +1494,11 @@ body.modal-open{
 
       <!-- Success screen (shown after submit) -->
       <div id="redeemSuccessScreen" style="display:none;padding:32px 24px;text-align:center">
-        <div style="width:72px;height:72px;background:linear-gradient(135deg,#34d399,#f59e0b);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:32px;color:#fff">
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#10b981,#f59e0b);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:32px;color:#fff">
           <i class="fa-solid fa-check"></i>
         </div>
         <h3 style="color:#f59e0b;margin-bottom:10px">Request Submitted Successfully!</h3>
-        <p style="color:var(--text-muted);margin-bottom:6px">Your redeem request for <strong id="redeemSuccessAmt">₹0</strong> has been submitted.</p>
+        <p style="color:var(--text-muted);margin-bottom:6px">Your redeem request for <strong id="redeemSuccessAmt">?0</strong> has been submitted.</p>
         <p style="color:var(--text-muted);font-size:14px">Amount will be credited to your payment account within <strong>24 hours</strong>.</p>
         <button class="btn btn-success" onclick="closeModal('redeemModal')" style="margin-top:20px">OK, Got it!</button>
       </div>
@@ -1509,13 +1509,13 @@ body.modal-open{
           <div style="background:var(--accent-soft);padding:14px;border-radius:10px;margin-bottom:16px;text-align:center">
             <div style="font-size:12px;color:var(--text-muted);font-weight:700">Available Points</div>
             <div style="font-size:32px;font-weight:900;color:var(--accent)" id="availPointsDisplay">0</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">1 point = ₹10</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">1 point = ?10</div>
           </div>
           <div class="form-group">
             <label>Points to Redeem</label>
             <input type="number" class="form-input" id="redeemPointsInput" placeholder="Enter points" min="1" oninput="updateRedeemAmount()">
             <div id="redeemAmountPreview" style="margin-top:6px;font-size:14px;color:var(--accent);font-weight:700;display:none">
-              = ₹<span id="redeemAmountValue">0</span>
+              = ?<span id="redeemAmountValue">0</span>
             </div>
           </div>
           <div class="form-group">
@@ -1592,8 +1592,8 @@ body.modal-open{
         <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;margin-bottom:14px;letter-spacing:.4px">
           <i class="fa-solid fa-arrow-up"></i> UPGRADE YOUR ACCOUNT
         </div>
-        <h2 style="font-size:24px;font-weight:900;margin:0 0 8px;line-height:1.2">Supporter से Member बनें</h2>
-        <p style="font-size:13px;opacity:.85;margin:0 0 18px;line-height:1.6">₹500/month pay करके FWF की Full Member बनें — Skill Development, Business Support, Funding Opportunity और बहुत कुछ unlock करें।</p>
+        <h2 style="font-size:24px;font-weight:900;margin:0 0 8px;line-height:1.2">Supporter ?? Member ????</h2>
+        <p style="font-size:13px;opacity:.85;margin:0 0 18px;line-height:1.6">?500/month pay ???? FWF ?? Full Member ???? — Skill Development, Business Support, Funding Opportunity ?? ???? ??? unlock ?????</p>
         <div style="display:flex;flex-wrap:wrap;gap:10px">
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:20px"><i class="fa-solid fa-check-circle"></i> Skill Development</div>
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:20px"><i class="fa-solid fa-check-circle"></i> Business Support</div>
@@ -1627,34 +1627,34 @@ body.modal-open{
 
       <!-- Payment card -->
       <div class="content-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px 24px">
-        <div style="width:68px;height:68px;background:linear-gradient(135deg,#34d399,#059669);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(52,211,153,.3)">
+        <div style="width:68px;height:68px;background:linear-gradient(135deg,#10b981,#059669);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(16,185,129,.3)">
           <i class="fa-solid fa-id-badge" style="font-size:30px;color:#fff"></i>
         </div>
         <h3 style="font-size:20px;font-weight:900;margin:0 0 4px">FWF Full Membership</h3>
         <p style="font-size:13px;color:var(--text-muted);margin:0 0 16px">Monthly membership fee</p>
-        <div style="font-size:40px;font-weight:900;color:var(--accent);line-height:1;margin-bottom:4px">₹500</div>
+        <div style="font-size:40px;font-weight:900;color:var(--accent);line-height:1;margin-bottom:4px">?500</div>
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:22px">Per month · Active membership</div>
 
         <!-- Payment button / success state -->
         <div id="membershipPaySection">
-          <button id="payMembershipBtn" onclick="startMembershipUpgrade()" style="background:linear-gradient(135deg,#34d399,#059669);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:15px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;box-shadow:0 4px 14px rgba(52,211,153,.35);transition:.2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-            <i class="fa-solid fa-lock-open"></i> Subscribe ₹500/Month
+          <button id="payMembershipBtn" onclick="startMembershipUpgrade()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:15px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;box-shadow:0 4px 14px rgba(16,185,129,.35);transition:.2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+            <i class="fa-solid fa-lock-open"></i> Subscribe ?500/Month
           </button>
           <p style="font-size:11px;color:var(--text-muted);margin:10px 0 0"><i class="fa-solid fa-shield-halved" style="color:var(--success)"></i> Secured by Razorpay · 100% safe</p>
         </div>
 
         <div id="membershipSuccessBox" style="display:none;width:100%">
           <div style="background:#ecfdf5;border:1.5px solid #a5b4fc;border-radius:14px;padding:18px;text-align:center">
-            <div style="font-size:36px;margin-bottom:8px">🎉</div>
+            <div style="font-size:36px;margin-bottom:8px">??</div>
             <h4 style="color:#065f46;font-size:16px;font-weight:800;margin:0 0 4px">Congratulations!</h4>
-            <p style="font-size:12px;color:#059669;margin:0 0 12px">आप अब FWF Member हैं!</p>
+            <p style="font-size:12px;color:#059669;margin:0 0 12px">?? ?? FWF Member ???!</p>
             <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:12px">
-              <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px">आपका नया Member ID</div>
+              <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px">???? ??? Member ID</div>
               <div style="font-size:20px;font-weight:900;color:var(--accent)" id="newMemberId">—</div>
             </div>
-            <p style="font-size:11px;color:var(--text-muted);margin:0 0 14px">नया password और Member ID आपकी email पर भेजा गया है।</p>
-            <a href="/member-login.html" style="display:inline-block;background:linear-gradient(135deg,#34d399,#059669);color:#fff;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:800;text-decoration:none">
-              <i class="fa-solid fa-right-to-bracket"></i> Member Login करें
+            <p style="font-size:11px;color:var(--text-muted);margin:0 0 14px">??? password ?? Member ID ???? email ?? ???? ??? ???</p>
+            <a href="/member-login.html" style="display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:800;text-decoration:none">
+              <i class="fa-solid fa-right-to-bracket"></i> Member Login ????
             </a>
           </div>
         </div>
@@ -1663,18 +1663,18 @@ body.modal-open{
 
     <!-- FAQs -->
     <div class="content-card">
-      <h3 style="font-size:15px;font-weight:800;margin-bottom:14px"><i class="fa-solid fa-circle-question" style="color:var(--accent)"></i> अक्सर पूछे जाने वाले सवाल</h3>
+      <h3 style="font-size:15px;font-weight:800;margin-bottom:14px"><i class="fa-solid fa-circle-question" style="color:var(--accent)"></i> ????? ???? ???? ???? ????</h3>
       <details style="margin-bottom:8px">
-        <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">क्या मेरे Supporter points/history transfer होगी?</summary>
-        <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">हाँ! यह same account upgrade होगी — आपके सभी points, quiz history और social posts बरकरार रहेंगे।</p>
+        <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">???? ???? Supporter points/history transfer ?????</summary>
+        <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">???! ?? same account upgrade ???? — ???? ??? points, quiz history ?? social posts ?????? ???????</p>
       </details>
       <details style="margin-bottom:8px">
-        <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">Payment के बाद क्या होगा?</summary>
-        <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">Payment verify होते ही आपका account Member में upgrade हो जाएगा। नया Member ID और password आपकी registered email पर तुरंत भेजा जाएगा।</p>
+        <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">Payment ?? ??? ???? ?????</summary>
+        <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">Payment verify ???? ?? ???? account Member ??? upgrade ?? ?????? ??? Member ID ?? password ???? registered email ?? ????? ???? ??????</p>
       </details>
       <details>
-        <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">क्या यह fee refundable है?</summary>
-        <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">Membership joining fee non-refundable है। किसी भी सहायता के लिए Help & Support section में ticket submit करें।</p>
+        <summary style="font-weight:700;font-size:13px;cursor:pointer;padding:8px 0">???? ?? fee refundable ???</summary>
+        <p style="font-size:12px;color:var(--text-muted);padding:8px 0 8px 16px">Membership joining fee non-refundable ??? ???? ?? ?????? ?? ??? Help & Support section ??? ticket submit ?????</p>
       </details>
     </div>
   </div>
@@ -1686,7 +1686,7 @@ body.modal-open{
       <h3 class="wallet-section-header"><i class="fa-solid fa-user-plus" style="color:var(--accent)"></i> Referrals & Actions</h3>
 
       <!-- Referral Code Bar -->
-      <div style="margin:14px 20px 0;background:var(--accent-light);border:1px solid rgba(52,211,153,.3);border-radius:var(--radius-md);padding:14px 16px">
+      <div style="margin:14px 20px 0;background:var(--accent-light);border:1px solid rgba(16,185,129,.3);border-radius:var(--radius-md);padding:14px 16px">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
           <div>
             <h4 style="margin:0 0 4px;font-size:13px;color:var(--accent-dark)"><i class="fa-solid fa-link"></i> Your Referral Code</h4>
@@ -1750,10 +1750,10 @@ body.modal-open{
         <div style="border-top:1px solid var(--card-border);padding-top:16px;margin-top:10px">
           <h4 style="margin-bottom:12px;font-size:14px;font-weight:800"><i class="fa-solid fa-list"></i> My Referrals &amp; Quiz Tickets</h4>
           <div class="rtab-wrap">
-            <button class="rtab active" onclick="switchRefTab('members',this)">👥 Members</button>
-            <button class="rtab" onclick="switchRefTab('supporters',this)">🤝 Supporters</button>
-            <button class="rtab" onclick="switchRefTab('donations',this)">💰 Donations</button>
-            <button class="rtab" onclick="switchRefTab('tickets',this)">🎫 Tickets</button>
+            <button class="rtab active" onclick="switchRefTab('members',this)">?? Members</button>
+            <button class="rtab" onclick="switchRefTab('supporters',this)">?? Supporters</button>
+            <button class="rtab" onclick="switchRefTab('donations',this)">?? Donations</button>
+            <button class="rtab" onclick="switchRefTab('tickets',this)">?? Tickets</button>
           </div>
 
           <div id="rtab-members" class="rtab-body">
@@ -1793,8 +1793,8 @@ body.modal-open{
     <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
       <div style="background:linear-gradient(135deg,#f97316,#E87722);padding:20px 24px 16px;position:relative">
         <h3 style="color:#fff;margin:0;font-size:17px;font-weight:800"><i class="fa-solid fa-user-plus"></i> Add Member</h3>
-        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Fill their details → generate a pre-filled registration link</p>
-        <button onclick="closeActionModal('addMember')" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
+        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Fill their details ? generate a pre-filled registration link</p>
+        <button onclick="closeActionModal('addMember')" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">?</button>
       </div>
       <div style="padding:22px 24px 24px">
         <div id="amStep1">
@@ -1816,7 +1816,7 @@ body.modal-open{
             <button onclick="copyGenLink('amGeneratedLink')" style="background:#f1f5f9;color:var(--text-primary);border:1.5px solid var(--card-border);border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer"><i class="fa-solid fa-copy"></i> Copy Link</button>
             <button onclick="waShareLink('amGeneratedLink','member')" style="background:#25d366;color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
           </div>
-          <button onclick="resetMemberLinkModal()" style="width:100%;background:transparent;color:var(--text-muted);border:1.5px solid var(--card-border);border-radius:10px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">← New Link</button>
+          <button onclick="resetMemberLinkModal()" style="width:100%;background:transparent;color:var(--text-muted);border:1.5px solid var(--card-border);border-radius:10px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">? New Link</button>
         </div>
       </div>
     </div>
@@ -1827,8 +1827,8 @@ body.modal-open{
     <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
       <div style="background:linear-gradient(135deg,#34d366,#0a8f3f);padding:20px 24px 16px;position:relative">
         <h3 style="color:#fff;margin:0;font-size:17px;font-weight:800"><i class="fa-solid fa-hands-helping"></i> Add Supporter</h3>
-        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Fill their details → generate a pre-filled registration link</p>
-        <button onclick="closeActionModal('addSupporter')" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
+        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Fill their details ? generate a pre-filled registration link</p>
+        <button onclick="closeActionModal('addSupporter')" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">?</button>
       </div>
       <div style="padding:22px 24px 24px">
         <div id="spStep1">
@@ -1836,7 +1836,7 @@ body.modal-open{
             <div class="form-group" style="margin:0"><label>Full Name *</label><input type="text" class="form-input" id="spName" placeholder="Supporter's full name"></div>
             <div class="form-group" style="margin:0"><label>Mobile Number *</label><input type="tel" class="form-input" id="spMobile" placeholder="10-digit mobile" maxlength="10"></div>
             <div class="form-group" style="margin:0"><label>Email Address *</label><input type="email" class="form-input" id="spEmail" placeholder="name@example.com"></div>
-            <div class="form-group" style="margin:0"><label>Donation Amount ₹ <span style="font-weight:400;color:#94a3b8">(optional)</span></label><input type="number" class="form-input" id="spDonAmount" placeholder="e.g. 500" min="1"></div>
+            <div class="form-group" style="margin:0"><label>Donation Amount ? <span style="font-weight:400;color:#94a3b8">(optional)</span></label><input type="number" class="form-input" id="spDonAmount" placeholder="e.g. 500" min="1"></div>
           </div>
           <button id="spGenBtn" onclick="generateSupporterLink()" style="width:100%;margin-top:16px;background:linear-gradient(135deg,#34d366,#0a8f3f);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer">
             <i class="fa-solid fa-link"></i> Generate Registration Link
@@ -1851,7 +1851,7 @@ body.modal-open{
             <button onclick="copyGenLink('spGeneratedLink')" style="background:#f1f5f9;color:var(--text-primary);border:1.5px solid var(--card-border);border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer"><i class="fa-solid fa-copy"></i> Copy Link</button>
             <button onclick="waShareLink('spGeneratedLink','supporter')" style="background:#25d366;color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
           </div>
-          <button onclick="resetSupporterLinkModal()" style="width:100%;background:transparent;color:var(--text-muted);border:1.5px solid var(--card-border);border-radius:10px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">← New Link</button>
+          <button onclick="resetSupporterLinkModal()" style="width:100%;background:transparent;color:var(--text-muted);border:1.5px solid var(--card-border);border-radius:10px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">? New Link</button>
         </div>
       </div>
     </div>
@@ -1862,8 +1862,8 @@ body.modal-open{
     <div style="background:#fff;border-radius:20px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
       <div style="background:linear-gradient(135deg,#4f9ef8,#1a73e8);padding:20px 24px 16px;position:relative">
         <h3 style="color:#fff;margin:0;font-size:17px;font-weight:800"><i class="fa-solid fa-hand-holding-heart"></i> Collect Donation</h3>
-        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Every donation brings a woman one step closer to her dreams 🌸</p>
-        <button onclick="closeActionModal('donation')" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
+        <p style="color:rgba(255,255,255,.8);font-size:12px;margin:4px 0 0">Every donation brings a woman one step closer to her dreams ??</p>
+        <button onclick="closeActionModal('donation')" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">?</button>
       </div>
       <div style="padding:22px 24px 24px">
         <!-- Step 1: Donor Details -->
@@ -1871,7 +1871,7 @@ body.modal-open{
           <div style="display:grid;gap:12px">
             <div class="form-group" style="margin:0"><label>Donor Name <span style="font-weight:400;color:#94a3b8">(optional)</span></label><input type="text" class="form-input" id="donLinkName" placeholder="Donor's full name"></div>
             <div class="form-group" style="margin:0"><label>Donor Mobile <span style="font-weight:400;color:#94a3b8">(optional)</span></label><input type="tel" class="form-input" id="donLinkMobile" placeholder="10-digit mobile" maxlength="10"></div>
-            <div class="form-group" style="margin:0"><label>Donation Amount ₹ <span style="font-weight:400;color:#94a3b8">(optional)</span></label><input type="number" class="form-input" id="donLinkAmount" placeholder="e.g. 500" min="1"></div>
+            <div class="form-group" style="margin:0"><label>Donation Amount ? <span style="font-weight:400;color:#94a3b8">(optional)</span></label><input type="number" class="form-input" id="donLinkAmount" placeholder="e.g. 500" min="1"></div>
           </div>
           <button id="donGenBtn" onclick="generateDonationLink()" style="width:100%;margin-top:16px;background:linear-gradient(135deg,#4f9ef8,#1a73e8);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer">
             <i class="fa-solid fa-link"></i> Generate Donation Link
@@ -1880,7 +1880,7 @@ body.modal-open{
         <!-- Step 2: Share Link -->
         <div id="donStep2" style="display:none">
           <div style="text-align:center;margin-bottom:16px">
-            <div style="font-size:36px;margin-bottom:6px">🔗</div>
+            <div style="font-size:36px;margin-bottom:6px">??</div>
             <h4 style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:4px">Donation Link Ready!</h4>
             <p id="donLinkForName" style="font-size:12px;color:var(--text-muted);margin:0"></p>
           </div>
@@ -1921,7 +1921,7 @@ body.modal-open{
       <div class="feed-avatar" id="postModalAvatar" style="width:36px;height:36px;font-size:13px;flex-shrink:0">S</div>
       <div style="flex:1">
         <div style="font-size:15px;font-weight:700">Share Your Impact</div>
-        <div style="font-size:11px;opacity:.75">your story inspires others ✨</div>
+        <div style="font-size:11px;opacity:.75">your story inspires others ?</div>
       </div>
     </div>
     <div style="flex:1;overflow-y:auto;background:#e5ddd5;background-image:url('data:image/svg+xml,%3Csvg width=%2220%22 height=%2220%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M0 0h20v20H0z%22 fill=%22%23e5ddd5%22/%3E%3Cpath d=%22M10 3l1 2 2 .3-1.5 1.4.4 2L10 8l-1.9 .7.4-2L7 5.3l2-.3z%22 fill=%22%23d4ccb5%22 opacity=%22.15%22/%3E%3C/svg%3E')">
@@ -1956,7 +1956,7 @@ body.modal-open{
       </button>
       <input type="file" id="postMedia" accept="image/*,video/*" multiple style="display:none" onchange="handlePostImageSelect(event)">
       <div style="flex:1;background:#fff;border-radius:22px;padding:8px 14px;display:flex;align-items:flex-end;gap:8px;box-shadow:0 1px 2px rgba(0,0,0,.1)">
-        <textarea id="postDesc" rows="1" style="flex:1;border:none;outline:none;font-family:inherit;font-size:14px;color:#303030;background:transparent;resize:none;max-height:100px;overflow-y:auto;line-height:1.5;padding:0" placeholder="Describe your activity... 📍 Where? 👥 Who? 🎯 What?" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';document.getElementById('postCharCount').textContent=this.value.length"></textarea>
+        <textarea id="postDesc" rows="1" style="flex:1;border:none;outline:none;font-family:inherit;font-size:14px;color:#303030;background:transparent;resize:none;max-height:100px;overflow-y:auto;line-height:1.5;padding:0" placeholder="Describe your activity... ?? Where? ?? Who? ?? What?" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';document.getElementById('postCharCount').textContent=this.value.length"></textarea>
         <span style="font-size:9px;color:#aaa;align-self:flex-end;white-space:nowrap" id="postCharCount">0</span>
       </div>
       <button type="button" id="submitPostBtn" onclick="submitPost()" style="background:#00a884;border:none;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;transition:all .2s;flex-shrink:0;box-shadow:0 2px 8px rgba(0,168,132,.3)">
@@ -2018,7 +2018,7 @@ async function startMembershipUpgrade(){
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
   try {
-    // Create Razorpay order for ₹500
+    // Create Razorpay order for ?500
     const orderRes = await AUTH.api('/api/pay/create-order', {
       method: 'POST',
       body: { amount: 500, type: 'membership_upgrade', notes: { type: 'membership_upgrade' } }
@@ -2031,10 +2031,10 @@ async function startMembershipUpgrade(){
       amount: orderRes.order.amount,
       currency: 'INR',
       name: 'FWF — Full Membership',
-      description: 'Supporter → Member Upgrade (₹500)',
+      description: 'Supporter ? Member Upgrade (?500)',
       image: '/assets/images/logo.png',
       order_id: orderRes.order.id,
-      theme: { color: '#34d399' },
+      theme: { color: '#10b981' },
       prefill: { name: user.name || '', email: user.email || '', contact: user.mobile || '' },
       handler: async function(response){
         try {
@@ -2051,17 +2051,17 @@ async function startMembershipUpgrade(){
           document.getElementById('newMemberId').textContent = upgradeRes.memberId;
           document.getElementById('membershipPaySection').style.display = 'none';
           document.getElementById('membershipSuccessBox').style.display = 'block';
-          notify('🎉 Congratulations! आप अब FWF Member हैं!', 'success');
+          notify('?? Congratulations! ?? ?? FWF Member ???!', 'success');
         } catch(e){
           notify(e.message || 'Upgrade failed', 'error');
           btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Subscribe ₹500/Month';
+          btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Subscribe ?500/Month';
         }
       },
       modal: {
         ondismiss: function(){
           btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Subscribe ₹500/Month';
+          btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Subscribe ?500/Month';
         }
       }
     };
@@ -2070,7 +2070,7 @@ async function startMembershipUpgrade(){
   } catch(e){
     notify(e.message || 'Failed to initiate payment', 'error');
     btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Subscribe ₹500/Month';
+    btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Subscribe ?500/Month';
   }
 }
 
@@ -2210,7 +2210,7 @@ function notify(msg, type){
 }
 function statusBadge(s){
   const map = {active:'b-active',inactive:'b-inactive',open:'b-open','in-progress':'b-progress',resolved:'b-resolved',closed:'b-closed',pending:'b-pending',paid:'b-active',failed:'b-inactive'};
-  const labels = {paid:'Paid ✓',pending:'Pending ⏳',failed:'Failed — Not Submitted'};
+  const labels = {paid:'Paid ?',pending:'Pending ?',failed:'Failed — Not Submitted'};
   return `<span class="badge ${map[s]||'b-open'}">${labels[s]||s}</span>`;
 }
 
@@ -2325,7 +2325,7 @@ async function loadWallet(){
     const totalPts = w.points_balance || w.total_points_earned || 0;
 
     document.getElementById('walletTotalPoints').textContent = fmtN(totalPts);
-    document.getElementById('walletBalance').textContent = '₹' + fmtN(w.balance_inr || 0);
+    document.getElementById('walletBalance').textContent = '?' + fmtN(w.balance_inr || 0);
     document.getElementById('walletTotalEarned').textContent = fmtN(w.total_points_earned || 0);
 
     document.getElementById('wPoints').textContent = fmtN(totalPts);
@@ -2353,7 +2353,7 @@ async function loadWallet(){
     if(dons.length){
       donBody.innerHTML = dons.map(d => `<tr>
         <td>${d.donor_name || 'Anonymous'}</td>
-        <td style="font-weight:800">₹${fmtN(d.amount)}</td>
+        <td style="font-weight:800">?${fmtN(d.amount)}</td>
         <td style="color:var(--success);font-weight:700">+${d.points_earned}</td>
         <td style="color:var(--text-muted);font-size:12px">${fmtDate(d.created_at)}</td>
       </tr>`).join('');
@@ -2364,7 +2364,7 @@ async function loadWallet(){
     if(fees.length){
       feeBody.innerHTML = fees.map(f => `<tr>
         <td style="color:var(--text-muted);font-size:12px">${fmtDate(f.created_at)}</td>
-        <td style="font-weight:800">₹${fmtN(f.amount)}</td>
+        <td style="font-weight:800">?${fmtN(f.amount)}</td>
         <td>${statusBadge(f.status)}</td>
         <td style="font-size:12px">${f.txn_id || '—'}</td>
       </tr>`).join('');
@@ -2388,7 +2388,7 @@ async function loadReferral(){
       return `<tr>
         <td style="font-weight:700">${r.referred_name || r.name || '—'}</td>
         <td style="font-family:monospace;font-size:12px">${r.referred_member_id || '—'}</td>
-        <td style="font-weight:800">₹${fmtN(r.amount || 0)}</td>
+        <td style="font-weight:800">?${fmtN(r.amount || 0)}</td>
         <td style="color:var(--success);font-weight:700">+${r.points_earned || r.points || 0}</td>
         <td>${statusBadge(r.status)}</td>
         <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.created_at || r.date)}</td>
@@ -2679,7 +2679,7 @@ function waShareLink(inputId, type) {
   const url  = document.getElementById(inputId).value;
   const name = memberData?.user?.name || 'a friend';
   const msg  = type === 'member'
-    ? `*FWF Membership Registration*\nHello! ${name} has invited you to join FWF as a member.\n\nClick the link below to register (₹500 fee):\n${url}\n\n_Foundris Welfare Foundation_`
+    ? `*FWF Membership Registration*\nHello! ${name} has invited you to join FWF as a member.\n\nClick the link below to register (?500 fee):\n${url}\n\n_Foundris Welfare Foundation_`
     : type === 'donation'
     ? `*FWF Donation*\nHello! ${name} has shared a donation link with you.\n\nClick the link below to make a donation:\n${url}\n\n_Foundris Welfare Foundation_`
     : `*FWF Supporter Registration*\nHello! ${name} has invited you to join FWF as a supporter.\n\nClick the link below to register:\n${url}\n\n_Foundris Welfare Foundation_`;
@@ -2811,7 +2811,7 @@ async function submitRedeemRequest(){
   try{
     const result = await AUTH.api('/api/supporter/redeem-points', { method:'POST', body });
     // Show success screen
-    document.getElementById('redeemSuccessAmt').textContent = '₹' + (result.amount_inr || points * 10);
+    document.getElementById('redeemSuccessAmt').textContent = '?' + (result.amount_inr || points * 10);
     document.getElementById('redeemFormScreen').style.display = 'none';
     document.getElementById('redeemSuccessScreen').style.display = '';
     memberData = null; loadWallet();
@@ -2916,7 +2916,7 @@ async function loadFeed(loadMore = false) {
       task_completion:'Task', other:'Activity'
     };
     const typeColors = {
-      welfare:'#34d399', health:'#3b82f6', plantation:'#22c55e', education:'#fbbf24',
+      welfare:'#10b981', health:'#3b82f6', plantation:'#22c55e', education:'#fbbf24',
       donation:'#f59e0b', awareness:'#06b6d4', skill:'#ec4899', training:'#f97316',
       task_completion:'#14b8a6', other:'#6b7280'
     };
@@ -2940,7 +2940,7 @@ async function loadFeed(loadMore = false) {
           }</div>` : '';
 
       // Avatar gradient based on name
-      const avatarColors = ['#34d399','#3b82f6','#fbbf24','#f59e0b','#ec4899','#06b6d4','#f97316','#14b8a6'];
+      const avatarColors = ['#10b981','#3b82f6','#fbbf24','#f59e0b','#ec4899','#06b6d4','#f97316','#14b8a6'];
       const avatarBg = avatarColors[(p.user_name||'').charCodeAt(0) % avatarColors.length];
 
       const card = document.createElement('div');
@@ -3017,13 +3017,13 @@ function openImgViewer(src) {
    SOCIAL BOOK POST
    ============================================ */
 const POST_TEMPLATES = {
-  welfare: `📍 Location:\n👥 Participants:\n🎯 Activity:\n💚 Impact:\n✨ Outcome:`,
-  health: `🏥 Camp Type:\n📍 Location:\n👥 Beneficiaries:\n💊 Services:\n🎯 Impact:`,
-  plantation: `🌱 Trees Planted:\n📍 Location:\n👥 Supporters:\n🌍 Area Covered:`,
-  education: `📚 Program:\n👥 Students:\n📍 Location:\n📖 Subjects:\n🎯 Results:`,
-  donation: `💝 Items Collected:\n📊 Quantity:\n👥 Donors:\n📍 Location:\n🎁 Beneficiaries:`,
-  awareness: `📣 Campaign:\n🎯 Message:\n👥 Reached:\n📍 Location:`,
-  other: `📌 Activity:\n📍 Location:\n👥 Involved:\n🎯 Goal:\n✅ Completed:`
+  welfare: `?? Location:\n?? Participants:\n?? Activity:\n?? Impact:\n? Outcome:`,
+  health: `?? Camp Type:\n?? Location:\n?? Beneficiaries:\n?? Services:\n?? Impact:`,
+  plantation: `?? Trees Planted:\n?? Location:\n?? Supporters:\n?? Area Covered:`,
+  education: `?? Program:\n?? Students:\n?? Location:\n?? Subjects:\n?? Results:`,
+  donation: `?? Items Collected:\n?? Quantity:\n?? Donors:\n?? Location:\n?? Beneficiaries:`,
+  awareness: `?? Campaign:\n?? Message:\n?? Reached:\n?? Location:`,
+  other: `?? Activity:\n?? Location:\n?? Involved:\n?? Goal:\n? Completed:`
 };
 
 let postImageFiles = [];
@@ -3112,7 +3112,7 @@ async function submitPost(){
     });
     
     closeModal('postModal');
-    notify('🎉 Post submitted for admin review!', 'success');
+    notify('?? Post submitted for admin review!', 'success');
     
     document.getElementById('postDesc').value = '';
     document.getElementById('postDesc').style.height = 'auto';
@@ -3155,7 +3155,7 @@ const taskGradients = [
   'linear-gradient(135deg,#155e75,#06b6d4)',
   'linear-gradient(135deg,#9f1239,#f43f5e)',
   'linear-gradient(135deg,#1e3a5f,#3b82f6)',
-  'linear-gradient(135deg,#064e3b,#34d399)',
+  'linear-gradient(135deg,#064e3b,#10b981)',
   'linear-gradient(135deg,#78350f,#f59e0b)',
 ];
 
@@ -3164,7 +3164,7 @@ async function loadSocialTasksGrid(){
     const data = await AUTH.api('/api/member/all-tasks');
     const grid = document.getElementById('socialTasksGrid');
     if(!data.ok || !data.tasks?.length){
-      grid.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">कोई task उपलब्ध नहीं</p>';
+      grid.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">??? task ?????? ????</p>';
       return;
     }
     const completedIds = new Set(data.completions?.map(c => c.task_id || `TASK-0${c.week_number}`) || []);
@@ -3175,7 +3175,7 @@ async function loadSocialTasksGrid(){
       return `
         <div onclick="openTaskPopup(${i})" style="cursor:pointer;border-radius:18px;overflow:hidden;position:relative;background:${grad};padding:18px 14px 14px;color:#fff;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 16px rgba(0,0,0,.08)" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
           <div style="position:absolute;top:0;right:0;width:70px;height:70px;background:radial-gradient(circle,rgba(255,255,255,.1),transparent);pointer-events:none"></div>
-          ${done ? '<div style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.25);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px">✅</div>' : ''}
+          ${done ? '<div style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.25);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px">?</div>' : ''}
           <div style="font-size:32px;margin-bottom:8px">${t.icon}</div>
           <div>
             <div style="font-size:12px;font-weight:800;line-height:1.35;margin-bottom:4px">${t.title}</div>
@@ -3212,8 +3212,8 @@ function openTaskPopup(idx){
   if(done){
     document.getElementById('taskSelfieArea').innerHTML = `
       <div style="padding:16px;text-align:center">
-        <div style="font-size:40px;margin-bottom:6px">🎉</div>
-        <div style="font-weight:800;font-size:14px;color:#166534">आपने यह कार्य पूरा कर दिया!</div>
+        <div style="font-size:40px;margin-bottom:6px">??</div>
+        <div style="font-weight:800;font-size:14px;color:#166534">???? ?? ????? ???? ?? ????!</div>
       </div>`;
     submitBtn.style.display = 'none';
   } else {
@@ -3221,8 +3221,8 @@ function openTaskPopup(idx){
       <div id="taskSelfiePreview" style="display:none;margin-bottom:10px">
         <img id="taskSelfieImg" style="max-width:100%;max-height:200px;border-radius:12px">
       </div>
-      <label style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#34d399,#f59e0b);color:#fff;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px">
-        <i class="fa-solid fa-camera"></i> Selfie लें / Photo चुनें
+      <label style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#10b981,#f59e0b);color:#fff;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px">
+        <i class="fa-solid fa-camera"></i> Selfie ??? / Photo ?????
         <input type="file" accept="image/*" capture="user" id="taskSelfieInput" onchange="previewTaskSelfie(this)" style="display:none">
       </label>`;
     submitBtn.style.display = 'flex';
@@ -3253,7 +3253,7 @@ function previewTaskSelfie(input){
 
 async function submitTaskSelfie(){
   const fileInput = document.getElementById('taskSelfieInput');
-  if(!fileInput?.files?.length){ notify('कृपया Selfie/Photo लें','error'); return; }
+  if(!fileInput?.files?.length){ notify('????? Selfie/Photo ???','error'); return; }
   if(!currentTaskData){ notify('Task data not found','error'); return; }
 
   const btn = document.getElementById('taskSelfieSubmitBtn');
@@ -3278,7 +3278,7 @@ async function submitTaskSelfie(){
 
     closeModal('socialTaskModal');
     if(taskRes.ok){
-      notify('🎉 बहुत अच्छे! Selfie Social Book पर share हो गई!', 'success');
+      notify('?? ???? ?????! Selfie Social Book ?? share ?? ??!', 'success');
     } else {
       notify(taskRes.error || 'Error submitting task', 'error');
     }
@@ -3289,7 +3289,7 @@ async function submitTaskSelfie(){
     notify(e.message || 'Submit failed', 'error');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Selfie Share करें — Social Book पर Post होगा!';
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Selfie Share ???? — Social Book ?? Post ????!';
   }
 }
 
@@ -3297,7 +3297,7 @@ async function submitTaskSelfie(){
 const tierConfig = {
   monthly: {
     color: '#3b82f6', gradient: 'linear-gradient(135deg,#3b82f6,#2563eb)',
-    label: 'Monthly', emoji: '🗓️', fee: 100,
+    label: 'Monthly', emoji: '???', fee: 100,
     programName: 'Udaan Scholarship',
     scholarshipAmount: 5000,
     purpose: 'To boost your skill development.',
@@ -3306,7 +3306,7 @@ const tierConfig = {
   },
   half_yearly: {
     color: '#fbbf24', gradient: 'linear-gradient(135deg,#fbbf24,#d97706)',
-    label: 'Half-Yearly', emoji: '📅', fee: 500,
+    label: 'Half-Yearly', emoji: '??', fee: 500,
     programName: 'Saksham Program',
     scholarshipAmount: 25000,
     rewardLabel: 'Business Support',
@@ -3316,7 +3316,7 @@ const tierConfig = {
   },
   yearly: {
     color: '#e11d48', gradient: 'linear-gradient(135deg,#e11d48,#be123c)',
-    label: 'Yearly', emoji: '🏆', fee: 1000,
+    label: 'Yearly', emoji: '??', fee: 1000,
     programName: 'Divya Yatra Sahyog',
     scholarshipAmount: 50000,
     rewardLabel: 'Divya Yatra',
@@ -3327,7 +3327,7 @@ const tierConfig = {
 };
 const gameTypeIcons = {
   mcq:         { icon:'fa-solid fa-list-check', label:'MCQ Quiz', color:'#3b82f6' },
-  true_false:  { icon:'fa-solid fa-check-double', label:'True / False', color:'#34d399' },
+  true_false:  { icon:'fa-solid fa-check-double', label:'True / False', color:'#10b981' },
   picture:     { icon:'fa-solid fa-image', label:'Picture Quiz', color:'#f59e0b' },
   speed:       { icon:'fa-solid fa-bolt', label:'Speed Round', color:'#ef4444' },
   puzzle:      { icon:'fa-solid fa-puzzle-piece', label:'Puzzle', color:'#fbbf24' },
@@ -3439,14 +3439,14 @@ function renderQuizCards(quizzes){
         <div class="qcb-title">${tc.programName}</div>
         <div class="qcb-desc">${tc.purpose}</div>
         <div class="qcb-reward-pill">
-          <div class="qcb-reward-icon">🎓</div>
+          <div class="qcb-reward-icon">??</div>
           <div>
-            <div class="qcb-reward-amount">₹${schAmt.toLocaleString('en-IN')}</div>
+            <div class="qcb-reward-amount">?${schAmt.toLocaleString('en-IN')}</div>
             <div class="qcb-reward-label">${tc.rewardLabel || 'Scholarship Amount'}</div>
           </div>
         </div>
         <div class="qcb-bottom">
-          <div>Entry Fee: <strong>₹${q.entry_fee}</strong></div>
+          <div>Entry Fee: <strong>?${q.entry_fee}</strong></div>
           <div>Participate in quiz to win scholarship</div>
         </div>
       </div>
@@ -3463,7 +3463,7 @@ function renderQuizCards(quizzes){
         </div>
         ${q.enrolled ? `
           <div style="padding:14px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:12px;text-align:center;margin-top:8px">
-            <div style="font-size:11px;color:#22c55e;font-weight:800">✅ ENROLLED</div>
+            <div style="font-size:11px;color:#22c55e;font-weight:800">? ENROLLED</div>
             <div style="font-size:12px;color:#86efac;margin-top:4px">${q.enrollment?.enrollment_number || ''}</div>
           </div>
           ${q.enrollment && !q.enrollment.quiz_submitted && q.status === 'active' ?
@@ -3472,7 +3472,7 @@ function renderQuizCards(quizzes){
             </button>` : ''}
           ${q.enrollment?.quiz_submitted ? 
             `<div style="padding:12px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:12px;text-align:center;margin-top:8px;font-size:12px;color:#22c55e;font-weight:700">
-              ✅ Quiz Submitted
+              ? Quiz Submitted
             </div>` : ''}
           <button class="qcb-btn" style="background:#f59e0b;color:#fff;margin-top:8px;width:100%" onclick="openSellModal('${q.quiz_id}','${q.title}',${q.entry_fee},'${tc.programName}')">
             <i class="fa-solid fa-share-nodes"></i> Sell Ticket
@@ -3500,10 +3500,10 @@ function filterQuizTier(tier){
 async function enrollInQuiz(quizId, title, fee){
   FWF_Notify.confirm(
     `<div style="text-align:center">
-      <div style="font-size:36px;margin-bottom:8px">🎓</div>
+      <div style="font-size:36px;margin-bottom:8px">??</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:6px">"${title}"</div>
-      <div style="font-size:14px;color:#666;margin-bottom:12px">में enroll करें?</div>
-      <div style="display:inline-block;background:linear-gradient(135deg,#f5a623,#e87722);color:#fff;font-size:18px;font-weight:800;padding:8px 24px;border-radius:12px;margin-bottom:4px">Entry Fee: ₹${fee}</div>
+      <div style="font-size:14px;color:#666;margin-bottom:12px">??? enroll ?????</div>
+      <div style="display:inline-block;background:linear-gradient(135deg,#f5a623,#e87722);color:#fff;font-size:18px;font-weight:800;padding:8px 24px;border-radius:12px;margin-bottom:4px">Entry Fee: ?${fee}</div>
     </div>`,
     async () => {
   try {
@@ -3568,7 +3568,7 @@ async function openQuizPlay(quizId, enrollmentNum){
       <div style="background:#fff;border-radius:20px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">
         <div style="background:linear-gradient(135deg,#E87722,#d97706);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
           <div>
-            <h3 style="color:#fff;margin:0;font-size:16px;font-weight:800">🎓 ${quizTitle}</h3>
+            <h3 style="color:#fff;margin:0;font-size:16px;font-weight:800">?? ${quizTitle}</h3>
             ${enrollNum ? `<div style="font-size:11px;opacity:.85;margin-top:2px">ID: ${enrollNum}</div>` : ''}
           </div>
           <button onclick="document.getElementById('quizPlayModal').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px">&times;</button>
@@ -3588,8 +3588,8 @@ async function openQuizPlay(quizId, enrollmentNum){
         <h4 style="font-size:15px;margin-bottom:16px;line-height:1.5">${q.question}</h4>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${q.options.map((opt,i) => `
-            <label style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid ${answers[currentQ]===i?'#34d399':'#e5e7eb'};cursor:pointer;transition:all .2s;background:${answers[currentQ]===i?'#ecfdf5':'#fff'}" onclick="selectQuizAnswer(${currentQ},${i})">
-              <input type="radio" name="q${currentQ}" value="${i}" ${answers[currentQ]===i?'checked':''} style="accent-color:#34d399">
+            <label style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid ${answers[currentQ]===i?'#10b981':'#e5e7eb'};cursor:pointer;transition:all .2s;background:${answers[currentQ]===i?'#ecfdf5':'#fff'}" onclick="selectQuizAnswer(${currentQ},${i})">
+              <input type="radio" name="q${currentQ}" value="${i}" ${answers[currentQ]===i?'checked':''} style="accent-color:#10b981">
               <span style="font-size:14px">${opt}</span>
             </label>
           `).join('')}
@@ -3598,7 +3598,7 @@ async function openQuizPlay(quizId, enrollmentNum){
         ${currentQ > 0 ? `<button class="btn btn-ghost" onclick="quizPrev()"><i class="fa-solid fa-arrow-left"></i> Previous</button>` : '<span></span>'}
         ${currentQ < questions.length-1 ?
           `<button class="btn btn-primary" onclick="quizNext()">Next <i class="fa-solid fa-arrow-right"></i></button>` :
-          `<button class="btn btn-success" onclick="submitQuizAnswers('${quizId}')">✓ Submit Quiz</button>`}`;
+          `<button class="btn btn-success" onclick="submitQuizAnswers('${quizId}')">? Submit Quiz</button>`}`;
     }
 
     window.selectQuizAnswer = (qi, ai) => { answers[qi] = ai; renderQuestion(); };
@@ -3621,7 +3621,7 @@ async function openQuizPlay(quizId, enrollmentNum){
       if(unanswered > 0){
         FWF_Notify.confirm(
           `<div style="text-align:center">
-            <div style="font-size:36px;margin-bottom:8px">❓</div>
+            <div style="font-size:36px;margin-bottom:8px">?</div>
             <div style="font-size:16px;font-weight:700;margin-bottom:6px">${unanswered} Question${unanswered>1?'s':''} Unanswered!</div>
             <div style="font-size:13px;color:#666">Kya phir bhi submit karna chahte hain?</div>
           </div>`,
@@ -3644,31 +3644,31 @@ function showQuizResult({ score, total, passed, enrollmentNumber, resultDate }) 
   modal.innerHTML = `
     <div style="background:#fff;border-radius:20px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
       <div style="background:${passed?'linear-gradient(135deg,#22c55e,#16a34a)':'linear-gradient(135deg,#f59e0b,#d97706)'};padding:28px 24px;text-align:center;color:#fff">
-        <div style="font-size:56px;margin-bottom:10px">${passed?'🎉':'📝'}</div>
+        <div style="font-size:56px;margin-bottom:10px">${passed?'??':'??'}</div>
         <h3 style="margin:0 0 4px;font-size:20px;font-weight:900">${passed?'Congratulations!':'Quiz Submitted!'}</h3>
-        <p style="margin:0;font-size:13px;opacity:.9">${passed?'सभी जवाब सही हैं! 🌟':`Score: ${score}/${total}`}</p>
+        <p style="margin:0;font-size:13px;opacity:.9">${passed?'??? ???? ??? ???! ??':`Score: ${score}/${total}`}</p>
       </div>
       <div style="padding:22px;text-align:center">
         <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:14px;margin-bottom:14px">
           <div style="font-size:10px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Participation ID</div>
           <div style="font-size:20px;font-weight:900;color:#166534;font-family:monospace;letter-spacing:1.5px">${enrollmentNumber||'—'}</div>
-          <div style="font-size:11px;color:#15803d;margin-top:4px">Screenshot लेकर सहेज लें!</div>
+          <div style="font-size:11px;color:#15803d;margin-top:4px">Screenshot ???? ???? ???!</div>
         </div>
         ${!passed?`<div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:10px;margin-bottom:14px;font-size:12px;color:#92400e">
           Score: ${score}/${total} — Result: ${rd}
         </div>`:''}
-        <button onclick="document.getElementById('quizResultModal').remove()" style="width:100%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:800;cursor:pointer">Done ✓</button>
+        <button onclick="document.getElementById('quizResultModal').remove()" style="width:100%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:800;cursor:pointer">Done ?</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
 }
 
-// ─── QUIZ SELL TICKET FUNCTIONS ───────────────────────────────
+// --- QUIZ SELL TICKET FUNCTIONS -------------------------------
 let _sellQuizId = '', _sellQuizTitle = '', _sellQuizFee = 0, _sellProgramName = '';
 
 function openSellModal(quizId, quizTitle, fee, programName){
   _sellQuizId = quizId; _sellQuizTitle = quizTitle; _sellQuizFee = fee; _sellProgramName = programName;
-  document.getElementById('sellModalSubtitle').textContent = `${programName} — ₹${fee} Entry`;
+  document.getElementById('sellModalSubtitle').textContent = `${programName} — ?${fee} Entry`;
   document.getElementById('sellBuyerName').value = '';
   document.getElementById('sellBuyerMobile').value = '';
   document.getElementById('sellBuyerEmail').value = '';
@@ -3681,12 +3681,12 @@ async function generateSellLink(){
   const buyerName = document.getElementById('sellBuyerName').value.trim();
   const buyerMobile = document.getElementById('sellBuyerMobile').value.trim();
   const buyerEmail = document.getElementById('sellBuyerEmail').value.trim();
-  if(!buyerName){ notify('खरीदार का नाम दर्ज करें','error'); return; }
-  if(!/^\d{10}$/.test(buyerMobile)){ notify('10-digit mobile number दर्ज करें','error'); return; }
+  if(!buyerName){ notify('?????? ?? ??? ???? ????','error'); return; }
+  if(!/^\d{10}$/.test(buyerMobile)){ notify('10-digit mobile number ???? ????','error'); return; }
   // Prevent selling to yourself
   const sellerMobile = (memberData?.user?.mobile || '').replace(/\D/g,'').slice(-10);
   if(sellerMobile && buyerMobile === sellerMobile){
-    notify('आप अपने खुद के लिए ticket नहीं बेच सकते। खरीदार का अलग mobile number दर्ज करें।','error');
+    notify('?? ???? ??? ?? ??? ticket ???? ??? ????? ?????? ?? ??? mobile number ???? ?????','error');
     return;
   }
   const btn = document.getElementById('generateLinkBtn');
@@ -3696,7 +3696,7 @@ async function generateSellLink(){
       method: 'POST',
       body: { quiz_id: _sellQuizId, buyer_name: buyerName, buyer_contact: buyerMobile, buyer_email: buyerEmail }
     });
-    if(!res.ok) throw new Error(res.error || 'Link generate नहीं हो सका');
+    if(!res.ok) throw new Error(res.error || 'Link generate ???? ?? ???');
     document.getElementById('generatedSellLink').value = res.link;
     document.getElementById('sellStep1').style.display = 'none';
     document.getElementById('sellStep2').style.display = 'block';
@@ -3706,13 +3706,13 @@ async function generateSellLink(){
 
 function copySellLink(){
   const val = document.getElementById('generatedSellLink').value;
-  if(val){ navigator.clipboard.writeText(val); notify('Link copied! 📋','success'); }
+  if(val){ navigator.clipboard.writeText(val); notify('Link copied! ??','success'); }
 }
 
 function shareSellLink(platform){
   const link = document.getElementById('generatedSellLink').value;
   const tc = Object.values(tierConfig).find(t => t.programName === _sellProgramName) || {};
-  const text = `🎓 FWF ${_sellProgramName} में भाग लें और ₹${(tc.scholarshipAmount||0).toLocaleString('en-IN')} छात्रवृत्ति जीतें!\nEntry: ₹${_sellQuizFee}\n${link}`;
+  const text = `?? FWF ${_sellProgramName} ??? ??? ??? ?? ?${(tc.scholarshipAmount||0).toLocaleString('en-IN')} ??????????? ?????!\nEntry: ?${_sellQuizFee}\n${link}`;
   if(platform === 'whatsapp') window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
   else if(platform === 'telegram') window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
 }
@@ -3724,7 +3724,7 @@ function sellAnotherTicket(){
   document.getElementById('sellBuyerMobile').value = '';
   document.getElementById('sellBuyerEmail').value = '';
 }
-// ──────────────────────────────────────────────────────────────
+// --------------------------------------------------------------
 
 async function loadMyActivities(){
   try {
@@ -3740,7 +3740,7 @@ async function loadMyActivities(){
     if(taskRes.completions?.length){
       taskList.innerHTML = taskRes.completions.map(c => `
         <div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:var(--bg-1);margin-bottom:6px">
-          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0">✅</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0">?</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:13px;font-weight:700">Task #${c.week_number}</div>
             <div style="font-size:11px;color:var(--text-muted)">${fmtDate(c.completed_at)}</div>
@@ -3756,25 +3756,25 @@ async function loadMyActivities(){
         const qd = p.quiz_details;
         const resultDate = qd?.result_date ? fmtDate(qd.result_date) : '—';
         const quizStatus = p.quiz_submitted
-          ? '<span style="color:#16a34a;font-weight:700">✅ Submitted</span>'
-          : '<span style="color:#d97706;font-weight:700">⏳ Enrolled</span>';
+          ? '<span style="color:#16a34a;font-weight:700">? Submitted</span>'
+          : '<span style="color:#d97706;font-weight:700">? Enrolled</span>';
         const resultStatus = p.status === 'won'
-          ? '<span style="color:#16a34a;font-weight:700">🏆 Won</span>'
+          ? '<span style="color:#16a34a;font-weight:700">?? Won</span>'
           : p.status === 'lost'
-          ? '<span style="color:#dc2626;font-weight:700">❌ Lost</span>'
+          ? '<span style="color:#dc2626;font-weight:700">? Lost</span>'
           : '<span style="color:#6b7280">— Pending</span>';
         return `<tr>
           <td style="white-space:nowrap;font-size:11px">${fmtDate(p.created_at)}</td>
           <td style="font-weight:700">${qd?.title || p.quiz_ref || '—'}<br><span style="font-size:10px;color:var(--text-muted)">${p.quiz_ref||''}</span></td>
           <td style="font-family:monospace;font-size:11px;color:#166534;font-weight:700">${p.enrollment_number}</td>
-          <td>₹${fmtN(p.amount_paid)}</td>
+          <td>?${fmtN(p.amount_paid)}</td>
           <td>${quizStatus}</td>
           <td style="white-space:nowrap;font-size:11px">${resultDate}</td>
           <td>${resultStatus}</td>
         </tr>`;
       }).join('');
     } else {
-      quizList.innerHTML = '<tr><td colspan="7" class="empty-state"><p>अभी तक किसी quiz में हिस्सा नहीं लिया</p></td></tr>';
+      quizList.innerHTML = '<tr><td colspan="7" class="empty-state"><p>??? ?? ???? quiz ??? ?????? ???? ????</p></td></tr>';
     }
   } catch(e){ console.error('Activities load err:', e); }
 }
@@ -3812,14 +3812,14 @@ loadDashboard();
   position:fixed; bottom:88px; right:22px; z-index:8000;
   height:48px; border-radius:99px;
   padding:0 20px 0 16px;
-  background:linear-gradient(135deg,#34d399,#f59e0b);
+  background:linear-gradient(135deg,#10b981,#f59e0b);
   color:#fff; border:none; cursor:pointer;
-  box-shadow:0 4px 18px rgba(52,211,153,.45);
+  box-shadow:0 4px 18px rgba(16,185,129,.45);
   display:flex; align-items:center; justify-content:center; gap:8px;
   font-size:14px; font-weight:800; font-family:inherit;
   transition:transform .2s,box-shadow .2s;
-" onmouseenter="this.style.transform='scale(1.06)';this.style.boxShadow='0 6px 24px rgba(52,211,153,.6)'"
-   onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='0 4px 18px rgba(52,211,153,.45)'">
+" onmouseenter="this.style.transform='scale(1.06)';this.style.boxShadow='0 6px 24px rgba(16,185,129,.6)'"
+   onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='0 4px 18px rgba(16,185,129,.45)'">
   <i class="fa-solid fa-heart" style="font-size:16px"></i> Donate
 </button>
 
@@ -3827,26 +3827,26 @@ loadDashboard();
 <div id="modalSelfDonate" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9100;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:20px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
     <!-- Header -->
-    <div style="background:linear-gradient(135deg,#34d399,#f59e0b);padding:18px 20px;display:flex;align-items:center;justify-content:space-between">
+    <div style="background:linear-gradient(135deg,#10b981,#f59e0b);padding:18px 20px;display:flex;align-items:center;justify-content:space-between">
       <h3 style="color:#fff;margin:0;font-size:17px;font-weight:800"><i class="fa-solid fa-heart"></i> Donate to FWF</h3>
       <button onclick="closeSelfDonateModal()" style="background:rgba(255,255,255,.25);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <!-- Body -->
     <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
-      <p style="font-size:13px;color:#64748b;margin:0;line-height:1.6;text-align:center;padding:4px 0">🌟 Aapka ek kadam hazaron zindagiyon ko roshni de sakta hai — aap sach mein ek naayak hain! 💚</p>
+      <p style="font-size:13px;color:#64748b;margin:0;line-height:1.6;text-align:center;padding:4px 0">?? Aapka ek kadam hazaron zindagiyon ko roshni de sakta hai — aap sach mein ek naayak hain! ??</p>
       <div>
-        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:5px">Donation Amount (₹) <span style="color:#ef4444">*</span></label>
+        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:5px">Donation Amount (?) <span style="color:#ef4444">*</span></label>
         <input type="number" id="sdAmount" placeholder="e.g. 500" min="1" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;outline:none">
       </div>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:#f0fdf4;border:1.5px solid #34d399;border-radius:10px">
-        <input type="checkbox" id="sdMonthly" style="width:16px;height:16px;accent-color:#34d399;cursor:pointer;flex-shrink:0">
-        <span style="font-size:13px;font-weight:600;color:#f59e0b">🔁 Make this a Monthly Donation</span>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:#f0fdf4;border:1.5px solid #10b981;border-radius:10px">
+        <input type="checkbox" id="sdMonthly" style="width:16px;height:16px;accent-color:#10b981;cursor:pointer;flex-shrink:0">
+        <span style="font-size:13px;font-weight:600;color:#f59e0b">?? Make this a Monthly Donation</span>
       </label>
       <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
-        <input type="checkbox" id="sdTnc" style="width:16px;height:16px;accent-color:#34d399;cursor:pointer;flex-shrink:0;margin-top:2px">
-        <span style="font-size:12px;color:#64748b;line-height:1.5">I agree to the <a href="/terms-conditions.html" target="_blank" style="color:#34d399;font-weight:700">Terms &amp; Conditions</a> and confirm this donation is voluntary.</span>
+        <input type="checkbox" id="sdTnc" style="width:16px;height:16px;accent-color:#10b981;cursor:pointer;flex-shrink:0;margin-top:2px">
+        <span style="font-size:12px;color:#64748b;line-height:1.5">I agree to the <a href="/terms-conditions.html" target="_blank" style="color:#10b981;font-weight:700">Terms &amp; Conditions</a> and confirm this donation is voluntary.</span>
       </label>
-      <button id="sdSubmitBtn" onclick="submitSelfDonation()" style="background:linear-gradient(135deg,#34d399,#f59e0b);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s">
+      <button id="sdSubmitBtn" onclick="submitSelfDonation()" style="background:linear-gradient(135deg,#10b981,#f59e0b);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s">
         <i class="fa-solid fa-lock-open"></i> Pay &amp; Donate
       </button>
       <p style="font-size:11px;color:#64748b;margin:0;text-align:center"><i class="fa-solid fa-shield-halved" style="color:#22c55e"></i> Secured by Razorpay · 100% safe</p>
@@ -3896,7 +3896,7 @@ async function submitSelfDonation(){
     const user = memberData?.user || {};
 
     if(monthly){
-      // ── Monthly recurring via subscription ──
+      // -- Monthly recurring via subscription --
       const subRes = await AUTH.api('/api/pay/create-donation-subscription',{
         method:'POST',
         body:{ amount, name: user.name, email: user.email, mobile: user.mobile }
@@ -3907,9 +3907,9 @@ async function submitSelfDonation(){
         key: subRes.key,
         subscription_id: subRes.subscription_id,
         name: 'FWF — Monthly Donation',
-        description: `Monthly donation ₹${amount}/month`,
+        description: `Monthly donation ?${amount}/month`,
         image: '/assets/images/logo.png',
-        theme: { color: '#34d399' },
+        theme: { color: '#10b981' },
         prefill: { name: user.name||'', email: user.email||'', contact: user.mobile||'' },
         handler: async function(response){
           try{
@@ -3925,7 +3925,7 @@ async function submitSelfDonation(){
               }
             });
             if(!r.ok) throw new Error(r.error || 'Donation recording failed');
-            notify(`₹${amount}/month recurring donation set up! 🙏 +${r.pointsEarned||0} points`, 'success');
+            notify(`?${amount}/month recurring donation set up! ?? +${r.pointsEarned||0} points`, 'success');
             closeSelfDonateModal();
             if(typeof loadDashboard === 'function') loadDashboard();
           } catch(e){ notify(e.message||'Recording failed','error'); }
@@ -3936,7 +3936,7 @@ async function submitSelfDonation(){
       const rzp = new Razorpay(opt); rzp.open();
 
     } else {
-      // ── One-time order ──
+      // -- One-time order --
       const orderRes = await AUTH.api('/api/pay/create-order',{
         method:'POST',
         body:{ amount, type:'donation', notes:{ type:'donation', memberId: user.member_id||'' } }
@@ -3948,10 +3948,10 @@ async function submitSelfDonation(){
         amount: orderRes.order.amount,
         currency: 'INR',
         name: 'FWF — Donate',
-        description: `Donation ₹${amount}`,
+        description: `Donation ?${amount}`,
         image: '/assets/images/logo.png',
         order_id: orderRes.order.id,
-        theme: { color: '#34d399' },
+        theme: { color: '#10b981' },
         prefill: { name: user.name||'', email: user.email||'', contact: user.mobile||'' },
         handler: async function(response){
           try{
@@ -3966,7 +3966,7 @@ async function submitSelfDonation(){
               }
             });
             if(!r.ok) throw new Error(r.error || 'Donation recording failed');
-            notify(`₹${amount} donation successful! 🙏 +${r.pointsEarned||0} points earned`, 'success');
+            notify(`?${amount} donation successful! ?? +${r.pointsEarned||0} points earned`, 'success');
             closeSelfDonateModal();
             if(typeof loadDashboard === 'function') loadDashboard();
           } catch(e){ notify(e.message||'Recording failed','error'); }
