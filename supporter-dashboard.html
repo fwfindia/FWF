@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="/assets/images/logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
   <style>
 /* ==============================
    CSS VARIABLES (Supporter Green Theme)
@@ -3868,6 +3868,17 @@ document.getElementById('modalSelfDonate').addEventListener('click', function(e)
   if(e.target === this) closeSelfDonateModal();
 });
 
+function loadRazorpaySDK(){
+  return new Promise((resolve, reject)=>{
+    if(window.Razorpay) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    s.onload = resolve;
+    s.onerror = ()=> reject(new Error('Failed to load payment gateway. Please try again.'));
+    document.head.appendChild(s);
+  });
+}
+
 async function submitSelfDonation(){
   const amount = parseFloat(document.getElementById('sdAmount').value);
   if(!amount || amount < 1){ notify('Please enter a valid amount','error'); return; }
@@ -3875,9 +3886,11 @@ async function submitSelfDonation(){
   const monthly = document.getElementById('sdMonthly').checked;
   const btn = document.getElementById('sdSubmitBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating order...';
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
 
   try{
+    await loadRazorpaySDK();
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating order...';
     const user = memberData?.user || {};
 
     if(monthly){
