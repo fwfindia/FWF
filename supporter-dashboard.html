@@ -3833,8 +3833,9 @@ loadDashboard();
         <span style="font-size:12px;color:#64748b;line-height:1.5">I agree to the <a href="/terms-conditions.html" target="_blank" style="color:#10b981;font-weight:700">Terms &amp; Conditions</a> and confirm this donation is voluntary.</span>
       </label>
       <button id="sdSubmitBtn" onclick="submitSelfDonation()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s">
-        <i class="fa-solid fa-heart"></i> Submit Donation
+        <i class="fa-solid fa-lock-open"></i> Pay &amp; Donate
       </button>
+      <p style="font-size:11px;color:#64748b;margin:0;text-align:center"><i class="fa-solid fa-shield-halved" style="color:#22c55e"></i> Secured by Razorpay · 100% safe</p>
     </div>
   </div>
 </div>
@@ -3862,20 +3863,97 @@ async function submitSelfDonation(){
   const monthly = document.getElementById('sdMonthly').checked;
   const btn = document.getElementById('sdSubmitBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating order...';
+
   try{
-    await AUTH.api('/api/member/self-donate', {
-      method: 'POST',
-      body: { amount, monthly }
-    });
-    notify(`₹${amount} donation submitted successfully! 🙏`, 'success');
-    closeSelfDonateModal();
-    if(typeof loadDashboard === 'function') loadDashboard();
+    const user = memberData?.user || {};
+
+    if(monthly){
+      // ── Monthly recurring via subscription ──
+      const subRes = await AUTH.api('/api/pay/create-donation-subscription',{
+        method:'POST',
+        body:{ amount, name: user.name, email: user.email, mobile: user.mobile }
+      });
+      if(!subRes.ok) throw new Error(subRes.error || 'Subscription creation failed');
+
+      const opt = {
+        key: subRes.key,
+        subscription_id: subRes.subscription_id,
+        name: 'FWF — Monthly Donation',
+        description: `Monthly donation ₹${amount}/month`,
+        image: '/assets/images/logo.png',
+        theme: { color: '#10b981' },
+        prefill: { name: user.name||'', email: user.email||'', contact: user.mobile||'' },
+        handler: async function(response){
+          try{
+            const r = await AUTH.api('/api/pay/donation',{
+              method:'POST',
+              body:{
+                name: user.name, email: user.email, mobile: user.mobile,
+                amount, memberId: user.member_id,
+                recurring: true,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_subscription_id: response.razorpay_subscription_id,
+                razorpay_signature: response.razorpay_signature
+              }
+            });
+            if(!r.ok) throw new Error(r.error || 'Donation recording failed');
+            notify(`₹${amount}/month recurring donation set up! 🙏 +${r.pointsEarned||0} points`, 'success');
+            closeSelfDonateModal();
+            if(typeof loadDashboard === 'function') loadDashboard();
+          } catch(e){ notify(e.message||'Recording failed','error'); }
+          finally{ btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Pay & Donate'; }
+        },
+        modal:{ ondismiss(){ btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Pay & Donate'; } }
+      };
+      const rzp = new Razorpay(opt); rzp.open();
+
+    } else {
+      // ── One-time order ──
+      const orderRes = await AUTH.api('/api/pay/create-order',{
+        method:'POST',
+        body:{ amount, type:'donation', notes:{ type:'donation', memberId: user.member_id||'' } }
+      });
+      if(!orderRes.ok) throw new Error(orderRes.error || 'Order creation failed');
+
+      const opt = {
+        key: orderRes.key,
+        amount: orderRes.order.amount,
+        currency: 'INR',
+        name: 'FWF — Donate',
+        description: `Donation ₹${amount}`,
+        image: '/assets/images/logo.png',
+        order_id: orderRes.order.id,
+        theme: { color: '#10b981' },
+        prefill: { name: user.name||'', email: user.email||'', contact: user.mobile||'' },
+        handler: async function(response){
+          try{
+            const r = await AUTH.api('/api/pay/donation',{
+              method:'POST',
+              body:{
+                name: user.name, email: user.email, mobile: user.mobile,
+                amount, memberId: user.member_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id:   response.razorpay_order_id,
+                razorpay_signature:  response.razorpay_signature
+              }
+            });
+            if(!r.ok) throw new Error(r.error || 'Donation recording failed');
+            notify(`₹${amount} donation successful! 🙏 +${r.pointsEarned||0} points earned`, 'success');
+            closeSelfDonateModal();
+            if(typeof loadDashboard === 'function') loadDashboard();
+          } catch(e){ notify(e.message||'Recording failed','error'); }
+          finally{ btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Pay & Donate'; }
+        },
+        modal:{ ondismiss(){ btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Pay & Donate'; } }
+      };
+      const rzp = new Razorpay(opt); rzp.open();
+    }
+
   } catch(e){
-    notify(e.message || 'Failed to submit donation', 'error');
-  } finally {
+    notify(e.message || 'Failed to initiate payment', 'error');
     btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-heart"></i> Submit Donation';
+    btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Pay & Donate';
   }
 }
 </script>
