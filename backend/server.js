@@ -1837,7 +1837,20 @@ app.post('/api/auth/login', rateLimit(60000, 5), async (req, res) => {
 
   let u = await User.findOne({ member_id: memberId });
   if (!u) u = await User.findOne({ email: memberId });
-  if (!u) u = await User.findOne({ mobile: memberId });
+
+  // Mobile lookup: try multiple formats (raw, +91prefix, 91prefix, stripped to last 10 digits)
+  if (!u) {
+    const cleanMobile = memberId.replace(/\D/g, ''); // strip non-digits
+    const last10 = cleanMobile.slice(-10);
+    u = await User.findOne({ mobile: { $in: [
+      cleanMobile,
+      last10,
+      '+91' + last10,
+      '91' + last10,
+      '+' + cleanMobile
+    ]}});
+  }
+
   if (!u) {
     console.log(`Login failed: member_id/email/mobile "${memberId}" not found`);
     return res.status(400).json({ error: 'Invalid Member ID or password' });
@@ -1872,7 +1885,10 @@ app.post('/api/auth/get-user-email', internalAuth, async (req, res) => {
   const { memberId } = req.body;
   if (!memberId) return res.status(400).json({ error: 'Member ID is required' });
   let u = await User.findOne({ member_id: memberId }).select('email mobile');
-  if (!u) u = await User.findOne({ mobile: memberId }).select('email mobile member_id');
+  if (!u) {
+    const cleanMobile = memberId.replace(/\D/g, '').slice(-10);
+    u = await User.findOne({ mobile: { $in: [cleanMobile, '+91'+cleanMobile, '91'+cleanMobile] } }).select('email mobile member_id');
+  }
   if (!u) return res.status(404).json({ error: 'Member ID not found' });
   res.json({ email: u.email, mobile: u.mobile || null, memberId: u.member_id });
 });
@@ -1883,7 +1899,10 @@ app.post('/api/auth/update-password', internalAuth, async (req, res) => {
   if (!memberId || !newPassword) return res.status(400).json({ error: 'Member ID and new password are required' });
 
   let u = await User.findOne({ member_id: memberId }).select('password_hash');
-  if (!u) u = await User.findOne({ mobile: memberId }).select('password_hash');
+  if (!u) {
+    const cleanMobile = memberId.replace(/\D/g, '').slice(-10);
+    u = await User.findOne({ mobile: { $in: [cleanMobile, '+91'+cleanMobile, '91'+cleanMobile] } }).select('password_hash');
+  }
   if (!u) return res.status(404).json({ error: 'Member ID not found' });
 
   const oldHashPreview = u.password_hash.substring(0, 15);
