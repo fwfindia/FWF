@@ -374,16 +374,17 @@ body::before{
   <div class="modal-container">
     <button class="modal-close" onclick="closeForgotModal()">&times;</button>
     
-    <!-- Step 1: Enter Member ID -->
+    <!-- Step 1: Enter Member ID or Mobile -->
     <div class="modal-step active" id="step1">
       <h2 class="modal-title">Forgot Password?</h2>
-      <p class="modal-subtitle">Enter your Member ID to receive an OTP on your registered email.</p>
+      <p class="modal-subtitle">Enter your Member ID <strong>or registered mobile number</strong> to receive an OTP.</p>
       
       <form id="requestOtpForm">
         <div class="input-group">
-          <input id="resetMemberId" class="input-field" type="text" placeholder="FWF-000001" required>
-          <i class="input-icon fa-solid fa-id-card"></i>
+          <input id="resetMemberId" class="input-field" type="text" placeholder="FWF-000001 or 9876543210" required autocomplete="off" inputmode="text">
+          <i class="input-icon fa-solid fa-user-shield"></i>
         </div>
+        <p style="font-size:11px;color:rgba(255,255,255,0.45);margin:-8px 0 14px;padding-left:2px"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>Member ID (FWF-XXXXXX) ya 10-digit mobile number enter karein</p>
         
         <button type="submit" class="login-btn">
           <span id="otpBtnText"><i class="fa-solid fa-paper-plane"></i> Send OTP</span>
@@ -522,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function handleResetToDefault() {
   const memberId = document.getElementById('resetMemberId').value.trim();
   if (!memberId) {
-    FWF_Notify.toast('Please enter your Member ID first', 'error');
+    FWF_Notify.toast('Member ID ya mobile number pehle enter karein', 'error');
     return;
   }
   if (!confirm(`"${memberId}" ka password reset होगा।\n\nनया password: Welcome@123\n\nLogin करने के बाद इसे तुरंत बदलें। Continue?`)) return;
@@ -556,7 +557,7 @@ document.getElementById('requestOtpForm').addEventListener('submit', async (e) =
   const memberId = document.getElementById('resetMemberId').value.trim();
   
   if(!memberId) {
-    FWF_Notify.toast('Please enter your Member ID', 'error');
+    FWF_Notify.toast('Member ID ya mobile number enter karein', 'error');
     return;
   }
   
