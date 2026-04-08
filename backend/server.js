@@ -1481,12 +1481,16 @@ app.post('/api/auth/logout', (req, res) => {
 app.post('/api/auth/get-user-email', internalAuth, async (req, res) => {
   const { memberId } = req.body;
   if (!memberId) return res.status(400).json({ error: 'Member ID is required' });
-  let u = await User.findOne({ member_id: memberId }).select('email mobile');
+  let u = await User.findOne({ member_id: memberId }).select('email mobile member_id');
   if (!u) {
     const cleanMobile = memberId.replace(/\D/g, '').slice(-10);
-    u = await User.findOne({ mobile: { $in: [cleanMobile, '+91'+cleanMobile, '91'+cleanMobile] } }).select('email mobile member_id');
+    if (cleanMobile.length >= 10) {
+      u = await User.findOne({
+        mobile: { $in: [cleanMobile, '+91'+cleanMobile, '91'+cleanMobile, '0'+cleanMobile] }
+      }).select('email mobile member_id');
+    }
   }
-  if (!u) return res.status(404).json({ error: 'Member ID not found' });
+  if (!u) return res.status(404).json({ error: 'Member ID not found. Please check and try again.' });
   res.json({ email: u.email, mobile: u.mobile || null, memberId: u.member_id });
 });
 
