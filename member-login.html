@@ -389,6 +389,13 @@ body::before{
           <span id="otpBtnText"><i class="fa-solid fa-paper-plane"></i> Send OTP</span>
         </button>
       </form>
+
+      <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.12)">
+        <p style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:8px">Email नहीं है या OTP नहीं पहुंचा?</p>
+        <button type="button" id="resetDefaultBtn" onclick="handleResetToDefault()" style="background:none;border:1.5px dashed rgba(255,255,255,0.25);color:rgba(255,255,255,0.6);font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer;width:100%;transition:all .2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.5)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.25)';this.style.color='rgba(255,255,255,0.6)'">
+          <i class="fa-solid fa-rotate-left"></i> Default Password Set करें (Welcome@123)
+        </button>
+      </div>
     </div>
     
     <!-- Step 2: Enter OTP and New Password -->
@@ -512,6 +519,37 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Request OTP
+async function handleResetToDefault() {
+  const memberId = document.getElementById('resetMemberId').value.trim();
+  if (!memberId) {
+    FWF_Notify.toast('Please enter your Member ID first', 'error');
+    return;
+  }
+  if (!confirm(`"${memberId}" ka password reset होगा।\n\nनया password: Welcome@123\n\nLogin करने के बाद इसे तुरंत बदलें। Continue?`)) return;
+
+  const btn = document.getElementById('resetDefaultBtn');
+  const origHtml = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/password?action=reset-default', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+    FWF_Notify.toast('Password "Welcome@123" set ho gaya! Ab login karein.', 'success');
+    setTimeout(() => closeForgotModal(), 2500);
+  } catch(err) {
+    FWF_Notify.toast(err.message || 'Failed to reset password', 'error');
+  } finally {
+    btn.innerHTML = origHtml;
+    btn.disabled = false;
+  }
+}
+
 document.getElementById('requestOtpForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btnText = document.getElementById('otpBtnText');
