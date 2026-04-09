@@ -2993,6 +2993,7 @@ app.post('/api/member/quiz-enroll', auth(['member','supporter']), async (req, re
       name: user.name,
       enrollment_number: enrollmentNumber,
       payment_id: razorpay_payment_id,
+      payment_status: 'paid',
       amount_paid: quiz.entry_fee,
       referred_by: referred_by || null,
       referrer_id: referrerId
@@ -3417,6 +3418,7 @@ app.post('/api/quiz-ticket/:token/enroll', async (req, res) => {
       name: buyerDisplayName,
       enrollment_number: enrollmentNumber,
       payment_id: razorpay_payment_id,
+      payment_status: 'paid',
       amount_paid: ticket.ticket_price,
       referrer_id: ticket.seller_id,
       status: 'enrolled'
@@ -3795,8 +3797,8 @@ app.get('/api/admin/quiz/:quizId/detail', auth('admin'), async (req, res) => {
     if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
     const participantCount = await QuizParticipation.countDocuments({ quiz_ref: quiz.quiz_id });
     const submittedCount  = await QuizParticipation.countDocuments({ quiz_ref: quiz.quiz_id, quiz_submitted: true });
-    const paidCount       = await QuizParticipation.countDocuments({ quiz_ref: quiz.quiz_id, payment_status: 'paid' });
-    // Answer distribution per question
+    const paidCount       = await QuizParticipation.countDocuments({ quiz_ref: quiz.quiz_id });
+    // (All enrolled records are paid — payment is verified before enrollment)
     const participations  = await QuizParticipation.find({ quiz_ref: quiz.quiz_id, quiz_submitted: true }).select('answers score').lean();
     const questionStats   = (quiz.questions || []).map(q => {
       const dist = [0, 0, 0, 0];
@@ -3982,8 +3984,8 @@ app.get('/api/admin/quiz/:quizId/participants', auth('admin'), async (req, res) 
       p.mobile = u?.mobile || '';
       p.email = u?.email || '';
     });
-    // Revenue stats
-    const allPaid = await QuizParticipation.find({ quiz_ref: quiz.quiz_id, payment_status: 'paid' }).select('amount_paid score quiz_submitted').lean();
+    // Revenue stats — all enrollments are paid (Razorpay payment verified before DB write)
+    const allPaid = await QuizParticipation.find({ quiz_ref: quiz.quiz_id }).select('amount_paid score quiz_submitted').lean();
     const totalCollection = allPaid.reduce((s, p) => s + (p.amount_paid || 0), 0);
     const submittedCount  = allPaid.filter(p => p.quiz_submitted).length;
     res.json({
@@ -4345,8 +4347,16 @@ app.get('/api/admin/zoho/test', auth('admin'), async (req, res) => {
 // Admin: get social task stats
 
 // Admin: Purge ALL quiz data (quizzes, participations, related points ledger)
+// REQUIRES confirm_key = "DELETE_ALL_QUIZ_DATA" to prevent accidental use
 app.post('/api/admin/quiz-purge-all', auth('admin'), async (req, res) => {
   try {
+    const { confirm_key } = req.body;
+    if (confirm_key !== 'DELETE_ALL_QUIZ_DATA') {
+      return res.status(400).json({
+        error: 'Safety confirmation required',
+        hint: 'Pass { "confirm_key": "DELETE_ALL_QUIZ_DATA" } in the request body to confirm'
+      });
+    }
     const deletedQ = await Quiz.deleteMany({});
     const deletedP = await QuizParticipation.deleteMany({});
     const deletedPL = await PointsLedger.deleteMany({ description: { $regex: /quiz|lucky draw/i } });

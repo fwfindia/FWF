@@ -8,6 +8,7 @@ const quizParticipationSchema = new mongoose.Schema({
   name: { type: String, required: true },
   enrollment_number: { type: String, unique: true, required: true }, // FWF-M2506-83742
   payment_id: { type: String }, // Razorpay payment id
+  payment_status: { type: String, enum: ['paid', 'pending', 'failed'], default: 'paid' },
   amount_paid: { type: Number, required: true },
   points_earned: { type: Number, default: 0 }, // 10% of entry fee as points
   answers: [{
