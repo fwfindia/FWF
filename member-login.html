@@ -216,6 +216,64 @@ body::before{
   .logo-title{font-size:24px}
 }
 
+/* Custom confirm dialog */
+.fwf-confirm-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:10000;
+  animation:fadeIn .2s;
+}
+.fwf-confirm-box{
+  background:#fff;
+  border-radius:20px;
+  padding:32px 28px 24px;
+  max-width:340px;width:90%;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  animation:slideUp .3s cubic-bezier(.34,1.56,.64,1);
+  text-align:center;
+}
+.fwf-confirm-icon{
+  width:56px;height:56px;
+  background:linear-gradient(135deg,#f59e0b,#d97706);
+  border-radius:50%;
+  display:grid;place-items:center;
+  color:#fff;font-size:24px;
+  margin:0 auto 16px;
+}
+.fwf-confirm-title{
+  font-size:18px;font-weight:800;
+  color:#1e293b;
+  margin-bottom:8px;
+}
+.fwf-confirm-msg{
+  font-size:14px;color:#64748b;
+  line-height:1.6;
+  margin-bottom:24px;
+}
+.fwf-confirm-msg strong{ color:#1e293b; }
+.fwf-confirm-actions{
+  display:flex;gap:10px;
+}
+.fwf-confirm-ok{
+  flex:1;padding:13px;
+  background:linear-gradient(135deg,#f59e0b,#d97706);
+  color:#fff;border:none;border-radius:12px;
+  font-size:15px;font-weight:800;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 6px 16px rgba(245,158,11,.35);
+}
+.fwf-confirm-ok:hover{ transform:translateY(-1px); box-shadow:0 8px 20px rgba(245,158,11,.45); }
+.fwf-confirm-cancel{
+  flex:1;padding:13px;
+  background:#f1f5f9;
+  color:#64748b;border:none;border-radius:12px;
+  font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+}
+.fwf-confirm-cancel:hover{ background:#e2e8f0; color:#475569; }
+
 /* Forgot Password Modal */
 .modal-overlay{
   position:fixed;inset:0;
@@ -377,21 +435,15 @@ body::before{
     <!-- Step 1: Enter Member ID or Mobile -->
     <div class="modal-step active" id="step1">
       <h2 class="modal-title">Forgot Password?</h2>
-      <p class="modal-subtitle">Enter your Member ID <strong>or registered mobile number</strong> to receive an OTP.</p>
+      <p class="modal-subtitle">Apna Member ID ya registered mobile number enter karein.</p>
       
       <form id="requestOtpForm">
         <div class="input-group">
           <input id="resetMemberId" class="input-field" type="text" placeholder="FWF-000001 or 9876543210" required autocomplete="off" inputmode="text">
           <i class="input-icon fa-solid fa-user-shield"></i>
         </div>
-        <p style="font-size:11px;color:#94a3b8;margin:-8px 0 14px;padding-left:2px"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>Member ID (FWF-XXXXXX / FWSS-XXXX) ya 10-digit mobile number enter karein</p>
-        
-        <button type="submit" class="login-btn">
-          <span id="otpBtnText"><i class="fa-solid fa-paper-plane"></i> Send OTP</span>
-        </button>
-
-        <button type="button" id="resetDefaultBtn" onclick="handleResetToDefault()" class="login-btn" style="margin-top:10px;background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 8px 20px rgba(245,158,11,.35)">
-          <span><i class="fa-solid fa-rotate-left"></i> Default Password Set करें (Welcome@123)</span>
+        <button type="button" id="resetDefaultBtn" onclick="handleResetToDefault()" class="login-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 8px 20px rgba(245,158,11,.35)">
+          <span><i class="fa-solid fa-rotate-left"></i> Default Password Set करें</span>
         </button>
       </form>
     </div>
@@ -443,6 +495,29 @@ body::before{
 <script src="/assets/js/fwf.js"></script>
 <script src="/auth.js"></script>
 <script>
+// Custom confirm dialog (replaces native browser confirm())
+function fwfConfirm({ title = 'Confirm?', message = '' }) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'fwf-confirm-overlay';
+    overlay.innerHTML = `
+      <div class="fwf-confirm-box">
+        <div class="fwf-confirm-icon"><i class="fa-solid fa-rotate-left"></i></div>
+        <div class="fwf-confirm-title">${title}</div>
+        <div class="fwf-confirm-msg">${message}</div>
+        <div class="fwf-confirm-actions">
+          <button class="fwf-confirm-ok"><i class="fa-solid fa-check"></i> हाँ, Reset करें</button>
+          <button class="fwf-confirm-cancel">Cancel</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const cleanup = (val) => { overlay.remove(); resolve(val); };
+    overlay.querySelector('.fwf-confirm-ok').onclick = () => cleanup(true);
+    overlay.querySelector('.fwf-confirm-cancel').onclick = () => cleanup(false);
+    overlay.addEventListener('click', e => { if (e.target === overlay) cleanup(false); });
+  });
+}
+
 // Password visibility toggle
 function togglePassword() {
   const pwdInput = document.getElementById('pwd');
@@ -523,7 +598,11 @@ async function handleResetToDefault() {
     FWF_Notify.toast('Member ID ya mobile number pehle enter karein', 'error');
     return;
   }
-  if (!confirm(`"${memberId}" ka password reset होगा।\n\nनया password: Welcome@123\n\nLogin करने के बाद इसे तुरंत बदलें। Continue?`)) return;
+  const confirmed = await fwfConfirm({
+    title: 'Password Reset करें?',
+    message: `<strong>${memberId}</strong> ka password <strong>Welcome@123</strong> set ho jayega.<br><br>Login ke baad ise turant badlein.`
+  });
+  if (!confirmed) return;
 
   const btn = document.getElementById('resetDefaultBtn');
   const origHtml = btn.innerHTML;
