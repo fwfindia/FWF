@@ -50,7 +50,7 @@ async function handler(req, res) {
         return res.status(503).json({ error: "Authentication service misconfigured. Contact support." });
       }
       if (!response.ok) {
-        return res.status(404).json({ error: "Member ID not found. Please check and try again." });
+        return res.status(404).json({ error: "Member/Supporter ID ya registered mobile nahi mila. Apna Member ID (FWF-XXXXXX) ya Supporter ID (FWSS-XXXX) enter karein." });
       }
 
       const { email, mobile, memberId: actualMemberId } = await response.json();
@@ -231,7 +231,7 @@ async function handler(req, res) {
         return res.status(503).json({ error: "Authentication service misconfigured. Contact support." });
       }
       if (!verifyRes.ok) {
-        return res.status(404).json({ error: "Member ID not found. Please check and try again." });
+        return res.status(404).json({ error: "Member/Supporter ID ya registered mobile nahi mila. Apna Member ID (FWF-XXXXXX) ya Supporter ID (FWSS-XXXX) enter karein." });
       }
 
       // Reset password to default
