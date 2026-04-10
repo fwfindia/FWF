@@ -179,6 +179,8 @@ a{color:inherit;text-decoration:none}
   position:relative; overflow:hidden;
 }
 .stat-card:hover{ box-shadow:var(--shadow-hover); }
+/* 4-col stats on desktop */
+@media(min-width:641px){ .home-stats-grid{ grid-template-columns:repeat(4,1fr) !important; } }
 .stat-card .s-icon{
   width:36px; height:36px; border-radius:var(--radius-sm);
   display:flex; align-items:center; justify-content:center;
@@ -990,6 +992,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
   .top-header h1{ font-size:14px; }
   .main{ padding:12px 10px; padding-top:64px; padding-bottom:80px; }
   .home-cards-grid{ grid-template-columns:1fr !important; }
+  .home-stats-grid{ grid-template-columns:repeat(2,1fr) !important; }
 
   /* Stack account overview cards */
   .account-overview-header{ padding:12px 16px; }
@@ -1220,79 +1223,201 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 
   <!-- ===================== HOME / DASHBOARD ===================== -->
   <div class="page active" id="page-home">
-    <!-- Hidden welcome banner (data still populates via JS) -->
-    <div class="welcome-banner" id="welcomeBanner">
-      <h2 id="welcomeName">Welcome Back!</h2>
+
+    <!-- Hidden welcome banner for JS compat -->
+    <div class="welcome-banner" id="welcomeBanner" style="display:none">
+      <h2>Welcome Back!</h2>
       <p>Empowering women through skills, welfare & self-employment.</p>
       <div class="wid"><i class="fa-solid fa-id-badge"></i> <span id="welcomeId">FWFM000</span></div>
     </div>
 
-    <!-- ACCOUNT OVERVIEW — ICICI-style -->
-    <div class="home-cards-grid" style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:22px">
+    <!-- ── GREETING BANNER ── -->
+    <div style="background:linear-gradient(135deg,#1a1a2e 0%,#2d1a4e 50%,#1a2e4a 100%);border-radius:18px;padding:18px 20px 16px;margin-bottom:16px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(232,119,34,.18),transparent);pointer-events:none"></div>
+      <div style="position:absolute;left:30px;bottom:-40px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.12),transparent);pointer-events:none"></div>
+      <div style="display:flex;align-items:center;gap:14px;position:relative">
+        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#E87722,#f59e0b);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(232,119,34,.4)" id="homeAvatar">M</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:1px">Namaste 🙏</div>
+          <div style="font-size:19px;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="welcomeName">Welcome, Member!</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap">
+            <span style="background:rgba(232,119,34,.25);border:1px solid rgba(232,119,34,.4);color:#ffb366;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700"><i class="fa-solid fa-id-badge" style="margin-right:4px"></i><span id="welcomeId">FWFM000</span></span>
+            <span style="background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.3);color:#4ade80;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700">✅ Active Member</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:10px;color:rgba(255,255,255,.45);font-weight:600">Today</div>
+          <div style="font-size:13px;font-weight:800;color:#fff" id="homeTodayDate">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── QUICK STATS (2×2 on mobile, 4-col on desktop) ── -->
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px" class="home-stats-grid">
+      <div class="stat-card" style="cursor:pointer" onclick="switchPage('wallet')">
+        <div class="s-icon s-green"><i class="fa-solid fa-star"></i></div>
+        <div class="s-value" id="hPoints">0</div>
+        <div class="s-label">Points Earned</div>
+      </div>
+      <div class="stat-card" style="cursor:pointer" onclick="switchPage('wallet')">
+        <div class="s-icon s-blue"><i class="fa-solid fa-wallet"></i></div>
+        <div class="s-value" id="hWallet">₹0</div>
+        <div class="s-label">Wallet Balance</div>
+      </div>
+      <div class="stat-card" style="cursor:pointer" onclick="switchPage('referral')">
+        <div class="s-icon s-purple"><i class="fa-solid fa-user-plus"></i></div>
+        <div class="s-value" id="hReferrals">0</div>
+        <div class="s-label">Referrals</div>
+      </div>
+      <div class="stat-card" style="cursor:pointer" onclick="switchPage('quiz')">
+        <div class="s-icon s-amber"><i class="fa-solid fa-trophy"></i></div>
+        <div class="s-value" id="hDonations">₹0</div>
+        <div class="s-label">Donations</div>
+      </div>
+    </div>
+
+    <!-- ── QUICK ACTIONS GRID ── -->
+    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:16px 14px;margin-bottom:16px;box-shadow:var(--shadow-card)">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:12px;padding:0 2px">Quick Actions</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <button onclick="switchPage('training')" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:14px;padding:12px 6px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          <div style="font-size:22px">🎓</div><span style="font-size:10px;font-weight:800;color:#1d4ed8">Training</span>
+        </button>
+        <button onclick="switchPage('marketplace')" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:14px;padding:12px 6px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          <div style="font-size:22px">🛒</div><span style="font-size:10px;font-weight:800;color:#15803d">Shop</span>
+        </button>
+        <button onclick="switchPage('quiz')" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c4b5fd;border-radius:14px;padding:12px 6px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          <div style="font-size:22px">🏆</div><span style="font-size:10px;font-weight:800;color:#6d28d9">Quiz</span>
+        </button>
+        <button onclick="switchPage('referral')" style="background:linear-gradient(135deg,#fff7ed,#fed7aa);border:1px solid #fdba74;border-radius:14px;padding:12px 6px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          <div style="font-size:22px">👥</div><span style="font-size:10px;font-weight:800;color:#c2410c">Referral</span>
+        </button>
+        <button onclick="switchPage('wallet')" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1px solid #6ee7b7;border-radius:14px;padding:12px 6px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          <div style="font-size:22px">💰</div><span style="font-size:10px;font-weight:800;color:#059669">Wallet</span>
+        </button>
+        <button onclick="switchPage('feed')" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fbbf24;border-radius:14px;padding:12px 6px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          <div style="font-size:22px">📖</div><span style="font-size:10px;font-weight:800;color:#b45309">Social</span>
+        </button>
+        <button onclick="switchPage('activities')" style="background:linear-gradient(135deg,#f0fdf4,#bbf7d0);border:1px solid #4ade80;border-radius:14px;padding:12px 6px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          <div style="font-size:22px">🌱</div><span style="font-size:10px;font-weight:800;color:#16a34a">Tasks</span>
+        </button>
+        <button onclick="switchPage('support')" style="background:linear-gradient(135deg,#fdf4ff,#f3e8ff);border:1px solid #d8b4fe;border-radius:14px;padding:12px 6px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          <div style="font-size:22px">🎧</div><span style="font-size:10px;font-weight:800;color:#9333ea">Help</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── MEMBER ID CARD + ACCOUNT OVERVIEW ── -->
+    <div class="home-cards-grid" style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px">
       <!-- Left: Balance Card -->
       <div class="account-overview">
         <div class="account-overview-header">
           <h3><i class="fa-solid fa-wallet" style="color:var(--accent)"></i> MEMBER ACCOUNT <span class="acc-type">PRIMARY</span></h3>
-          <a href="#" onclick="switchPage('wallet');return false" style="color:var(--accent);font-size:12px;font-weight:700">VIEW DETAILS</a>
+          <a href="#" onclick="switchPage('wallet');return false" style="color:var(--accent);font-size:12px;font-weight:700">VIEW ALL</a>
         </div>
         <div class="account-overview-body">
           <div class="account-balance">
-            <span class="currency">★</span> <span class="amount" id="hPoints">0</span> <small style="font-size:12px;color:var(--text-muted);font-weight:600;margin-left:2px">Points</small>
+            <span class="currency">★</span> <span class="amount" id="hPointsCard">0</span> <small style="font-size:12px;color:var(--text-muted);font-weight:600;margin-left:2px">Points</small>
           </div>
           <div class="account-subtitle">
-            Wallet Balance <strong style="color:var(--text-primary)" id="hWallet">₹0</strong> &nbsp;|&nbsp;
-            Referrals <strong style="color:var(--text-primary)" id="hReferrals">0</strong> &nbsp;|&nbsp;
-            Donations <strong style="color:var(--text-primary)" id="hDonations">₹0</strong>
+            Wallet <strong style="color:var(--text-primary)" id="hWalletCard">₹0</strong> &nbsp;|&nbsp;
+            Referrals <strong style="color:var(--text-primary)" id="hReferralsCard">0</strong>
           </div>
           <div class="account-actions">
-            <button class="account-action-btn" onclick="switchPage('wallet')">
-              <i class="fa-solid fa-coins"></i> Earn Points
-            </button>
-            <button class="account-action-btn" onclick="switchPage('training')">
-              <i class="fa-solid fa-graduation-cap"></i> Start Course
-            </button>
-            <button class="account-action-btn" onclick="switchPage('marketplace')">
-              <i class="fa-solid fa-store"></i> Marketplace
-            </button>
-            <button class="account-action-btn" onclick="switchPage('support')">
-              <i class="fa-solid fa-headset"></i> Help
-            </button>
+            <button class="account-action-btn" onclick="switchPage('wallet')"><i class="fa-solid fa-coins"></i> Earn</button>
+            <button class="account-action-btn" onclick="switchPage('training')"><i class="fa-solid fa-graduation-cap"></i> Learn</button>
+            <button class="account-action-btn" onclick="switchPage('marketplace')"><i class="fa-solid fa-store"></i> Shop</button>
+            <button class="account-action-btn" onclick="switchPage('support')"><i class="fa-solid fa-headset"></i> Help</button>
           </div>
         </div>
       </div>
-
       <!-- Right: Member ID Card -->
       <div class="account-overview">
         <div class="account-overview-header">
-          <h3><i class="fa-solid fa-id-card" style="color:var(--accent)"></i> MEMBER ID CARD</h3>
+          <h3><i class="fa-solid fa-id-card" style="color:var(--accent)"></i> ID CARD</h3>
         </div>
         <div class="account-overview-body" style="padding:20px">
-          <div style="background:linear-gradient(135deg,#1a1a2e, #2d2d4e);border-radius:var(--radius-md);padding:20px;color:#fff;position:relative;overflow:hidden">
-            <div style="position:absolute;right:-15px;top:-15px;width:100px;height:100px;border-radius:50%;background:rgba(232,119,34,.12)"></div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;position:relative;z-index:1">
-              <img src="/assets/images/logo.png" alt="FWF" style="width:32px;height:32px;border-radius:6px">
-              <div>
-                <div style="font-size:13px;font-weight:800">Foundris Welfare Foundation</div>
-                <div style="font-size:9px;opacity:.6;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Member Identity Card</div>
-              </div>
+          <div style="background:linear-gradient(135deg,#1a1a2e,#2d2d4e);border-radius:var(--radius-md);padding:16px;color:#fff;position:relative;overflow:hidden">
+            <div style="position:absolute;right:-12px;top:-12px;width:80px;height:80px;border-radius:50%;background:rgba(232,119,34,.12)"></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;position:relative;z-index:1">
+              <img src="/assets/images/logo.png" alt="FWF" style="width:26px;height:26px;border-radius:5px">
+              <div style="font-size:11px;font-weight:800">FWF</div>
             </div>
             <div style="position:relative;z-index:1">
-              <div style="font-size:18px;font-weight:800;margin-bottom:4px" id="dashCardName">Member Name</div>
-              <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(232,119,34,.2);padding:4px 10px;border-radius:6px;margin-bottom:12px">
-                <i class="fa-solid fa-id-badge" style="color:#E87722;font-size:12px"></i>
-                <span style="font-size:13px;font-weight:700;color:#ffb366" id="dashCardId">FWFM000</span>
+              <div style="font-size:15px;font-weight:800;margin-bottom:3px" id="dashCardName">Member Name</div>
+              <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(232,119,34,.2);padding:3px 8px;border-radius:5px;margin-bottom:10px">
+                <i class="fa-solid fa-id-badge" style="color:#E87722;font-size:10px"></i>
+                <span style="font-size:11px;font-weight:700;color:#ffb366" id="dashCardId">FWFM000</span>
               </div>
-              <div style="display:flex;gap:16px;font-size:11px;opacity:.75;font-weight:600;flex-wrap:wrap">
-                <span><i class="fa-solid fa-phone" style="margin-right:4px;color:#E87722;font-size:10px"></i><span id="dashCardMobile">—</span></span>
-                <span><i class="fa-solid fa-calendar" style="margin-right:4px;color:#E87722;font-size:10px"></i>Joined <span id="dashCardJoined">—</span></span>
-              </div>
+              <div style="font-size:10px;opacity:.7;font-weight:600"><i class="fa-solid fa-phone" style="margin-right:3px;color:#E87722"></i><span id="dashCardMobile">—</span></div>
+              <div style="font-size:10px;opacity:.65;margin-top:3px"><i class="fa-solid fa-calendar" style="margin-right:3px;color:#E87722"></i>Joined <span id="dashCardJoined">—</span></div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Recent Activity -->
+    <!-- ── REFER & EARN BANNER ── -->
+    <div onclick="switchPage('referral')" style="background:linear-gradient(135deg,#1e3a8a,#2563eb,#1d4ed8);border-radius:16px;padding:16px 18px;margin-bottom:16px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:.2s;box-shadow:0 4px 16px rgba(37,99,235,.3)" onmouseover="this.style.opacity='.92'" onmouseout="this.style.opacity='1'">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:46px;height:46px;background:rgba(255,255,255,.18);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👥</div>
+        <div>
+          <div style="font-size:14px;font-weight:900;margin-bottom:3px">Refer करें, कमाएं ₹50 – ₹200 प्रति member!</div>
+          <div style="font-size:11px;opacity:.8">अपना referral link share करें और direct earning पाएं</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.22);border-radius:10px;padding:8px 14px;font-size:12px;font-weight:800;white-space:nowrap;flex-shrink:0">Refer Now →</div>
+    </div>
+
+    <!-- ── FWF MISSION & IMPACT ── -->
+    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:16px 18px;margin-bottom:16px;box-shadow:var(--shadow-card)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <img src="/assets/images/logo.png" alt="FWF" style="width:32px;height:32px;border-radius:8px">
+        <div>
+          <div style="font-size:14px;font-weight:900;color:var(--text-primary)">FWF — Foundris Welfare Foundation</div>
+          <div style="font-size:11px;color:var(--text-muted)">Empowering Women · Transforming Lives</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin:0 0 14px">महिलाओं को Skills, Self-Employment और Social Welfare के माध्यम से आत्मनिर्भर बनाने की दिशा में काम करता है। <strong>आपकी membership</strong> इस mission का हिस्सा बनाती है।</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+        <div style="background:var(--accent-soft);border-radius:12px;padding:12px 8px">
+          <div style="font-size:20px;font-weight:900;color:var(--accent)">10K+</div>
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-top:2px">Members</div>
+        </div>
+        <div style="background:#eff6ff;border-radius:12px;padding:12px 8px">
+          <div style="font-size:20px;font-weight:900;color:#3b82f6">50+</div>
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-top:2px">Projects</div>
+        </div>
+        <div style="background:#fdf4ff;border-radius:12px;padding:12px 8px">
+          <div style="font-size:20px;font-weight:900;color:#9333ea">25+</div>
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-top:2px">States</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EARN POINTS TIPS ── -->
+    <div style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #a7f3d0;border-radius:16px;padding:16px 18px;margin-bottom:16px">
+      <h3 style="font-size:13px;font-weight:900;color:var(--text-primary);margin:0 0 12px;display:flex;align-items:center;gap:7px"><span style="font-size:16px">💡</span> Points कैसे कमाएं?</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.7);border-radius:10px;padding:10px 12px">
+          <div style="width:28px;height:28px;background:#10b981;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">👥</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--text-primary)">Refer a Member</div><div style="font-size:10px;color:var(--text-muted)">Har referral pe ₹50–₹200 direct earnings</div></div>
+          <div style="font-size:13px;font-weight:900;color:#059669">+100 pts</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.7);border-radius:10px;padding:10px 12px">
+          <div style="width:28px;height:28px;background:#3b82f6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🏆</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--text-primary)">Quiz Participate करें</div><div style="font-size:10px;color:var(--text-muted)">Monthly / Half-Yearly / Yearly programs</div></div>
+          <div style="font-size:13px;font-weight:900;color:#2563eb">+50 pts</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.7);border-radius:10px;padding:10px 12px">
+          <div style="width:28px;height:28px;background:#f59e0b;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🌱</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--text-primary)">Social Task Complete करें</div><div style="font-size:10px;color:var(--text-muted)">Community activities & welfare tasks</div></div>
+          <div style="font-size:13px;font-weight:900;color:#b45309">+25 pts</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RECENT ACTIVITY ── -->
     <div class="content-card">
       <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h3>
       <div id="homeActivity">
@@ -1300,10 +1425,10 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
     </div>
 
-    <!-- Follow Us on Social Media -->
+    <!-- ── FOLLOW US ── -->
     <div class="content-card" style="margin-top:0">
       <h3 style="margin-bottom:4px"><i class="fa-solid fa-share-nodes" style="color:var(--accent)"></i> Follow Us on Social Media</h3>
-      <p style="font-size:12px;color:var(--text-muted);margin:0 0 16px">Stay connected — follow & subscribe to our channels to get latest updates, tips & inspiration!</p>
+      <p style="font-size:12px;color:var(--text-muted);margin:0 0 16px">Stay connected — latest updates, tips & inspiration!</p>
       <div style="display:flex;flex-wrap:wrap;gap:10px">
         <a href="https://www.facebook.com/share/1GP3dAT621/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;background:#1877f2;color:#fff;text-decoration:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i class="fa-brands fa-facebook" style="font-size:16px"></i> Facebook</a>
         <a href="https://www.instagram.com/fwf_india?igsh=ZWNsMHAwanBpNHM3" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;text-decoration:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i class="fa-brands fa-instagram" style="font-size:16px"></i> Instagram</a>
@@ -3758,10 +3883,22 @@ async function loadDashboard(){
     if(topUserEl) topUserEl.textContent = (u.name || 'MEMBER').toUpperCase().split(' ')[0];
 
     // Home stats
-    document.getElementById('hPoints').textContent = fmtN(w.points_balance || w.total_points_earned);
-    document.getElementById('hWallet').textContent = '₹' + fmtN(w.balance_inr);
-    document.getElementById('hReferrals').textContent = fmtN(data.referralStats?.total || 0);
-    document.getElementById('hDonations').textContent = '₹' + fmtN(data.recentDonations?.reduce((s,d)=>s+(d.amount||0),0) || 0);
+    const pts = fmtN(w.points_balance || w.total_points_earned);
+    const wallet = '₹' + fmtN(w.balance_inr);
+    const refs = fmtN(data.referralStats?.total || 0);
+    const donations = '₹' + fmtN(data.recentDonations?.reduce((s,d)=>s+(d.amount||0),0) || 0);
+    document.getElementById('hPoints').textContent = pts;
+    document.getElementById('hWallet').textContent = wallet;
+    document.getElementById('hReferrals').textContent = refs;
+    document.getElementById('hDonations').textContent = donations;
+    // Secondary card IDs
+    const hpc = document.getElementById('hPointsCard'); if(hpc) hpc.textContent = pts;
+    const hwc = document.getElementById('hWalletCard'); if(hwc) hwc.textContent = wallet;
+    const hrc = document.getElementById('hReferralsCard'); if(hrc) hrc.textContent = refs;
+    // Greeting avatar initials
+    const av = document.getElementById('homeAvatar'); if(av) av.textContent = (u.name||'M').charAt(0).toUpperCase();
+    // Today's date
+    const dd = document.getElementById('homeTodayDate'); if(dd) dd.textContent = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
 
     // Recent activity on home
     if(data.pointsLedger && data.pointsLedger.length){
