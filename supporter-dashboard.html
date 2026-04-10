@@ -705,6 +705,22 @@ textarea.form-input{ resize:vertical; min-height:80px; }
   .qcb-desc{font-size:13px}
   .quiz-tier-inner{grid-template-columns:1fr}
 }
+@media(max-width:480px){
+  /* Quiz card mobile optimisation */
+  .qcb-bg{padding:18px 14px 16px;min-height:auto}
+  .qcb-title{font-size:20px}
+  .qcb-desc{font-size:12px;margin-bottom:14px}
+  .qcb-badge{font-size:9px;padding:4px 10px;margin-bottom:10px}
+  .qcb-reward-pill{padding:9px 12px;gap:8px;margin-bottom:20px}
+  .qcb-reward-amount{font-size:20px}
+  .qcb-reward-icon{font-size:16px}
+  .qcb-content{padding:14px}
+  .qcb-date-value{font-size:13px}
+  .qcb-date-box{padding:10px 8px;border-radius:10px}
+  .qcb-actions{grid-template-columns:1fr}
+  .qcb-btn{padding:11px;font-size:12px}
+  .qc-beautiful{border-radius:18px}
+}
 
 /* ==============================
    MODAL
@@ -1190,7 +1206,7 @@ body.modal-open{
         <span style="background:linear-gradient(135deg,#f59e0b,#d97706);width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px">🎯</span>
         Active Games
       </h3>
-      <div id="quizSectionsContainer" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px">
+      <div id="quizSectionsContainer" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px">
         <div class="skeleton-loader" style="height:460px;border-radius:24px"></div>
         <div class="skeleton-loader" style="height:460px;border-radius:24px"></div>
       </div>
@@ -3426,11 +3442,11 @@ const gameTypeIcons = {
 async function loadActiveQuizzes(){
   try {
     const data = await AUTH.api('/api/member/active-quizzes');
-    const grid = document.getElementById('quizGamesGrid');
+    const grid = document.getElementById('quizSectionsContainer');
     const empty = document.getElementById('quizEmptyState');
     if(!data.ok || !data.quizzes?.length){
-      grid.style.display = 'none';
-      empty.style.display = 'block';
+      if(grid) grid.style.display = 'none';
+      if(empty) empty.style.display = 'block';
       allQuizzesCache = [];
       return;
     }

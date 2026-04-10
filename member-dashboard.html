@@ -865,6 +865,22 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 }
 .qcb-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
 .qcb-btn:active{transform:translateY(0)}
+@media(max-width:480px){
+  /* Quiz card mobile optimisation */
+  .qcb-bg{padding:18px 14px 16px;min-height:auto}
+  .qcb-title{font-size:20px}
+  .qcb-desc{font-size:12px;margin-bottom:14px}
+  .qcb-badge{font-size:9px;padding:4px 10px;margin-bottom:10px}
+  .qcb-reward-pill{padding:9px 12px;gap:8px;margin-bottom:20px}
+  .qcb-reward-amount{font-size:20px}
+  .qcb-reward-icon{font-size:16px}
+  .qcb-content{padding:14px}
+  .qcb-date-value{font-size:13px}
+  .qcb-date-box{padding:10px 8px;border-radius:10px}
+  .qcb-actions{grid-template-columns:1fr}
+  .qcb-btn{padding:11px;font-size:12px}
+  .qc-beautiful{border-radius:18px}
+}
 
 /* ==============================
    MODAL
@@ -2198,7 +2214,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <button class="game-chip" data-tier="yearly" onclick="filterQuizTier('yearly')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid #e11d48;background:transparent;color:#e11d48;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0">🏆 Yearly ₹1000</button>
       </div>
       <!-- Quiz Cards Container -->
-      <div id="quizGamesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+      <div id="quizGamesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px">
         <div class="skeleton-loader" style="height:220px;border-radius:16px"></div>
         <div class="skeleton-loader" style="height:220px;border-radius:16px"></div>
       </div>
