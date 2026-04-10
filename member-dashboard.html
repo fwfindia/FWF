@@ -1167,8 +1167,11 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </button>
 
     <div class="nav-divider">More</div>
-    <button class="nav-item" data-page="events">
-      <i class="fa-solid fa-calendar-days"></i> Events & Activities
+    <button class="nav-item" data-page="quiz">
+      <i class="fa-solid fa-gamepad"></i> Quiz & Games
+    </button>
+    <button class="nav-item" data-page="activities">
+      <i class="fa-solid fa-seedling"></i> Activities
     </button>
     <button class="nav-item" data-page="support">
       <i class="fa-solid fa-headset"></i> Help & Support
@@ -2129,40 +2132,136 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </div>
   </div>
 
-  <!-- ===================== EVENTS & ACTIVITIES ===================== -->
-  <div class="page" id="page-events">
+  <!-- ===================== QUIZ & GAMES ===================== -->
+  <div class="page" id="page-quiz">
 
-    <!-- ═══════ MY ACTIVITY (compact) ═══════ -->
-    <div style="margin-bottom:20px">
-      <h3 style="font-size:15px;font-weight:800;margin:0 0 12px"><i class="fa-solid fa-chart-line" style="color:var(--accent)"></i> My Activity</h3>
-      <div class="stats-row" style="margin-bottom:0">
-        <div class="stat-card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)">
-          <div class="s-icon s-green"><i class="fa-solid fa-check-circle"></i></div>
-          <div class="s-label">Tasks Done</div>
-          <div class="s-value" id="myTasksCompleted">0</div>
+    <!-- Hero Banner -->
+    <div style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 45%,#4c1d95 100%);border-radius:20px;padding:24px 20px 20px;margin-bottom:20px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:140px;height:140px;background:radial-gradient(circle,rgba(167,139,250,.25),transparent);border-radius:50%;pointer-events:none"></div>
+      <div style="position:absolute;bottom:-30px;left:30px;width:100px;height:100px;background:radial-gradient(circle,rgba(99,102,241,.2),transparent);border-radius:50%;pointer-events:none"></div>
+      <div style="display:flex;align-items:center;gap:14px;position:relative;margin-bottom:18px">
+        <div style="font-size:44px">🏆</div>
+        <div>
+          <h2 style="color:#fff;font-size:19px;font-weight:900;margin:0 0 4px;line-height:1.2">Quiz & Fund Raiser Games</h2>
+          <p style="color:rgba(255,255,255,.7);font-size:12px;margin:0">Play · Win · Raise Funds for Social Welfare</p>
         </div>
-        <div class="stat-card" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">
-          <div class="s-icon s-amber"><i class="fa-solid fa-gamepad"></i></div>
-          <div class="s-label">Quizzes Played</div>
-          <div class="s-value" id="myQuizCount">0</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;position:relative">
+        <div style="background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:14px;padding:13px;text-align:center">
+          <div style="font-size:24px;font-weight:900;color:#fff" id="myQuizCount">0</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600;margin-top:2px">🎮 Quizzes Played</div>
         </div>
-        <div class="stat-card" style="background:linear-gradient(135deg,#fce7f3,#fbcfe8)">
-          <div class="s-icon" style="background:linear-gradient(135deg,#ec4899,#db2777)"><i class="fa-solid fa-trophy"></i></div>
-          <div class="s-label">Quiz Wins</div>
-          <div class="s-value" id="myQuizWins">0</div>
+        <div style="background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:14px;padding:13px;text-align:center">
+          <div style="font-size:24px;font-weight:900;color:#fbbf24" id="myQuizWins">0</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600;margin-top:2px">🥇 Quiz Wins</div>
         </div>
       </div>
     </div>
 
-    <!-- ═══════ SOCIAL WORK — MOTIVATIONAL HEADER ═══════ -->
-    <div style="text-align:center;padding:24px 16px 8px">
-      <div style="font-size:40px;margin-bottom:4px">🙏</div>
-      <h2 style="font-size:20px;font-weight:900;margin:0 0 6px;color:var(--text-primary);line-height:1.3">बदलाव आप से शुरू होता है!</h2>
-      <p style="font-size:13px;color:var(--text-muted);margin:0;line-height:1.5">एक छोटा सा कदम — समाज के लिए बड़ा बदलाव। आज ही कोई नेक काम करें और Selfie share करें!</p>
+    <!-- How it Works -->
+    <div style="background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:20px;border:1px solid var(--card-border)">
+      <h4 style="font-size:13px;font-weight:800;color:var(--text-primary);margin:0 0 14px;display:flex;align-items:center;gap:8px">
+        <i class="fa-solid fa-circle-question" style="color:#7c3aed"></i> Quiz Game कैसे काम करता है?
+      </h4>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+        <div style="background:#f8f5ff;border-radius:12px;padding:12px 8px">
+          <div style="font-size:26px;margin-bottom:6px">🎫</div>
+          <div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:3px">Ticket खरीदें</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.4">Monthly / Yearly plan चुनें</div>
+        </div>
+        <div style="background:#f8f5ff;border-radius:12px;padding:12px 8px">
+          <div style="font-size:26px;margin-bottom:6px">🧠</div>
+          <div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:3px">Quiz खेलें</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.4">सही जवाब दें</div>
+        </div>
+        <div style="background:#f8f5ff;border-radius:12px;padding:12px 8px">
+          <div style="font-size:26px;margin-bottom:6px">💸</div>
+          <div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:3px">Prize जीतें</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.4">Lucky draw cash prize</div>
+        </div>
+      </div>
     </div>
 
-    <!-- ═══════ SOCIAL TASKS GRID ═══════ -->
-    <div style="margin:16px 0 24px">
+    <!-- Active Games Section -->
+    <div style="margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="font-size:15px;font-weight:800;margin:0;display:flex;align-items:center;gap:9px">
+          <span style="background:linear-gradient(135deg,#f59e0b,#d97706);width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px">🎯</span>
+          Active Games
+        </h3>
+      </div>
+      <!-- Game Type Chips -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none">
+        <button class="game-chip active" data-tier="all" onclick="filterQuizTier('all')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--accent);background:var(--accent);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0">🎯 All Games</button>
+        <button class="game-chip" data-tier="monthly" onclick="filterQuizTier('monthly')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid #3b82f6;background:transparent;color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0">🗓️ Monthly ₹100</button>
+        <button class="game-chip" data-tier="half_yearly" onclick="filterQuizTier('half_yearly')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid #8b5cf6;background:transparent;color:#8b5cf6;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0">📅 Half-Yearly ₹500</button>
+        <button class="game-chip" data-tier="yearly" onclick="filterQuizTier('yearly')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid #e11d48;background:transparent;color:#e11d48;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0">🏆 Yearly ₹1000</button>
+      </div>
+      <!-- Quiz Cards Container -->
+      <div id="quizGamesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+        <div class="skeleton-loader" style="height:220px;border-radius:16px"></div>
+        <div class="skeleton-loader" style="height:220px;border-radius:16px"></div>
+      </div>
+      <!-- Empty state -->
+      <div id="quizEmptyState" style="display:none;text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1px dashed var(--card-border)">
+        <div style="font-size:48px;margin-bottom:12px">🎮</div>
+        <h4 style="color:var(--text-muted);font-weight:700;margin:0 0 6px">कोई game अभी available नहीं</h4>
+        <p style="font-size:13px;color:var(--text-muted);margin:0">जल्दी ही नए fund raiser games आएंगे!</p>
+      </div>
+    </div>
+
+    <!-- Quiz History -->
+    <div style="margin-bottom:20px">
+      <div style="background:#fff;border-radius:16px;border:1px solid var(--card-border);overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#f9f5ff,#fff)">
+          <i class="fa-solid fa-clock-rotate-left" style="color:#7c3aed;font-size:15px"></i>
+          <span style="font-size:13px;font-weight:800;color:var(--text-primary)">My Quiz History</span>
+        </div>
+        <div id="quizHistoryList" style="padding:14px 16px">
+          <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">अभी तक किसी quiz में हिस्सा नहीं लिया</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===================== ACTIVITIES ===================== -->
+  <div class="page" id="page-activities">
+
+    <!-- Hero Banner -->
+    <div style="background:linear-gradient(135deg,#064e3b 0%,#065f46 50%,#047857 100%);border-radius:20px;padding:24px 20px 20px;margin-bottom:20px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:130px;height:130px;background:radial-gradient(circle,rgba(52,211,153,.25),transparent);border-radius:50%;pointer-events:none"></div>
+      <div style="position:absolute;bottom:-25px;left:40px;width:90px;height:90px;background:radial-gradient(circle,rgba(16,185,129,.2),transparent);border-radius:50%;pointer-events:none"></div>
+      <div style="display:flex;align-items:center;gap:14px;position:relative;margin-bottom:18px">
+        <div style="font-size:44px">🌱</div>
+        <div>
+          <h2 style="color:#fff;font-size:19px;font-weight:900;margin:0 0 4px;line-height:1.2">Social Activities</h2>
+          <p style="color:rgba(255,255,255,.7);font-size:12px;margin:0">बदलाव आप से शुरू होता है!</p>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:14px;padding:13px;text-align:center">
+        <div style="font-size:24px;font-weight:900;color:#fff" id="myTasksCompleted">0</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600;margin-top:2px">✅ Tasks Completed</div>
+      </div>
+    </div>
+
+    <!-- Motivational Banner -->
+    <div style="background:linear-gradient(135deg,#fff8f0,#fff);border:1px solid #fed7aa;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:36px;flex-shrink:0">🙏</div>
+      <div>
+        <h4 style="font-size:14px;font-weight:900;color:var(--text-primary);margin:0 0 4px;line-height:1.3">एक छोटा सा कदम — बड़ा बदलाव</h4>
+        <p style="font-size:12px;color:var(--text-muted);margin:0;line-height:1.5">आज ही कोई नेक काम करें, Selfie share करें और Social Book पर inspire करें!</p>
+      </div>
+    </div>
+
+    <!-- Social Tasks Grid -->
+    <div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;margin-bottom:12px">
+        <h3 style="font-size:15px;font-weight:800;margin:0;display:flex;align-items:center;gap:9px">
+          <span style="background:linear-gradient(135deg,#059669,#10b981);width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px">🌿</span>
+          Social Tasks
+        </h3>
+      </div>
       <div id="socialTasksGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px">
         <div class="skeleton-loader" style="height:160px;border-radius:16px"></div>
         <div class="skeleton-loader" style="height:160px;border-radius:16px"></div>
@@ -2171,51 +2270,17 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
     </div>
 
-    <!-- ═══════ FUND RAISER GAMES ═══════ -->
-    <div style="margin-bottom:24px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h3 style="font-size:15px;font-weight:800;margin:0"><i class="fa-solid fa-trophy" style="color:#e5a100"></i> Fund Raiser Games</h3>
-      </div>
-
-      <!-- Game Type Chips -->
-      <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px">
-        <button class="game-chip active" data-tier="all" onclick="filterQuizTier('all')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--accent);background:var(--accent);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s">🎯 All Games</button>
-        <button class="game-chip" data-tier="monthly" onclick="filterQuizTier('monthly')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid #3b82f6;background:transparent;color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s">🗓️ Monthly ₹100</button>
-        <button class="game-chip" data-tier="half_yearly" onclick="filterQuizTier('half_yearly')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid #8b5cf6;background:transparent;color:#8b5cf6;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s">📅 Half-Yearly ₹500</button>
-        <button class="game-chip" data-tier="yearly" onclick="filterQuizTier('yearly')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid #e11d48;background:transparent;color:#e11d48;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s">🏆 Yearly ₹1000</button>
-      </div>
-
-      <!-- Quiz Cards Container -->
-      <div id="quizGamesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
-        <div class="skeleton-loader" style="height:220px;border-radius:16px"></div>
-        <div class="skeleton-loader" style="height:220px;border-radius:16px"></div>
-      </div>
-
-      <!-- Empty state -->
-      <div id="quizEmptyState" style="display:none;text-align:center;padding:40px 20px">
-        <div style="font-size:48px;margin-bottom:12px">🎮</div>
-        <h4 style="color:var(--text-muted);font-weight:700;margin-bottom:6px">कोई game अभी available नहीं है</h4>
-        <p style="font-size:13px;color:var(--text-muted)">जल्दी ही नए fund raiser games आएंगे!</p>
-      </div>
-    </div>
-
-    <!-- ═══════ VIEW TASK & QUIZ HISTORY ═══════ -->
+    <!-- Task History -->
     <div style="margin-bottom:20px">
-      <details style="background:#fff;border:1px solid var(--card-border);border-radius:14px;overflow:hidden">
-        <summary style="padding:14px 16px;cursor:pointer;font-size:13px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px">
-          <i class="fa-solid fa-clock-rotate-left" style="color:var(--accent)"></i> View Task & Quiz Result
-        </summary>
-        <div style="padding:0 16px 16px">
-          <h4 style="font-size:13px;font-weight:700;margin:8px 0">📋 Task History</h4>
-          <div id="taskHistoryList">
-            <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">अभी तक कोई task पूरा नहीं किया</p>
-          </div>
-          <h4 style="font-size:13px;font-weight:700;margin:14px 0 8px">🎮 Quiz History</h4>
-          <div id="quizHistoryList">
-            <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">अभी तक किसी quiz में हिस्सा नहीं लिया</p>
-          </div>
+      <div style="background:#fff;border-radius:16px;border:1px solid var(--card-border);overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#f0fdf4,#fff)">
+          <i class="fa-solid fa-list-check" style="color:var(--success);font-size:15px"></i>
+          <span style="font-size:13px;font-weight:800;color:var(--text-primary)">Task History</span>
         </div>
-      </details>
+        <div id="taskHistoryList" style="padding:14px 16px">
+          <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">अभी तक कोई task पूरा नहीं किया</p>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -2856,7 +2921,8 @@ const pageTitles = {
   referral: '<i class="fa-solid fa-user-plus"></i> Referral & Earn',
   marketplace: '<i class="fa-solid fa-store"></i> Marketplace',
   seller: '<i class="fa-solid fa-boxes-stacked"></i> Seller Panel',
-  events: '<i class="fa-solid fa-calendar-days"></i> Events & Activities',
+  quiz: '<i class="fa-solid fa-gamepad"></i> Quiz & Games',
+  activities: '<i class="fa-solid fa-seedling"></i> Activities',
   support: '<i class="fa-solid fa-headset"></i> Help & Support'
 };
 
@@ -2887,7 +2953,8 @@ function switchPage(page, updateHash = true){
   if(page === 'profile')     loadProfile();
   if(page === 'marketplace') loadMarketProducts();
   if(page === 'seller')      loadSellerData();
-  if(page === 'events')      loadEventsPage();
+  if(page === 'quiz')        loadQuizPage();
+  if(page === 'activities')  loadActivitiesPage();
   if(page === 'training')    loadCourses();
 }
 
@@ -4654,16 +4721,30 @@ async function submitPost(){
    EVENTS & ACTIVITIES — UNIFIED PAGE
    ============================================ */
 let eventsLoaded = false;
+let quizLoaded = false;
+let activitiesLoaded = false;
 let allQuizzesCache = []; // for tier filtering
 let currentTaskData = null; // for popup
 
 async function loadEventsPage(){
-  if(eventsLoaded) return;
-  eventsLoaded = true;
+  await Promise.all([loadQuizPage(), loadActivitiesPage()]);
+}
+
+async function loadQuizPage(){
+  if(quizLoaded) return;
+  quizLoaded = true;
   try {
-    await Promise.all([loadSocialTasksGrid(), loadActiveQuizzes(), loadMyActivities()]);
+    await Promise.all([loadActiveQuizzes(), loadMyActivities()]);
     setupQuizReferralLinks();
-  } catch(e){ console.error('Events load err:', e); }
+  } catch(e){ console.error('Quiz page load err:', e); }
+}
+
+async function loadActivitiesPage(){
+  if(activitiesLoaded) return;
+  activitiesLoaded = true;
+  try {
+    await Promise.all([loadSocialTasksGrid(), loadMyActivities()]);
+  } catch(e){ console.error('Activities page load err:', e); }
 }
 
 // --- SOCIAL TASKS GRID ---
@@ -4810,8 +4891,8 @@ async function submitTaskSelfie(){
     } else {
       notify(taskRes.error || 'Error submitting task', 'error');
     }
-    eventsLoaded = false;
-    loadEventsPage();
+    activitiesLoaded = false;
+    loadActivitiesPage();
     memberData = null;
   } catch(e){
     notify(e.message || 'Submit failed', 'error');
@@ -5075,8 +5156,8 @@ async function enrollInQuiz(quizId, title, fee){
             document.getElementById('enrollSuccessPoints').textContent = enrollRes.points_earned
               ? `+${enrollRes.points_earned} FWF Points credited! 🌟` : '';
             document.getElementById('quizEnrollSuccessModal').style.display = 'flex';
-            eventsLoaded = false;
-            loadEventsPage();
+            quizLoaded = false;
+            loadQuizPage();
             memberData = null;
           } else {
             notify(enrollRes.error || 'Enrollment failed', 'error');
@@ -5173,8 +5254,8 @@ async function openQuizPlay(quizId){
         if(res.ok){
           notify(res.message || 'Quiz submitted!', 'success');
           document.getElementById('quizPlayModal').remove();
-          eventsLoaded = false;
-          loadEventsPage();
+          quizLoaded = false;
+          loadQuizPage();
         } else { notify(res.error, 'error'); }
       } catch(e){ notify('Submit failed','error'); }
     };
