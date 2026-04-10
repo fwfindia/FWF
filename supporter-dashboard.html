@@ -1206,9 +1206,9 @@ body.modal-open{
         <span style="background:linear-gradient(135deg,#f59e0b,#d97706);width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px">🎯</span>
         Active Games
       </h3>
-      <div id="quizSectionsContainer" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px">
-        <div class="skeleton-loader" style="height:460px;border-radius:24px"></div>
-        <div class="skeleton-loader" style="height:460px;border-radius:24px"></div>
+      <div id="quizSectionsContainer" style="display:flex;flex-direction:column;gap:12px">
+        <div class="skeleton-loader" style="height:120px;border-radius:16px"></div>
+        <div class="skeleton-loader" style="height:120px;border-radius:16px"></div>
       </div>
       <div id="quizEmptyState" style="display:none;text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1px dashed var(--card-border)">
         <div style="font-size:48px;margin-bottom:12px">🎮</div>
@@ -3499,100 +3499,52 @@ const tierIllustration = {
 function renderQuizCards(quizzes){
   const container = document.getElementById('quizSectionsContainer');
   const empty = document.getElementById('quizEmptyState');
-  if(!quizzes.length){ container.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-
-  // Group by type
-  const grouped = {};
-  quizzes.forEach(q => { grouped[q.type] = q; });
-
-  const typeOrder = ['monthly','half_yearly','yearly'];
-  container.innerHTML = typeOrder.filter(t => grouped[t]).map(type => {
-    const q = grouped[type];
-    const tc = tierConfig[q.type] || tierConfig.monthly;
-    const ti = tierIllustration[q.type] || tierIllustration.monthly;
-    // Auto-compute dates from API or calculate dynamically
-    const now = new Date();
-    let endDate, resultDate;
-    if(q.end_date && !isNaN(new Date(q.end_date))){
-      endDate = new Date(q.end_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    } else if(q.type === 'monthly'){
-      const ld = new Date(now.getFullYear(), now.getMonth()+1, 0);
-      endDate = ld.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    } else if(q.type === 'half_yearly'){
-      const m = now.getMonth(); const hEnd = m < 6 ? new Date(now.getFullYear(),5,30) : new Date(now.getFullYear(),11,31);
-      endDate = hEnd.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    } else {
-      endDate = new Date(now.getFullYear(),11,31).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    }
-    if(q.result_date && !isNaN(new Date(q.result_date))){
-      resultDate = new Date(q.result_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    } else if(q.type === 'monthly'){
-      const rd = new Date(now.getFullYear(), now.getMonth()+1, 10);
-      resultDate = rd.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    } else if(q.type === 'half_yearly'){
-      const m = now.getMonth(); const hRd = m < 6 ? new Date(now.getFullYear(),6,10) : new Date(now.getFullYear()+1,0,10);
-      resultDate = hRd.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    } else {
-      resultDate = new Date(now.getFullYear()+1,0,10).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    }
-    const schAmt = tc.scholarshipAmount;
-
-    return `
-    <div class="qc-beautiful" data-tier="${q.type}">
-      <div class="qcb-bg" style="background:${ti.bg}">
-        <div class="qcb-badge">${ti.badgeText}</div>
-        <div class="qcb-title">${tc.programName}</div>
-        <div class="qcb-desc">${tc.purpose}</div>
-        <div class="qcb-reward-pill">
-          <div class="qcb-reward-icon">🎓</div>
-          <div>
-            <div class="qcb-reward-amount">₹${schAmt.toLocaleString('en-IN')}</div>
-            <div class="qcb-reward-label">${tc.rewardLabel || 'Scholarship Amount'}</div>
-          </div>
+  if(!quizzes.length){ container.innerHTML=''; container.style.display='none'; empty.style.display='block'; return; }
+  empty.style.display='none';
+  container.style.cssText='display:flex;flex-direction:column;gap:12px';
+  const grouped={};
+  quizzes.forEach(q => { grouped[q.type]=q; });
+  const typeOrder=['monthly','half_yearly','yearly'];
+  container.innerHTML=typeOrder.filter(t=>grouped[t]).map(type => {
+    const q=grouped[type];
+    const tc=tierConfig[q.type]||tierConfig.monthly;
+    const schAmt=tc.scholarshipAmount;
+    const actionHTML=q.enrolled?`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:11px;border-top:1px solid var(--card-border)">
+        <div>
+          <div style="font-size:10px;color:#22c55e;font-weight:800">✅ ENROLLED</div>
+          <div style="font-size:9px;color:var(--text-muted);font-family:monospace">${q.enrollment?.enrollment_number||''}</div>
         </div>
-        <div class="qcb-bottom">
-          <div>Entry Fee: <strong>₹${q.entry_fee}</strong></div>
-          <div>Participate in quiz to win scholarship</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+          ${q.enrollment&&!q.enrollment.quiz_submitted&&q.status==='active'?`<button style="background:${tc.gradient};color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px" onclick="openQuizPlay('${q.quiz_id}','${q.enrollment?.enrollment_number||''}')"><i class="fa-solid fa-play"></i> Play</button>`:(q.enrollment?.quiz_submitted?`<span style="font-size:11px;color:#22c55e;font-weight:700;padding:8px 0">✅ Submitted</span>`:'')}
+          <button style="background:#fef3c7;color:#92400e;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit" onclick="openSellModal('${q.quiz_id}','${q.title}',${q.entry_fee},'${tc.programName}')"><i class="fa-solid fa-share-nodes"></i> Sell</button>
         </div>
       </div>
-      <div class="qcb-content">
-        <div class="qcb-dates">
-          <div class="qcb-date-box">
-            <div class="qcb-date-label"><i class="fa-regular fa-calendar"></i> Last Date</div>
-            <div class="qcb-date-value">${endDate}</div>
+    `:`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:11px;border-top:1px solid var(--card-border)">
+        <div style="font-size:12px;color:var(--text-secondary);font-weight:600">Entry: <strong style="color:var(--text-primary)">₹${q.entry_fee}</strong></div>
+        <div style="display:flex;gap:8px">
+          <button style="background:${tc.gradient};color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px" onclick="enrollInQuiz('${q.quiz_id}','${q.title}',${q.entry_fee})"><i class="fa-solid fa-graduation-cap"></i> Participate</button>
+          <button style="background:#fef3c7;color:#92400e;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit" onclick="openSellModal('${q.quiz_id}','${q.title}',${q.entry_fee},'${tc.programName}')"><i class="fa-solid fa-share-nodes"></i> Sell</button>
+        </div>
+      </div>
+    `;
+    return `
+    <div style="background:var(--card-bg);border-radius:16px;border:1px solid var(--card-border);overflow:hidden;border-top:3px solid ${tc.color};box-shadow:var(--shadow-card)">
+      <div style="padding:14px 16px">
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px">
+          <div style="font-size:34px;flex-shrink:0;line-height:1">${tc.emoji}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:${tc.color};margin-bottom:2px">${tc.label} Program</div>
+            <div style="font-size:15px;font-weight:900;color:var(--text-primary);line-height:1.2">${tc.programName}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4">${tc.purpose}</div>
           </div>
-          <div class="qcb-date-box">
-            <div class="qcb-date-label"><i class="fa-solid fa-trophy"></i> Result Date</div>
-            <div class="qcb-date-value">${resultDate}</div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:19px;font-weight:900;color:${tc.color}">₹${schAmt.toLocaleString('en-IN')}</div>
+            <div style="font-size:9px;color:var(--text-muted)">${tc.rewardLabel||'Scholarship'}</div>
           </div>
         </div>
-        ${q.enrolled ? `
-          <div style="padding:14px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:12px;text-align:center;margin-top:8px">
-            <div style="font-size:11px;color:#22c55e;font-weight:800">✅ ENROLLED</div>
-            <div style="font-size:12px;color:#86efac;margin-top:4px">${q.enrollment?.enrollment_number || ''}</div>
-          </div>
-          ${q.enrollment && !q.enrollment.quiz_submitted && q.status === 'active' ?
-            `<button class="qcb-btn" style="background:${tc.gradient};color:#fff;margin-top:8px;width:100%" onclick="openQuizPlay('${q.quiz_id}','${q.enrollment?.enrollment_number||''}')">
-              <i class="fa-solid fa-play"></i> Play Quiz
-            </button>` : ''}
-          ${q.enrollment?.quiz_submitted ? 
-            `<div style="padding:12px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:12px;text-align:center;margin-top:8px;font-size:12px;color:#22c55e;font-weight:700">
-              ✅ Quiz Submitted
-            </div>` : ''}
-          <button class="qcb-btn" style="background:#f59e0b;color:#fff;margin-top:8px;width:100%" onclick="openSellModal('${q.quiz_id}','${q.title}',${q.entry_fee},'${tc.programName}')">
-            <i class="fa-solid fa-share-nodes"></i> Sell Ticket
-          </button>
-        ` : `
-          <div class="qcb-actions" style="margin-top:8px">
-            <button class="qcb-btn" style="background:${tc.gradient};color:#fff" onclick="enrollInQuiz('${q.quiz_id}','${q.title}',${q.entry_fee})">
-              <i class="fa-solid fa-graduation-cap"></i> Participate
-            </button>
-            <button class="qcb-btn" style="background:#f59e0b;color:#fff" onclick="openSellModal('${q.quiz_id}','${q.title}',${q.entry_fee},'${tc.programName}')">
-              <i class="fa-solid fa-share-nodes"></i> Sell
-            </button>
-          </div>
-        `}
+        ${actionHTML}
       </div>
     </div>`;
   }).join('');
