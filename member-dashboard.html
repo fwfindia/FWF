@@ -2179,7 +2179,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       <h4 style="font-size:13px;font-weight:800;color:var(--text-primary);margin:0 0 14px;display:flex;align-items:center;gap:8px">
         <i class="fa-solid fa-circle-question" style="color:#7c3aed"></i> Quiz Game कैसे काम करता है?
       </h4>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;text-align:center">
         <div style="background:#f8f5ff;border-radius:12px;padding:12px 8px">
           <div style="font-size:26px;margin-bottom:6px">🎫</div>
           <div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:3px">Ticket खरीदें</div>
@@ -5006,7 +5006,8 @@ async function loadActiveQuizzes(){
     allQuizzesCache.sort((a,b) => (typeOrder[a.type]||9) - (typeOrder[b.type]||9));
     renderQuizCards(allQuizzesCache);
   } catch(e){
-    document.getElementById('quizGamesGrid').innerHTML = '<p style="color:var(--danger);font-size:13px;text-align:center;padding:20px">Games load error</p>';
+    const g = document.getElementById('quizGamesGrid');
+    if(g) g.innerHTML = '<p style="color:var(--danger);font-size:13px;text-align:center;padding:20px">Games load error</p>';
   }
 }
 
@@ -5098,7 +5099,7 @@ function renderQuizCards(quizzes){
               <i class="fa-solid fa-share-nodes"></i> Sell Ticket
             </button>
           ` : `
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+            <div class="qcb-actions" style="margin-top:8px">
               <button class="qcb-btn" style="background:${tc.gradient};color:#fff" onclick="enrollInQuiz('${q.quiz_id}','${q.title}',${q.entry_fee})">
                 <i class="fa-solid fa-graduation-cap"></i> Participate
               </button>
