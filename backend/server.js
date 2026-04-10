@@ -983,7 +983,7 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: ['/api/auth/login', '/api/admin/login', '/api/auth/logout'],
       member: ['/api/member/me', '/api/member/invoices', '/api/member/apply-wallet', '/api/member/weekly-task', '/api/member/complete-task', '/api/member/all-tasks', '/api/member/task-history', '/api/member/feed', '/api/member/create-post', '/api/member/active-quizzes', '/api/member/quiz-enroll', '/api/member/quiz-submit', '/api/member/quiz-history', '/api/member/affiliate'],
-      admin: ['/api/admin/overview', '/api/admin/invoices', '/api/admin/invoice/:id/resend', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/create-quiz', '/api/admin/quiz-draw/:quizId', '/api/admin/quizzes', '/api/admin/quiz-auto-create', '/api/admin/quiz-auto-draw', '/api/admin/quiz-scheduler-status', '/api/admin/quiz-purge-all', '/api/admin/quiz-seed', '/api/admin/quiz/:quizId/detail', '/api/admin/quiz/:quizId/participants', '/api/admin/social-stats', '/api/admin/social-posts', '/api/admin/social-posts/:id/approve', '/api/admin/social-posts/:id/reject'],
+      admin: ['/api/admin/overview', '/api/admin/invoices', '/api/admin/invoice/:id/resend', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/create-quiz', '/api/admin/quiz-draw/:quizId', '/api/admin/quizzes', '/api/admin/quiz-auto-create', '/api/admin/quiz-auto-draw', '/api/admin/quiz-scheduler-status', '/api/admin/quiz-purge-all', '/api/admin/quiz-seed', '/api/admin/quiz/:quizId/detail', '/api/admin/quiz/:quizId/participants', '/api/admin/quiz-participation/:enrollmentNumber/relink', '/api/admin/social-stats', '/api/admin/social-posts', '/api/admin/social-posts/:id/approve', '/api/admin/social-posts/:id/reject'],
       payment: ['/api/pay/check-member', '/api/pay/simulate-join', '/api/pay/create-order', '/api/pay/create-subscription', '/api/pay/create-donation-subscription', '/api/pay/create-phonepe-donation', '/api/pay/phonepe/donation/redirect/:transactionId', '/api/pay/phonepe/donation/callback/:transactionId', '/api/pay/verify', '/api/pay/membership', '/api/pay/donation'],
       referral: ['/api/referral/click'],
       debug: ['/api/debug/users (development only)']
@@ -3435,6 +3435,7 @@ app.post('/api/member/quiz-enroll', auth(['member','supporter']), async (req, re
       name: user.name,
       enrollment_number: enrollmentNumber,
       payment_id: razorpay_payment_id,
+      payment_status: 'paid',
       amount_paid: quiz.entry_fee,
       referred_by: referred_by || null,
       referrer_id: referrerId
@@ -3600,16 +3601,30 @@ app.post('/api/member/quiz-submit', auth(['member','supporter']), async (req, re
 // Quiz history for user
 app.get('/api/member/quiz-history', auth(['member','supporter']), async (req, res) => {
   try {
-    const participations = await QuizParticipation.find({ user_id: req.user.uid })
+    // Search by user_id OR member_id to catch ticket-based enrollments where user was
+    // resolved by mobile but member_id was saved as the official FWF member ID
+    const filter = req.user.memberId
+      ? { $or: [{ user_id: req.user.uid }, { member_id: req.user.memberId }] }
+      : { user_id: req.user.uid };
+    const participations = await QuizParticipation.find(filter)
       .sort({ created_at: -1 }).lean();
 
+    // Deduplicate in case a record matches both user_id and member_id
+    const seen = new Set();
+    const unique = participations.filter(p => {
+      const key = p._id.toString();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
     // Enrich with quiz details
-    for (const p of participations) {
+    for (const p of unique) {
       const quiz = await Quiz.findById(p.quiz_id).select('title type entry_fee result_date status prizes').lean();
       if (quiz) p.quiz_details = quiz;
     }
 
-    res.json({ ok: true, participations });
+    res.json({ ok: true, participations: unique });
   } catch (err) {
     captureError(err, { context: 'quiz-history' });
     res.status(500).json({ error: 'History fetch failed' });
@@ -3893,9 +3908,21 @@ app.post('/api/quiz-ticket/:token/enroll', async (req, res) => {
 
     // Resolve buyer user_id: use existing account if found, else a fresh ObjectId
     let buyerUserId;
-    if (buyerContactClean.length === 10) {
-      const existingBuyer = await User.findOne({ mobile: buyerContactClean }).select('_id').lean();
-      buyerUserId = existingBuyer?._id || new mongoose.Types.ObjectId();
+    let buyerMemberId = ticket.buyer_contact;
+    let buyerDisplayName = ticket.buyer_name;
+    if (buyerContactClean.length >= 10) {
+      const last10 = buyerContactClean.slice(-10);
+      // Robust multi-format lookup (same as login flow) to handle +91, 91 prefix variants
+      const existingBuyer = await User.findOne({
+        mobile: { $in: [last10, '+91' + last10, '91' + last10] }
+      }).select('_id member_id name').lean();
+      if (existingBuyer) {
+        buyerUserId = existingBuyer._id;
+        buyerMemberId = existingBuyer.member_id || ticket.buyer_contact;
+        buyerDisplayName = existingBuyer.name || ticket.buyer_name;
+      } else {
+        buyerUserId = new mongoose.Types.ObjectId();
+      }
     } else {
       buyerUserId = new mongoose.Types.ObjectId();
     }
@@ -3915,10 +3942,11 @@ app.post('/api/quiz-ticket/:token/enroll', async (req, res) => {
       quiz_id: quiz._id,
       quiz_ref: quiz.quiz_id,
       user_id: buyerUserId,
-      member_id: ticket.buyer_contact,
-      name: ticket.buyer_name,
+      member_id: buyerMemberId,
+      name: buyerDisplayName,
       enrollment_number: enrollmentNumber,
       payment_id: razorpay_payment_id,
+      payment_status: 'paid',
       amount_paid: ticket.ticket_price,
       referrer_id: ticket.seller_id,
       status: 'enrolled'
@@ -4297,8 +4325,8 @@ app.get('/api/admin/quiz/:quizId/detail', auth('admin'), async (req, res) => {
     if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
     const participantCount = await QuizParticipation.countDocuments({ quiz_ref: quiz.quiz_id });
     const submittedCount  = await QuizParticipation.countDocuments({ quiz_ref: quiz.quiz_id, quiz_submitted: true });
-    const paidCount       = await QuizParticipation.countDocuments({ quiz_ref: quiz.quiz_id, payment_status: 'paid' });
-    // Answer distribution per question
+    const paidCount       = await QuizParticipation.countDocuments({ quiz_ref: quiz.quiz_id });
+    // (All enrolled records are paid — payment is verified before enrollment)
     const participations  = await QuizParticipation.find({ quiz_ref: quiz.quiz_id, quiz_submitted: true }).select('answers score').lean();
     const questionStats   = (quiz.questions || []).map(q => {
       const dist = [0, 0, 0, 0];
@@ -4484,8 +4512,8 @@ app.get('/api/admin/quiz/:quizId/participants', auth('admin'), async (req, res) 
       p.mobile = u?.mobile || '';
       p.email = u?.email || '';
     });
-    // Revenue stats
-    const allPaid = await QuizParticipation.find({ quiz_ref: quiz.quiz_id, payment_status: 'paid' }).select('amount_paid score quiz_submitted').lean();
+    // Revenue stats — all enrollments are paid (Razorpay payment verified before DB write)
+    const allPaid = await QuizParticipation.find({ quiz_ref: quiz.quiz_id }).select('amount_paid score quiz_submitted').lean();
     const totalCollection = allPaid.reduce((s, p) => s + (p.amount_paid || 0), 0);
     const submittedCount  = allPaid.filter(p => p.quiz_submitted).length;
     res.json({
@@ -4500,7 +4528,47 @@ app.get('/api/admin/quiz/:quizId/participants', auth('admin'), async (req, res) 
   }
 });
 
-// Admin: Manually trigger quiz auto-create
+// Admin: Re-link orphaned quiz participation to correct user
+// Use when a ticket-based enrollment stored a random user_id (mobile didn't match at enrollment time)
+app.patch('/api/admin/quiz-participation/:enrollmentNumber/relink', auth('admin'), async (req, res) => {
+  try {
+    const { memberId } = req.body; // The correct FWF member ID to link to
+    if (!memberId) return res.status(400).json({ error: 'memberId required' });
+
+    const user = await User.findOne({ member_id: memberId }).select('_id member_id name').lean();
+    if (!user) return res.status(404).json({ error: `User with member ID "${memberId}" not found` });
+
+    const participation = await QuizParticipation.findOne({ enrollment_number: req.params.enrollmentNumber });
+    if (!participation) return res.status(404).json({ error: 'Participation not found' });
+
+    const oldUserId = participation.user_id?.toString();
+    participation.user_id = user._id;
+    participation.member_id = user.member_id;
+    participation.name = user.name;
+    await participation.save();
+
+    addBreadcrumb('admin', 'Quiz participation re-linked', {
+      enrollment: req.params.enrollmentNumber,
+      oldUserId, newUserId: user._id.toString(), memberId
+    });
+
+    res.json({
+      ok: true,
+      message: `Participation ${req.params.enrollmentNumber} re-linked to ${user.name} (${memberId})`,
+      participation: {
+        enrollment_number: participation.enrollment_number,
+        user_id: user._id,
+        member_id: user.member_id,
+        name: user.name
+      }
+    });
+  } catch (err) {
+    captureError(err, { context: 'admin-quiz-relink' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 app.post('/api/admin/quiz-auto-create', auth('admin'), async (req, res) => {
   try {
     await autoCreateQuizzes();
@@ -4807,8 +4875,16 @@ app.get('/api/admin/zoho/test', auth('admin'), async (req, res) => {
 // Admin: get social task stats
 
 // Admin: Purge ALL quiz data (quizzes, participations, related points ledger)
+// REQUIRES confirm_key = "DELETE_ALL_QUIZ_DATA" to prevent accidental use
 app.post('/api/admin/quiz-purge-all', auth('admin'), async (req, res) => {
   try {
+    const { confirm_key } = req.body;
+    if (confirm_key !== 'DELETE_ALL_QUIZ_DATA') {
+      return res.status(400).json({
+        error: 'Safety confirmation required',
+        hint: 'Pass { "confirm_key": "DELETE_ALL_QUIZ_DATA" } in the request body to confirm'
+      });
+    }
     const deletedQ = await Quiz.deleteMany({});
     const deletedP = await QuizParticipation.deleteMany({});
     const deletedPL = await PointsLedger.deleteMany({ description: { $regex: /quiz|lucky draw/i } });

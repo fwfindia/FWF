@@ -4746,7 +4746,10 @@ async function loadParticipantsPage(quizId, page=1){
           <td>${stBadge}</td>
           <td style="font-weight:700;text-align:center;color:${p.score>0?'#1e40af':'#94a3b8'}">${p.score||0}</td>
           <td style="font-size:11px;color:#64748b">${p.submitted_at ? new Date(p.submitted_at).toLocaleString('en-IN') : '—'}</td>
-          <td style="font-size:11px;color:#64748b">${p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : '—'}</td>
+          <td style="font-size:11px;color:#64748b">
+            ${p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : '—'}
+            ${!p.mobile ? `<br><button onclick="relinkParticipation('${p.enrollment_number}')" style="margin-top:4px;font-size:10px;padding:2px 7px;border-radius:5px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;cursor:pointer;font-weight:700" title="Orphaned record — user_id not matched to any registered user">🔗 Re-link</button>` : ''}
+          </td>
         </tr>`;
       }).join('');
     }
@@ -4766,7 +4769,24 @@ async function loadParticipantsPage(quizId, page=1){
 function searchParticipants(){ loadParticipantsPage(pCurrentQuizId, 1); }
 function closeParticipantsModal(){ document.getElementById('modalParticipants').style.display = 'none'; pCurrentQuizId=''; }
 
-function exportParticipantsCSV(){
+async function relinkParticipation(enrollmentNumber){
+  const memberId = prompt(`Re-link enrollment "${enrollmentNumber}" to which FWF member?\n\nEnter the correct Member ID (e.g. FWFS4463):`);
+  if(!memberId || !memberId.trim()) return;
+  try {
+    const data = await AUTH.api(`/api/admin/quiz-participation/${encodeURIComponent(enrollmentNumber)}/relink`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId: memberId.trim().toUpperCase() })
+    });
+    if(!data.ok) { alert('Error: ' + (data.error || 'Re-link failed')); return; }
+    alert('✅ ' + data.message + '\n\nThe member will now see this quiz in their history.');
+    loadParticipantsPage(pCurrentQuizId, pCurrentPage); // Refresh
+  } catch(err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+
   if(!pParticipantsCache.length){ alert('No data to export'); return; }
   const rows = [['#','Name','Member ID','Enrollment','Payment Status','Amount','Status','Score','Submitted At','Enrolled On']];
   pParticipantsCache.forEach((p,i)=>{
