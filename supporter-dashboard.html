@@ -890,8 +890,11 @@ body.modal-open{
     <button class="nav-item" data-page="feed">
       <i class="fa-solid fa-book-open"></i> Social Book
     </button>
-    <button class="nav-item" data-page="events">
-      <i class="fa-solid fa-calendar-days"></i> Events & Activities
+    <button class="nav-item" data-page="quiz">
+      <i class="fa-solid fa-gamepad"></i> Quiz & Games
+    </button>
+    <button class="nav-item" data-page="activities">
+      <i class="fa-solid fa-seedling"></i> Activities
     </button>
 
     <div class="nav-divider">Wallet</div>
@@ -947,8 +950,11 @@ body.modal-open{
             <button class="account-action-btn" onclick="switchPage('referral')">
               <i class="fa-solid fa-user-plus"></i> Referral
             </button>
-            <button class="account-action-btn" onclick="switchPage('events')">
-              <i class="fa-solid fa-calendar-days"></i> Events
+            <button class="account-action-btn" onclick="switchPage('quiz')">
+              <i class="fa-solid fa-gamepad"></i> Quiz
+            </button>
+            <button class="account-action-btn" onclick="switchPage('activities')">
+              <i class="fa-solid fa-seedling"></i> Activities
             </button>
             <button class="account-action-btn" onclick="switchPage('support')">
               <i class="fa-solid fa-headset"></i> Help
@@ -1129,35 +1135,124 @@ body.modal-open{
   </div>
 
   <!-- ===================== EVENTS & ACTIVITIES ===================== -->
-  <div class="page" id="page-events">
-    <div style="margin-bottom:20px">
-      <h3 style="font-size:15px;font-weight:800;margin:0 0 12px"><i class="fa-solid fa-chart-line" style="color:var(--accent)"></i> My Activity</h3>
-      <div class="stats-row" style="margin-bottom:0">
-        <div class="stat-card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)">
-          <div class="s-icon s-green"><i class="fa-solid fa-check-circle"></i></div>
-          <div class="s-label">Tasks Done</div>
-          <div class="s-value" id="myTasksCompleted">0</div>
+  <!-- ===================== QUIZ & GAMES ===================== -->
+  <div class="page" id="page-quiz">
+
+    <!-- Hero Banner -->
+    <div style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 45%,#4c1d95 100%);border-radius:20px;padding:24px 20px 20px;margin-bottom:20px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:140px;height:140px;background:radial-gradient(circle,rgba(167,139,250,.25),transparent);border-radius:50%;pointer-events:none"></div>
+      <div style="display:flex;align-items:center;gap:14px;position:relative;margin-bottom:18px">
+        <div style="font-size:44px">🏆</div>
+        <div>
+          <h2 style="color:#fff;font-size:19px;font-weight:900;margin:0 0 4px;line-height:1.2">Quiz & Fund Raiser Games</h2>
+          <p style="color:rgba(255,255,255,.7);font-size:12px;margin:0">Play · Win · Raise Funds for Social Welfare</p>
         </div>
-        <div class="stat-card" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">
-          <div class="s-icon s-amber"><i class="fa-solid fa-gamepad"></i></div>
-          <div class="s-label">Quizzes Played</div>
-          <div class="s-value" id="myQuizCount">0</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;position:relative">
+        <div style="background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:14px;padding:13px;text-align:center">
+          <div style="font-size:24px;font-weight:900;color:#fff" id="myQuizCount">0</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600;margin-top:2px">🎮 Quizzes Played</div>
         </div>
-        <div class="stat-card" style="background:linear-gradient(135deg,#fce7f3,#fbcfe8)">
-          <div class="s-icon" style="background:linear-gradient(135deg,#ec4899,#db2777)"><i class="fa-solid fa-trophy"></i></div>
-          <div class="s-label">Quiz Wins</div>
-          <div class="s-value" id="myQuizWins">0</div>
+        <div style="background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:14px;padding:13px;text-align:center">
+          <div style="font-size:24px;font-weight:900;color:#fbbf24" id="myQuizWins">0</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600;margin-top:2px">🥇 Quiz Wins</div>
         </div>
       </div>
     </div>
 
-    <div style="text-align:center;padding:24px 16px 8px">
-      <div style="font-size:40px;margin-bottom:4px">🙏</div>
-      <h2 style="font-size:20px;font-weight:900;margin:0 0 6px;color:var(--text-primary);line-height:1.3">बदलाव आप से शुरू होता है!</h2>
-      <p style="font-size:13px;color:var(--text-muted);margin:0;line-height:1.5">एक छोटा सा कदम — समाज के लिए बड़ा बदलाव। आज ही कोई नेक काम करें और Selfie share करें!</p>
+    <!-- How it Works -->
+    <div style="background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:20px;border:1px solid var(--card-border)">
+      <h4 style="font-size:13px;font-weight:800;color:var(--text-primary);margin:0 0 14px;display:flex;align-items:center;gap:8px">
+        <i class="fa-solid fa-circle-question" style="color:#7c3aed"></i> Quiz Game कैसे काम करता है?
+      </h4>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+        <div style="background:#f8f5ff;border-radius:12px;padding:12px 8px">
+          <div style="font-size:26px;margin-bottom:6px">🎫</div>
+          <div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:3px">Ticket खरीदें</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.4">Monthly / Yearly plan चुनें</div>
+        </div>
+        <div style="background:#f8f5ff;border-radius:12px;padding:12px 8px">
+          <div style="font-size:26px;margin-bottom:6px">🧠</div>
+          <div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:3px">Quiz खेलें</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.4">सही जवाब दें</div>
+        </div>
+        <div style="background:#f8f5ff;border-radius:12px;padding:12px 8px">
+          <div style="font-size:26px;margin-bottom:6px">💸</div>
+          <div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:3px">Prize जीतें</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.4">Lucky draw cash prize</div>
+        </div>
+      </div>
     </div>
 
-    <div style="margin:16px 0 24px">
+    <!-- Active Games -->
+    <div style="margin-bottom:24px">
+      <h3 style="font-size:15px;font-weight:800;margin:0 0 14px;display:flex;align-items:center;gap:9px">
+        <span style="background:linear-gradient(135deg,#f59e0b,#d97706);width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px">🎯</span>
+        Active Games
+      </h3>
+      <div id="quizSectionsContainer" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px">
+        <div class="skeleton-loader" style="height:460px;border-radius:24px"></div>
+        <div class="skeleton-loader" style="height:460px;border-radius:24px"></div>
+      </div>
+      <div id="quizEmptyState" style="display:none;text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1px dashed var(--card-border)">
+        <div style="font-size:48px;margin-bottom:12px">🎮</div>
+        <h4 style="color:var(--text-muted);font-weight:700;margin:0 0 6px">कोई game अभी available नहीं</h4>
+        <p style="font-size:13px;color:var(--text-muted);margin:0">जल्दी ही नए fund raiser games आएंगे!</p>
+      </div>
+    </div>
+
+    <!-- Quiz History -->
+    <div style="margin-bottom:20px">
+      <div style="background:#fff;border-radius:16px;border:1px solid var(--card-border);overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#f9f5ff,#fff)">
+          <i class="fa-solid fa-clock-rotate-left" style="color:#7c3aed;font-size:15px"></i>
+          <span style="font-size:13px;font-weight:800;color:var(--text-primary)">My Quiz Participations</span>
+        </div>
+        <div style="padding:14px 16px;overflow-x:auto">
+          <table class="data-table" style="min-width:600px;font-size:12px">
+            <thead><tr><th>Date</th><th>Quiz</th><th>Participation ID</th><th>₹ Paid</th><th>Quiz Status</th><th>Result Date</th><th>Result</th></tr></thead>
+            <tbody id="quizHistoryList"><tr><td colspan="7" class="empty-state"><p>अभी तक किसी quiz में हिस्सा नहीं लिया</p></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===================== ACTIVITIES ===================== -->
+  <div class="page" id="page-activities">
+
+    <!-- Hero Banner -->
+    <div style="background:linear-gradient(135deg,#064e3b 0%,#065f46 50%,#047857 100%);border-radius:20px;padding:24px 20px 20px;margin-bottom:20px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:130px;height:130px;background:radial-gradient(circle,rgba(52,211,153,.25),transparent);border-radius:50%;pointer-events:none"></div>
+      <div style="display:flex;align-items:center;gap:14px;position:relative;margin-bottom:18px">
+        <div style="font-size:44px">🌱</div>
+        <div>
+          <h2 style="color:#fff;font-size:19px;font-weight:900;margin:0 0 4px;line-height:1.2">Social Activities</h2>
+          <p style="color:rgba(255,255,255,.7);font-size:12px;margin:0">बदलाव आप से शुरू होता है!</p>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:14px;padding:13px;text-align:center">
+        <div style="font-size:24px;font-weight:900;color:#fff" id="myTasksCompleted">0</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600;margin-top:2px">✅ Tasks Completed</div>
+      </div>
+    </div>
+
+    <!-- Motivational Banner -->
+    <div style="background:linear-gradient(135deg,#fff8f0,#fff);border:1px solid #fed7aa;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:36px;flex-shrink:0">🙏</div>
+      <div>
+        <h4 style="font-size:14px;font-weight:900;color:var(--text-primary);margin:0 0 4px;line-height:1.3">एक छोटा सा कदम — बड़ा बदलाव</h4>
+        <p style="font-size:12px;color:var(--text-muted);margin:0;line-height:1.5">आज ही कोई नेक काम करें, Selfie share करें और Social Book पर inspire करें!</p>
+      </div>
+    </div>
+
+    <!-- Social Tasks -->
+    <div style="margin-bottom:24px">
+      <h3 style="font-size:15px;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:9px">
+        <span style="background:linear-gradient(135deg,#059669,#10b981);width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px">🌿</span>
+        Social Tasks
+      </h3>
       <div id="socialTasksGrid" class="social-tasks-grid" style="display:grid;gap:12px">
         <div class="skeleton-loader" style="height:160px;border-radius:16px"></div>
         <div class="skeleton-loader" style="height:160px;border-radius:16px"></div>
@@ -1166,41 +1261,19 @@ body.modal-open{
       </div>
     </div>
 
-    <div style="margin-bottom:24px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-        <h3 style="font-size:17px;font-weight:900;margin:0;display:flex;align-items:center;gap:8px"><i class="fa-solid fa-trophy" style="color:#e5a100"></i> Fund Raiser Scholarship Games</h3>
-      </div>
-      <div id="quizSectionsContainer" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px">
-        <div class="skeleton-loader" style="height:460px;border-radius:24px"></div>
-        <div class="skeleton-loader" style="height:460px;border-radius:24px"></div>
-      </div>
-      <div id="quizEmptyState" style="display:none;text-align:center;padding:40px 20px">
-        <div style="font-size:48px;margin-bottom:12px">🎮</div>
-        <h4 style="color:var(--text-muted);font-weight:700;margin-bottom:6px">कोई game अभी available नहीं है</h4>
-        <p style="font-size:13px;color:var(--text-muted)">जल्दी ही नए fund raiser games आएंगे!</p>
+    <!-- Task History -->
+    <div style="margin-bottom:20px">
+      <div style="background:#fff;border-radius:16px;border:1px solid var(--card-border);overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#f0fdf4,#fff)">
+          <i class="fa-solid fa-list-check" style="color:var(--success);font-size:15px"></i>
+          <span style="font-size:13px;font-weight:800;color:var(--text-primary)">Task History</span>
+        </div>
+        <div id="taskHistoryList" style="padding:14px 16px">
+          <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">अभी तक कोई task पूरा नहीं किया</p>
+        </div>
       </div>
     </div>
 
-    <div style="margin-bottom:20px">
-      <details style="background:#fff;border:1px solid var(--card-border);border-radius:14px;overflow:hidden">
-        <summary style="padding:14px 16px;cursor:pointer;font-size:13px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px">
-          <i class="fa-solid fa-clock-rotate-left" style="color:var(--accent)"></i> View Task & Quiz Result
-        </summary>
-        <div style="padding:0 16px 16px">
-          <h4 style="font-size:13px;font-weight:700;margin:8px 0">📋 Task History</h4>
-          <div id="taskHistoryList">
-            <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0">अभी तक कोई task पूरा नहीं किया</p>
-          </div>
-          <h4 style="font-size:13px;font-weight:700;margin:14px 0 8px">🎮 My Quiz Participations</h4>
-          <div class="table-wrap" style="overflow-x:auto">
-            <table class="data-table" style="min-width:600px;font-size:12px">
-              <thead><tr><th>Date</th><th>Quiz</th><th>Participation ID</th><th>₹ Paid</th><th>Quiz Status</th><th>Result Date</th><th>Result</th></tr></thead>
-              <tbody id="quizHistoryList"><tr><td colspan="7" class="empty-state"><p>अभी तक किसी quiz में हिस्सा नहीं लिया</p></td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </details>
-    </div>
   </div>
 
   <!-- ═══════ SOCIAL TASK POPUP MODAL ═══════ -->
@@ -1977,7 +2050,8 @@ const pageTitles = {
   home: '<i class="fa-solid fa-house"></i> Dashboard',
   profile: '<i class="fa-solid fa-id-card"></i> Profile & ID Card',
   feed: '<i class="fa-solid fa-book-open"></i> Social Book',
-  events: '<i class="fa-solid fa-calendar-days"></i> Events & Activities',
+  quiz: '<i class="fa-solid fa-gamepad"></i> Quiz & Games',
+  activities: '<i class="fa-solid fa-seedling"></i> Activities',
   wallet: '<i class="fa-solid fa-wallet"></i> Wallet',
   referral: '<i class="fa-solid fa-user-plus"></i> Referral & Earn',
   membership: '<i class="fa-solid fa-arrow-up-right-dots"></i> Become a Member',
@@ -2006,7 +2080,8 @@ function switchPage(page, updateHash = true){
   if(page === 'referral')    loadReferral();
   if(page === 'support')     loadMyTickets();
   if(page === 'profile')     loadProfile();
-  if(page === 'events')      loadEventsPage();
+  if(page === 'quiz')        loadQuizPage();
+  if(page === 'activities')  loadActivitiesPage();
   if(page === 'feed')        loadFeed();
 }
 
@@ -3135,15 +3210,29 @@ async function submitPost(){
    EVENTS & ACTIVITIES
    ============================================ */
 let eventsLoaded = false;
+let quizLoaded = false;
+let activitiesLoaded = false;
 let allQuizzesCache = [];
 let currentTaskData = null;
 
 async function loadEventsPage(){
-  if(eventsLoaded) return;
-  eventsLoaded = true;
+  await Promise.all([loadQuizPage(), loadActivitiesPage()]);
+}
+
+async function loadQuizPage(){
+  if(quizLoaded) return;
+  quizLoaded = true;
   try {
-    await Promise.all([loadSocialTasksGrid(), loadActiveQuizzes(), loadMyActivities()]);
-  } catch(e){ console.error('Events load err:', e); }
+    await Promise.all([loadActiveQuizzes(), loadMyActivities()]);
+  } catch(e){ console.error('Quiz load err:', e); }
+}
+
+async function loadActivitiesPage(){
+  if(activitiesLoaded) return;
+  activitiesLoaded = true;
+  try {
+    await Promise.all([loadSocialTasksGrid(), loadMyActivities()]);
+  } catch(e){ console.error('Activities load err:', e); }
 }
 
 const taskGradients = [
@@ -3282,8 +3371,8 @@ async function submitTaskSelfie(){
     } else {
       notify(taskRes.error || 'Error submitting task', 'error');
     }
-    eventsLoaded = false;
-    loadEventsPage();
+    activitiesLoaded = false;
+    loadActivitiesPage();
     memberData = null;
   } catch(e){
     notify(e.message || 'Submit failed', 'error');
@@ -3535,7 +3624,7 @@ async function enrollInQuiz(quizId, title, fee){
           }
         });
         if(enrollRes.ok){
-          eventsLoaded = false; loadEventsPage();
+          quizLoaded = false; loadQuizPage();
           openQuizPlay(quizId, enrollRes.enrollment_number);
         } else { notify(enrollRes.error || 'Enrollment failed','error'); }
       },
@@ -3612,7 +3701,7 @@ async function openQuizPlay(quizId, enrollmentNum){
           const res = await AUTH.api('/api/member/quiz-submit', { method:'POST', body:{ quiz_id: qId, answers: formattedAnswers } });
           if(res.ok){
             document.getElementById('quizPlayModal')?.remove();
-            eventsLoaded = false; loadEventsPage();
+            quizLoaded = false; loadQuizPage();
             showQuizResult({ score: res.score, total: res.totalQuestions, passed: res.passed,
               enrollmentNumber: res.enrollment_number, resultDate: res.result_date });
           } else { notify(res.error || 'Submit failed', 'error'); }
