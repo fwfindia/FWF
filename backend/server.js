@@ -985,7 +985,7 @@ app.get('/', (req, res) => {
     service: 'FWF Backend API',
     status: 'online',
     database: 'MongoDB Atlas',
-    version: '2.2.0',
+    version: '2.2.1',
     timestamp: new Date().toISOString(),
     endpoints: {
       auth: ['/api/auth/login', '/api/admin/login', '/api/auth/logout'],
