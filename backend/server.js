@@ -954,7 +954,14 @@ async function seedData() {
 function auth(requiredRole) {
   return (req, res, next) => {
     try {
-      const token = req.cookies.token;
+      // Accept token from cookie (web) OR Authorization: Bearer <token> header (mobile)
+      let token = req.cookies.token;
+      if (!token) {
+        const authHeader = req.headers['authorization'];
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.slice(7);
+        }
+      }
       if (!token) return res.status(401).json({ error: 'Unauthorized' });
       const data = jwt.verify(token, JWT_SECRET);
       req.user = data;
@@ -1832,15 +1839,17 @@ app.post('/api/admin/reset-password', auth('admin'), async (req, res) => {
 });
 
 app.post('/api/auth/login', rateLimit(60000, 5), async (req, res) => {
-  const { memberId, password } = req.body;
-  if (!memberId || !password) return res.status(400).json({ error: 'Member ID and password are required' });
+  // Accept both 'memberId' (web) and 'mobile' (mobile app) fields
+  const { memberId, mobile, password } = req.body;
+  const identifier = memberId || mobile;
+  if (!identifier || !password) return res.status(400).json({ error: 'Member ID and password are required' });
 
-  let u = await User.findOne({ member_id: memberId });
-  if (!u) u = await User.findOne({ email: memberId });
+  let u = await User.findOne({ member_id: identifier });
+  if (!u) u = await User.findOne({ email: identifier });
 
   // Mobile lookup: try multiple formats (raw, +91prefix, 91prefix, stripped to last 10 digits)
   if (!u) {
-    const cleanMobile = memberId.replace(/\D/g, ''); // strip non-digits
+    const cleanMobile = identifier.replace(/\D/g, ''); // strip non-digits
     const last10 = cleanMobile.slice(-10);
     u = await User.findOne({ mobile: { $in: [
       cleanMobile,
@@ -1852,17 +1861,18 @@ app.post('/api/auth/login', rateLimit(60000, 5), async (req, res) => {
   }
 
   if (!u) {
-    console.log(`Login failed: member_id/email/mobile "${memberId}" not found`);
+    console.log(`Login failed: member_id/email/mobile "${identifier}" not found`);
     return res.status(400).json({ error: 'Invalid Member ID or password' });
   }
   if (!bcrypt.compareSync(password, u.password_hash)) {
-    console.log(`Login failed: wrong password for "${memberId}"`);
+    console.log(`Login failed: wrong password for "${identifier}"`);
     return res.status(400).json({ error: 'Invalid Member ID or password' });
   }
   const token = signToken({ uid: u._id.toString(), role: u.role, memberId: u.member_id, name: u.name });
   res.cookie('token', token, AUTH_COOKIE_OPTIONS);
   addBreadcrumb('auth', 'Member logged in', { memberId: u.member_id });
-  res.json({ ok: true, role: u.role });
+  // Return token + user info in JSON body (for mobile app Bearer token auth)
+  res.json({ ok: true, token, role: u.role, memberId: u.member_id, name: u.name });
 });
 
 app.post('/api/admin/login', rateLimit(60000, 5), async (req, res) => {
