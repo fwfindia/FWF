@@ -3709,15 +3709,13 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
       };
     }
 
-    // Top donation collector — ALL donations (members + anonymous), grouped by identity
+    // Top donation collector — ALL donations (members + anonymous)
     const topDonorAgg = await Donation.aggregate([
-      { $addFields: { groupKey: { $ifNull: [{ $toString: '$member_id' }, { $ifNull: ['$donor_name', 'Anonymous'] }] } } },
       { $group: {
-        _id: '$groupKey',
+        _id: '$member_id',
         total: { $sum: '$amount' },
         count: { $sum: 1 },
-        member_id_val: { $first: '$member_id' },
-        donor_name_val: { $first: '$donor_name' }
+        donor_name: { $first: '$donor_name' }
       }},
       { $sort: { total: -1 } },
       { $limit: 1 }
@@ -3726,10 +3724,10 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
     let topDonor = null;
     if (topDonorAgg.length > 0) {
       const td = topDonorAgg[0];
-      let donorName = td.donor_name_val || 'Anonymous';
+      let donorName = td.donor_name || 'Anonymous';
       let memberDisplayId = '';
-      if (td.member_id_val) {
-        const tdUser = await User.findById(td.member_id_val).select('name member_id').lean();
+      if (td._id) {
+        const tdUser = await User.findById(td._id).select('name member_id').lean();
         if (tdUser) {
           donorName = tdUser.name;
           memberDisplayId = tdUser.member_id || '';

@@ -4983,7 +4983,13 @@ async function loadActivitiesPage(){
 async function loadFameWall(){
   try {
     const data = await AUTH.api('/api/member/fame-wall');
-    if(!data.ok) return;
+    if(!data.ok){
+      const qwEl2 = document.getElementById('fwQuizWinners');
+      if(qwEl2) qwEl2.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी नहीं, बाद में आईएगा</p>';
+      const tdEl2 = document.getElementById('fwTopDonor');
+      if(tdEl2) tdEl2.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी नहीं, बाद में आईएगा</p>';
+      return;
+    }
     const typeEmoji = { monthly:'🗓️', half_yearly:'📅', yearly:'🏆' };
     const typeName  = { monthly:'Monthly', half_yearly:'Half-Yearly', yearly:'Yearly' };
 
@@ -5049,7 +5055,13 @@ async function loadFameWall(){
           </div>`;
       }
     }
-  } catch(e){ console.error('Fame wall error:', e); }
+  } catch(e){
+    console.error('Fame wall error:', e);
+    const qwEl = document.getElementById('fwQuizWinners');
+    if(qwEl) qwEl.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">Data load नहीं हो पाया — refresh करें</p>';
+    const tdEl = document.getElementById('fwTopDonor');
+    if(tdEl) tdEl.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">Data load नहीं हो पाया — refresh करें</p>';
+  }
 }
 
 // --- QUIZ WINNERS HISTORY ---
