@@ -226,7 +226,6 @@ const footer = `
 <div>
 <h5>Contact</h5>
 <p><a href="mailto:info@fwfindia.org">info@fwfindia.org</a><br>
-+91-9580118412<br>
 1398/1850 Sagarpuri Gallamandi, Kanpur - 208021 U.P India</p>
 </div>
 </div>

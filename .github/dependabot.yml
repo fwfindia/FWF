@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # Root package (Vercel serverless functions)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      sentry:
+        patterns:
+          - "@sentry/*"
+
+  # Backend package (Express server)
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      sentry:
+        patterns:
+          - "@sentry/*"

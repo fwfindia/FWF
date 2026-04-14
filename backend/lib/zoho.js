@@ -214,7 +214,7 @@ export async function syncReceiptToZoho(receipt) {
     date:       receipt.created_at || new Date(),
     lineItems:  items,
     total:      receipt.total,
-    paymentId:  receipt.razorpay_payment_id,
+    paymentId:  receipt.payment_txn_id || receipt.razorpay_payment_id,
     type:       receipt.type,
     is80g:      receipt.is_80g,
   });
