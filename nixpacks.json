@@ -5,7 +5,7 @@
         "nixPkgs": ["nodejs_20"]
       },
       "install": {
-        "cmds": ["cd backend && npm ci"]
+        "cmds": ["cd backend && npm install"]
       },
       "build": {
         "cmds": ["echo 'Build complete'"]
