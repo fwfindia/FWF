@@ -989,7 +989,7 @@ app.get('/', (req, res) => {
     timestamp: new Date().toISOString(),
     endpoints: {
       auth: ['/api/auth/login', '/api/admin/login', '/api/auth/logout'],
-      member: ['/api/member/me', '/api/member/invoices', '/api/member/apply-wallet', '/api/member/weekly-task', '/api/member/complete-task', '/api/member/all-tasks', '/api/member/task-history', '/api/member/feed', '/api/member/create-post', '/api/member/active-quizzes', '/api/member/quiz-enroll', '/api/member/quiz-submit', '/api/member/quiz-history', '/api/member/affiliate'],
+      member: ['/api/member/me', '/api/member/invoices', '/api/member/apply-wallet', '/api/member/weekly-task', '/api/member/complete-task', '/api/member/all-tasks', '/api/member/task-history', '/api/member/feed', '/api/member/create-post', '/api/member/active-quizzes', '/api/member/quiz-enroll', '/api/member/quiz-submit', '/api/member/quiz-history', '/api/member/affiliate', '/api/member/fame-wall', '/api/member/quiz-winners', '/api/member/quiz-result-search'],
       admin: ['/api/admin/overview', '/api/admin/invoices', '/api/admin/invoice/:id/resend', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/create-quiz', '/api/admin/quiz-draw/:quizId', '/api/admin/quizzes', '/api/admin/quiz-auto-create', '/api/admin/quiz-auto-draw', '/api/admin/quiz-scheduler-status', '/api/admin/quiz-purge-all', '/api/admin/quiz-seed', '/api/admin/quiz/:quizId/detail', '/api/admin/quiz/:quizId/participants', '/api/admin/quiz-participation/:enrollmentNumber/relink', '/api/admin/social-stats', '/api/admin/social-posts', '/api/admin/social-posts/:id/approve', '/api/admin/social-posts/:id/reject'],
       payment: ['/api/pay/check-member', '/api/pay/simulate-join', '/api/pay/create-order', '/api/pay/create-subscription', '/api/pay/create-donation-subscription', '/api/pay/create-phonepe-donation', '/api/pay/phonepe/donation/redirect/:transactionId', '/api/pay/phonepe/donation/callback/:transactionId', '/api/pay/verify', '/api/pay/membership', '/api/pay/donation'],
       referral: ['/api/referral/click'],
@@ -3656,6 +3656,130 @@ app.get('/api/member/quiz-results/:quizId', auth('member'), async (req, res) => 
   } catch (err) {
     captureError(err, { context: 'quiz-results' });
     res.status(500).json({ error: 'Results fetch failed' });
+  }
+});
+
+// ========================
+// FAME WALL & PUBLIC LEADERBOARD APIs
+// ========================
+
+// Fame Wall — latest lucky draw winners + top donation collector
+app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) => {
+  try {
+    // Latest 3 quiz winners (quizzes with result declared)
+    const declaredQuizzes = await Quiz.find({ status: 'result_declared', 'winners.0': { $exists: true } })
+      .select('quiz_id title type winners result_date total_participants prizes')
+      .sort({ result_date: -1 })
+      .limit(3)
+      .lean();
+
+    const quizWinners = declaredQuizzes.map(q => {
+      const w = q.winners[0];
+      return {
+        quiz_id: q.quiz_id,
+        quiz_title: q.title,
+        quiz_type: q.type,
+        result_date: q.result_date,
+        total_participants: q.total_participants || 0,
+        winner_name: w?.name || 'Unknown',
+        winner_member_id: w?.member_id || '',
+        prize_amount: w?.prize_amount || 0
+      };
+    });
+
+    // Top donation collector (member who collected highest total donations)
+    const topDonorAgg = await Donation.aggregate([
+      { $match: { member_id: { $exists: true, $ne: null } } },
+      { $group: { _id: '$member_id', total: { $sum: '$amount' }, count: { $sum: 1 } } },
+      { $sort: { total: -1 } },
+      { $limit: 1 }
+    ]);
+
+    let topDonor = null;
+    if (topDonorAgg.length > 0) {
+      const td = topDonorAgg[0];
+      const tdUser = await User.findById(td._id).select('name member_id').lean();
+      if (tdUser) {
+        topDonor = {
+          name: tdUser.name,
+          member_id: tdUser.member_id || '',
+          total_donated: td.total,
+          donation_count: td.count
+        };
+      }
+    }
+
+    res.json({ ok: true, quizWinners, topDonor });
+  } catch (err) {
+    captureError(err, { context: 'fame-wall' });
+    res.status(500).json({ error: 'Fame wall fetch failed' });
+  }
+});
+
+// Last 6 quiz winners history (for quiz page)
+app.get('/api/member/quiz-winners', auth(['member','supporter']), async (req, res) => {
+  try {
+    const declaredQuizzes = await Quiz.find({ status: 'result_declared', 'winners.0': { $exists: true } })
+      .select('quiz_id title type winners result_date total_participants prizes total_collection')
+      .sort({ result_date: -1 })
+      .limit(6)
+      .lean();
+
+    const winners = declaredQuizzes.map(q => {
+      const w = q.winners[0];
+      return {
+        quiz_id: q.quiz_id,
+        quiz_title: q.title,
+        quiz_type: q.type,
+        result_date: q.result_date,
+        total_participants: q.total_participants || 0,
+        total_collection: q.total_collection || 0,
+        winner_name: w?.name || 'Unknown',
+        winner_member_id: w?.member_id || '',
+        enrollment_number: w?.enrollment_number || '',
+        prize_amount: w?.prize_amount || 0,
+        score: w?.score || 0
+      };
+    });
+
+    res.json({ ok: true, winners });
+  } catch (err) {
+    captureError(err, { context: 'quiz-winners' });
+    res.status(500).json({ error: 'Quiz winners fetch failed' });
+  }
+});
+
+// Quiz result search by name, member_id, or enrollment_number
+app.get('/api/member/quiz-result-search', auth(['member','supporter']), async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q || q.length < 2) return res.status(400).json({ error: 'Search query too short (min 2 chars)' });
+
+    const regex = new RegExp(q, 'i');
+    const participations = await QuizParticipation.find({
+      $or: [
+        { name: regex },
+        { member_id: regex },
+        { enrollment_number: regex }
+      ]
+    })
+      .select('name member_id enrollment_number quiz_id status prize_won score created_at')
+      .sort({ created_at: -1 })
+      .limit(20)
+      .lean();
+
+    // Enrich with quiz details
+    for (const p of participations) {
+      const quiz = await Quiz.findById(p.quiz_id)
+        .select('quiz_id title type result_date status')
+        .lean();
+      if (quiz) p.quiz_details = quiz;
+    }
+
+    res.json({ ok: true, results: participations, total: participations.length });
+  } catch (err) {
+    captureError(err, { context: 'quiz-result-search' });
+    res.status(500).json({ error: 'Search failed' });
   }
 });
 

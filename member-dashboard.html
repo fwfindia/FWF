@@ -1450,6 +1450,34 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <a href="https://whatsapp.com/channel/0029Vanlwo3AYlUCWQ8rkK35" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;text-decoration:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i class="fa-brands fa-whatsapp" style="font-size:16px"></i> WhatsApp Channel</a>
       </div>
     </div>
+
+    <!-- ── FAME WALL ── -->
+    <div class="content-card" style="margin-top:0;background:linear-gradient(135deg,#fffbeb,#fff);border:1.5px solid #fde68a">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏆</div>
+        <div>
+          <h3 style="margin:0;font-size:15px;font-weight:900;color:var(--text-primary)">Fame Wall</h3>
+          <p style="margin:0;font-size:11px;color:var(--text-muted)">Lucky draw winners & top donation collectors</p>
+        </div>
+      </div>
+
+      <!-- Lucky Draw Winners -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-dice"></i> Lucky Draw Winners</div>
+        <div id="fwQuizWinners" style="display:flex;flex-direction:column;gap:8px">
+          <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
+          <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
+        </div>
+      </div>
+
+      <!-- Top Donation Collector -->
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-hand-holding-heart"></i> Top Donation Collector</div>
+        <div id="fwTopDonor" style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:12px 14px">
+          <div class="skeleton-loader" style="height:40px;border-radius:8px"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ===================== PROFILE & ID CARD ===================== -->
@@ -2365,7 +2393,38 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
     </div>
 
-    <!-- Quiz History -->
+    <!-- Quiz Result Search + Winners History -->
+    <div style="margin-bottom:20px">
+
+    <!-- Quiz Result Search -->
+    <div style="background:#fff;border-radius:16px;border:1px solid var(--card-border);overflow:hidden;margin-bottom:16px">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#f0fdf4,#fff)">
+        <i class="fa-solid fa-magnifying-glass" style="color:#059669;font-size:15px"></i>
+        <span style="font-size:13px;font-weight:800;color:var(--text-primary)">Quiz Result Search</span>
+      </div>
+      <div style="padding:14px 16px">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input type="text" id="quizSearchInput" placeholder="Name, Member ID, या Enrollment No. लिखें..." style="flex:1;border:1.5px solid var(--card-border);border-radius:10px;padding:9px 13px;font-size:13px;font-family:inherit;outline:none;color:var(--text-primary);background:var(--bg-primary);transition:.15s" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='var(--card-border)'" onkeydown="if(event.key==='Enter')searchQuizResult()">
+          <button onclick="searchQuizResult()" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:6px"><i class="fa-solid fa-search"></i> Search</button>
+        </div>
+        <div id="quizSearchResults" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Last 6 Quiz Winners -->
+    <div style="background:#fff;border-radius:16px;border:1px solid var(--card-border);overflow:hidden;margin-bottom:16px">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#fffbeb,#fff)">
+        <i class="fa-solid fa-trophy" style="color:#d97706;font-size:15px"></i>
+        <span style="font-size:13px;font-weight:800;color:var(--text-primary)">Last 6 Quiz Winners</span>
+      </div>
+      <div id="quizWinnersHistory" style="padding:14px 16px">
+        <div class="skeleton-loader" style="height:48px;border-radius:10px;margin-bottom:8px"></div>
+        <div class="skeleton-loader" style="height:48px;border-radius:10px;margin-bottom:8px"></div>
+        <div class="skeleton-loader" style="height:48px;border-radius:10px"></div>
+      </div>
+    </div>
+
+    </div>
     <div style="margin-bottom:20px">
       <div style="background:#fff;border-radius:16px;border:1px solid var(--card-border);overflow:hidden">
         <div style="padding:14px 16px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#f9f5ff,#fff)">
@@ -3936,6 +3995,9 @@ async function loadDashboard(){
     // Cache for profile
     populateProfile(data);
 
+    // Load fame wall asynchronously (non-blocking)
+    loadFameWall().catch(e => console.error('Fame wall load err:', e));
+
   } catch(e){
     if(e.status === 401 || e.status === 403 || e.status === 404){
       notify('Session expired. Redirecting to login...', 'error');
@@ -4904,7 +4966,7 @@ async function loadQuizPage(){
   if(quizLoaded) return;
   quizLoaded = true;
   try {
-    await Promise.all([loadActiveQuizzes(), loadMyActivities()]);
+    await Promise.all([loadActiveQuizzes(), loadMyActivities(), loadQuizWinnersHistory()]);
     setupQuizReferralLinks();
   } catch(e){ console.error('Quiz page load err:', e); }
 }
@@ -4915,6 +4977,155 @@ async function loadActivitiesPage(){
   try {
     await Promise.all([loadSocialTasksGrid(), loadMyActivities()]);
   } catch(e){ console.error('Activities page load err:', e); }
+}
+
+// --- FAME WALL ---
+async function loadFameWall(){
+  try {
+    const data = await AUTH.api('/api/member/fame-wall');
+    if(!data.ok) return;
+
+    // Render quiz winners
+    const qwEl = document.getElementById('fwQuizWinners');
+    if(qwEl){
+      if(!data.quizWinners?.length){
+        qwEl.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी तक कोई quiz result declare नहीं हुआ</p>';
+      } else {
+        const typeEmoji = { monthly:'🗓️', half_yearly:'📅', yearly:'🏆' };
+        const typeName  = { monthly:'Monthly', half_yearly:'Half-Yearly', yearly:'Yearly' };
+        qwEl.innerHTML = data.quizWinners.map((w,i) => `
+          <div style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#fffbeb,#fef9eb);border:1px solid #fde68a;border-radius:12px;padding:10px 14px">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${i===0?'🥇':i===1?'🥈':'🥉'}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:800;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w.winner_name}</div>
+              <div style="font-size:10px;color:var(--text-muted)">${typeEmoji[w.quiz_type]||'🎮'} ${typeName[w.quiz_type]||w.quiz_type} · ${w.winner_member_id || ''}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:14px;font-weight:900;color:#d97706">₹${fmtN(w.prize_amount)}</div>
+              <div style="font-size:10px;color:var(--text-muted)">${w.result_date ? new Date(w.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : ''}</div>
+            </div>
+          </div>`).join('');
+      }
+    }
+
+    // Render top donor
+    const tdEl = document.getElementById('fwTopDonor');
+    if(tdEl){
+      if(!data.topDonor){
+        tdEl.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी तक कोई donation record नहीं</p>';
+      } else {
+        const td = data.topDonor;
+        tdEl.innerHTML = `
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;background:linear-gradient(135deg,#059669,#10b981);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💚</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:900;color:var(--text-primary)">${td.name}</div>
+              <div style="font-size:11px;color:var(--text-muted)">${td.member_id || ''} · ${td.donation_count} donations</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:16px;font-weight:900;color:#059669">₹${fmtN(td.total_donated)}</div>
+              <div style="font-size:10px;color:var(--text-muted)">Total Collected</div>
+            </div>
+          </div>`;
+      }
+    }
+  } catch(e){ console.error('Fame wall error:', e); }
+}
+
+// --- QUIZ WINNERS HISTORY ---
+async function loadQuizWinnersHistory(){
+  const el = document.getElementById('quizWinnersHistory');
+  if(!el) return;
+  try {
+    const data = await AUTH.api('/api/member/quiz-winners');
+    if(!data.ok || !data.winners?.length){
+      el.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी तक कोई quiz result declare नहीं हुआ</p>';
+      return;
+    }
+    const typeEmoji = { monthly:'🗓️', half_yearly:'📅', yearly:'🏆' };
+    const typeName  = { monthly:'Monthly', half_yearly:'Half-Yearly', yearly:'Yearly' };
+    el.innerHTML = `
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:500px">
+          <thead>
+            <tr style="background:#fffbeb">
+              <th style="padding:8px 10px;text-align:left;font-weight:800;color:var(--text-secondary);font-size:11px;border-bottom:1px solid var(--card-border)">#</th>
+              <th style="padding:8px 10px;text-align:left;font-weight:800;color:var(--text-secondary);font-size:11px;border-bottom:1px solid var(--card-border)">Winner</th>
+              <th style="padding:8px 10px;text-align:left;font-weight:800;color:var(--text-secondary);font-size:11px;border-bottom:1px solid var(--card-border)">Quiz</th>
+              <th style="padding:8px 10px;text-align:right;font-weight:800;color:var(--text-secondary);font-size:11px;border-bottom:1px solid var(--card-border)">Prize</th>
+              <th style="padding:8px 10px;text-align:right;font-weight:800;color:var(--text-secondary);font-size:11px;border-bottom:1px solid var(--card-border)">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.winners.map((w,i) => `
+              <tr style="border-bottom:1px solid var(--card-border)">
+                <td style="padding:8px 10px;color:var(--text-muted)">${i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`}</td>
+                <td style="padding:8px 10px">
+                  <div style="font-weight:800;color:var(--text-primary)">${w.winner_name}</div>
+                  <div style="font-size:10px;color:var(--text-muted)">${w.winner_member_id || w.enrollment_number || ''}</div>
+                </td>
+                <td style="padding:8px 10px">
+                  <div style="font-weight:700;color:var(--text-primary)">${typeEmoji[w.quiz_type]||'🎮'} ${typeName[w.quiz_type]||w.quiz_type}</div>
+                  <div style="font-size:10px;color:var(--text-muted)">${w.total_participants} participants</div>
+                </td>
+                <td style="padding:8px 10px;text-align:right;font-weight:900;color:#d97706">₹${fmtN(w.prize_amount)}</td>
+                <td style="padding:8px 10px;text-align:right;color:var(--text-muted);font-size:11px">${w.result_date ? new Date(w.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '-'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch(e){
+    if(el) el.innerHTML = '<p style="font-size:12px;color:var(--danger);text-align:center;padding:10px">Winners load error</p>';
+  }
+}
+
+// --- QUIZ RESULT SEARCH ---
+async function searchQuizResult(){
+  const input = document.getElementById('quizSearchInput');
+  const resultsEl = document.getElementById('quizSearchResults');
+  if(!input || !resultsEl) return;
+  const q = input.value.trim();
+  if(!q || q.length < 2){
+    input.style.borderColor = '#ef4444';
+    input.focus();
+    setTimeout(() => input.style.borderColor = 'var(--card-border)', 1500);
+    return;
+  }
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);font-size:13px"><i class="fa-solid fa-circle-notch fa-spin"></i> Searching...</div>';
+  try {
+    const data = await AUTH.api('/api/member/quiz-result-search?q=' + encodeURIComponent(q));
+    if(!data.ok || !data.results?.length){
+      resultsEl.innerHTML = '<p style="text-align:center;padding:12px;color:var(--text-muted);font-size:13px">कोई result नहीं मिला</p>';
+      return;
+    }
+    const statusBadge = s => {
+      if(s==='won') return '<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">🏆 Won</span>';
+      if(s==='lost') return '<span style="background:#fef2f2;color:#991b1b;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">❌ Lost</span>';
+      return '<span style="background:#fef9c3;color:#713f12;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">⏳ Pending</span>';
+    };
+    const typeEmoji = { monthly:'🗓️', half_yearly:'📅', yearly:'🏆' };
+    resultsEl.innerHTML = `
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">${data.total} result${data.total!==1?'s':''} found</div>
+      ${data.results.map(r => `
+        <div style="background:#f9fafb;border:1px solid var(--card-border);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
+            <div>
+              <span style="font-size:13px;font-weight:800;color:var(--text-primary)">${r.name || 'Unknown'}</span>
+              ${r.member_id ? `<span style="font-size:10px;color:var(--text-muted);margin-left:6px">${r.member_id}</span>` : ''}
+            </div>
+            ${statusBadge(r.status)}
+          </div>
+          <div style="font-size:11px;color:var(--text-muted)">
+            ${typeEmoji[r.quiz_details?.type]||'🎮'} ${r.quiz_details?.title || 'Quiz'}
+            ${r.enrollment_number ? ` · ID: ${r.enrollment_number}` : ''}
+            ${r.score!=null ? ` · Score: ${r.score}` : ''}
+            ${r.prize_won ? ` · Prize: ₹${fmtN(r.prize_won)}` : ''}
+          </div>
+        </div>`).join('')}`;
+  } catch(e){
+    resultsEl.innerHTML = '<p style="text-align:center;padding:12px;color:var(--danger);font-size:13px">Search error. Try again.</p>';
+  }
 }
 
 // --- SOCIAL TASKS GRID ---
