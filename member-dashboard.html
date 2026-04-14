@@ -1321,6 +1321,34 @@ textarea.form-input{ resize:vertical; min-height:80px; }
       </div>
     </div>
 
+    <!-- ── FAME WALL ── -->
+    <div class="content-card" style="margin-top:0;background:linear-gradient(135deg,#fffbeb,#fff);border:1.5px solid #fde68a">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏆</div>
+        <div>
+          <h3 style="margin:0;font-size:15px;font-weight:900;color:var(--text-primary)">Fame Wall</h3>
+          <p style="margin:0;font-size:11px;color:var(--text-muted)">Lucky draw winners & top donation collectors</p>
+        </div>
+      </div>
+
+      <!-- Lucky Draw Winners -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-dice"></i> Lucky Draw Winners</div>
+        <div id="fwQuizWinners" style="display:flex;flex-direction:column;gap:8px">
+          <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
+          <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
+        </div>
+      </div>
+
+      <!-- Top Donation Collector -->
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-hand-holding-heart"></i> Top Donation Collector</div>
+        <div id="fwTopDonor" style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:12px 14px">
+          <div class="skeleton-loader" style="height:40px;border-radius:8px"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── MEMBER ID CARD + ACCOUNT OVERVIEW ── -->
     <div class="home-cards-grid" style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px">
       <!-- Left: Balance Card -->
@@ -1448,34 +1476,6 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <a href="https://www.instagram.com/fwf_india?igsh=ZWNsMHAwanBpNHM3" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;text-decoration:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i class="fa-brands fa-instagram" style="font-size:16px"></i> Instagram</a>
         <a href="https://youtube.com/@fwf_india" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;background:#ff0000;color:#fff;text-decoration:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i class="fa-brands fa-youtube" style="font-size:16px"></i> YouTube</a>
         <a href="https://whatsapp.com/channel/0029Vanlwo3AYlUCWQ8rkK35" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;text-decoration:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i class="fa-brands fa-whatsapp" style="font-size:16px"></i> WhatsApp Channel</a>
-      </div>
-    </div>
-
-    <!-- ── FAME WALL ── -->
-    <div class="content-card" style="margin-top:0;background:linear-gradient(135deg,#fffbeb,#fff);border:1.5px solid #fde68a">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏆</div>
-        <div>
-          <h3 style="margin:0;font-size:15px;font-weight:900;color:var(--text-primary)">Fame Wall</h3>
-          <p style="margin:0;font-size:11px;color:var(--text-muted)">Lucky draw winners & top donation collectors</p>
-        </div>
-      </div>
-
-      <!-- Lucky Draw Winners -->
-      <div style="margin-bottom:14px">
-        <div style="font-size:11px;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-dice"></i> Lucky Draw Winners</div>
-        <div id="fwQuizWinners" style="display:flex;flex-direction:column;gap:8px">
-          <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
-          <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
-        </div>
-      </div>
-
-      <!-- Top Donation Collector -->
-      <div>
-        <div style="font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-hand-holding-heart"></i> Top Donation Collector</div>
-        <div id="fwTopDonor" style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:12px 14px">
-          <div class="skeleton-loader" style="height:40px;border-radius:8px"></div>
-        </div>
       </div>
     </div>
   </div>
@@ -4984,16 +4984,33 @@ async function loadFameWall(){
   try {
     const data = await AUTH.api('/api/member/fame-wall');
     if(!data.ok) return;
+    const typeEmoji = { monthly:'🗓️', half_yearly:'📅', yearly:'🏆' };
+    const typeName  = { monthly:'Monthly', half_yearly:'Half-Yearly', yearly:'Yearly' };
 
     // Render quiz winners
     const qwEl = document.getElementById('fwQuizWinners');
     if(qwEl){
-      if(!data.quizWinners?.length){
-        qwEl.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी तक कोई quiz result declare नहीं हुआ</p>';
-      } else {
-        const typeEmoji = { monthly:'🗓️', half_yearly:'📅', yearly:'🏆' };
-        const typeName  = { monthly:'Monthly', half_yearly:'Half-Yearly', yearly:'Yearly' };
-        qwEl.innerHTML = data.quizWinners.map((w,i) => `
+      let html = '';
+      // Last month winner — special highlight
+      if(data.lastMonthWinner){
+        const lm = data.lastMonthWinner;
+        html += `<div style="background:linear-gradient(135deg,#fef3c7,#fffbeb);border:2px solid #f59e0b;border-radius:12px;padding:10px 14px;margin-bottom:4px">
+          <div style="font-size:10px;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">🎉 पिछले महीने का Winner</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🥇</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:800;color:var(--text-primary)">${lm.winner_name}</div>
+              <div style="font-size:10px;color:var(--text-muted)">${typeEmoji[lm.quiz_type]||'🎮'} ${typeName[lm.quiz_type]||lm.quiz_type}${lm.winner_member_id?' · '+lm.winner_member_id:''}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:14px;font-weight:900;color:#d97706">₹${fmtN(lm.prize_amount)}</div>
+              <div style="font-size:10px;color:var(--text-muted)">${lm.result_date?new Date(lm.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):''}</div>
+            </div>
+          </div>
+        </div>`;
+      }
+      if(data.quizWinners?.length){
+        html += data.quizWinners.map((w,i) => `
           <div style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#fffbeb,#fef9eb);border:1px solid #fde68a;border-radius:12px;padding:10px 14px">
             <div style="width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${i===0?'🥇':i===1?'🥈':'🥉'}</div>
             <div style="flex:1;min-width:0">
@@ -5005,7 +5022,10 @@ async function loadFameWall(){
               <div style="font-size:10px;color:var(--text-muted)">${w.result_date ? new Date(w.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : ''}</div>
             </div>
           </div>`).join('');
+      } else if(!data.lastMonthWinner){
+        html = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी तक कोई quiz result declare नहीं हुआ</p>';
       }
+      qwEl.innerHTML = html;
     }
 
     // Render top donor

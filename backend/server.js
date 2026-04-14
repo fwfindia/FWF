@@ -3666,14 +3666,14 @@ app.get('/api/member/quiz-results/:quizId', auth('member'), async (req, res) => 
 // Fame Wall — latest lucky draw winners + top donation collector
 app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) => {
   try {
-    // Latest 3 quiz winners (quizzes with result declared)
-    const declaredQuizzes = await Quiz.find({ status: 'result_declared', 'winners.0': { $exists: true } })
+    // Latest 3 quiz winners — any quiz that has winners, regardless of status
+    const quizzesWithWinners = await Quiz.find({ 'winners.0': { $exists: true } })
       .select('quiz_id title type winners result_date total_participants prizes')
       .sort({ result_date: -1 })
       .limit(3)
       .lean();
 
-    const quizWinners = declaredQuizzes.map(q => {
+    const quizWinners = quizzesWithWinners.map(q => {
       const w = q.winners[0];
       return {
         quiz_id: q.quiz_id,
@@ -3687,10 +3687,38 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
       };
     });
 
-    // Top donation collector (member who collected highest total donations)
+    // Last month's specific lucky draw winner
+    const now = new Date();
+    const firstOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthQuiz = await Quiz.findOne({
+      'winners.0': { $exists: true },
+      result_date: { $gte: firstOfLastMonth, $lt: firstOfThisMonth }
+    }).select('quiz_id title type winners result_date').sort({ result_date: -1 }).lean();
+
+    let lastMonthWinner = null;
+    if (lastMonthQuiz) {
+      const w = lastMonthQuiz.winners[0];
+      lastMonthWinner = {
+        quiz_title: lastMonthQuiz.title,
+        quiz_type: lastMonthQuiz.type,
+        result_date: lastMonthQuiz.result_date,
+        winner_name: w?.name || 'Unknown',
+        winner_member_id: w?.member_id || '',
+        prize_amount: w?.prize_amount || 0
+      };
+    }
+
+    // Top donation collector — ALL donations (members + anonymous), grouped by identity
     const topDonorAgg = await Donation.aggregate([
-      { $match: { member_id: { $exists: true, $ne: null } } },
-      { $group: { _id: '$member_id', total: { $sum: '$amount' }, count: { $sum: 1 } } },
+      { $addFields: { groupKey: { $ifNull: [{ $toString: '$member_id' }, { $ifNull: ['$donor_name', 'Anonymous'] }] } } },
+      { $group: {
+        _id: '$groupKey',
+        total: { $sum: '$amount' },
+        count: { $sum: 1 },
+        member_id_val: { $first: '$member_id' },
+        donor_name_val: { $first: '$donor_name' }
+      }},
       { $sort: { total: -1 } },
       { $limit: 1 }
     ]);
@@ -3698,18 +3726,24 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
     let topDonor = null;
     if (topDonorAgg.length > 0) {
       const td = topDonorAgg[0];
-      const tdUser = await User.findById(td._id).select('name member_id').lean();
-      if (tdUser) {
-        topDonor = {
-          name: tdUser.name,
-          member_id: tdUser.member_id || '',
-          total_donated: td.total,
-          donation_count: td.count
-        };
+      let donorName = td.donor_name_val || 'Anonymous';
+      let memberDisplayId = '';
+      if (td.member_id_val) {
+        const tdUser = await User.findById(td.member_id_val).select('name member_id').lean();
+        if (tdUser) {
+          donorName = tdUser.name;
+          memberDisplayId = tdUser.member_id || '';
+        }
       }
+      topDonor = {
+        name: donorName,
+        member_id: memberDisplayId,
+        total_donated: td.total,
+        donation_count: td.count
+      };
     }
 
-    res.json({ ok: true, quizWinners, topDonor });
+    res.json({ ok: true, quizWinners, lastMonthWinner, topDonor });
   } catch (err) {
     captureError(err, { context: 'fame-wall' });
     res.status(500).json({ error: 'Fame wall fetch failed' });
