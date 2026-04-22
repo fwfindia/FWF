@@ -5,9 +5,19 @@ const referralSchema = new mongoose.Schema({
   referred_user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   payment_amount: { type: Number, default: 0 },
   referral_points: { type: Number, default: 0 },
+  referral_type: { 
+    type: String, 
+    enum: ['member', 'supporter', 'quiz'], 
+    default: 'member',
+    index: true 
+  },
+  referral_code: { type: String, sparse: true, index: true },
+  quiz_ref: { type: String, sparse: true },
+  click_count: { type: Number, default: 0 },
+  conversion_count: { type: Number, default: 0 },
   status: { 
     type: String, 
-    enum: ['pending', 'active', 'expired'], 
+    enum: ['pending', 'active', 'expired', 'converted'], 
     default: 'pending',
     index: true 
   },
@@ -19,6 +29,7 @@ const referralSchema = new mongoose.Schema({
 
 // Compound index for referrer queries
 referralSchema.index({ referrer_id: 1, status: 1 });
+referralSchema.index({ referrer_id: 1, referral_type: 1 });
 referralSchema.index({ created_at: -1 });
 
 export default mongoose.model('Referral', referralSchema);

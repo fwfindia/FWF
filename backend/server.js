@@ -32,6 +32,8 @@ import PaymentLink from './models/PaymentLink.js';
 import Receipt from './models/Receipt.js';
 import AppConfig from './models/AppConfig.js';
 import RedeemRequest from './models/RedeemRequest.js';
+import PhonePeDonationIntent from './models/PhonePeDonationIntent.js';
+import Course from './models/Course.js';
 import { syncReceiptToZoho, checkZohoConnection, getAuthUrl, exchangeCodeForTokens } from './lib/zoho.js';
 import { getTransporter, send80GReceipt, sendMemberWelcome, sendSupporterWelcome, sendDonationConfirmation, sendAdminAlert } from './lib/mailer.js';
 import { sendWhatsAppCredentials, sendWhatsAppDonation, sendQuizParticipationSms, sendQuizResultSms, sendDonationReceiptSms, sendDonationReceipt80GSms, sendSmsOtp } from './lib/msg91.js';
@@ -51,6 +53,19 @@ const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) { console.error('❌ JWT_SECRET is required'); process.exit(1); }
 const ORG_PREFIX = process.env.ORG_PREFIX || 'FWF';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT === 'production';
+const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  sameSite: 'none',
+  secure: true,
+  ...(IS_PRODUCTION ? { domain: process.env.COOKIE_DOMAIN || '.fwfindia.org' } : {})
+};
+const SITE_URL = (process.env.SITE_URL || 'https://www.fwfindia.org').replace(/\/$/, '');
+const PHONEPE_AUTH_URL = (process.env.PHONEPE_AUTH_URL || 'https://api.phonepe.com/apis/identity-manager/v1/oauth/token').replace(/\/$/, '');
+const PHONEPE_API_BASE_URL = (process.env.PHONEPE_API_BASE_URL || process.env.PHONEPE_BASE_URL || 'https://api.phonepe.com/apis/pg').replace(/\/$/, '');
+const PHONEPE_CLIENT_ID = process.env.PHONEPE_CLIENT_ID || process.env.PHONEPE_MERCHANT_ID || '';
+const PHONEPE_CLIENT_SECRET = process.env.PHONEPE_CLIENT_SECRET || process.env.PHONEPE_SALT_KEY || '';
+const PHONEPE_CLIENT_VERSION = process.env.PHONEPE_CLIENT_VERSION || process.env.PHONEPE_SALT_INDEX || '1';
+let phonePeAuthTokenCache = null;
 
 // --- Razorpay instance ---
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -253,6 +268,9 @@ async function createAndSendReceipt({ type, userId, memberId, customerName, cust
       description: description || '',
       line_items: lineItems,
       subtotal, tax, total,
+      payment_gateway: razorpayPaymentId || razorpayOrderId || razorpaySubscriptionId ? 'razorpay' : null,
+      payment_txn_id: razorpayPaymentId || null,
+      payment_order_ref: razorpaySubscriptionId || razorpayOrderId || null,
       razorpay_payment_id: razorpayPaymentId || null,
       razorpay_order_id: razorpayOrderId || null,
       razorpay_subscription_id: razorpaySubscriptionId || null,
@@ -281,6 +299,356 @@ async function createAndSendReceipt({ type, userId, memberId, customerName, cust
     console.error('⚠️ Receipt creation failed (non-fatal):', err.message);
     return null;
   }
+}
+
+function isPhonePeConfigured() {
+  return !!(PHONEPE_CLIENT_ID && PHONEPE_CLIENT_SECRET && PHONEPE_CLIENT_VERSION);
+}
+
+async function getPhonePeAuthToken(forceRefresh = false) {
+  const nowEpochSeconds = Math.floor(Date.now() / 1000);
+  if (!forceRefresh && phonePeAuthTokenCache?.accessToken && phonePeAuthTokenCache.expiresAt > nowEpochSeconds + 60) {
+    return phonePeAuthTokenCache.accessToken;
+  }
+
+  const form = new URLSearchParams({
+    client_id: PHONEPE_CLIENT_ID,
+    client_secret: PHONEPE_CLIENT_SECRET,
+    client_version: String(PHONEPE_CLIENT_VERSION),
+    grant_type: 'client_credentials'
+  });
+
+  const response = await fetch(PHONEPE_AUTH_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: form.toString()
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !data?.access_token) {
+    throw new Error(data.message || data.error_description || data.error || 'PhonePe authorization failed');
+  }
+
+  phonePeAuthTokenCache = {
+    accessToken: data.access_token,
+    expiresAt: Number(data.expires_at || nowEpochSeconds + 300)
+  };
+  return phonePeAuthTokenCache.accessToken;
+}
+
+async function callPhonePeApi(endpointPath, options = {}, allowRetry = true) {
+  const token = await getPhonePeAuthToken();
+  const response = await fetch(PHONEPE_API_BASE_URL + endpointPath, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `O-Bearer ${token}`,
+      ...(options.headers || {})
+    }
+  });
+  const data = await response.json().catch(() => ({}));
+  if ((response.status === 401 || response.status === 403) && allowRetry) {
+    await getPhonePeAuthToken(true);
+    return callPhonePeApi(endpointPath, options, false);
+  }
+  if (!response.ok) {
+    throw new Error(data.message || data.error_description || data.error || data.code || 'PhonePe request failed');
+  }
+  return data;
+}
+
+async function callPhonePePay(payload) {
+  return callPhonePeApi('/checkout/v2/pay', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+async function fetchPhonePeStatus(merchantOrderId) {
+  return callPhonePeApi(`/checkout/v2/order/${encodeURIComponent(merchantOrderId)}/status?details=true&errorContext=true`, {
+    method: 'GET',
+  });
+}
+
+async function recordDonationPayment({
+  paymentGateway = 'razorpay',
+  name,
+  mobile,
+  email,
+  pan,
+  address,
+  amount,
+  memberIdInput,
+  want80g,
+  ref,
+  paymentId,
+  orderId = null,
+  subscriptionId = null,
+  recurring = false,
+  verifiedToken = null,
+  source = null
+}) {
+  if (!amount || !paymentId) throw new Error('Payment details required');
+
+  const numAmount = Number(amount);
+  const kycRequired = numAmount >= 50000;
+  let otpVerified = false;
+
+  if (kycRequired) {
+    if (!verifiedToken) {
+      throw new Error('OTP verification is required for donations of ₹50,000 or more');
+    }
+    const otpRecord = await DonationOtp.findOne({
+      verified: true,
+      verified_token: verifiedToken,
+      expires_at: { $gt: new Date(Date.now() - 30 * 60 * 1000) }
+    });
+    if (!otpRecord) {
+      throw new Error('OTP verification token is invalid or expired. Please verify again.');
+    }
+    otpVerified = true;
+  }
+
+  const donationSource = source || (paymentGateway === 'phonepe' ? 'phonepe' : (recurring ? 'razorpay_recurring' : 'razorpay'));
+  const existingDonation = await Donation.findOne({ payment_id: paymentId, source: donationSource }).select('donation_id points_earned').lean();
+  if (existingDonation) {
+    return {
+      ok: true,
+      donationId: existingDonation.donation_id,
+      message: `Thank you for your ₹${numAmount} donation!`,
+      paymentId,
+      pointsEarned: existingDonation.points_earned || 0,
+      receipt80GSent: false,
+      duplicate: true
+    };
+  }
+
+  let user = null;
+  if (memberIdInput) user = await User.findOne({ member_id: memberIdInput });
+  if (!user && ref) user = await User.findOne({ referral_code: ref });
+
+  const donationId = await nextDonationId();
+  const gatewayLabel = paymentGateway === 'phonepe' ? 'PhonePe' : 'Razorpay';
+  const donationData = {
+    donation_id: donationId,
+    amount: numAmount,
+    donor_name: name || 'Anonymous',
+    donor_email: email || null,
+    donor_mobile: mobile || null,
+    donor_pan: pan || null,
+    donor_address: address || null,
+    source: donationSource,
+    payment_id: paymentId,
+    order_id: orderId || null,
+    subscription_id: subscriptionId || null,
+    recurring: !!recurring,
+    kyc_required: kycRequired,
+    otp_verified: otpVerified,
+    kyc_status: kycRequired ? (otpVerified ? 'otp_verified' : 'pending_docs') : 'not_required'
+  };
+
+  if (user) {
+    donationData.member_id = user._id;
+    const pointsRupees = numAmount * (DONATION_POINTS_PERCENT / 100);
+    const points = amountToPoints(pointsRupees);
+    donationData.points_earned = points;
+    await User.updateOne({ _id: user._id }, {
+      $inc: {
+        'wallet.balance_inr': pointsRupees,
+        'wallet.lifetime_earned_inr': pointsRupees,
+        'wallet.points_balance': points,
+        'wallet.total_points_earned': points,
+        'wallet.points_from_donations': points
+      }
+    });
+    await PointsLedger.create({
+      user_id: user._id,
+      points,
+      type: 'donation',
+      description: `₹${numAmount} donation via ${gatewayLabel}${recurring ? ' subscription' : ''} → ${points} points`
+    });
+  }
+
+  const donationRecord = await Donation.create(donationData);
+  addBreadcrumb('payment', 'Donation recorded', { donationId, amount: numAmount, gateway: paymentGateway, kycRequired, otpVerified });
+
+  const backendUrl = process.env.BACKEND_URL || 'https://api.fwfindia.org';
+  const rcpt = await createAndSendReceipt({
+    type: 'donation',
+    userId: user?._id,
+    memberId: user?.member_id || null,
+    customerName: name || 'Anonymous',
+    customerEmail: email || null,
+    customerMobile: mobile || null,
+    customerPan: pan || null,
+    customerAddress: address || null,
+    lineItems: [{ name: `Donation to FWF${recurring ? ' (Monthly Recurring)' : ''}`, description: 'Charitable donation — Foundation for Women\'s Future', amount: numAmount, quantity: 1 }],
+    total: numAmount,
+    razorpayPaymentId: paymentGateway === 'razorpay' ? paymentId : null,
+    razorpayOrderId: paymentGateway === 'razorpay' ? orderId : null,
+    razorpaySubscriptionId: paymentGateway === 'razorpay' ? subscriptionId : null,
+    referenceId: donationId,
+    is80g: !!(want80g && pan),
+    description: `Donation ₹${numAmount}${recurring ? ' (Recurring)' : ''}`
+  });
+
+  if (rcpt && paymentGateway !== 'razorpay') {
+    await Receipt.updateOne({ _id: rcpt._id }, {
+      $set: {
+        payment_gateway: paymentGateway,
+        payment_txn_id: paymentId,
+        payment_order_ref: orderId || subscriptionId || null
+      }
+    }).catch(() => {});
+  }
+
+  const receiptUrl = rcpt ? `${backendUrl}/receipt/${rcpt.token}` : null;
+  if (rcpt) console.log(`🧾 Donation receipt created: ${rcpt.receipt_id}`);
+
+  let receipt80GSent = false;
+  if (want80g && email && pan) {
+    try {
+      await send80GReceipt({
+        donationId,
+        name: name || 'Donor',
+        email,
+        pan,
+        address: address || '',
+        amount: numAmount,
+        paymentId,
+        date: new Date()
+      });
+      receipt80GSent = true;
+      addBreadcrumb('email', '80G receipt sent', { donationId, email, gateway: paymentGateway });
+    } catch (mailErr) {
+      console.error('80G receipt email failed:', mailErr.message);
+      captureError(mailErr, { context: '80g-receipt-email', donationId });
+    }
+  }
+
+  if (email) {
+    sendDonationConfirmation({
+      name: name || 'Donor',
+      email,
+      amount: numAmount,
+      donationId,
+      paymentId,
+      paymentGateway: gatewayLabel,
+      recurring: !!recurring,
+      pointsEarned: donationData.points_earned || 0,
+      receiptUrl
+    })
+      .then(() => console.log(`✅ Donation confirmation email sent → ${email}`))
+      .catch(e => console.error('⚠️ Donation confirmation email failed:', e.message));
+  }
+
+  if (mobile) {
+    sendWhatsAppDonation({
+      mobile,
+      name: name || 'Donor',
+      amount: numAmount,
+      donationId,
+      paymentId
+    }).catch(e => console.error('⚠️ WhatsApp donation confirmation failed:', e.message));
+
+    const smsName = name || 'Donor';
+    if (receipt80GSent) {
+      sendDonationReceipt80GSms({ mobile, name: smsName, amount: numAmount })
+        .catch(e => console.error('⚠️ 80G receipt SMS failed:', e.message));
+    } else {
+      sendDonationReceiptSms({ mobile, name: smsName, amount: numAmount })
+        .catch(e => console.error('⚠️ Donation receipt SMS failed:', e.message));
+    }
+  }
+
+  sendAdminAlert({
+    subject: `New Donation: ₹${numAmount} — ${name || 'Anonymous'}`,
+    rows: [
+      ['Donation ID', donationId],
+      ['Amount', `₹${numAmount.toLocaleString('en-IN')}`],
+      ['Donor', name || 'Anonymous'],
+      ['Email', email || '—'],
+      ['Mobile', mobile || '—'],
+      ['Type', recurring ? 'Recurring (Monthly)' : 'One-time'],
+      ['Gateway', gatewayLabel],
+      ['Payment ID', paymentId],
+      ['80G Sent', receipt80GSent ? 'Yes' : 'No']
+    ]
+  }).catch(() => {});
+
+  return {
+    ok: true,
+    donationId,
+    message: `Thank you for your ₹${numAmount} donation!`,
+    paymentId,
+    pointsEarned: donationData.points_earned || 0,
+    receipt80GSent,
+    donationRecord
+  };
+}
+
+async function finalizePhonePeDonation(merchantTransactionId) {
+  const intent = await PhonePeDonationIntent.findOne({ merchant_transaction_id: merchantTransactionId });
+  if (!intent) throw new Error('PhonePe donation intent not found');
+
+  if (intent.status === 'completed' && intent.donation_id) {
+    return {
+      ok: true,
+      donationId: intent.donation_id,
+      paymentId: intent.payment_id || merchantTransactionId,
+      receipt80GSent: false,
+      amount: intent.amount,
+      duplicate: true
+    };
+  }
+
+  const statusData = await fetchPhonePeStatus(merchantTransactionId);
+  const paymentState = statusData.state || 'PENDING';
+  const latestPayment = Array.isArray(statusData.paymentDetails) && statusData.paymentDetails.length
+    ? statusData.paymentDetails[statusData.paymentDetails.length - 1]
+    : null;
+
+  if (paymentState !== 'COMPLETED') {
+    await PhonePeDonationIntent.updateOne({ _id: intent._id }, {
+      $set: {
+        status: paymentState === 'PENDING' ? 'pending' : 'failed',
+        phonepe_response: statusData
+      }
+    });
+    return { ok: false, state: paymentState, amount: intent.amount };
+  }
+
+  const paymentId = latestPayment?.transactionId || statusData.orderId || merchantTransactionId;
+  const result = await recordDonationPayment({
+    paymentGateway: 'phonepe',
+    name: intent.donor_name,
+    mobile: intent.donor_mobile,
+    email: intent.donor_email,
+    pan: intent.donor_pan,
+    address: intent.donor_address,
+    amount: intent.amount,
+    memberIdInput: intent.member_id_input,
+    want80g: intent.want_80g,
+    ref: intent.ref_code,
+    paymentId,
+    orderId: merchantTransactionId,
+    verifiedToken: intent.verified_token,
+    source: 'phonepe'
+  });
+
+  await PhonePeDonationIntent.updateOne({ _id: intent._id }, {
+    $set: {
+      status: 'completed',
+      payment_id: paymentId,
+      donation_id: result.donationId,
+      completed_at: new Date(),
+      phonepe_response: statusData
+    }
+  });
+
+  return { ...result, amount: intent.amount };
 }
 function randPass(len = 10) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#$%';
@@ -501,13 +869,99 @@ async function seedData() {
     await Quiz.insertMany(sampleQuizzes);
     console.log('✅ Seeded 5 sample quizzes');
   }
+
+  // Seed training courses if none exist
+  const existingCourses = await Course.countDocuments();
+  if (existingCourses === 0) {
+    const INITIAL_COURSES = [
+      { courseId: 'tailoring', title: 'Tailoring & Stitching', desc: 'Basic se advanced level tak poori tailoring seekhein', icon: 'fa-scissors', color: '#E87722', weeks: 4, order: 1, chapters: [
+        { title: 'Chapter 1 – Sewing Machine Basics', links: [{ label: 'Sewing Machine Parts & Threading (YouTube)', url: 'https://www.youtube.com/watch?v=gCLyq0dBxPw', type: 'youtube' }, { label: 'How to Thread a Sewing Machine (YouTube)', url: 'https://www.youtube.com/watch?v=mW_EzwSL3lc', type: 'youtube' }] },
+        { title: 'Chapter 2 – Basic Stitching Techniques', links: [{ label: 'Hand Stitching Basics (YouTube)', url: 'https://www.youtube.com/watch?v=HHFi_QFvSR4', type: 'youtube' }, { label: 'Machine Stitching for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=AaP8yBplYKU', type: 'youtube' }] },
+        { title: 'Chapter 3 – Taking Measurements', links: [{ label: 'Body Measurement for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=ZIEuujLoqVw', type: 'youtube' }, { label: 'How to Measure for Blouse (YouTube)', url: 'https://www.youtube.com/watch?v=6mIFG1h1O04', type: 'youtube' }] },
+        { title: 'Chapter 4 – Salwar Suit Cutting', links: [{ label: 'Simple Salwar Cutting Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=M1vWzVvhZ-A', type: 'youtube' }, { label: 'Salwar Stitching Step by Step (YouTube)', url: 'https://www.youtube.com/watch?v=Vq4xUiVPpRA', type: 'youtube' }] },
+        { title: 'Chapter 5 – Blouse Cutting & Stitching', links: [{ label: 'Blouse Cutting Tutorial in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=bfhtyUHMOJw', type: 'youtube' }, { label: 'Simple Blouse Stitching – Full Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=DIXMhJMkdUQ', type: 'youtube' }] },
+        { title: 'Chapter 6 – Running a Tailoring Business', links: [{ label: 'Tailoring Business Ideas (YouTube)', url: 'https://www.youtube.com/watch?v=7Gs_tOHMO4Q', type: 'youtube' }, { label: 'How to Price Your Stitching Work (YouTube)', url: 'https://www.youtube.com/watch?v=5r_gStCEV8g', type: 'youtube' }] }
+      ]},
+      { courseId: 'computer', title: 'Basic Computer Skills', desc: 'Typing se lekar internet aur Excel tak seekhein', icon: 'fa-laptop', color: '#2563EB', weeks: 6, order: 2, chapters: [
+        { title: 'Chapter 1 – Intro to Computers', links: [{ label: 'Basic Computer Parts (YouTube)', url: 'https://www.youtube.com/watch?v=NvTyRTr8tKA', type: 'youtube' }, { label: 'How to Use a Computer – Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=eRzMKpEdBsE', type: 'youtube' }] },
+        { title: 'Chapter 2 – Typing Practice', links: [{ label: 'Hindi Typing Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=hV4A3CDaXLA', type: 'youtube' }, { label: 'Typing Speed Practice (YouTube)', url: 'https://www.youtube.com/watch?v=ekECqF6R6qU', type: 'youtube' }] },
+        { title: 'Chapter 3 – MS Word Basics', links: [{ label: 'MS Word Tutorial in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=XPZA9VGX6gE', type: 'youtube' }, { label: 'Word Document Formatting (YouTube)', url: 'https://www.youtube.com/watch?v=0VCkTzJhDZs', type: 'youtube' }] },
+        { title: 'Chapter 4 – MS Excel Basics', links: [{ label: 'Excel Tutorial for Beginners in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=K3h4r_rABHE', type: 'youtube' }, { label: 'Basic Excel Formulas (YouTube)', url: 'https://www.youtube.com/watch?v=E2yMBcZKurc', type: 'youtube' }] },
+        { title: 'Chapter 5 – Internet & Email', links: [{ label: 'How to Use the Internet (YouTube)', url: 'https://www.youtube.com/watch?v=UiMBMPLJF28', type: 'youtube' }, { label: 'Gmail for Beginners in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=hknFBvuClVs', type: 'youtube' }] },
+        { title: 'Chapter 6 – Govt Portals & Online Forms', links: [{ label: 'Online Form Kaise Bhare (YouTube)', url: 'https://www.youtube.com/watch?v=KiXYWEqQGmM', type: 'youtube' }, { label: 'Aadhaar & PAN Online Services (YouTube)', url: 'https://www.youtube.com/watch?v=MJqPPpPi8lM', type: 'youtube' }] }
+      ]},
+      { courseId: 'food', title: 'Food Processing & Packaging', desc: 'Ghar se food business shuru karna seekhein', icon: 'fa-bowl-food', color: '#D97706', weeks: 3, order: 3, chapters: [
+        { title: 'Chapter 1 – Food Safety Basics', links: [{ label: 'Food Hygiene & Safety Tips (YouTube)', url: 'https://www.youtube.com/watch?v=wgJJr70gLyk', type: 'youtube' }, { label: 'FSSAI Licensing Guide (YouTube)', url: 'https://www.youtube.com/watch?v=aMqgOfbvuMs', type: 'youtube' }] },
+        { title: 'Chapter 2 – Pickling & Preserving', links: [{ label: 'Homemade Pickle Business (YouTube)', url: 'https://www.youtube.com/watch?v=nywWNV5oQvs', type: 'youtube' }, { label: 'Aachar Making & Selling Tips (YouTube)', url: 'https://www.youtube.com/watch?v=6E5WyMRIl-s', type: 'youtube' }] },
+        { title: 'Chapter 3 – Packaging & Labelling', links: [{ label: 'Food Packaging Ideas for Home Business (YouTube)', url: 'https://www.youtube.com/watch?v=cAhGFJUuLvA', type: 'youtube' }, { label: 'Label Design for Home Products (YouTube)', url: 'https://www.youtube.com/watch?v=Bv7OXnf3m7Y', type: 'youtube' }] }
+      ]},
+      { courseId: 'mehndi', title: 'Handicraft & Mehndi Art', desc: 'Mehndi designs aur handicraft se income kamao', icon: 'fa-hand-sparkles', color: '#7C3AED', weeks: 3, order: 4, chapters: [
+        { title: 'Chapter 1 – Mehndi Basics', links: [{ label: 'Simple Mehndi Designs for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=qrxA6HRBLas', type: 'youtube' }, { label: 'Cone Filling & Handling Tips (YouTube)', url: 'https://www.youtube.com/watch?v=cHSo0yIrFaM', type: 'youtube' }] },
+        { title: 'Chapter 2 – Bridal Mehndi', links: [{ label: 'Full Hand Bridal Mehndi Design (YouTube)', url: 'https://www.youtube.com/watch?v=N_Q-s3vNiIA', type: 'youtube' }, { label: 'Rajasthani Bridal Mehndi (YouTube)', url: 'https://www.youtube.com/watch?v=V5O_-RXASC4', type: 'youtube' }] },
+        { title: 'Chapter 3 – Handicraft Projects', links: [{ label: 'Handmade Craft Selling on Meesho (YouTube)', url: 'https://www.youtube.com/watch?v=StsPxqopMOo', type: 'youtube' }, { label: 'Warli Art for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=QyFR8N8K9rI', type: 'youtube' }] }
+      ]},
+      { courseId: 'digital-marketing', title: 'Digital Marketing', desc: 'Social media se business badhaana seekhein', icon: 'fa-bullhorn', color: '#0891B2', weeks: 5, order: 5, chapters: [
+        { title: 'Chapter 1 – Social Media Basics', links: [{ label: 'Facebook for Business in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=h4HlCVRImFc', type: 'youtube' }, { label: 'Instagram Marketing Basics (YouTube)', url: 'https://www.youtube.com/watch?v=J-qdPaX4YKs', type: 'youtube' }] },
+        { title: 'Chapter 2 – Content Creation', links: [{ label: 'Canva Tutorial for Beginners in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=g2Ri2qmHNQI', type: 'youtube' }, { label: 'How to Make Reels for Business (YouTube)', url: 'https://www.youtube.com/watch?v=Bp-7IlJA4C8', type: 'youtube' }] },
+        { title: 'Chapter 3 – WhatsApp Business', links: [{ label: 'WhatsApp Business Setup in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=kfQMeNFvuBU', type: 'youtube' }, { label: 'WhatsApp Catalog & Broadcast (YouTube)', url: 'https://www.youtube.com/watch?v=_VVT1pRmxxk', type: 'youtube' }] },
+        { title: 'Chapter 4 – Selling on Meesho & Amazon', links: [{ label: 'Meesho Supplier Registration (YouTube)', url: 'https://www.youtube.com/watch?v=A7WM-VWmUfc', type: 'youtube' }, { label: 'Amazon Seller Account (YouTube)', url: 'https://www.youtube.com/watch?v=WxCq0wI6oUs', type: 'youtube' }] },
+        { title: 'Chapter 5 – Google My Business', links: [{ label: 'Google Business Profile Setup (YouTube)', url: 'https://www.youtube.com/watch?v=YmJCpZSNdHs', type: 'youtube' }, { label: 'Local SEO Basics (YouTube)', url: 'https://www.youtube.com/watch?v=DUFnbvBKJGQ', type: 'youtube' }] }
+      ]},
+      { courseId: 'farming', title: 'Organic Farming', desc: 'Organic kheti aur agri-business ke techniques', icon: 'fa-seedling', color: '#16A34A', weeks: 4, order: 6, chapters: [
+        { title: 'Chapter 1 – Soil & Compost', links: [{ label: 'Vermicompost at Home (YouTube)', url: 'https://www.youtube.com/watch?v=qp10-OdRLno', type: 'youtube' }, { label: 'Soil Testing Guide (YouTube)', url: 'https://www.youtube.com/watch?v=FyeE0MUDXeE', type: 'youtube' }] },
+        { title: 'Chapter 2 – Organic Pest Control', links: [{ label: 'Neem Pesticide at Home (YouTube)', url: 'https://www.youtube.com/watch?v=BkfkSqpB6_Q', type: 'youtube' }, { label: 'Bio-Pesticides Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=pBLPJnVuwAE', type: 'youtube' }] },
+        { title: 'Chapter 3 – Kitchen Garden', links: [{ label: 'Kitchen Garden Setup (YouTube)', url: 'https://www.youtube.com/watch?v=fBuR_8JiIKY', type: 'youtube' }, { label: 'Container Vegetable Gardening (YouTube)', url: 'https://www.youtube.com/watch?v=X8KGJXkBGWo', type: 'youtube' }] },
+        { title: 'Chapter 4 – Selling Produce', links: [{ label: 'Selling Organic Produce Online (YouTube)', url: 'https://www.youtube.com/watch?v=GInPsN5q-WA', type: 'youtube' }, { label: 'Farmer Market Tips (YouTube)', url: 'https://www.youtube.com/watch?v=v4KS_dUnT2U', type: 'youtube' }] }
+      ]},
+      { courseId: 'beauty', title: 'Beauty & Wellness', desc: 'Parlour skills aur salon business seekhein', icon: 'fa-spa', color: '#DB2777', weeks: 4, order: 7, chapters: [
+        { title: 'Chapter 1 – Facial & Skin Care', links: [{ label: 'Basic Facial Steps (YouTube)', url: 'https://www.youtube.com/watch?v=WP-bm74xHMI', type: 'youtube' }, { label: 'Skin Types & Care in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=9Uh0Nt2xfaI', type: 'youtube' }] },
+        { title: 'Chapter 2 – Threading & Waxing', links: [{ label: 'Threading Tutorial for Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=yCGHBiJ6k8E', type: 'youtube' }, { label: 'Waxing Techniques at Home (YouTube)', url: 'https://www.youtube.com/watch?v=l3A_UD0GtxY', type: 'youtube' }] },
+        { title: 'Chapter 3 – Hairstyling', links: [{ label: 'Basic Hairstyling Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=TKjFbevdqeM', type: 'youtube' }, { label: 'Bridal Hair Setup (YouTube)', url: 'https://www.youtube.com/watch?v=FPVLRiINNHs', type: 'youtube' }] },
+        { title: 'Chapter 4 – Parlour Business Setup', links: [{ label: 'Beauty Parlour Business Plan (YouTube)', url: 'https://www.youtube.com/watch?v=v2SuWzZQ3LA', type: 'youtube' }, { label: 'Pricing Your Services (YouTube)', url: 'https://www.youtube.com/watch?v=0HM21Bak3f4', type: 'youtube' }] }
+      ]},
+      { courseId: 'accounting', title: 'Basic Accounting & GST', desc: 'Tally, GST aur basic accounting seekhein', icon: 'fa-calculator', color: '#64748B', weeks: 5, order: 8, chapters: [
+        { title: 'Chapter 1 – Accounting Concepts', links: [{ label: 'Accounting Basics in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=ZzIoTBASUkM', type: 'youtube' }, { label: 'Debit Credit Rules (YouTube)', url: 'https://www.youtube.com/watch?v=6tCnGY3kFiA', type: 'youtube' }] },
+        { title: 'Chapter 2 – Tally Prime', links: [{ label: 'Tally Prime Full Course (YouTube)', url: 'https://www.youtube.com/watch?v=5R1sGvBRcGo', type: 'youtube' }, { label: 'Tally Entries Practical (YouTube)', url: 'https://www.youtube.com/watch?v=J8S3FVwHG4A', type: 'youtube' }] },
+        { title: 'Chapter 3 – GST Basics', links: [{ label: 'GST Complete Tutorial (YouTube)', url: 'https://www.youtube.com/watch?v=xjqT23W2YWI', type: 'youtube' }, { label: 'GST Filing Step by Step (YouTube)', url: 'https://www.youtube.com/watch?v=jd4bkNgxzA8', type: 'youtube' }] }
+      ]},
+      { courseId: 'communication', title: 'Communication Skills', desc: 'Spoken English aur public speaking seekhein', icon: 'fa-comments', color: '#0EA5E9', weeks: 4, order: 9, chapters: [
+        { title: 'Chapter 1 – Hindi Communication', links: [{ label: 'Effective Communication in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=SHvAhRBHJmg', type: 'youtube' }, { label: 'Body Language Tips (YouTube)', url: 'https://www.youtube.com/watch?v=zmxRGjq1hKI', type: 'youtube' }] },
+        { title: 'Chapter 2 – Basic English Speaking', links: [{ label: 'English Speaking in 30 Days (YouTube)', url: 'https://www.youtube.com/watch?v=Y3Sxm04MBeo', type: 'youtube' }, { label: 'Basic English Sentences (YouTube)', url: 'https://www.youtube.com/watch?v=vZ8Zx4kF4eY', type: 'youtube' }] },
+        { title: 'Chapter 3 – Interview Skills', links: [{ label: 'Job Interview Tips in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=X1FiPJTTAnQ', type: 'youtube' }, { label: 'Common Interview Questions (YouTube)', url: 'https://www.youtube.com/watch?v=wkp4iFSH7OU', type: 'youtube' }] }
+      ]},
+      { courseId: 'yoga', title: 'Yoga & Wellness Instructor', desc: 'Yoga instructor bano aur classes conduct karo', icon: 'fa-person-rays', color: '#F59E0B', weeks: 6, order: 10, chapters: [
+        { title: 'Chapter 1 – Yoga Basics', links: [{ label: 'Yoga for Absolute Beginners (YouTube)', url: 'https://www.youtube.com/watch?v=v7AYKMP6rOE', type: 'youtube' }, { label: 'Pranayama & Breathing Exercises (YouTube)', url: 'https://www.youtube.com/watch?v=lf_lXN0JGSM', type: 'youtube' }] },
+        { title: 'Chapter 2 – Asanas & Sequences', links: [{ label: 'Surya Namaskar Step by Step (YouTube)', url: 'https://www.youtube.com/watch?v=pqSWMgxX1SA', type: 'youtube' }, { label: 'Morning Yoga Routine (YouTube)', url: 'https://www.youtube.com/watch?v=Eml2xnoLpYE', type: 'youtube' }] },
+        { title: 'Chapter 3 – Teaching Yoga', links: [{ label: 'How to Become a Yoga Instructor (YouTube)', url: 'https://www.youtube.com/watch?v=TKU0jQDq3Xg', type: 'youtube' }, { label: 'Starting a Yoga Class (YouTube)', url: 'https://www.youtube.com/watch?v=KrSBZmFzb0A', type: 'youtube' }] }
+      ]},
+      { courseId: 'financial', title: 'Financial Literacy', desc: 'Bachat, niveshan aur financial planning seekhein', icon: 'fa-piggy-bank', color: '#10B981', weeks: 3, order: 11, chapters: [
+        { title: 'Chapter 1 – Saving & Budgeting', links: [{ label: 'Personal Finance Basics in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=KSBE38BLKZ4', type: 'youtube' }, { label: 'How to Create a Monthly Budget (YouTube)', url: 'https://www.youtube.com/watch?v=Oaafm_hfkNc', type: 'youtube' }] },
+        { title: 'Chapter 2 – Bank & Investment Basics', links: [{ label: 'Post Office Savings Schemes (YouTube)', url: 'https://www.youtube.com/watch?v=Ov66gXzB-lc', type: 'youtube' }, { label: 'Mutual Funds Explained Simply (YouTube)', url: 'https://www.youtube.com/watch?v=kx4ROhE37r4', type: 'youtube' }] },
+        { title: 'Chapter 3 – Govt Schemes for Women', links: [{ label: 'Sukanya Samriddhi Yojana (YouTube)', url: 'https://www.youtube.com/watch?v=4EtnN47jFIM', type: 'youtube' }, { label: 'PM Mudra Loan Guide (YouTube)', url: 'https://www.youtube.com/watch?v=r5lOlV4FH-0', type: 'youtube' }] }
+      ]},
+      { courseId: 'childcare', title: 'Child Care & Early Education', desc: 'Bacchon ki parvarish aur nursery skills seekhein', icon: 'fa-child-reaching', color: '#EC4899', weeks: 4, order: 12, chapters: [
+        { title: 'Chapter 1 – Early Childhood Development', links: [{ label: 'Child Development Stages (YouTube)', url: 'https://www.youtube.com/watch?v=A7Mao4CsOh8', type: 'youtube' }, { label: 'Activities for Kids 0-5 Years (YouTube)', url: 'https://www.youtube.com/watch?v=IpxN3U9s0ck', type: 'youtube' }] },
+        { title: 'Chapter 2 – Nutrition & Health', links: [{ label: 'Child Nutrition Guide in Hindi (YouTube)', url: 'https://www.youtube.com/watch?v=x0N6eBqwnJk', type: 'youtube' }, { label: 'Balanced Diet for Kids (YouTube)', url: 'https://www.youtube.com/watch?v=Qp7R57L0VAw', type: 'youtube' }] },
+        { title: 'Chapter 3 – Running a Creche / Daycare', links: [{ label: 'How to Start a Daycare Business (YouTube)', url: 'https://www.youtube.com/watch?v=hCHe87LYWJI', type: 'youtube' }, { label: 'Anganwadi Helper Training (YouTube)', url: 'https://www.youtube.com/watch?v=W0VJL7y0VLk', type: 'youtube' }] }
+      ]}
+    ];
+    await Course.insertMany(INITIAL_COURSES);
+    console.log(`✅ Seeded ${INITIAL_COURSES.length} training courses`);
+  }
 }
 
 // --- Auth middleware ---
 function auth(requiredRole) {
   return (req, res, next) => {
     try {
-      const token = req.cookies.token;
+      // Accept token from cookie (web) OR Authorization: Bearer <token> header (mobile)
+      let token = req.cookies.token;
+      if (!token) {
+        const authHeader = req.headers['authorization'];
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.slice(7);
+        }
+      }
       if (!token) return res.status(401).json({ error: 'Unauthorized' });
       const data = jwt.verify(token, JWT_SECRET);
       req.user = data;
@@ -531,13 +985,13 @@ app.get('/', (req, res) => {
     service: 'FWF Backend API',
     status: 'online',
     database: 'MongoDB Atlas',
-    version: '2.2.0',
+    version: '2.2.1',
     timestamp: new Date().toISOString(),
     endpoints: {
       auth: ['/api/auth/login', '/api/admin/login', '/api/auth/logout'],
-      member: ['/api/member/me', '/api/member/invoices', '/api/member/apply-wallet', '/api/member/weekly-task', '/api/member/complete-task', '/api/member/all-tasks', '/api/member/task-history', '/api/member/feed', '/api/member/create-post', '/api/member/active-quizzes', '/api/member/quiz-enroll', '/api/member/quiz-submit', '/api/member/quiz-history', '/api/member/affiliate'],
+      member: ['/api/member/me', '/api/member/invoices', '/api/member/apply-wallet', '/api/member/weekly-task', '/api/member/complete-task', '/api/member/all-tasks', '/api/member/task-history', '/api/member/feed', '/api/member/create-post', '/api/member/active-quizzes', '/api/member/quiz-enroll', '/api/member/quiz-submit', '/api/member/quiz-history', '/api/member/affiliate', '/api/member/fame-wall', '/api/member/quiz-winners', '/api/member/quiz-result-search'],
       admin: ['/api/admin/overview', '/api/admin/invoices', '/api/admin/invoice/:id/resend', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/invoice/:id', '/api/admin/zoho/status', '/api/admin/zoho/sync', '/api/admin/zoho/sync/:receiptId', '/api/admin/zoho/disconnect', '/api/admin/create-quiz', '/api/admin/quiz-draw/:quizId', '/api/admin/quizzes', '/api/admin/quiz-auto-create', '/api/admin/quiz-auto-draw', '/api/admin/quiz-scheduler-status', '/api/admin/quiz-purge-all', '/api/admin/quiz-seed', '/api/admin/quiz/:quizId/detail', '/api/admin/quiz/:quizId/participants', '/api/admin/quiz-participation/:enrollmentNumber/relink', '/api/admin/social-stats', '/api/admin/social-posts', '/api/admin/social-posts/:id/approve', '/api/admin/social-posts/:id/reject'],
-      payment: ['/api/pay/check-member', '/api/pay/simulate-join', '/api/pay/create-order', '/api/pay/create-subscription', '/api/pay/create-donation-subscription', '/api/pay/verify', '/api/pay/membership', '/api/pay/donation'],
+      payment: ['/api/pay/check-member', '/api/pay/simulate-join', '/api/pay/create-order', '/api/pay/create-subscription', '/api/pay/create-donation-subscription', '/api/pay/create-phonepe-donation', '/api/pay/phonepe/donation/redirect/:transactionId', '/api/pay/phonepe/donation/callback/:transactionId', '/api/pay/verify', '/api/pay/membership', '/api/pay/donation'],
       referral: ['/api/referral/click'],
       debug: ['/api/debug/users (development only)']
     }
@@ -814,6 +1268,111 @@ app.post('/api/pay/create-order', async (req, res) => {
   }
 });
 
+app.post('/api/pay/create-phonepe-donation', async (req, res) => {
+  try {
+    if (!isPhonePeConfigured()) return res.status(503).json({ error: 'PhonePe is not configured yet' });
+
+    const { amount, name, email, mobile, pan, address, want80g, ref, memberId, verified_token, recurring } = req.body;
+    if (!amount || Number(amount) < 1) return res.status(400).json({ error: 'Valid amount required (min ₹1)' });
+    if (recurring) return res.status(400).json({ error: 'Monthly donations continue on Razorpay AutoPay. Please uncheck monthly to pay with PhonePe.' });
+
+    const merchantTransactionId = `PPDON${Date.now()}${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+    const redirectUrl = `${SITE_URL}/api/pay/phonepe/donation/redirect/${merchantTransactionId}`;
+
+    await PhonePeDonationIntent.create({
+      merchant_transaction_id: merchantTransactionId,
+      merchant_user_id: mobile || email || merchantTransactionId,
+      amount: Number(amount),
+      donor_name: name || 'Anonymous',
+      donor_email: email || null,
+      donor_mobile: mobile || null,
+      donor_pan: pan || null,
+      donor_address: address || null,
+      want_80g: !!want80g,
+      verified_token: verified_token || null,
+      ref_code: ref || null,
+      member_id_input: memberId || null,
+      status: 'created'
+    });
+
+    const payload = {
+      merchantOrderId: merchantTransactionId,
+      amount: Math.round(Number(amount) * 100),
+      expireAfter: 1200,
+      paymentFlow: {
+        type: 'PG_CHECKOUT',
+        message: 'FWF donation payment',
+        merchantUrls: {
+          redirectUrl
+        }
+      },
+      metaInfo: {
+        udf1: name || 'Anonymous',
+        udf2: email || '',
+        udf3: mobile || '',
+        udf4: want80g ? '80G' : 'STANDARD',
+        udf5: ref || ''
+      }
+    };
+
+    const phonePeData = await callPhonePePay(payload);
+    const paymentUrl = phonePeData?.redirectUrl;
+    if (!paymentUrl) throw new Error('PhonePe redirect URL not received');
+
+    await PhonePeDonationIntent.updateOne({ merchant_transaction_id: merchantTransactionId }, {
+      $set: {
+        status: 'initiated',
+        redirect_url: paymentUrl,
+        phonepe_response: phonePeData
+      }
+    });
+
+    res.json({ ok: true, provider: 'phonepe', merchantTransactionId, redirectUrl: paymentUrl });
+  } catch (err) {
+    console.error('PhonePe create-donation error:', err);
+    captureError(err, { context: 'phonepe-create-donation' });
+    res.status(500).json({ error: err.message || 'Failed to initiate PhonePe payment' });
+  }
+});
+
+app.all('/api/pay/phonepe/donation/callback/:transactionId', async (req, res) => {
+  try {
+    const result = await finalizePhonePeDonation(req.params.transactionId);
+    if (!result.ok) return res.status(200).json({ ok: false, state: result.state || 'FAILED' });
+    res.status(200).json({ ok: true, donationId: result.donationId, paymentId: result.paymentId });
+  } catch (err) {
+    console.error('PhonePe donation callback error:', err);
+    captureError(err, { context: 'phonepe-donation-callback' });
+    res.status(500).json({ ok: false, error: err.message || 'PhonePe callback failed' });
+  }
+});
+
+app.all('/api/pay/phonepe/donation/redirect/:transactionId', async (req, res) => {
+  const failUrl = new URL('/donation', SITE_URL);
+  failUrl.hash = 'donateModal';
+  try {
+    const result = await finalizePhonePeDonation(req.params.transactionId);
+    if (!result.ok) {
+      failUrl.searchParams.set('phonepe', result.state === 'PENDING' ? 'pending' : 'failed');
+      failUrl.searchParams.set('phonepe_message', result.state === 'PENDING' ? 'Your PhonePe payment is still pending. Please check and try again in a moment.' : 'PhonePe payment was not completed. Please try again.');
+      return res.redirect(failUrl.toString());
+    }
+
+    const successUrl = new URL('/donation', SITE_URL);
+    successUrl.searchParams.set('phonepe', 'success');
+    successUrl.searchParams.set('donationId', result.donationId || '');
+    successUrl.searchParams.set('amount', String(result.amount || ''));
+    successUrl.searchParams.set('paymentId', result.paymentId || '');
+    return res.redirect(successUrl.toString());
+  } catch (err) {
+    console.error('PhonePe donation redirect error:', err);
+    captureError(err, { context: 'phonepe-donation-redirect' });
+    failUrl.searchParams.set('phonepe', 'failed');
+    failUrl.searchParams.set('phonepe_message', 'We could not verify your PhonePe payment. Please contact support if money was debited.');
+    return res.redirect(failUrl.toString());
+  }
+});
+
 // Verify Razorpay Payment Signature
 app.post('/api/pay/verify', async (req, res) => {
   try {
@@ -912,16 +1471,20 @@ app.post('/api/pay/membership', async (req, res) => {
     if (referrerCode) {
       try {
         const referrer = await User.findOne({ referral_code: referrerCode }).select('_id wallet');
-        const newUser  = await User.findOne({ member_id: memberId }).select('_id');
+        const newUser  = await User.findOne({ member_id: memberId }).select('_id role');
         if (referrer && newUser) {
           const REFERRAL_PCT = REFERRAL_POINTS_PERCENT || 50; // % of payment as points
           const pointsRupees = 500 * (REFERRAL_PCT / 100);
           const points = amountToPoints(pointsRupees);
           referralPoints = points;
+          
+          // Determine referral type based on referred user's role
+          const referralType = newUser.role === 'supporter' ? 'supporter' : 'member';
 
           await Referral.create({
             referrer_id:      referrer._id,
             referred_user_id: newUser._id,
+            referral_type:    referralType,
             status:           'active',
             payment_amount:   500,
             referral_points:  points,
@@ -1045,7 +1608,7 @@ app.post('/api/pay/upgrade-to-member', auth('supporter'), async (req, res) => {
 
     // Issue new JWT cookie with updated role
     const newToken = signToken({ uid: supporter._id.toString(), role: 'member', memberId, name: supporter.name });
-    res.cookie('token', newToken, { httpOnly: true, sameSite: 'none', secure: true });
+    res.cookie('token', newToken, AUTH_COOKIE_OPTIONS);
 
     // Send member welcome email (non-blocking)
     sendMemberWelcome({ name: supporter.name, email: supporter.email, memberId, password: plain, mobile: supporter.mobile })
@@ -1154,26 +1717,6 @@ app.post('/api/pay/donation', async (req, res) => {
     } = req.body;
     if (!amount || !razorpay_payment_id) return res.status(400).json({ error: 'Payment details required' });
 
-    const numAmount = Number(amount);
-    const kycRequired = numAmount >= 50000;
-
-    // For donations ≥ ₹50,000 — verify OTP token from MongoDB
-    let otpVerified = false;
-    if (kycRequired) {
-      if (!verified_token) {
-        return res.status(400).json({ error: 'OTP verification is required for donations of ₹50,000 or more' });
-      }
-      const otpRecord = await DonationOtp.findOne({
-        verified: true,
-        verified_token,
-        expires_at: { $gt: new Date(Date.now() - 30 * 60 * 1000) } // token valid for 30 mins after verify
-      });
-      if (!otpRecord) {
-        return res.status(400).json({ error: 'OTP verification token is invalid or expired. Please verify again.' });
-      }
-      otpVerified = true;
-    }
-
     // Verify Razorpay signature (order for one-time; subscription for recurring)
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     const { razorpay_subscription_id, recurring } = req.body;
@@ -1195,159 +1738,26 @@ app.post('/api/pay/donation', async (req, res) => {
       return res.status(400).json({ ok: false, error: 'Payment verification failed' });
     }
 
-    // Award points if linked member (by memberId or referral code from donation link)
-    let user = null;
-    if (memberIdInput) user = await User.findOne({ member_id: memberIdInput });
-    if (!user && ref) user = await User.findOne({ referral_code: ref });
-
-    const donationId = await nextDonationId();
-    const donationData = {
-      donation_id:  donationId,
-      amount:       numAmount,
-      donor_name:   name  || 'Anonymous',
-      donor_email:  email || null,
-      donor_mobile: mobile || null,
-      donor_pan:    pan   || null,
-      donor_address: address || null,
-      source:       recurring ? 'razorpay_recurring' : 'razorpay',
-      payment_id:   razorpay_payment_id,
-      order_id:     razorpay_order_id || null,
-      subscription_id: razorpay_subscription_id || null,
-      recurring:    !!recurring,
-      kyc_required: kycRequired,
-      otp_verified: otpVerified,
-      kyc_status:   kycRequired ? (otpVerified ? 'otp_verified' : 'pending_docs') : 'not_required'
-    };
-
-    if (user) {
-      donationData.member_id = user._id;
-      const pointsRupees = numAmount * (DONATION_POINTS_PERCENT / 100);
-      const points = amountToPoints(pointsRupees);
-      donationData.points_earned = points;
-      await User.updateOne({ _id: user._id }, {
-        $inc: {
-          'wallet.balance_inr': pointsRupees,
-          'wallet.lifetime_earned_inr': pointsRupees,
-          'wallet.points_balance': points,
-          'wallet.total_points_earned': points,
-          'wallet.points_from_donations': points
-        }
-      });
-      await PointsLedger.create({
-        user_id: user._id, points, type: 'donation',
-        description: `₹${numAmount} donation via Razorpay → ${points} points`
-      });
-    }
-
-    const donationRecord = await Donation.create(donationData);
-    addBreadcrumb('payment', 'Donation recorded', { donationId, amount: numAmount, kycRequired, otpVerified });
-
-    const backendUrl = process.env.BACKEND_URL || 'https://api.fwfindia.org';
-    const rcpt = await createAndSendReceipt({
-      type: 'donation',
-      userId: user?._id,
-      memberId: user?.member_id || null,
-      customerName: name || 'Anonymous',
-      customerEmail: email || null,
-      customerMobile: mobile || null,
-      customerPan: pan || null,
-      customerAddress: address || null,
-      lineItems: [{ name: `Donation to FWF${recurring ? ' (Monthly Recurring)' : ''}`, description: 'Charitable donation — Foundation for Women\'s Future', amount: numAmount, quantity: 1 }],
-      total: numAmount,
-      razorpayPaymentId: razorpay_payment_id,
-      razorpayOrderId: razorpay_order_id || null,
-      razorpaySubscriptionId: razorpay_subscription_id || null,
-      referenceId: donationId,
-      is80g: !!(want80g && pan),
-      description: `Donation ₹${numAmount}${recurring ? ' (Recurring)' : ''}`
-    });
-    const receiptUrl = rcpt ? `${backendUrl}/receipt/${rcpt.token}` : null;
-    if (rcpt) console.log(`🧾 Donation receipt created: ${rcpt.receipt_id}`);
-    // Sync receipt to Zoho (non-blocking)
-    if (rcpt) syncReceiptToZoho(rcpt.toObject ? rcpt.toObject() : rcpt).catch(err => console.warn('⚠️ Zoho sync:', err.message));
-
-    // Send 80G receipt email if donor opted in and has PAN + email
-    let receipt80GSent = false;
-    if (want80g && email && pan) {
-      try {
-        await send80GReceipt({
-          donationId,
-          name: name || 'Donor',
-          email,
-          pan,
-          address: address || '',
-          amount: numAmount,
-          paymentId: razorpay_payment_id,
-          date: new Date()
-        });
-        receipt80GSent = true;
-        addBreadcrumb('email', '80G receipt sent', { donationId, email });
-      } catch (mailErr) {
-        console.error('80G receipt email failed:', mailErr.message);
-        captureError(mailErr, { context: '80g-receipt-email', donationId });
-      }
-    }
-
-    // Always send donation confirmation email with receipt link
-    if (email) {
-      sendDonationConfirmation({
-        name: name || 'Donor',
-        email,
-        amount: numAmount,
-        donationId,
-        paymentId: razorpay_payment_id,
-        recurring: !!recurring,
-        pointsEarned: donationData.points_earned || 0,
-        receiptUrl
-      })
-        .then(() => console.log(`✅ Donation confirmation email sent → ${email}`))
-        .catch(e => console.error('⚠️ Donation confirmation email failed:', e.message));
-    }
-
-    // Send WhatsApp donation confirmation (non-blocking)
-    if (mobile) {
-      sendWhatsAppDonation({
-        mobile,
-        name: name || 'Donor',
-        amount: numAmount,
-        donationId,
-        paymentId: razorpay_payment_id
-      }).catch(e => console.error('⚠️ WhatsApp donation confirmation failed:', e.message));
-
-      // Send donation receipt SMS (based on 80G eligibility)
-      const smsName = name || 'Donor';
-      if (receipt80GSent) {
-        sendDonationReceipt80GSms({ mobile, name: smsName, amount: numAmount })
-          .catch(e => console.error('⚠️ 80G receipt SMS failed:', e.message));
-      } else {
-        sendDonationReceiptSms({ mobile, name: smsName, amount: numAmount })
-          .catch(e => console.error('⚠️ Donation receipt SMS failed:', e.message));
-      }
-    }
-
-    // Admin alert for donation (non-blocking)
-    sendAdminAlert({
-      subject: `New Donation: ₹${numAmount} — ${name || 'Anonymous'}`,
-      rows: [
-        ['Donation ID', donationId],
-        ['Amount', `₹${numAmount.toLocaleString('en-IN')}`],
-        ['Donor', name || 'Anonymous'],
-        ['Email', email || '—'],
-        ['Mobile', mobile || '—'],
-        ['Type', recurring ? 'Recurring (Monthly)' : 'One-time'],
-        ['Payment ID', razorpay_payment_id],
-        ['80G Sent', receipt80GSent ? 'Yes' : 'No']
-      ]
-    }).catch(() => {});
-
-    res.json({
-      ok: true,
-      donationId,
-      message: `Thank you for your ₹${numAmount} donation!`,
+    const result = await recordDonationPayment({
+      paymentGateway: 'razorpay',
+      name,
+      mobile,
+      email,
+      pan,
+      address,
+      amount,
+      memberIdInput,
+      want80g,
+      ref,
       paymentId: razorpay_payment_id,
-      pointsEarned: donationData.points_earned || 0,
-      receipt80GSent
+      orderId: razorpay_order_id || null,
+      subscriptionId: razorpay_subscription_id || null,
+      recurring: !!recurring,
+      verifiedToken: verified_token,
+      source: recurring ? 'razorpay_recurring' : 'razorpay'
     });
+
+    res.json(result);
   } catch (err) {
     console.error('Razorpay donation error:', err);
     captureError(err, { context: 'razorpay-donation' });
@@ -1429,15 +1839,17 @@ app.post('/api/admin/reset-password', auth('admin'), async (req, res) => {
 });
 
 app.post('/api/auth/login', rateLimit(60000, 5), async (req, res) => {
-  const { memberId, password } = req.body;
-  if (!memberId || !password) return res.status(400).json({ error: 'Member ID and password are required' });
+  // Accept both 'memberId' (web) and 'mobile' (mobile app) fields
+  const { memberId, mobile, password } = req.body;
+  const identifier = memberId || mobile;
+  if (!identifier || !password) return res.status(400).json({ error: 'Member ID and password are required' });
 
-  let u = await User.findOne({ member_id: memberId });
-  if (!u) u = await User.findOne({ email: memberId });
+  let u = await User.findOne({ member_id: identifier });
+  if (!u) u = await User.findOne({ email: identifier });
 
   // Mobile lookup: try multiple formats (raw, +91prefix, 91prefix, stripped to last 10 digits)
   if (!u) {
-    const cleanMobile = memberId.replace(/\D/g, ''); // strip non-digits
+    const cleanMobile = identifier.replace(/\D/g, ''); // strip non-digits
     const last10 = cleanMobile.slice(-10);
     u = await User.findOne({ mobile: { $in: [
       cleanMobile,
@@ -1449,17 +1861,18 @@ app.post('/api/auth/login', rateLimit(60000, 5), async (req, res) => {
   }
 
   if (!u) {
-    console.log(`Login failed: member_id/email/mobile "${memberId}" not found`);
+    console.log(`Login failed: member_id/email/mobile "${identifier}" not found`);
     return res.status(400).json({ error: 'Invalid Member ID or password' });
   }
   if (!bcrypt.compareSync(password, u.password_hash)) {
-    console.log(`Login failed: wrong password for "${memberId}"`);
+    console.log(`Login failed: wrong password for "${identifier}"`);
     return res.status(400).json({ error: 'Invalid Member ID or password' });
   }
   const token = signToken({ uid: u._id.toString(), role: u.role, memberId: u.member_id, name: u.name });
-  res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
+  res.cookie('token', token, AUTH_COOKIE_OPTIONS);
   addBreadcrumb('auth', 'Member logged in', { memberId: u.member_id });
-  res.json({ ok: true, role: u.role });
+  // Return token + user info in JSON body (for mobile app Bearer token auth)
+  res.json({ ok: true, token, role: u.role, memberId: u.member_id, name: u.name });
 });
 
 app.post('/api/admin/login', rateLimit(60000, 5), async (req, res) => {
@@ -1468,12 +1881,12 @@ app.post('/api/admin/login', rateLimit(60000, 5), async (req, res) => {
   if (!u) return res.status(400).json({ error: 'Invalid credentials' });
   if (!bcrypt.compareSync(password, u.password_hash)) return res.status(400).json({ error: 'Invalid credentials' });
   const token = signToken({ uid: u._id.toString(), role: u.role, memberId: u.member_id, name: u.name });
-  res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
+  res.cookie('token', token, AUTH_COOKIE_OPTIONS);
   res.json({ ok: true });
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  res.clearCookie('token', { httpOnly: true, sameSite: 'none', secure: true });
+  res.clearCookie('token', AUTH_COOKIE_OPTIONS);
   res.json({ ok: true });
 });
 
@@ -1727,9 +2140,18 @@ app.post('/api/member/register-referral', async (req, res) => {
   if (!referralCode || !newUserId) return res.status(400).json({ error: 'referralCode & newUserId required' });
 
   const referrer = await User.findOne({ referral_code: referralCode }).select('_id');
+  const newUser = await User.findById(newUserId).select('role');
   if (!referrer) return res.status(404).json({ error: 'Invalid referral code' });
+  
+  // Determine referral type based on referred user's role
+  const referralType = newUser?.role === 'supporter' ? 'supporter' : 'member';
 
-  await Referral.create({ referrer_id: referrer._id, referred_user_id: newUserId, status: 'pending' });
+  await Referral.create({ 
+    referrer_id: referrer._id, 
+    referred_user_id: newUserId, 
+    referral_type: referralType,
+    status: 'pending' 
+  });
   await User.updateOne({ _id: newUserId }, { referred_by: referrer._id });
 
   res.json({ ok: true });
@@ -2084,6 +2506,36 @@ app.get('/api/admin/referrals', auth('admin'), async (req, res) => {
     if (referrer) { r.referrer_name = referrer.name; r.referrer_member_id = referrer.member_id; }
     if (referred) { r.referred_name = referred.name; r.referred_member_id = referred.member_id; }
   }
+  res.json({ ok: true, referrals });
+});
+
+// Admin: get detailed referrals with tracking (separated by type)
+app.get('/api/admin/referrals/detailed', auth('admin'), async (req, res) => {
+  const referrals = await Referral.find().sort({ created_at: -1 }).lean();
+  
+  for (const r of referrals) {
+    const referrer = await User.findById(r.referrer_id).select('name member_id role').lean();
+    const referred = await User.findById(r.referred_user_id).select('name member_id role').lean();
+    
+    if (referrer) { 
+      r.referrer_name = referrer.name; 
+      r.referrer_member_id = referrer.member_id;
+      r.referrer_role = referrer.role;
+    }
+    if (referred) { 
+      r.referred_name = referred.name; 
+      r.referred_member_id = referred.member_id;
+      r.referred_role = referred.role;
+    }
+
+    // Get click data from ReferralClick if referral code exists
+    if (r.referral_code) {
+      const clicks = await ReferralClick.find({ referral_code: r.referral_code }).lean();
+      r.click_count = clicks.length;
+      r.conversion_count = clicks.filter(c => c.converted).length;
+    }
+  }
+  
   res.json({ ok: true, referrals });
 });
 
@@ -3208,6 +3660,162 @@ app.get('/api/member/quiz-results/:quizId', auth('member'), async (req, res) => 
 });
 
 // ========================
+// FAME WALL & PUBLIC LEADERBOARD APIs
+// ========================
+
+// Fame Wall — latest lucky draw winners + top donation collector
+app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) => {
+  try {
+    // Latest 3 quiz winners — any quiz that has winners, regardless of status
+    const quizzesWithWinners = await Quiz.find({ 'winners.0': { $exists: true } })
+      .select('quiz_id title type winners result_date total_participants prizes')
+      .sort({ result_date: -1 })
+      .limit(3)
+      .lean();
+
+    const quizWinners = quizzesWithWinners.map(q => {
+      const w = q.winners[0];
+      return {
+        quiz_id: q.quiz_id,
+        quiz_title: q.title,
+        quiz_type: q.type,
+        result_date: q.result_date,
+        total_participants: q.total_participants || 0,
+        winner_name: w?.name || 'Unknown',
+        winner_member_id: w?.member_id || '',
+        prize_amount: w?.prize_amount || 0
+      };
+    });
+
+    // Last month's specific lucky draw winner
+    const now = new Date();
+    const firstOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthQuiz = await Quiz.findOne({
+      'winners.0': { $exists: true },
+      result_date: { $gte: firstOfLastMonth, $lt: firstOfThisMonth }
+    }).select('quiz_id title type winners result_date').sort({ result_date: -1 }).lean();
+
+    let lastMonthWinner = null;
+    if (lastMonthQuiz) {
+      const w = lastMonthQuiz.winners[0];
+      lastMonthWinner = {
+        quiz_title: lastMonthQuiz.title,
+        quiz_type: lastMonthQuiz.type,
+        result_date: lastMonthQuiz.result_date,
+        winner_name: w?.name || 'Unknown',
+        winner_member_id: w?.member_id || '',
+        prize_amount: w?.prize_amount || 0
+      };
+    }
+
+    // Top donation collector — ALL donations (members + anonymous)
+    const topDonorAgg = await Donation.aggregate([
+      { $group: {
+        _id: '$member_id',
+        total: { $sum: '$amount' },
+        count: { $sum: 1 },
+        donor_name: { $first: '$donor_name' }
+      }},
+      { $sort: { total: -1 } },
+      { $limit: 1 }
+    ]);
+
+    let topDonor = null;
+    if (topDonorAgg.length > 0) {
+      const td = topDonorAgg[0];
+      let donorName = td.donor_name || 'Anonymous';
+      let memberDisplayId = '';
+      if (td._id) {
+        const tdUser = await User.findById(td._id).select('name member_id').lean();
+        if (tdUser) {
+          donorName = tdUser.name;
+          memberDisplayId = tdUser.member_id || '';
+        }
+      }
+      topDonor = {
+        name: donorName,
+        member_id: memberDisplayId,
+        total_donated: td.total,
+        donation_count: td.count
+      };
+    }
+
+    res.json({ ok: true, quizWinners, lastMonthWinner, topDonor });
+  } catch (err) {
+    captureError(err, { context: 'fame-wall' });
+    res.status(500).json({ error: 'Fame wall fetch failed' });
+  }
+});
+
+// Last 6 quiz winners history (for quiz page)
+app.get('/api/member/quiz-winners', auth(['member','supporter']), async (req, res) => {
+  try {
+    const declaredQuizzes = await Quiz.find({ status: 'result_declared', 'winners.0': { $exists: true } })
+      .select('quiz_id title type winners result_date total_participants prizes total_collection')
+      .sort({ result_date: -1 })
+      .limit(6)
+      .lean();
+
+    const winners = declaredQuizzes.map(q => {
+      const w = q.winners[0];
+      return {
+        quiz_id: q.quiz_id,
+        quiz_title: q.title,
+        quiz_type: q.type,
+        result_date: q.result_date,
+        total_participants: q.total_participants || 0,
+        total_collection: q.total_collection || 0,
+        winner_name: w?.name || 'Unknown',
+        winner_member_id: w?.member_id || '',
+        enrollment_number: w?.enrollment_number || '',
+        prize_amount: w?.prize_amount || 0,
+        score: w?.score || 0
+      };
+    });
+
+    res.json({ ok: true, winners });
+  } catch (err) {
+    captureError(err, { context: 'quiz-winners' });
+    res.status(500).json({ error: 'Quiz winners fetch failed' });
+  }
+});
+
+// Quiz result search by name, member_id, or enrollment_number
+app.get('/api/member/quiz-result-search', auth(['member','supporter']), async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q || q.length < 2) return res.status(400).json({ error: 'Search query too short (min 2 chars)' });
+
+    const regex = new RegExp(q, 'i');
+    const participations = await QuizParticipation.find({
+      $or: [
+        { name: regex },
+        { member_id: regex },
+        { enrollment_number: regex }
+      ]
+    })
+      .select('name member_id enrollment_number quiz_id status prize_won score created_at')
+      .sort({ created_at: -1 })
+      .limit(20)
+      .lean();
+
+    // Enrich with quiz details
+    for (const p of participations) {
+      const quiz = await Quiz.findById(p.quiz_id)
+        .select('quiz_id title type result_date status')
+        .lean();
+      if (quiz) p.quiz_details = quiz;
+    }
+
+    res.json({ ok: true, results: participations, total: participations.length });
+  } catch (err) {
+    captureError(err, { context: 'quiz-result-search' });
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
+
+// ========================
 // QUIZ SELL TICKET APIs
 // ========================
 
@@ -3261,6 +3869,92 @@ app.post('/api/member/quiz/generate-ticket', auth(['member','supporter']), async
     res.status(500).json({ error: 'Ticket generation failed: ' + err.message });
   }
 });
+
+// ===================== TRAINING COURSES API =====================
+
+// GET /api/courses — public endpoint for member dashboard
+app.get('/api/courses', async (req, res) => {
+  try {
+    const courses = await Course.find({ active: true }).sort({ order: 1, created_at: 1 }).lean();
+    res.json({ ok: true, courses });
+  } catch (err) {
+    captureError(err, { context: 'get-courses' });
+    res.status(500).json({ error: 'Failed to load courses' });
+  }
+});
+
+// GET /api/admin/courses — all courses for admin
+app.get('/api/admin/courses', auth('admin'), async (req, res) => {
+  try {
+    const courses = await Course.find({}).sort({ order: 1, created_at: 1 }).lean();
+    const stats = {
+      total: courses.length,
+      active: courses.filter(c => c.active).length,
+      chapters: courses.reduce((s, c) => s + (c.chapters ? c.chapters.length : 0), 0),
+      links: courses.reduce((s, c) => s + (c.chapters || []).reduce((cs, ch) => cs + (ch.links ? ch.links.length : 0), 0), 0)
+    };
+    res.json({ ok: true, courses, stats });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/courses — create new course
+app.post('/api/admin/courses', auth('admin'), async (req, res) => {
+  const { courseId, title, desc, icon, color, weeks, chapters, order } = req.body;
+  if (!courseId || !title) return res.status(400).json({ error: 'courseId and title are required' });
+  // Sanitize courseId
+  const safeId = courseId.toLowerCase().replace(/[^a-z0-9\-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  try {
+    const course = await Course.create({
+      courseId: safeId, title, desc: desc || '', icon: icon || 'fa-book',
+      color: color || '#666666', weeks: parseInt(weeks) || 4,
+      chapters: chapters || [], order: order || 0
+    });
+    res.json({ ok: true, course });
+  } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ error: 'Course ID already exists' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/admin/courses/:courseId — update course
+app.put('/api/admin/courses/:courseId', auth('admin'), async (req, res) => {
+  const { title, desc, icon, color, weeks, active, chapters, order } = req.body;
+  try {
+    const update = { updated_at: new Date() };
+    if (title !== undefined) update.title = title;
+    if (desc !== undefined) update.desc = desc;
+    if (icon !== undefined) update.icon = icon;
+    if (color !== undefined) update.color = color;
+    if (weeks !== undefined) update.weeks = parseInt(weeks) || 4;
+    if (active !== undefined) update.active = !!active;
+    if (chapters !== undefined) update.chapters = chapters;
+    if (order !== undefined) update.order = order;
+    const course = await Course.findOneAndUpdate(
+      { courseId: req.params.courseId },
+      { $set: update },
+      { new: true }
+    );
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+    res.json({ ok: true, course });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/admin/courses/:courseId — permanently delete course
+app.delete('/api/admin/courses/:courseId', auth('admin'), async (req, res) => {
+  try {
+    const deleted = await Course.findOneAndDelete({ courseId: req.params.courseId });
+    if (!deleted) return res.status(404).json({ error: 'Course not found' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===================== END COURSES API =====================
 
 // GET seller's own quiz tickets (for tracking in Referral & Earn tab)
 app.get('/api/member/my-quiz-tickets', auth(['member','supporter']), async (req, res) => {

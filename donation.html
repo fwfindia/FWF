@@ -563,8 +563,8 @@
         </div>
         <p style="font-weight:900;font-size:1.4rem;color:#0f172a;margin:12px 0">Amount: ₹<span id="donateAmountDisplay">0</span><span id="donateAmountSuffix"></span></p>
       </div>
-      <button id="razorpayDonateBtn" class="btn-solid" style="background:linear-gradient(135deg,#6153ff,#8b5cf6);font-size:1.05rem;padding:14px 0"><i class="fa-solid fa-lock"></i> Pay Securely Now</button>
-      <p style="text-align:center;margin-top:10px;font-size:0.82rem;color:#94a3b8"><i class="fas fa-shield-alt"></i> Secured by Razorpay</p>
+      <button id="razorpayDonateBtn" class="btn-solid" style="background:linear-gradient(135deg,#5f259f,#7c3aed);font-size:1.05rem;padding:14px 0"><i class="fa-solid fa-mobile-screen-button"></i> Pay for a Noble Cause</button>
+      <p id="donateGatewayNote" style="text-align:center;margin-top:10px;font-size:0.82rem;color:#94a3b8"><i class="fas fa-shield-alt"></i> One-time donations use PhonePe · Monthly donations use Razorpay AutoPay</p>
     </div>
     </div><!-- /padding wrapper -->
   </div>
@@ -864,6 +864,20 @@
   const donateStep2=document.getElementById('donateStep2');
   const HIGH_VALUE = 50000;
 
+  function setDonateGatewayUI(isRecurring){
+    const btn = document.getElementById('razorpayDonateBtn');
+    const note = document.getElementById('donateGatewayNote');
+    if(isRecurring){
+      btn.style.background = 'linear-gradient(135deg,#6153ff,#8b5cf6)';
+      btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Set Up Monthly Donation';
+      note.innerHTML = '<i class="fas fa-shield-alt"></i> Monthly donations are secured by Razorpay AutoPay';
+    } else {
+      btn.style.background = 'linear-gradient(135deg,#5f259f,#7c3aed)';
+      btn.innerHTML = '<i class="fa-solid fa-mobile-screen-button"></i> Pay for a Noble Cause';
+      note.innerHTML = '<i class="fas fa-shield-alt"></i> One-time donations use PhonePe · Monthly donations use Razorpay AutoPay';
+    }
+  }
+
   function resetDonate(){ 
     donateForm.reset(); 
     donateStep2.style.display='none';
@@ -888,7 +902,7 @@
     setRecurringVisual(false);
     document.getElementById('donateRecurringInfo').style.display = 'none';
     document.getElementById('donateAmountSuffix').textContent = '';
-    document.getElementById('razorpayDonateBtn').innerHTML = '<i class="fa-solid fa-lock"></i> Pay Securely Now';
+    setDonateGatewayUI(false);
     document.querySelectorAll('.amount-chip').forEach(c => c.classList.remove('active'));
     // Safe check for optional elements
     const doneWrap = document.getElementById('doneWrap');
@@ -989,9 +1003,7 @@
     const isRecurring = donateFormData.recurring;
     document.getElementById('donateRecurringInfo').style.display = isRecurring ? 'block' : 'none';
     document.getElementById('donateAmountSuffix').textContent = isRecurring ? '/month' : '';
-    document.getElementById('razorpayDonateBtn').innerHTML = isRecurring
-      ? '<i class="fa-solid fa-rotate"></i> Set Up Monthly Donation'
-      : '<i class="fa-solid fa-lock"></i> Pay Securely Now';
+    setDonateGatewayUI(isRecurring);
 
     if(Number(donateFormData.amount) >= HIGH_VALUE) {
       // Require OTP verification
@@ -1084,9 +1096,9 @@
     const isRecurring = donateFormData.recurring;
     const BTN_LABEL = isRecurring
       ? '<i class="fa-solid fa-rotate"></i> Set Up Monthly Donation'
-      : '<i class="fa-solid fa-lock"></i> Pay Securely Now';
+      : '<i class="fa-solid fa-mobile-screen-button"></i> Pay for a Noble Cause';
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (isRecurring ? 'Setting up subscription...' : 'Creating Order...');
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (isRecurring ? 'Setting up subscription...' : 'Opening PhonePe...');
     
     try {
       let options;
@@ -1153,67 +1165,33 @@
         };
 
       } else {
-        // ── ONE-TIME: create a Razorpay order ──
-        const orderRes = await fetch('/api/pay/create-order', {
+        const phonePeRes = await fetch('/api/pay/create-phonepe-donation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: Number(donateFormData.amount), type: 'donation', notes: { name: donateFormData.name, email: donateFormData.email } })
+          body: JSON.stringify({
+            amount: Number(donateFormData.amount),
+            name: donateFormData.name,
+            mobile: donateFormData.mobile,
+            email: donateFormData.email,
+            pan: donateFormData.pan,
+            address: donateFormData.address,
+            want80g: donateFormData.want80g,
+            verified_token: donateFormData.verified_token,
+            ref: sessionStorage.getItem('fwfDonRefCode') || ''
+          })
         });
-        const orderData = await orderRes.json();
-        if (!orderData.ok) { FWF_Notify.toast(orderData.error || 'Failed to create order', 'error'); btn.disabled = false; btn.innerHTML = BTN_LABEL; return; }
+        const phonePeData = await phonePeRes.json();
+        if (!phonePeRes.ok || !phonePeData.ok || !phonePeData.redirectUrl) {
+          FWF_Notify.toast(phonePeData.error || 'Failed to start PhonePe payment', 'error');
+          btn.disabled = false;
+          btn.innerHTML = BTN_LABEL;
+          return;
+        }
 
-        btn.innerHTML = BTN_LABEL;
-
-        options = {
-          key: orderData.key,
-          amount: orderData.order.amount,
-          currency: orderData.order.currency,
-          name: "FWF - Foundation for Livelihood",
-          description: 'Donation ₹' + donateFormData.amount,
-          image: '/assets/images/logo.png',
-          order_id: orderData.order.id,
-          prefill: { name: donateFormData.name, email: donateFormData.email, contact: donateFormData.mobile },
-          theme: { color: '#ff416c' },
-          handler: async function(response) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Recording Donation...';
-            try {
-              const res = await fetch('/api/pay/donation', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: donateFormData.name,
-                  mobile: donateFormData.mobile,
-                  email: donateFormData.email,
-                  pan: donateFormData.pan,
-                  address: donateFormData.address,
-                  amount: Number(donateFormData.amount),
-                  want80g: donateFormData.want80g,
-                  verified_token: donateFormData.verified_token,
-                  ref: sessionStorage.getItem('fwfDonRefCode') || '',
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_signature: response.razorpay_signature
-                })
-              });
-              const data = await res.json();
-              if (data.ok) {
-                FWF_Notify.modal({
-                  title: '🎉 Thank You!',
-                  message: `Your donation of ₹${donateFormData.amount} has been received successfully!${data.receipt80GSent ? '<br><br><span style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:6px 10px;border-radius:8px;font-size:0.85rem;display:inline-block">📄 80G Receipt sent to <strong>' + donateFormData.email + '</strong></span>' : (donateFormData.want80g ? '<br><br><small style="color:#ef4444">80G receipt could not be sent — our team will follow up.</small>' : '')}<br><br><small style="color:#64748b">Payment ID: ${response.razorpay_payment_id}</small>${data.pointsEarned ? '<br><small style="color:#22c55e">Points earned: ' + data.pointsEarned + '</small>' : ''}`,
-                  type: 'success',
-                  confirmText: 'OK',
-                  onConfirm: () => { closeModal(donateModal); resetDonate(); sessionStorage.removeItem('fwfDonRefCode'); }
-                });
-              } else {
-                FWF_Notify.toast(data.error || 'Error recording donation', 'error', 5000);
-              }
-            } catch(e) {
-              FWF_Notify.toast('Payment successful but recording failed. Contact support with ID: ' + response.razorpay_payment_id, 'warning', 8000);
-            } finally { btn.disabled = false; btn.innerHTML = BTN_LABEL; }
-          },
-          modal: { ondismiss: () => { btn.disabled = false; btn.innerHTML = BTN_LABEL; } }
-        };
+        // Save donor info for success modal (restored after PhonePe redirect)
+        try { sessionStorage.setItem('fwfLastDonor', JSON.stringify({ name: donateFormData.name||'', email: donateFormData.email||'', mobile: donateFormData.mobile||'', amount: donateFormData.amount||'', want80g: !!donateFormData.want80g })); } catch(e){}
+        window.location.href = phonePeData.redirectUrl;
+        return;
       }
 
       const rzp = new Razorpay(options);
@@ -1615,6 +1593,53 @@
   partnerModal.addEventListener('click', (e)=>{ if(e.target===partnerModal) closeModal(partnerModal); });
   document.getElementById('partnerForm').addEventListener('submit', (e)=>{ e.preventDefault(); if(!e.target.checkValidity()){ e.target.reportValidity(); return;} FWF_Notify.toast('Thanks! CSR partnership request received. Our team will contact you.', 'success', 5000); closeModal(partnerModal); });
 
+  (function handlePhonePeReturn(){
+    const p = new URLSearchParams(location.search);
+    const status = p.get('phonepe');
+    if(!status) return;
+
+    const cleanup = (keepHash=false) => {
+      const next = new URL(location.href);
+      ['phonepe','phonepe_message','donationId','amount','paymentId'].forEach(key => next.searchParams.delete(key));
+      const finalUrl = next.pathname + (next.search ? next.search : '') + (keepHash ? next.hash : '');
+      history.replaceState({}, '', finalUrl || location.pathname);
+    };
+
+    if(status === 'success'){
+      const amount = p.get('amount') || '0';
+      const donationId = p.get('donationId') || '';
+      const paymentId = p.get('paymentId') || '';
+      const _donor = JSON.parse(sessionStorage.getItem('fwfLastDonor') || '{}');
+      const successPayload = {
+        amount, donationId, paymentId,
+        name:    _donor.name  || '',
+        email:   _donor.email || '',
+        want80g: _donor.want80g,
+        gateway: 'PhonePe',
+        date: new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+      };
+      // This handler runs in an earlier script block, so queue data if modal helpers are defined later.
+      if (typeof showDonationSuccess === 'function') {
+        showDonationSuccess(successPayload);
+        sessionStorage.removeItem('fwfDonRefCode');
+        sessionStorage.removeItem('fwfLastDonor');
+      } else {
+        sessionStorage.setItem('fwfPhonePeSuccessPayload', JSON.stringify(successPayload));
+      }
+      cleanup(false);
+      return;
+    }
+
+    if(status === 'pending'){
+      FWF_Notify.toast(p.get('phonepe_message') || 'Your PhonePe payment is still pending. Please wait a moment and try again.', 'warning', 6000);
+      cleanup(true);
+      return;
+    }
+
+    FWF_Notify.toast(p.get('phonepe_message') || 'PhonePe payment was not completed. Please try again.', 'error', 6000);
+    cleanup(true);
+  })();
+
   // Auto-open donateModal when navigated via URL hash (placed last, after all vars/fns are defined)
   if(window.location.hash === '#donateModal') {
     resetDonate(); openModal(donateModal);
@@ -1671,6 +1696,241 @@
       }
     })();
   }
+</script>
+
+<!-- ===== DONATION SUCCESS MODAL ===== -->
+<style>
+@keyframes donCheckPop{0%{transform:scale(.3);opacity:0}65%{transform:scale(1.18)}100%{transform:scale(1);opacity:1}}
+@keyframes donCardSlide{from{transform:translateY(36px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes donRipple{0%{transform:scale(1);opacity:.6}100%{transform:scale(3);opacity:0}}
+#donSuccessCard{animation:donCardSlide .38s cubic-bezier(.22,1,.36,1) forwards}
+#donSuccessCheck{animation:donCheckPop .55s cubic-bezier(.26,1.48,.67,.96) forwards}
+.don-ripple{position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,.35);animation:donRipple 1.6s ease-out .3s infinite;pointer-events:none}
+</style>
+
+<div id="donSuccessModal" onclick="if(event.target===this)closeDonSuccessModal()" style="display:none;position:fixed;inset:0;z-index:5000;background:rgba(15,23,42,.78);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px 12px;overflow-y:auto">
+  <div id="donSuccessCard" style="background:#fff;border-radius:24px;max-width:440px;width:100%;box-shadow:0 32px 80px rgba(0,0,0,.35);overflow:hidden;position:relative;margin:auto">
+
+    <!-- Green gradient header -->
+    <div style="background:linear-gradient(135deg,#15803d 0%,#16a34a 50%,#4ade80 100%);padding:36px 24px 26px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
+      <div style="position:absolute;bottom:-30px;left:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
+      <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px">
+        <div class="don-ripple"></div>
+        <div id="donSuccessCheck" style="width:80px;height:80px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.65);position:relative;z-index:1">
+          <svg viewBox="0 0 52 52" width="46" height="46" fill="none"><path d="M13 27 L22 36 L39 16" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div style="color:#fff;font-size:1.75rem;font-weight:900;margin:0 0 6px;text-shadow:0 2px 10px rgba(0,0,0,.2)">Payment Successful! 🎉</div>
+      <div style="color:rgba(255,255,255,.85);font-size:0.93rem">Your donation empowers women across India 💚</div>
+    </div>
+
+    <!-- Receipt body -->
+    <div style="padding:24px 20px">
+
+      <!-- I Support FWF badge -->
+      <div style="text-align:center;margin-bottom:14px">
+        <div style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:1.5px solid #fbbf24;border-radius:30px;padding:7px 18px;font-size:0.82rem;font-weight:800;color:#92400e;letter-spacing:.03em">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          I Support FWF
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        </div>
+      </div>
+
+      <!-- Big amount -->
+      <div style="text-align:center;margin-bottom:20px">
+        <div id="donSuccessAmt" style="font-size:2.8rem;font-weight:900;color:#16a34a;line-height:1;letter-spacing:-1px"></div>
+        <div id="donSuccessGateway" style="color:#64748b;font-size:0.82rem;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px"></div>
+      </div>
+
+      <!-- Receipt card -->
+      <div style="border:2px dashed #86efac;border-radius:16px;padding:16px 14px;background:linear-gradient(135deg,#f0fdf4,#f7fee7);margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed #86efac">
+          <img src="/assets/images/logo.png" style="width:38px;height:38px;border-radius:10px;object-fit:contain;background:#fff;padding:3px;border:1px solid #d1fae5" onerror="this.style.display='none'">
+          <div style="flex:1">
+            <div style="font-weight:800;font-size:0.88rem;color:#166534;line-height:1.25">Foundris Welfare Foundation</div>
+            <div style="font-size:0.72rem;color:#6b7280;margin-top:2px">80G Registered NGO · India</div>
+          </div>
+          <div style="background:#dcfce7;color:#166534;font-size:0.7rem;font-weight:800;padding:3px 10px;border-radius:20px">VERIFIED ✓</div>
+        </div>
+        <div id="donSuccessRows" style="display:flex;flex-direction:column;gap:9px;font-size:0.85rem"></div>
+      </div>
+
+      <!-- 80G note -->
+      <div id="don80gNote" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:9px 13px;border-radius:10px;font-size:0.8rem;font-weight:600;margin-bottom:16px;text-align:center">
+        <i class="fa-solid fa-envelope-open-text"></i> 80G Tax Receipt will be sent to your registered email
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <button onclick="downloadDonationReceipt(window._donSuccessData)" style="display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);color:#fff;border:none;border-radius:12px;padding:13px;font-size:0.92rem;font-weight:700;cursor:pointer;width:100%" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+          <i class="fa-solid fa-file-arrow-down"></i> Download Receipt / PDF
+        </button>
+        <button onclick="shareOnWhatsAppDonation(window._donSuccessData)" style="display:flex;align-items:center;justify-content:center;gap:9px;background:#25d366;color:#fff;border:none;border-radius:12px;padding:13px;font-size:0.92rem;font-weight:700;cursor:pointer;width:100%" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.82 2.049c.106.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.907.129 1.249.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg>
+          Share on WhatsApp
+        </button>
+        <button onclick="closeDonSuccessModal()" style="background:transparent;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px;font-size:0.88rem;font-weight:700;cursor:pointer;color:#64748b;width:100%" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+          Done ✓
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+window._donSuccessData = null;
+
+function closeDonSuccessModal(){
+  document.getElementById('donSuccessModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function showDonationSuccess(data){
+  window._donSuccessData = data;
+  const amtN = Number(data.amount)||0;
+  const dateStr = data.date || new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+
+  document.getElementById('donSuccessAmt').textContent = '\u20B9'+amtN.toLocaleString('en-IN');
+  document.getElementById('donSuccessGateway').innerHTML =
+    '<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> Payment Confirmed \u00B7 '+dateStr;
+
+  const rows = [];
+  if(data.donationId) rows.push(['Donation ID', data.donationId]);
+  if(data.paymentId)  rows.push(['Transaction ID', data.paymentId]);
+  if(data.name)       rows.push(['Donor', data.name]);
+  if(data.email)      rows.push(['Email', data.email]);
+  rows.push(['Amount', '\u20B9'+amtN.toLocaleString('en-IN')]);
+  rows.push(['Date', dateStr]);
+  rows.push(['Status', '<span style="color:#16a34a;font-weight:800">\u2705 Confirmed</span>']);
+
+  document.getElementById('donSuccessRows').innerHTML = rows.map(([k,v])=>
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">'+
+    '<span style="color:#6b7280;flex-shrink:0">'+k+'</span>'+
+    '<span style="font-weight:700;color:#15803d;text-align:right;word-break:break-all">'+v+'</span></div>'
+  ).join('');
+
+  const n80g = document.getElementById('don80gNote');
+  if(n80g) n80g.style.display = (data.want80g || data.email) ? '' : 'none';
+
+  // Re-run animations
+  const chk = document.getElementById('donSuccessCheck');
+  if(chk){ chk.style.animation='none'; void chk.offsetWidth; chk.style.animation=''; }
+  const card = document.getElementById('donSuccessCard');
+  if(card){ card.style.animation='none'; void card.offsetWidth; card.style.animation=''; }
+
+  const m = document.getElementById('donSuccessModal');
+  m.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+(function renderQueuedPhonePeSuccess(){
+  const raw = sessionStorage.getItem('fwfPhonePeSuccessPayload');
+  if(!raw) return;
+  try{
+    const data = JSON.parse(raw);
+    if(data && typeof data === 'object') showDonationSuccess(data);
+  }catch(_e){
+    // Ignore malformed cached payload and clear it.
+  }
+  sessionStorage.removeItem('fwfPhonePeSuccessPayload');
+  sessionStorage.removeItem('fwfDonRefCode');
+  sessionStorage.removeItem('fwfLastDonor');
+})();
+
+function downloadDonationReceipt(data){
+  if(!data) return;
+  const amtN = Number(data.amount)||0;
+  const dateStr = data.date || new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title>FWF Donation Receipt ${data.donationId||''}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',Arial,sans-serif;background:#f0fdf4;padding:32px 16px;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+    .card{background:#fff;border-radius:20px;max-width:520px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.12);overflow:hidden}
+    .top{background:linear-gradient(135deg,#15803d,#22c55e,#4ade80);padding:32px 28px 24px;text-align:center;color:#fff}
+    .top img{width:64px;height:64px;border-radius:14px;object-fit:contain;background:rgba(255,255,255,.2);padding:7px;margin-bottom:12px}
+    .top h1{font-size:1.5rem;font-weight:900;margin-bottom:4px}
+    .top p{opacity:.85;font-size:0.88rem}
+    .body{padding:28px}
+    .amt-box{text-align:center;background:#f0fdf4;border:2px solid #86efac;border-radius:14px;padding:20px;margin-bottom:22px}
+    .amt-box .amt{font-size:3rem;font-weight:900;color:#16a34a;line-height:1}
+    .amt-box .sub{color:#4b7c57;font-size:0.88rem;margin-top:5px}
+    table{width:100%;border-collapse:collapse;font-size:0.88rem}
+    tr td{padding:10px 0;border-bottom:1px solid #f1f5f9;vertical-align:top}
+    tr:last-child td{border-bottom:none}
+    td:first-child{color:#6b7280;width:42%}
+    td:last-child{font-weight:700;color:#1e293b;text-align:right;word-break:break-all}
+    .badge{display:inline-block;background:#dcfce7;color:#166534;padding:3px 10px;border-radius:20px;font-size:0.8rem;font-weight:800}
+    .note{margin-top:20px;padding:13px;background:#eff6ff;border-radius:10px;font-size:0.8rem;color:#1e40af;line-height:1.6}
+    .footer{background:#f8fafc;padding:16px 28px;border-top:1px solid #e2e8f0;text-align:center;color:#94a3b8;font-size:0.75rem;line-height:1.7}
+    .print-btn{margin-top:20px;text-align:center}
+    .print-btn button{background:linear-gradient(135deg,#1e3a8a,#3b82f6);color:#fff;border:none;border-radius:10px;padding:12px 30px;font-size:0.95rem;font-weight:800;cursor:pointer;margin:0 6px}
+    .print-btn .close-btn{background:#f1f5f9;color:#475569}
+    @media print{body{background:#fff;padding:0}.card{box-shadow:none;border-radius:0;max-width:100%}.print-btn{display:none}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <img src="https://www.fwfindia.org/assets/images/logo.png" alt="FWF" onerror="this.style.display='none'">
+      <h1>Donation Receipt</h1>
+      <p>Foundris Welfare Foundation &middot; 80G Registered NGO</p>
+    </div>
+    <div class="body">
+      <div class="amt-box">
+        <div class="amt">&#8377;${amtN.toLocaleString('en-IN')}</div>
+        <div class="sub">One-time Donation · ${dateStr}</div>
+      </div>
+      <table>
+        ${data.donationId ? `<tr><td>Donation ID</td><td>${data.donationId}</td></tr>` : ''}
+        ${data.paymentId  ? `<tr><td>Transaction ID</td><td>${data.paymentId}</td></tr>` : ''}
+        ${data.name       ? `<tr><td>Donor Name</td><td>${data.name}</td></tr>` : ''}
+        ${data.email      ? `<tr><td>Email</td><td>${data.email}</td></tr>` : ''}
+        <tr><td>Amount</td><td>&#8377;${amtN.toLocaleString('en-IN')}</td></tr>
+        <tr><td>Date</td><td>${dateStr}</td></tr>
+        <tr><td>Status</td><td><span class="badge">&#10003; Payment Confirmed</span></td></tr>
+      </table>
+      <div class="note">
+        <strong>Note:</strong> This is a system-generated receipt for your records.${(data.want80g||data.email)?' An official 80G tax receipt will be emailed to you.':''}
+        For queries: <strong>support@fwfindia.org</strong>
+      </div>
+      <div class="print-btn">
+        <button onclick="window.print()">&#128424; Print / Save as PDF</button>
+        <button class="close-btn" onclick="window.close()">Close</button>
+      </div>
+    </div>
+    <div class="footer">
+      Foundris Welfare Foundation &middot; www.fwfindia.org &middot; support@fwfindia.org<br>
+      <span style="font-size:0.7rem;letter-spacing:.05em;text-transform:uppercase;color:#cbd5e1">System generated receipt &middot; No signature required</span>
+    </div>
+  </div>
+</body></html>`;
+  const w = window.open('','_blank','width=620,height=820,scrollbars=yes,resizable=yes');
+  if(w){ w.document.write(html); w.document.close(); }
+  else alert('Please allow popups to download the receipt.');
+}
+
+function shareOnWhatsAppDonation(data){
+  if(!data) return;
+  const amtN = Number(data.amount)||0;
+  const dateStr = data.date || new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const donId = data.donationId || '';
+  const txnId = data.paymentId || '';
+  const msg = '\uD83C\uDF89 *Donation Successful!*\n\n' +
+    'I just donated *\u20B9'+amtN.toLocaleString('en-IN')+'* to *Foundris Welfare Foundation (FWF)* \uD83D\uDC9A\n\n' +
+    '\uD83D\uDCCB Details:\n' +
+    '\u2022 Amount: \u20B9'+amtN.toLocaleString('en-IN')+'\n' +
+    (donId ? '\u2022 Donation ID: '+donId+'\n' : '') +
+    (txnId ? '\u2022 Transaction ID: '+txnId+'\n' : '') +
+    '\u2022 Date: '+dateStr+'\n\n' +
+    '\u2B50 *I Support FWF* \u2B50\n' +
+    'FWF empowers women through skill training & livelihood support.';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
 </script>
 
   <!-- Mobile Bottom Tab Bar -->

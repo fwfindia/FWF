@@ -118,9 +118,13 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/app/sw.js', { scope: '/app/', updateViaCache: 'none' }).then(reg => reg.update()).catch(() => {});
     }
-    setTimeout(() => {
-      const token = localStorage.getItem('fwf-token');
-      window.location.replace(token ? '/app/dashboard' : '/app/home');
+    setTimeout(async () => {
+      try {
+        const response = await fetch('/api/member/me', { credentials: 'include' });
+        window.location.replace(response.ok ? '/app/dashboard' : '/app/home');
+      } catch (_) {
+        window.location.replace('/app/home');
+      }
     }, 1800);
   </script>
 </body>
