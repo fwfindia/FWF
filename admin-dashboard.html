@@ -2722,8 +2722,8 @@ async function loadDashboard(){
     loadPostsCount();
   } catch(e){
     if(e.status === 401 || e.status === 403){
-      notify('Session expired. Redirecting to login...', 'error');
-      setTimeout(() => location.href = '/admin/login', 2000);
+      sessionStorage.removeItem('admin_token');
+      location.href = '/admin/login';
     } else {
       const banner = document.getElementById('dashErrorBanner');
       const msg = document.getElementById('dashErrorMsg');
@@ -3907,13 +3907,17 @@ document.getElementById('rpSubmit').addEventListener('click', async ()=>{
 document.getElementById('logoutBtn').addEventListener('click', ()=>{
   if(typeof FWF_Notify !== 'undefined'){
     FWF_Notify.confirm('Logout from admin panel?', async ()=>{
-      await AUTH.api('/api/auth/logout',{method:'POST'});
+      await AUTH.api('/api/auth/logout',{method:'POST'}).catch(()=>{});
+      sessionStorage.removeItem('admin_token');
       notify('Logged out','success');
       setTimeout(()=> location.href = '/', 1000);
     });
   } else {
     if(confirm('Logout?')){
-      AUTH.api('/api/auth/logout',{method:'POST'}).finally(()=> location.href = '/');
+      AUTH.api('/api/auth/logout',{method:'POST'}).catch(()=>{}).finally(()=>{
+        sessionStorage.removeItem('admin_token');
+        location.href = '/';
+      });
     }
   }
 });

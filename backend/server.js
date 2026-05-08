@@ -1882,7 +1882,7 @@ app.post('/api/admin/login', rateLimit(60000, 5), async (req, res) => {
   if (!bcrypt.compareSync(password, u.password_hash)) return res.status(400).json({ error: 'Invalid credentials' });
   const token = signToken({ uid: u._id.toString(), role: u.role, memberId: u.member_id, name: u.name });
   res.cookie('token', token, AUTH_COOKIE_OPTIONS);
-  res.json({ ok: true });
+  res.json({ ok: true, token });
 });
 
 app.post('/api/auth/logout', (req, res) => {
