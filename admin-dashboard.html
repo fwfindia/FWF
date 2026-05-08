@@ -4800,7 +4800,7 @@ async function relinkParticipation(enrollmentNumber){
   }
 }
 
-
+function exportParticipantsCSV(){
   if(!pParticipantsCache.length){ alert('No data to export'); return; }
   const rows = [['#','Name','Member ID','Enrollment','Payment Status','Amount','Status','Score','Submitted At','Enrolled On']];
   pParticipantsCache.forEach((p,i)=>{
