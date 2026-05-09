@@ -2299,6 +2299,7 @@ async function startMembershipUpgrade(){
         }
       }
     };
+    await loadRazorpaySDK();
     const rzp = new Razorpay(opt);
     rzp.open();
   } catch(e){
@@ -3940,6 +3941,7 @@ async function enrollInQuiz(quizId, title, fee){
       },
       prefill: { name: memberData?.user?.name || '' }
     };
+    await loadRazorpaySDK();
     const rzp = new Razorpay(opt); rzp.open();
   } catch(e){ notify(e.message || 'Failed','error'); }
   }); // end FWF_Notify.confirm
