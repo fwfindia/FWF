@@ -3673,13 +3673,22 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
       .limit(3)
       .lean();
 
-    // Enrich quiz winners with avatar_url from User table
+    // Enrich quiz winners with avatar_url and real member_id from User table
     const quizWinners = await Promise.all(quizzesWithWinners.map(async q => {
       const w = q.winners[0];
       let avatar_url = '';
-      if (w?.member_id) {
-        const wUser = await User.findOne({ member_id: w.member_id }).select('avatar_url').lean();
-        avatar_url = wUser?.avatar_url || '';
+      let real_member_id = '';
+      let winner_name = w?.name || 'Unknown';
+      if (w?.user_id) {
+        const wUser = await User.findById(w.user_id).select('avatar_url member_id name').lean();
+        if (wUser) {
+          avatar_url = wUser.avatar_url || '';
+          real_member_id = wUser.member_id || '';
+          if (wUser.name) winner_name = wUser.name;
+        }
+      } else if (w?.member_id) {
+        const wUser = await User.findOne({ member_id: w.member_id }).select('avatar_url member_id').lean();
+        if (wUser) { avatar_url = wUser.avatar_url || ''; real_member_id = wUser.member_id || ''; }
       }
       return {
         quiz_id: q.quiz_id,
@@ -3687,8 +3696,8 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
         quiz_type: q.type,
         result_date: q.result_date,
         total_participants: q.total_participants || 0,
-        winner_name: w?.name || 'Unknown',
-        winner_member_id: w?.member_id || '',
+        winner_name,
+        winner_member_id: real_member_id,
         prize_amount: w?.prize_amount || 0,
         winner_avatar: avatar_url
       };
@@ -3707,16 +3716,25 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
     if (lastMonthQuiz) {
       const w = lastMonthQuiz.winners[0];
       let avatar_url = '';
-      if (w?.member_id) {
-        const wUser = await User.findOne({ member_id: w.member_id }).select('avatar_url').lean();
-        avatar_url = wUser?.avatar_url || '';
+      let real_member_id = '';
+      let winner_name = w?.name || 'Unknown';
+      if (w?.user_id) {
+        const wUser = await User.findById(w.user_id).select('avatar_url member_id name').lean();
+        if (wUser) {
+          avatar_url = wUser.avatar_url || '';
+          real_member_id = wUser.member_id || '';
+          if (wUser.name) winner_name = wUser.name;
+        }
+      } else if (w?.member_id) {
+        const wUser = await User.findOne({ member_id: w.member_id }).select('avatar_url member_id').lean();
+        if (wUser) { avatar_url = wUser.avatar_url || ''; real_member_id = wUser.member_id || ''; }
       }
       lastMonthWinner = {
         quiz_title: lastMonthQuiz.title,
         quiz_type: lastMonthQuiz.type,
         result_date: lastMonthQuiz.result_date,
-        winner_name: w?.name || 'Unknown',
-        winner_member_id: w?.member_id || '',
+        winner_name,
+        winner_member_id: real_member_id,
         prize_amount: w?.prize_amount || 0,
         winner_avatar: avatar_url
       };
