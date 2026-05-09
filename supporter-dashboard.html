@@ -3531,7 +3531,6 @@ async function loadQuizWinnersHistory(){
                 </td>
                 <td style="padding:8px 10px">
                   <div style="font-weight:700;color:var(--text-primary)">${typeEmoji[w.quiz_type]||'🎮'} ${typeName[w.quiz_type]||w.quiz_type}</div>
-                  <div style="font-size:10px;color:var(--text-muted)">${w.total_participants} participants</div>
                 </td>
                 <td style="padding:8px 10px;text-align:right;font-weight:900;color:#d97706">₹${fmtN(w.prize_amount)}</td>
                 <td style="padding:8px 10px;text-align:right;color:var(--text-muted);font-size:11px">${w.result_date ? new Date(w.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '-'}</td>
