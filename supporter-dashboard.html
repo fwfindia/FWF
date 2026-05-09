@@ -2582,6 +2582,12 @@ async function loadDashboard(){
     // Load fame wall asynchronously (non-blocking)
     loadFameWall().catch(e => console.error('Fame wall load err:', e));
 
+    // Load quiz cards on dashboard home (non-blocking); marks quizLoaded so tab won't re-fetch
+    if(!quizLoaded){
+      quizLoaded = true;
+      loadActiveQuizzes().catch(e => console.error('Quiz preload err:', e));
+    }
+
   } catch(e){
     if(e.status === 401 || e.status === 403 || e.status === 404){
       notify('Session expired. Redirecting to login...', 'error');
