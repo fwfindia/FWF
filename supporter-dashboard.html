@@ -2615,12 +2615,6 @@ function populateProfile(data){
   document.getElementById('dashCardMobile').textContent = u.mobile || '—';
   document.getElementById('dashCardJoined').textContent = fmtDate(u.created_at);
 
-  // Profile ID Card
-  document.getElementById('cardName').textContent = u.name || 'Supporter';
-  document.getElementById('cardId').textContent = u.member_id || '';
-  document.getElementById('cardMobile').textContent = u.mobile || '—';
-  document.getElementById('cardJoined').textContent = fmtDate(u.created_at);
-
   // Feed Avatar
   const feedAvatar = document.getElementById('feedUserAvatar');
   if(feedAvatar) feedAvatar.textContent = initials;
