@@ -3673,8 +3673,14 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
       .limit(3)
       .lean();
 
-    const quizWinners = quizzesWithWinners.map(q => {
+    // Enrich quiz winners with avatar_url from User table
+    const quizWinners = await Promise.all(quizzesWithWinners.map(async q => {
       const w = q.winners[0];
+      let avatar_url = '';
+      if (w?.member_id) {
+        const wUser = await User.findOne({ member_id: w.member_id }).select('avatar_url').lean();
+        avatar_url = wUser?.avatar_url || '';
+      }
       return {
         quiz_id: q.quiz_id,
         quiz_title: q.title,
@@ -3683,9 +3689,10 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
         total_participants: q.total_participants || 0,
         winner_name: w?.name || 'Unknown',
         winner_member_id: w?.member_id || '',
-        prize_amount: w?.prize_amount || 0
+        prize_amount: w?.prize_amount || 0,
+        winner_avatar: avatar_url
       };
-    });
+    }));
 
     // Last month's specific lucky draw winner
     const now = new Date();
@@ -3699,13 +3706,19 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
     let lastMonthWinner = null;
     if (lastMonthQuiz) {
       const w = lastMonthQuiz.winners[0];
+      let avatar_url = '';
+      if (w?.member_id) {
+        const wUser = await User.findOne({ member_id: w.member_id }).select('avatar_url').lean();
+        avatar_url = wUser?.avatar_url || '';
+      }
       lastMonthWinner = {
         quiz_title: lastMonthQuiz.title,
         quiz_type: lastMonthQuiz.type,
         result_date: lastMonthQuiz.result_date,
         winner_name: w?.name || 'Unknown',
         winner_member_id: w?.member_id || '',
-        prize_amount: w?.prize_amount || 0
+        prize_amount: w?.prize_amount || 0,
+        winner_avatar: avatar_url
       };
     }
 
@@ -3726,18 +3739,21 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
       const td = topDonorAgg[0];
       let donorName = td.donor_name || 'Anonymous';
       let memberDisplayId = '';
+      let avatar_url = '';
       if (td._id) {
-        const tdUser = await User.findById(td._id).select('name member_id').lean();
+        const tdUser = await User.findById(td._id).select('name member_id avatar_url').lean();
         if (tdUser) {
           donorName = tdUser.name;
           memberDisplayId = tdUser.member_id || '';
+          avatar_url = tdUser.avatar_url || '';
         }
       }
       topDonor = {
         name: donorName,
         member_id: memberDisplayId,
         total_donated: td.total,
-        donation_count: td.count
+        donation_count: td.count,
+        avatar_url
       };
     }
 

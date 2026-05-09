@@ -1051,7 +1051,7 @@ body.modal-open{
         <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏆</div>
         <div>
           <h3 style="margin:0;font-size:15px;font-weight:900;color:var(--text-primary)">Fame Wall</h3>
-          <p style="margin:0;font-size:11px;color:var(--text-muted)">Lucky draw winners & top donation collectors</p>
+          <p style="margin:0;font-size:11px;color:var(--text-muted)">Quiz Winner and Top Donation</p>
         </div>
       </div>
 
@@ -1061,11 +1061,11 @@ body.modal-open{
         <!-- Quiz Winners -->
         <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:14px;padding:12px">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
-            <div style="width:28px;height:28px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🎲</div>
+            <div style="width:28px;height:28px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">🦉</div>
             <span style="font-size:11px;font-weight:800;color:#d97706">Quiz Winners</span>
           </div>
           <div id="fwQuizWinners" style="display:flex;flex-direction:column;gap:6px">
-            <div class="skeleton-loader" style="height:48px;border-radius:10px"></div>
+            <div class="skeleton-loader" style="height:100px;border-radius:12px"></div>
             <div class="skeleton-loader" style="height:48px;border-radius:10px"></div>
           </div>
         </div>
@@ -1077,7 +1077,7 @@ body.modal-open{
             <span style="font-size:11px;font-weight:800;color:#059669">Top Donation</span>
           </div>
           <div id="fwTopDonor" style="display:flex;flex-direction:column;gap:6px">
-            <div class="skeleton-loader" style="height:48px;border-radius:10px"></div>
+            <div class="skeleton-loader" style="height:100px;border-radius:12px"></div>
           </div>
         </div>
 
@@ -3502,6 +3502,14 @@ async function loadActivitiesPage(){
 }
 
 // --- FAME WALL ---
+function fwAvatar(name, url, size=52){
+  if(url) return `<img src="${url}" alt="${name}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;border:2px solid #fff;flex-shrink:0">`;
+  const initials = (name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  const colors = ['#f59e0b','#d97706','#059669','#0ea5e9','#8b5cf6','#ec4899'];
+  const bg = colors[(name||'').charCodeAt(0)%colors.length];
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*.38)}px;font-weight:900;color:#fff;flex-shrink:0;border:2px solid #fff">${initials}</div>`;
+}
+
 async function loadFameWall(){
   try {
     const data = await AUTH.api('/api/member/fame-wall');
@@ -3515,51 +3523,46 @@ async function loadFameWall(){
       if(tdEl0) tdEl0.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी नहीं, बाद में आईएगा</p>';
       return;
     }
-    const typeEmoji = { monthly:'🗓️', half_yearly:'📅', yearly:'🏆' };
-    const typeName  = { monthly:'Monthly', half_yearly:'Half-Yearly', yearly:'Yearly' };
+    const typeName = { monthly:'Monthly', half_yearly:'Half-Yearly', yearly:'Yearly' };
 
-    // Render quiz winners
+    // --- Render Quiz Winners ---
     const qwEl = document.getElementById('fwQuizWinners');
     if(qwEl){
-      let html = '';
-      // Last month winner — special highlight
-      if(data.lastMonthWinner){
-        const lm = data.lastMonthWinner;
-        html += `<div style="background:linear-gradient(135deg,#fef3c7,#fffbeb);border:2px solid #f59e0b;border-radius:12px;padding:10px 14px;margin-bottom:4px">
-          <div style="font-size:10px;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">🎉 पिछले महीने का Winner</div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🥇</div>
+      // Latest winner = first in quizWinners (sorted desc) or lastMonthWinner
+      const latest = data.quizWinners?.[0] || data.lastMonthWinner;
+      if(!latest){
+        qwEl.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी तक कोई quiz result नहीं</p>';
+      } else {
+        const month = latest.result_date ? new Date(latest.result_date).toLocaleDateString('en-IN',{month:'long',year:'numeric'}) : '';
+        let html = `
+          <div style="background:#fff;border:1.5px solid #fbbf24;border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:10px;font-weight:800;color:#d97706;letter-spacing:.5px;margin-bottom:8px">🎉 Congratulations!</div>
+            <div style="display:flex;justify-content:center;margin-bottom:8px">
+              ${fwAvatar(latest.winner_name, latest.winner_avatar, 56)}
+            </div>
+            <div style="font-size:13px;font-weight:900;color:var(--text-primary);margin-bottom:2px">${latest.winner_name}</div>
+            <div style="font-size:10px;color:#d97706;font-weight:700;margin-bottom:2px">${latest.winner_member_id||''}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">${latest.quiz_title||''}</div>
+            <div style="font-size:10px;color:var(--text-muted)">${month}</div>
+          </div>`;
+        // Remaining winners (skip first since shown above)
+        const rest = (data.quizWinners||[]).slice(1);
+        rest.forEach((w,i)=>{
+          html += `
+          <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #fde68a;border-radius:10px;padding:8px 10px">
+            ${fwAvatar(w.winner_name, w.winner_avatar, 32)}
             <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:800;color:var(--text-primary)">${lm.winner_name}</div>
-              <div style="font-size:10px;color:var(--text-muted)">${typeEmoji[lm.quiz_type]||'🎮'} ${typeName[lm.quiz_type]||lm.quiz_type}${lm.winner_member_id?' · '+lm.winner_member_id:''}</div>
+              <div style="font-size:11px;font-weight:800;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w.winner_name}</div>
+              <div style="font-size:10px;color:var(--text-muted)">${typeName[w.quiz_type]||w.quiz_type}${w.winner_member_id?' · '+w.winner_member_id:''}</div>
             </div>
-            <div style="text-align:right;flex-shrink:0">
-              <div style="font-size:14px;font-weight:900;color:#d97706">₹${fmtN(lm.prize_amount)}</div>
-              <div style="font-size:10px;color:var(--text-muted)">${lm.result_date?new Date(lm.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):''}</div>
-            </div>
-          </div>
-        </div>`;
+            <div style="font-size:12px;font-weight:900;color:#d97706;flex-shrink:0">₹${fmtN(w.prize_amount)}</div>
+          </div>`;
+        });
+        qwEl.innerHTML = html;
       }
-      if(data.quizWinners?.length){
-        html += data.quizWinners.map((w,i) => `
-          <div style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#fffbeb,#fef9eb);border:1px solid #fde68a;border-radius:12px;padding:10px 14px">
-            <div style="width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${i===0?'🥇':i===1?'🥈':'🥉'}</div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:800;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w.winner_name}</div>
-              <div style="font-size:10px;color:var(--text-muted)">${typeEmoji[w.quiz_type]||'🎮'} ${typeName[w.quiz_type]||w.quiz_type} · ${w.winner_member_id || ''}</div>
-            </div>
-            <div style="text-align:right;flex-shrink:0">
-              <div style="font-size:14px;font-weight:900;color:#d97706">₹${fmtN(w.prize_amount)}</div>
-              <div style="font-size:10px;color:var(--text-muted)">${w.result_date ? new Date(w.result_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : ''}</div>
-            </div>
-          </div>`).join('');
-      } else if(!data.lastMonthWinner){
-        html = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी तक कोई quiz result declare नहीं हुआ</p>';
-      }
-      qwEl.innerHTML = html;
     }
 
-    // Render top donor
+    // --- Render Top Donor ---
     const tdEl = document.getElementById('fwTopDonor');
     if(tdEl){
       if(!data.topDonor){
@@ -3567,16 +3570,13 @@ async function loadFameWall(){
       } else {
         const td = data.topDonor;
         tdEl.innerHTML = `
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:40px;height:40px;background:linear-gradient(135deg,#059669,#10b981);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💚</div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:14px;font-weight:900;color:var(--text-primary)">${td.name}</div>
-              <div style="font-size:11px;color:var(--text-muted)">${td.member_id || ''} · ${td.donation_count} donations</div>
+          <div style="background:#fff;border:1.5px solid #6ee7b7;border-radius:12px;padding:12px;text-align:center">
+            <div style="display:flex;justify-content:center;margin-bottom:8px">
+              ${fwAvatar(td.name, td.avatar_url, 56)}
             </div>
-            <div style="text-align:right;flex-shrink:0">
-              <div style="font-size:16px;font-weight:900;color:#059669">₹${fmtN(td.total_donated)}</div>
-              <div style="font-size:10px;color:var(--text-muted)">Total Collected</div>
-            </div>
+            <div style="font-size:13px;font-weight:900;color:var(--text-primary);margin-bottom:2px">${td.name}</div>
+            <div style="font-size:10px;color:#059669;font-weight:700;margin-bottom:8px">${td.member_id||''} · ₹${fmtN(td.total_donated)}</div>
+            <div style="font-size:11px;color:#065f46;background:#d1fae5;border-radius:8px;padding:6px 8px;line-height:1.4">💚 Thanks for supporting our mission!</div>
           </div>`;
       }
     }
