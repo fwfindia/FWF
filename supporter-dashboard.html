@@ -1047,7 +1047,7 @@ body.modal-open{
 
     <!-- ── FAME WALL ── -->
     <div class="content-card" style="margin-top:0;background:linear-gradient(135deg,#fffbeb,#fff);border:1.5px solid #fde68a">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
         <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏆</div>
         <div>
           <h3 style="margin:0;font-size:15px;font-weight:900;color:var(--text-primary)">Fame Wall</h3>
@@ -1055,18 +1055,25 @@ body.modal-open{
         </div>
       </div>
 
-      <!-- Lucky Draw Winners -->
-      <div style="margin-bottom:14px">
-        <div style="font-size:11px;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-dice"></i> Lucky Draw Winners</div>
-        <div id="fwQuizWinners" style="display:flex;flex-direction:column;gap:8px">
-          <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
-          <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
-        </div>
+      <!-- Sub-tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button id="fwTab-quiz" onclick="switchFameTab('quiz')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;border:1.5px solid #f59e0b;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;transition:.15s;font-family:inherit">
+          <i class="fa-solid fa-dice"></i> Quiz Winners
+        </button>
+        <button id="fwTab-donor" onclick="switchFameTab('donor')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;border:1.5px solid #d1fae5;background:#f0fdf4;color:#059669;transition:.15s;font-family:inherit">
+          <i class="fa-solid fa-hand-holding-heart"></i> Top Donation
+        </button>
       </div>
 
-      <!-- Top Donation Collector -->
-      <div>
-        <div style="font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-hand-holding-heart"></i> Top Donation Collector</div>
+      <!-- Tab: Quiz Winners -->
+      <div id="fwPane-quiz" style="display:flex;flex-direction:column;gap:8px">
+        <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
+        <div class="skeleton-loader" style="height:56px;border-radius:12px"></div>
+        <div id="fwQuizWinners"></div>
+      </div>
+
+      <!-- Tab: Top Donation -->
+      <div id="fwPane-donor" style="display:none">
         <div id="fwTopDonor" style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:12px 14px">
           <div class="skeleton-loader" style="height:40px;border-radius:8px"></div>
         </div>
@@ -3490,10 +3497,42 @@ async function loadActivitiesPage(){
   } catch(e){ console.error('Activities load err:', e); }
 }
 
+// --- FAME WALL TABS ---
+function switchFameTab(tab){
+  const quizPane  = document.getElementById('fwPane-quiz');
+  const donorPane = document.getElementById('fwPane-donor');
+  const quizBtn   = document.getElementById('fwTab-quiz');
+  const donorBtn  = document.getElementById('fwTab-donor');
+  if(tab === 'quiz'){
+    quizPane.style.display  = 'flex';
+    quizPane.style.flexDirection = 'column';
+    quizPane.style.gap = '8px';
+    donorPane.style.display = 'none';
+    quizBtn.style.background  = 'linear-gradient(135deg,#f59e0b,#d97706)';
+    quizBtn.style.color       = '#fff';
+    quizBtn.style.borderColor = '#f59e0b';
+    donorBtn.style.background = '#f0fdf4';
+    donorBtn.style.color      = '#059669';
+    donorBtn.style.borderColor= '#d1fae5';
+  } else {
+    donorPane.style.display = 'block';
+    quizPane.style.display  = 'none';
+    donorBtn.style.background  = 'linear-gradient(135deg,#059669,#10b981)';
+    donorBtn.style.color       = '#fff';
+    donorBtn.style.borderColor = '#059669';
+    quizBtn.style.background = '#fffbeb';
+    quizBtn.style.color      = '#d97706';
+    quizBtn.style.borderColor= '#fde68a';
+  }
+}
+
 // --- FAME WALL ---
 async function loadFameWall(){
   try {
     const data = await AUTH.api('/api/member/fame-wall');
+    // Remove skeleton loaders from quiz pane
+    const quizPane = document.getElementById('fwPane-quiz');
+    if(quizPane) quizPane.querySelectorAll('.skeleton-loader').forEach(s => s.remove());
     if(!data.ok){
       const qwEl2 = document.getElementById('fwQuizWinners');
       if(qwEl2) qwEl2.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">अभी नहीं, बाद में आईएगा</p>';
