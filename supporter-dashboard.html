@@ -1243,6 +1243,70 @@ body.modal-open{
       </div>
     </div>
 
+    <!-- ── REFERRAL HIGHLIGHT ── -->
+    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:20px;overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-card)">
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0369a1 100%);padding:16px 18px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-30px;right:-30px;width:130px;height:130px;background:rgba(255,255,255,.05);border-radius:50%;pointer-events:none"></div>
+        <div style="position:absolute;bottom:-20px;left:40px;width:80px;height:80px;background:rgba(255,255,255,.04);border-radius:50%;pointer-events:none"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;position:relative">
+          <div style="display:flex;align-items:center;gap:11px">
+            <div style="font-size:30px;line-height:1">🤝</div>
+            <div>
+              <div style="font-size:15px;font-weight:900;color:#fff;line-height:1.2">Refer &amp; Grow Together</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:3px">अपने दोस्तों को जोड़ें · मिशन बढ़ाएं · साथ बदलाव लाएं</div>
+            </div>
+          </div>
+          <button onclick="switchPage('referral')" style="background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:10px;padding:7px 13px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;flex-shrink:0;white-space:nowrap">
+            Refer Now <i class="fa-solid fa-arrow-right" style="font-size:10px"></i>
+          </button>
+        </div>
+      </div>
+      <!-- Body -->
+      <div style="padding:14px 16px">
+        <!-- Motivation points -->
+        <div style="display:grid;gap:10px;margin-bottom:14px">
+          <div style="display:flex;align-items:flex-start;gap:10px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:12px;padding:11px 13px">
+            <span style="font-size:20px;flex-shrink:0">🌱</span>
+            <div>
+              <div style="font-size:12px;font-weight:800;color:#1e40af;margin-bottom:2px">एक Referral = एक बदलाव की शुरुआत</div>
+              <div style="font-size:11px;color:#1d4ed8;line-height:1.5">जब आप किसी को FWF से जोड़ते हैं, वो इंसान एक ऐसे mission का हिस्सा बनता है जो महिलाओं और ज़रूरतमंदों की ज़िंदगी बेहतर करता है।</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px;padding:11px 13px">
+            <span style="font-size:20px;flex-shrink:0">🏆</span>
+            <div>
+              <div style="font-size:12px;font-weight:800;color:#065f46;margin-bottom:2px">ज़्यादा Referral = ज़्यादा Recognition</div>
+              <div style="font-size:11px;color:#047857;line-height:1.5">Top Referrers को Fame Wall पर feature किया जाता है। आपका नाम FWF के सबसे active supporters में शामिल होगा।</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;background:linear-gradient(135deg,#fdf4ff,#f3e8ff);border-radius:12px;padding:11px 13px">
+            <span style="font-size:20px;flex-shrink:0">💫</span>
+            <div>
+              <div style="font-size:12px;font-weight:800;color:#6b21a8;margin-bottom:2px">Community बनाएं, साथ आगे बढ़ें</div>
+              <div style="font-size:11px;color:#7e22ce;line-height:1.5">आपके refer किए हर supporter और member के साथ FWF का नेटवर्क मज़बूत होता है — और आप उस नेटवर्क के builder हैं।</div>
+            </div>
+          </div>
+        </div>
+        <!-- Referral code quick copy -->
+        <div style="background:linear-gradient(135deg,#f8fafc,#f1f5f9);border:1.5px dashed #94a3b8;border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">🔗 Your Referral Code</div>
+            <div style="font-size:15px;font-weight:900;color:var(--text-primary)" id="dashRefCode">—</div>
+          </div>
+          <button onclick="copyDashRefCode()" style="background:linear-gradient(135deg,#0369a1,#0284c7);color:#fff;border:none;border-radius:9px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:.15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+            <i class="fa-solid fa-copy"></i> Copy
+          </button>
+        </div>
+        <!-- Main CTA -->
+        <button onclick="switchPage('referral')" style="width:100%;background:linear-gradient(135deg,#0f172a,#0369a1);color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(3,105,161,.35);transition:.15s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+          <i class="fa-solid fa-user-plus" style="font-size:14px"></i>
+          अभी किसी को Refer करें
+          <i class="fa-solid fa-arrow-right" style="font-size:11px"></i>
+        </button>
+      </div>
+    </div>
+
     <!-- ── FOLLOW US ── -->
     <div class="content-card" style="margin-top:0">
       <h3 style="margin-bottom:4px"><i class="fa-solid fa-share-nodes" style="color:var(--accent)"></i> Follow Us on Social Media</h3>
@@ -2723,6 +2787,8 @@ async function loadReferral(){
     ]);
     memberData = data;
     document.getElementById('refCode').value = data.user?.referral_code || 'N/A';
+    const _dashRef = document.getElementById('dashRefCode');
+    if(_dashRef) _dashRef.textContent = data.user?.referral_code || '—';
 
     function refRow(r){
       return `<tr>
@@ -2757,6 +2823,12 @@ async function loadReferral(){
 function copyRefCode(){
   const code = document.getElementById('refCode').value;
   navigator.clipboard.writeText(code).then(() => notify('Referral code copied!', 'success')).catch(() => {});
+}
+
+function copyDashRefCode(){
+  const code = (document.getElementById('dashRefCode')?.textContent || '').trim();
+  if(!code || code === '—') return;
+  navigator.clipboard.writeText(code).then(() => notify('Referral code copied! Share करें 🤝', 'success')).catch(() => {});
 }
 
 /* ============ PENDING LINKS — localStorage helpers ============ */
