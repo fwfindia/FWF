@@ -3679,16 +3679,20 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
       let avatar_url = '';
       let real_member_id = '';
       let winner_name = w?.name || 'Unknown';
+      let wUser = null;
       if (w?.user_id) {
-        const wUser = await User.findById(w.user_id).select('avatar_url member_id name').lean();
-        if (wUser) {
-          avatar_url = wUser.avatar_url || '';
-          real_member_id = wUser.member_id || '';
-          if (wUser.name) winner_name = wUser.name;
-        }
-      } else if (w?.member_id) {
-        const wUser = await User.findOne({ member_id: w.member_id }).select('avatar_url member_id').lean();
-        if (wUser) { avatar_url = wUser.avatar_url || ''; real_member_id = wUser.member_id || ''; }
+        wUser = await User.findById(w.user_id).select('avatar_url member_id name').lean();
+      }
+      if (!wUser && w?.member_id) {
+        const isMobile = /^\d+$/.test(w.member_id);
+        wUser = isMobile
+          ? await User.findOne({ mobile: w.member_id }).select('avatar_url member_id name').lean()
+          : await User.findOne({ member_id: w.member_id }).select('avatar_url member_id name').lean();
+      }
+      if (wUser) {
+        avatar_url = wUser.avatar_url || '';
+        real_member_id = wUser.member_id || '';
+        if (wUser.name) winner_name = wUser.name;
       }
       return {
         quiz_id: q.quiz_id,
@@ -3718,16 +3722,20 @@ app.get('/api/member/fame-wall', auth(['member','supporter']), async (req, res) 
       let avatar_url = '';
       let real_member_id = '';
       let winner_name = w?.name || 'Unknown';
+      let wUserLM = null;
       if (w?.user_id) {
-        const wUser = await User.findById(w.user_id).select('avatar_url member_id name').lean();
-        if (wUser) {
-          avatar_url = wUser.avatar_url || '';
-          real_member_id = wUser.member_id || '';
-          if (wUser.name) winner_name = wUser.name;
-        }
-      } else if (w?.member_id) {
-        const wUser = await User.findOne({ member_id: w.member_id }).select('avatar_url member_id').lean();
-        if (wUser) { avatar_url = wUser.avatar_url || ''; real_member_id = wUser.member_id || ''; }
+        wUserLM = await User.findById(w.user_id).select('avatar_url member_id name').lean();
+      }
+      if (!wUserLM && w?.member_id) {
+        const isMobile = /^\d+$/.test(w.member_id);
+        wUserLM = isMobile
+          ? await User.findOne({ mobile: w.member_id }).select('avatar_url member_id name').lean()
+          : await User.findOne({ member_id: w.member_id }).select('avatar_url member_id name').lean();
+      }
+      if (wUserLM) {
+        avatar_url = wUserLM.avatar_url || '';
+        real_member_id = wUserLM.member_id || '';
+        if (wUserLM.name) winner_name = wUserLM.name;
       }
       lastMonthWinner = {
         quiz_title: lastMonthQuiz.title,
