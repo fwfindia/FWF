@@ -253,6 +253,16 @@
         let d;
         if(memberId.includes('@')) d=await apiJson('/api/admin/login',{method:'POST',body:{username:memberId,password}});
         else d=await apiJson('/api/auth/login',{method:'POST',body:{memberId,password}});
+        // Store JWT token + user info in localStorage for Bearer-token auth in app pages
+        if(d.token){
+          localStorage.setItem('fwf-token', d.token);
+          localStorage.setItem('fwf-user', JSON.stringify({
+            name: d.name,
+            memberId: d.memberId,
+            member_id: d.memberId,
+            role: d.role
+          }));
+        }
         btn.innerHTML='<i class="fas fa-check"></i> Success!';
         toast('Logged in!','success');
         setTimeout(()=>{
