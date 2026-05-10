@@ -2,7 +2,7 @@ window.AUTH = {
   async api(url, opts={}){
     // Use relative URLs — Vercel rewrites proxy /api/* to Railway backend
     // Also send Authorization header as fallback (handles cases where Vercel proxy strips Set-Cookie)
-    const storedToken = sessionStorage.getItem('admin_token') || sessionStorage.getItem('auth_token');
+    const storedToken = sessionStorage.getItem('admin_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('fwf-token');
     const headers = {'Content-Type':'application/json'};
     if(storedToken) headers['Authorization'] = 'Bearer ' + storedToken;
     const res = await fetch(url, {

@@ -84,6 +84,8 @@ const siteRoot = path.resolve(__dirname, '..');
 const ALWAYS_ALLOWED = [
   'https://www.fwfindia.org',
   'https://fwfindia.org',
+  'https://app.fwfindia.org',
+  'https://m.fwfindia.org',
   'https://fwf-alpha.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173'
