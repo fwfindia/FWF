@@ -11,7 +11,7 @@
       "permanent": true
     },
     {
-      "source": "/((?!app/|assets/|api/|supporter/|admin/).*)",
+      "source": "/((?!app/|assets/|api/|supporter/|admin/)[^.]*)",
       "has": [{ "type": "host", "value": "m.fwfindia.org" }],
       "destination": "/app/home",
       "permanent": true
@@ -23,7 +23,7 @@
       "permanent": false
     },
     {
-      "source": "/((?!app/|assets/|api/|supporter/|admin/).*)",
+      "source": "/((?!app/|assets/|api/|supporter/|admin/)[^.]*)",
       "has": [{ "type": "host", "value": "app.fwfindia.org" }],
       "destination": "/app/home",
       "permanent": false
