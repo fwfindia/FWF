@@ -746,8 +746,12 @@ body.modal-open{
   background:#fff; border-radius:var(--radius-lg);
   box-shadow:0 20px 60px rgba(0,0,0,.2);
   width:100%; max-width:500px;
+  display:flex; flex-direction:column;
+  max-height:90vh; overflow:hidden;
 }
-.modal-body{ overscroll-behavior:contain; }
+.modal-header{ flex-shrink:0; }
+.modal-body{ flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+.modal-actions{ flex-shrink:0; border-top:1px solid var(--brd,#eee); padding:12px 20px; background:var(--bg-0,#fff); }
 .modal-overlay{
   position:fixed; inset:0; z-index:500;
   background:rgba(0,0,0,.5); backdrop-filter:blur(4px);
@@ -836,7 +840,7 @@ body.modal-open{
   .feed-body{ font-size:13px; }
   .feed-actions button{ font-size:12px; }
   .modal{ padding:0; }
-  .modal-content{ max-width:100%; border-radius:16px 16px 0 0; max-height:92vh; margin-top:auto; }
+  .modal-content{ max-width:100%; border-radius:16px 16px 0 0; max-height:92vh; margin-top:auto; align-self:flex-end; }
   .modal-overlay{ padding:0; }
   .modal-card{ max-width:100%; border-radius:16px 16px 0 0; padding:20px; max-height:92vh; margin-top:auto; }
 }
@@ -1896,8 +1900,8 @@ body.modal-open{
       </div>
 
       <!-- Form screen -->
-      <div id="redeemFormScreen">
-        <div class="modal-body" style="max-height:calc(80vh - 130px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch">
+      <div id="redeemFormScreen" style="display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden">
+        <div class="modal-body">
           <div style="background:var(--accent-soft);padding:14px;border-radius:10px;margin-bottom:16px;text-align:center">
             <div style="font-size:12px;color:var(--text-muted);font-weight:700">Available Points</div>
             <div style="font-size:32px;font-weight:900;color:var(--accent)" id="availPointsDisplay">0</div>
