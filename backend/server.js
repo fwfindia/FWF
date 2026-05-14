@@ -2588,10 +2588,19 @@ app.get('/api/admin/tickets', auth('admin'), async (req, res) => {
 
   // Populate seller info
   for (const t of tickets) {
-    const u = await User.findById(t.seller_id).select('name member_id').lean();
-    if (u) { t.seller_name = u.name; t.seller_member_id = u.member_id; }
+    if (t.seller_id) {
+      const u = await User.findById(t.seller_id).select('name member_id').lean();
+      if (u) { t.seller_name = u.name; t.seller_member_id = u.member_id; }
+    }
+    // For direct purchases, resolve buyer name from user account if not stored
+    if (t.sale_type === 'direct' && !t.buyer_name && t.buyer_id) {
+      const bu = await User.findById(t.buyer_id).select('name mobile member_id').lean();
+      if (bu) { t.buyer_name = bu.name; t.buyer_contact = t.buyer_contact || bu.mobile; }
+    }
     // Format short ticket ID
     t.ticket_display_id = 'TKT-' + String(t._id).slice(-6).toUpperCase();
+    // Label: 'Direct' or 'Referral Link'
+    t.sale_type_label = t.sale_type === 'direct' ? 'Direct' : 'Referral Link';
   }
 
   res.json({
@@ -3426,7 +3435,7 @@ app.post('/api/member/quiz-enroll', auth(['member','supporter']), async (req, re
     const existing = await QuizParticipation.findOne({ quiz_id: quiz._id, user_id: req.user.uid });
     if (existing) return res.status(400).json({ error: 'आप पहले ही enrolled हैं!', enrollment: existing.enrollment_number });
 
-    const user = await User.findById(req.user.uid).select('member_id name').lean();
+    const user = await User.findById(req.user.uid).select('member_id name mobile').lean();
 
     // Generate enrollment number: FWF-{quizId}-{5 random digits}
     const randomDigits = Math.floor(10000 + Math.random() * 90000);
@@ -3501,10 +3510,25 @@ app.post('/api/member/quiz-enroll', auth(['member','supporter']), async (req, re
 
     addBreadcrumb('quiz', 'Quiz enrollment', { memberId: user.member_id, quizId: quiz.quiz_id, enrollment: enrollmentNumber });
 
+    // Record direct-purchase in QuizTicket table so admin can see it
+    QuizTicket.create({
+      seller_id: referrerId || undefined,
+      buyer_id: req.user.uid,
+      buyer_name: user.name,
+      buyer_contact: user.mobile || null,
+      quiz_ref: quiz.quiz_id,
+      quiz_id: quiz._id,
+      ticket_price: quiz.entry_fee,
+      points_earned: quizPoints,
+      ticket_status: 'converted',
+      participation_id: participation._id,
+      converted_at: new Date(),
+      sale_type: 'direct'
+    }).catch(e => console.warn('⚠️ QuizTicket record (direct) failed:', e.message));
+
     // Non-blocking SMS confirmation
-    const enrolledUser = await User.findById(req.user.uid).select('mobile').lean();
-    if (enrolledUser?.mobile) {
-      sendQuizParticipationSms({ mobile: enrolledUser.mobile, name: user.name, quizId: quiz.quiz_id })
+    if (user.mobile) {
+      sendQuizParticipationSms({ mobile: user.mobile, name: user.name, quizId: quiz.quiz_id })
         .catch(e => console.error('\u26a0\ufe0f Quiz participation SMS failed:', e.message));
     }
 

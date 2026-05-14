@@ -1020,10 +1020,10 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <div class="table-wrap">
           <table class="data-table">
             <thead><tr>
-              <th>Date</th><th>Buyer</th><th>Quiz</th><th>Ticket ID</th><th>Amount</th><th>Seller</th><th>Points</th><th>Status</th>
+              <th>Date</th><th>Buyer</th><th>Quiz</th><th>Ticket ID</th><th>Amount</th><th>Seller</th><th>Type</th><th>Points</th><th>Status</th>
             </tr></thead>
             <tbody id="qtBody">
-              <tr><td colspan="8" class="empty-state"><p>Loading...</p></td></tr>
+              <tr><td colspan="9" class="empty-state"><p>Loading...</p></td></tr>
             </tbody>
           </table>
         </div>
@@ -3857,6 +3857,7 @@ function renderQuizTickets(list){
       <div style="font-weight:700;font-size:12px">${t.seller_name || '—'}</div>
       <div style="font-size:11px;color:var(--text-muted)">${t.seller_member_id || '—'}</div>
     </td>
+    <td><span style="font-size:11px;padding:2px 7px;border-radius:4px;background:${t.sale_type==='direct'?'rgba(16,185,129,.12)':'rgba(99,102,241,.12)'};color:${t.sale_type==='direct'?'#059669':'var(--accent)'}">${t.sale_type_label || (t.sale_type==='direct'?'Direct':'Referral Link')}</span></td>
     <td style="font-weight:700;color:var(--accent)">+${t.points_earned || 0}</td>
     <td>${statusBadgeQt(t.ticket_status)}</td>
   </tr>`).join('');
