@@ -180,8 +180,8 @@
     @media (max-width:980px){ .featureSection .section-content{ grid-template-columns:1fr } .content-right{ order:-1 } .tabsWrap{ top:66px } }
 
     /* MODALS base */
-    .modal{ display:none; position:fixed; z-index:9999; inset:0; align-items:center; justify-content:center; background:rgba(15,23,42,.18); backdrop-filter:blur(4px); }
-    .modalCard{ background:#fff; border-radius:18px; max-width:520px; width:96vw; padding:26px 22px; box-shadow:0 8px 40px #0f172a22; position:relative; }
+    .modal{ display:none; position:fixed; z-index:9999; inset:0; align-items:flex-start; justify-content:center; overflow-y:auto; background:rgba(15,23,42,.18); backdrop-filter:blur(4px); padding:20px 0; }
+    .modalCard{ background:#fff; border-radius:18px; max-width:520px; width:96vw; padding:26px 22px; box-shadow:0 8px 40px #0f172a22; position:relative; margin:auto; }
     .modalClose{ position:absolute; top:14px; right:14px; background:none; border:none; font-size:1.5em; cursor:pointer; color:#475569; }
 
     /* Floating labels */
@@ -1453,6 +1453,12 @@
     const sid = data.supporterId;
     const pwd = data.password || '—';
     const shareText = encodeURIComponent(`🎉 *Welcome to FWF Supporters!*\n\nYour login credentials:\n👤 Supporter ID: ${sid}\n🔑 Password: ${pwd}\n\n🔗 Login at: https://fwfindia.org/login`);
+    // Show toast immediately so user gets instant feedback
+    FWF_Notify.toast('🎉 Registration successful! Save your credentials below.', 'success', 5000);
+    // Ensure the modal is open (in case user accidentally closed it)
+    openModal(supModal);
+    // Scroll modal to top so the 🎉 section is visible
+    supModal.scrollTop = 0;
     container.innerHTML = `
       <div style="text-align:center;padding:16px 0">
         <div style="font-size:52px;margin-bottom:10px">🎉</div>
@@ -1581,7 +1587,7 @@
         _showSupCredentials(f, data);
       }
     } catch(err) {
-      FWF_Notify.toast('Network error: ' + err.message, 'error');
+      FWF_Notify.toast('Network error. Please try again.', 'error', 5000);
       btn.disabled = false; btn.innerHTML = origLabel;
     }
   });
