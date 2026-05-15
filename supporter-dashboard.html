@@ -735,6 +735,7 @@ body.modal-open{
   overflow:hidden;
   overscroll-behavior:none;
 }
+body.modal-open #fabDonate{ display:none !important; }
 .modal{
   display:none; position:fixed; inset:0; z-index:500;
   background:rgba(0,0,0,.5); backdrop-filter:blur(4px);
@@ -2561,18 +2562,25 @@ function unlockPageScroll(){
 }
 
 // Block wheel/touch on modal backdrop from reaching page
+function isInsideScrollable(el, root){
+  let node = el;
+  while(node && node !== root){
+    const st = window.getComputedStyle(node);
+    if((st.overflowY === 'auto' || st.overflowY === 'scroll') && node.scrollHeight > node.clientHeight) return true;
+    node = node.parentElement;
+  }
+  return false;
+}
 document.addEventListener('wheel', function(e){
   const modal = document.querySelector('.modal.show');
   if(!modal) return;
-  const scrollable = modal.querySelector('[style*="overflow-y:auto"], [style*="overflow-y: auto"]');
-  if(scrollable && scrollable.contains(e.target)) return; // allow scroll inside form
+  if(isInsideScrollable(e.target, modal)) return;
   e.preventDefault();
 }, {passive:false});
 document.addEventListener('touchmove', function(e){
   const modal = document.querySelector('.modal.show');
   if(!modal) return;
-  const scrollable = modal.querySelector('[style*="overflow-y:auto"], [style*="overflow-y: auto"]');
-  if(scrollable && scrollable.contains(e.target)) return;
+  if(isInsideScrollable(e.target, modal)) return;
   e.preventDefault();
 }, {passive:false});
 
