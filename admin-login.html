@@ -30,7 +30,8 @@
 <script>
 document.getElementById('loginBtn').onclick = async ()=>{
   try{
-    await AUTH.api('/api/admin/login',{method:'POST', body:{username:document.getElementById('user').value.trim(), password:document.getElementById('pwd').value.trim()}});
+    const data = await AUTH.api('/api/admin/login',{method:'POST', body:{username:document.getElementById('user').value.trim(), password:document.getElementById('pwd').value.trim()}});
+    if(data.token) sessionStorage.setItem('admin_token', data.token);
     location.href = '/admin/dashboard';
   }catch(e){ FWF_Notify.toast(e.message || 'Login failed', 'error'); }
 };

@@ -421,6 +421,17 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 .tab-content{ display:none; }
 .tab-content.active{ display:block; }
 
+/* Referral Sub Tabs */
+.referral-sub-tab{
+  padding:10px 16px; border:1px solid var(--card-border);
+  background:var(--card-bg); border-radius:8px;
+  font-size:13px; font-weight:700;
+  color:var(--text-secondary); cursor:pointer;
+  transition:all .2s; display:inline-flex; align-items:center; gap:6px;
+}
+.referral-sub-tab:hover{ background:var(--accent-soft); color:var(--accent); border-color:var(--accent); }
+.referral-sub-tab.active{ background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(236,72,153,.1)); color:var(--accent); border-color:var(--accent); box-shadow:0 4px 12px rgba(99,102,241,.1); }
+
 /* ==============================
    RESPONSIVE
    ============================== */
@@ -551,7 +562,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </button>
 
     <!-- Users group -->
-    <div class="nav-group" id="navGroup-users">
+    <div class="nav-group open" id="navGroup-users">
       <button class="nav-group-btn" onclick="toggleNavGroup('users')">
         <i class="fa-solid fa-user-group nav-group-icon"></i> Users
         <i class="fa-solid fa-chevron-right nav-arrow"></i>
@@ -579,7 +590,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </button>
 
     <!-- Accounts group -->
-    <div class="nav-group" id="navGroup-accounts">
+    <div class="nav-group open" id="navGroup-accounts">
       <button class="nav-group-btn" onclick="toggleNavGroup('accounts')">
         <i class="fa-solid fa-wallet nav-group-icon"></i> Accounts
         <i class="fa-solid fa-chevron-right nav-arrow"></i>
@@ -639,6 +650,10 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 
   <!-- ===================== HOME / DASHBOARD ===================== -->
   <div class="page active" id="page-home">
+    <div id="dashErrorBanner" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;">
+      <i class="fa-solid fa-triangle-exclamation" style="margin-right:8px"></i>
+      <span id="dashErrorMsg">Failed to load dashboard data. Check your connection and refresh.</span>
+    </div>
     <div class="stats-row">
       <div class="stat-card">
         <div class="s-icon s-purple"><i class="fa-solid fa-users"></i></div>
@@ -1005,10 +1020,10 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <div class="table-wrap">
           <table class="data-table">
             <thead><tr>
-              <th>Date</th><th>Buyer</th><th>Quiz</th><th>Ticket ID</th><th>Amount</th><th>Seller</th><th>Points</th><th>Status</th>
+              <th>Date</th><th>Buyer</th><th>Quiz</th><th>Ticket ID</th><th>Amount</th><th>Seller</th><th>Type</th><th>Points</th><th>Status</th>
             </tr></thead>
             <tbody id="qtBody">
-              <tr><td colspan="8" class="empty-state"><p>Loading...</p></td></tr>
+              <tr><td colspan="9" class="empty-state"><p>Loading...</p></td></tr>
             </tbody>
           </table>
         </div>
@@ -1131,13 +1146,150 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </div>
 
     <div class="tab-content" id="referrals-tab">
-      <div class="content-card">
-        <h3><i class="fa-solid fa-user-plus"></i> Referral Records</h3>
+      <!-- Tabs for referral types -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 2px solid var(--card-border); flex-wrap: wrap;">
+        <button class="referral-sub-tab active" data-type="member">
+          <i class="fa-solid fa-users"></i> Member Referrals
+        </button>
+        <button class="referral-sub-tab" data-type="supporter">
+          <i class="fa-solid fa-heart"></i> Supporter Referrals
+        </button>
+        <button class="referral-sub-tab" data-type="quiz">
+          <i class="fa-solid fa-ticket"></i> Quiz Ticket Referrals
+        </button>
+        <button class="referral-sub-tab" data-type="all">
+          <i class="fa-solid fa-chart-line"></i> All Referrals Summary
+        </button>
+      </div>
+
+      <!-- Member Referrals Table -->
+      <div class="content-card" id="memberReferralsSection">
+        <h3><i class="fa-solid fa-users"></i> Member Referrals Tracking</h3>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Track all member signups through referral links</div>
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr><th>Referrer</th><th>Referred Member</th><th>Payment</th><th>Points</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-            <tbody id="referralsBody">
-              <tr><td colspan="7" class="empty-state"><p>No referrals yet</p></td></tr>
+            <thead>
+              <tr>
+                <th>Referrer</th>
+                <th>Referred Member</th>
+                <th>Referral Code</th>
+                <th>Stage</th>
+                <th>Clicks</th>
+                <th>Points</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="memberReferralsBody">
+              <tr><td colspan="8" class="empty-state"><p>No member referrals yet</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Supporter Referrals Table -->
+      <div class="content-card" id="supporterReferralsSection" style="display: none;">
+        <h3><i class="fa-solid fa-heart"></i> Supporter Referrals Tracking</h3>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Track all supporter signups through referral links</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Referrer</th>
+                <th>Referred Supporter</th>
+                <th>Referral Code</th>
+                <th>Stage</th>
+                <th>Clicks</th>
+                <th>Points</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="supporterReferralsBody">
+              <tr><td colspan="8" class="empty-state"><p>No supporter referrals yet</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quiz Ticket Referrals Table -->
+      <div class="content-card" id="quizReferralsSection" style="display: none;">
+        <h3><i class="fa-solid fa-ticket"></i> Quiz Ticket Referrals Tracking</h3>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Track quiz ticket sales through referral links</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Referrer</th>
+                <th>Buyer</th>
+                <th>Quiz</th>
+                <th>Ticket Price</th>
+                <th>Stage</th>
+                <th>Clicks → Conversions</th>
+                <th>Points Earned</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="quizReferralsBody">
+              <tr><td colspan="8" class="empty-state"><p>No quiz ticket referrals yet</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- All Referrals Summary -->
+      <div class="content-card" id="allReferralsSummary" style="display: none;">
+        <h3><i class="fa-solid fa-chart-line"></i> Referral Performance Summary</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+          <div class="stat-card">
+            <div class="s-label">Total Referrals</div>
+            <div class="s-value" id="totalReferralsCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Member Referrals</div>
+            <div class="s-value" id="memberRefCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Supporter Referrals</div>
+            <div class="s-value" id="supporterRefCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Quiz Referrals</div>
+            <div class="s-value" id="quizRefCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Total Clicks</div>
+            <div class="s-value" id="totalClicksCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Conversion Rate</div>
+            <div class="s-value" id="conversionRate">0%</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Total Points Earned</div>
+            <div class="s-value" id="totalPointsEarned">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">Active Referrers</div>
+            <div class="s-value" id="activeReferrersCount">0</div>
+          </div>
+        </div>
+
+        <h4 style="margin-top: 20px; margin-bottom: 12px;">Top Referrers</h4>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Referrer</th>
+                <th>Member Ref</th>
+                <th>Supporter Ref</th>
+                <th>Quiz Ticket Ref</th>
+                <th>Total Points</th>
+                <th>Activity</th>
+              </tr>
+            </thead>
+            <tbody id="topReferrersBody">
+              <tr><td colspan="6" class="empty-state"><p>No referral activity yet</p></td></tr>
             </tbody>
           </table>
         </div>
@@ -1205,113 +1357,118 @@ textarea.form-input{ resize:vertical; min-height:80px; }
 
   <!-- ===================== COURSE MANAGEMENT ===================== -->
   <div class="page" id="page-courses">
+    <!-- Stats -->
     <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
       <div class="stat-card">
         <div class="s-icon s-purple"><i class="fa-solid fa-book-open"></i></div>
         <div class="s-label">Total Courses</div>
-        <div class="s-value">6</div>
+        <div class="s-value" id="crsTotal">—</div>
       </div>
       <div class="stat-card">
-        <div class="s-icon s-green"><i class="fa-solid fa-users"></i></div>
-        <div class="s-label">Total Enrollments</div>
-        <div class="s-value">0</div>
+        <div class="s-icon s-green"><i class="fa-solid fa-toggle-on"></i></div>
+        <div class="s-label">Active</div>
+        <div class="s-value" id="crsActive">—</div>
       </div>
       <div class="stat-card">
-        <div class="s-icon s-blue"><i class="fa-solid fa-check-circle"></i></div>
-        <div class="s-label">Completed</div>
-        <div class="s-value">0</div>
+        <div class="s-icon s-blue"><i class="fa-solid fa-list"></i></div>
+        <div class="s-label">Total Chapters</div>
+        <div class="s-value" id="crsChapters">—</div>
       </div>
       <div class="stat-card">
-        <div class="s-icon s-amber"><i class="fa-solid fa-certificate"></i></div>
-        <div class="s-label">Certificates Issued</div>
-        <div class="s-value">0</div>
+        <div class="s-icon s-amber"><i class="fa-solid fa-link"></i></div>
+        <div class="s-label">Total Links</div>
+        <div class="s-value" id="crsLinks">—</div>
       </div>
     </div>
 
+    <!-- Header + Add Button -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <h3 style="font-size:16px;font-weight:800"><i class="fa-solid fa-graduation-cap" style="color:var(--accent)"></i> Course Management</h3>
-      <button class="btn btn-primary" onclick="openModal('addCourseModal')"><i class="fa-solid fa-plus"></i> Add Course</button>
+      <button class="btn btn-primary" onclick="openAddCourseModal()"><i class="fa-solid fa-plus"></i> Add Course</button>
     </div>
 
-    <div class="content-card">
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>Course</th><th>Category</th><th>Duration</th><th>Enrollments</th><th>Completed</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            <tr>
-              <td style="font-weight:800">Tailoring & Stitching</td>
-              <td><span class="badge b-active">Skill</span></td>
-              <td>4 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Basic Computer Skills</td>
-              <td><span class="badge b-open">Digital</span></td>
-              <td>6 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Food Processing & Packaging</td>
-              <td><span class="badge b-progress">Business</span></td>
-              <td>3 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Handicraft & Mehndi Art</td>
-              <td><span class="badge b-active">Skill</span></td>
-              <td>3 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Digital Marketing</td>
-              <td><span class="badge b-open">Digital</span></td>
-              <td>5 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-weight:800">Organic Farming</td>
-              <td><span class="badge b-resolved">Agriculture</span></td>
-              <td>4 Weeks</td>
-              <td style="font-weight:700">0</td>
-              <td>0</td>
-              <td><span class="badge b-active">Active</span></td>
-              <td>
-                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-icon" title="Toggle"><i class="fa-solid fa-toggle-on"></i></button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Courses List -->
+    <div id="crsListWrap">
+      <div class="content-card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Course</th><th>Icon</th><th>Weeks</th><th>Chapters</th><th>Links</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="crsTbody"><tr><td colspan="7" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chapter Manager Panel (shown inline below list) -->
+    <div id="crsChapterPanel" style="display:none;margin-top:16px">
+      <div class="content-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px">
+          <h4 style="font-size:14px;font-weight:800;margin:0">
+            <i class="fa-solid fa-list-check" style="color:var(--accent)"></i>
+            Chapters: <span id="chPanelTitle">—</span>
+          </h4>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="chAddChapter()"><i class="fa-solid fa-plus"></i> Add Chapter</button>
+            <button class="btn btn-ghost btn-sm" onclick="closeChapterPanel()"><i class="fa-solid fa-times"></i> Close</button>
+          </div>
+        </div>
+        <div id="chEditorBody"></div>
+        <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="closeChapterPanel()">Cancel</button>
+          <button class="btn btn-success btn-sm" onclick="saveChapters()"><i class="fa-solid fa-save"></i> Save Chapters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Course Modal -->
+  <div class="modal-overlay" id="courseFormModal" style="display:none">
+    <div class="modal-box" style="max-width:480px">
+      <div class="modal-head">
+        <span id="courseFormTitle">Add New Course</span>
+        <button class="modal-close" onclick="closeCourseFormModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+        <input type="hidden" id="cfEditId" value="">
+        <div>
+          <label class="form-label">Course ID (unique slug) *</label>
+          <input type="text" id="cfCourseId" class="form-input" placeholder="e.g. tailoring" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-')">
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Lowercase letters, numbers and hyphens only. Cannot change after creation.</div>
+        </div>
+        <div>
+          <label class="form-label">Course Title *</label>
+          <input type="text" id="cfTitle" class="form-input" placeholder="e.g. Tailoring & Stitching">
+        </div>
+        <div>
+          <label class="form-label">Short Description</label>
+          <input type="text" id="cfDesc" class="form-input" placeholder="One line about this course">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div>
+            <label class="form-label">FontAwesome Icon</label>
+            <input type="text" id="cfIcon" class="form-input" placeholder="fa-scissors" value="fa-book">
+          </div>
+          <div>
+            <label class="form-label">Color</label>
+            <input type="color" id="cfColor" class="form-input" value="#2563EB" style="height:38px;padding:4px">
+          </div>
+          <div>
+            <label class="form-label">Duration (weeks)</label>
+            <input type="number" id="cfWeeks" class="form-input" value="4" min="1" max="52">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">Sort Order</label>
+          <input type="number" id="cfOrder" class="form-input" value="0" min="0">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="cfActive" checked style="width:16px;height:16px">
+          <label for="cfActive" class="form-label" style="margin:0">Active (visible to members)</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeCourseFormModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCourseForm()"><i class="fa-solid fa-save"></i> Save Course</button>
       </div>
     </div>
   </div>
@@ -1910,9 +2067,9 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <table class="data-table" style="min-width:800px">
           <thead><tr>
             <th>#</th><th>Name</th><th>Member ID</th><th>Enrollment No.</th>
-            <th>Payment</th><th>Status</th><th>Score</th><th>Submitted</th><th>Enrolled On</th>
+            <th>Payment</th><th>Status</th><th>Score</th><th>Time</th><th>Submitted</th><th>Enrolled On</th>
           </tr></thead>
-          <tbody id="pModalBody"><tr><td colspan="9" class="empty-state"><p>Loading...</p></td></tr></tbody>
+          <tbody id="pModalBody"><tr><td colspan="10" class="empty-state"><p>Loading...</p></td></tr></tbody>
         </table>
         <div id="pModalPagination" style="display:flex;justify-content:center;gap:8px;margin-top:14px"></div>
       </div>
@@ -2394,9 +2551,19 @@ function switchPage(page, updateHash = true){
   if(page === 'csr')         loadCSRPartners();
   if(page === 'support')     loadSupportTickets();
   if(page === 'payments')    { loadMembershipFees(); loadDonations(); loadQuizTicketsPayments(); }
-  if(page === 'points')      loadPointsActivity();
+  if(page === 'points')      {
+    loadPointsActivity();
+    // Initialize first referral sub-tab
+    setTimeout(() => {
+      const firstTab = document.querySelector('.referral-sub-tab');
+      if(firstTab && !document.querySelector('.referral-sub-tab.active')) {
+        firstTab.click();
+      }
+    }, 100);
+  }
   if(page === 'reports')     loadReports();
   if(page === 'marketplace') loadMarketplaceAdmin();
+  if(page === 'courses')     loadCoursesAdmin();
   if(page === 'projectcosts') renderCostEditor();
   if(page === 'fundraiser')  { loadFundRaiser(); }
   if(page === 'invoices')    { loadZohoStatus(); loadInvoices(); }
@@ -2456,6 +2623,26 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     parentPage.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Referral Sub Tabs
+document.querySelectorAll('.referral-sub-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const type = btn.dataset.type;
+    document.querySelectorAll('.referral-sub-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.content-card[id*="Referrals"], #allReferralsSummary').forEach(c => c.style.display = 'none');
+    btn.classList.add('active');
+    
+    if(type === 'member') {
+      document.getElementById('memberReferralsSection').style.display = 'block';
+    } else if(type === 'supporter') {
+      document.getElementById('supporterReferralsSection').style.display = 'block';
+    } else if(type === 'quiz') {
+      document.getElementById('quizReferralsSection').style.display = 'block';
+    } else if(type === 'all') {
+      document.getElementById('allReferralsSummary').style.display = 'block';
+    }
   });
 });
 
@@ -2535,9 +2722,15 @@ async function loadDashboard(){
     loadPostsCount();
   } catch(e){
     if(e.status === 401 || e.status === 403){
-      notify('Session expired. Redirecting to login...', 'error');
-      setTimeout(() => location.href = '/admin/login', 2000);
+      sessionStorage.removeItem('admin_token');
+      location.href = '/admin/login';
     } else {
+      const banner = document.getElementById('dashErrorBanner');
+      const msg = document.getElementById('dashErrorMsg');
+      if(banner){
+        msg.textContent = 'Dashboard data load failed: ' + (e.message || 'Server error') + '. Status: ' + (e.status || 'network error') + '. Please refresh the page.';
+        banner.style.display = 'block';
+      }
       notify('Failed to load dashboard: ' + (e.message || 'Server error. Please refresh.'), 'error');
     }
   }
@@ -3337,7 +3530,7 @@ async function loadPointsActivity(){
   try{
     const [dons, refs, tix] = await Promise.all([
       AUTH.api('/api/admin/donations'),
-      AUTH.api('/api/admin/referrals'),
+      AUTH.api('/api/admin/referrals/detailed'),
       AUTH.api('/api/admin/tickets')
     ]);
 
@@ -3355,21 +3548,111 @@ async function loadPointsActivity(){
       dBody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>No donations yet</p></td></tr>';
     }
 
-    // Referrals
-    const rBody = document.getElementById('referralsBody');
-    if(refs.referrals.length){
-      rBody.innerHTML = refs.referrals.map(r => `<tr>
-        <td style="font-weight:700">${r.referrer_member_id} <span style="color:var(--text-muted)">${r.referrer_name||''}</span></td>
-        <td>${r.referred_member_id} <span style="color:var(--text-muted)">${r.referred_name||''}</span></td>
-        <td style="font-weight:700">₹${fmtN(r.payment_amount)}</td>
+    // Referrals - Member
+    const memberRefs = refs.referrals.filter(r => r.referral_type === 'member' || !r.referral_type);
+    const memberBody = document.getElementById('memberReferralsBody');
+    if(memberRefs.length){
+      memberBody.innerHTML = memberRefs.map(r => `<tr>
+        <td style="font-weight:700">${r.referrer_member_id} <br><span style="color:var(--text-muted);font-size:11px">${r.referrer_name||''}</span></td>
+        <td>${r.referred_member_id||'—'} <br><span style="color:var(--text-muted);font-size:11px">${r.referred_name||''}</span></td>
+        <td style="font-family:monospace;font-size:11px">${r.referral_code || '—'}</td>
+        <td>${getStageBadge(r.status || 'pending')}</td>
+        <td style="text-align:center">${r.click_count || 0}</td>
         <td style="font-weight:800;color:var(--accent)">+${r.referral_points||0}</td>
-        <td>${statusBadge(r.status)}</td>
-        <td style="color:var(--text-muted)">${fmtDate(r.created_at)}</td>
-        <td>${r.status==='pending' ? `<button class="btn btn-sm btn-success" onclick="activateReferral('${r.referred_member_id}')"><i class="fa-solid fa-check"></i> Activate</button>` : ''}</td>
+        <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.created_at)}</td>
+        <td>${r.status==='pending' ? `<button class="btn btn-sm btn-success" onclick="activateReferral('${r.referred_member_id}')"><i class="fa-solid fa-check"></i></button>` : ''}</td>
       </tr>`).join('');
     } else {
-      rBody.innerHTML = '<tr><td colspan="7" class="empty-state"><p>No referrals yet</p></td></tr>';
+      memberBody.innerHTML = '<tr><td colspan="8" class="empty-state"><p>No member referrals yet</p></td></tr>';
     }
+
+    // Referrals - Supporter
+    const supporterRefs = refs.referrals.filter(r => r.referral_type === 'supporter');
+    const supporterBody = document.getElementById('supporterReferralsBody');
+    if(supporterRefs.length){
+      supporterBody.innerHTML = supporterRefs.map(r => `<tr>
+        <td style="font-weight:700">${r.referrer_member_id} <br><span style="color:var(--text-muted);font-size:11px">${r.referrer_name||''}</span></td>
+        <td>${r.referred_member_id||'—'} <br><span style="color:var(--text-muted);font-size:11px">${r.referred_name||''}</span></td>
+        <td style="font-family:monospace;font-size:11px">${r.referral_code || '—'}</td>
+        <td>${getStageBadge(r.status || 'pending')}</td>
+        <td style="text-align:center">${r.click_count || 0}</td>
+        <td style="font-weight:800;color:var(--accent)">+${r.referral_points||0}</td>
+        <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.created_at)}</td>
+        <td>${r.status==='pending' ? `<button class="btn btn-sm btn-success" onclick="activateReferral('${r.referred_member_id}')"><i class="fa-solid fa-check"></i></button>` : ''}</td>
+      </tr>`).join('');
+    } else {
+      supporterBody.innerHTML = '<tr><td colspan="8" class="empty-state"><p>No supporter referrals yet</p></td></tr>';
+    }
+
+    // Referrals - Quiz Tickets
+    const quizRefs = refs.referrals.filter(r => r.referral_type === 'quiz');
+    const quizBody = document.getElementById('quizReferralsBody');
+    if(quizRefs.length){
+      quizBody.innerHTML = quizRefs.map(r => `<tr>
+        <td style="font-weight:700">${r.referrer_member_id} <br><span style="color:var(--text-muted);font-size:11px">${r.referrer_name||''}</span></td>
+        <td>${r.referred_name||'—'}</td>
+        <td style="font-size:12px">${r.quiz_ref || '—'}</td>
+        <td style="font-weight:700">₹${fmtN(r.payment_amount || 100)}</td>
+        <td>${getStageQuizBadge(r.status || 'pending')}</td>
+        <td style="text-align:center"><span style="display:inline-block; background:rgba(99,102,241,.1); padding:4px 8px; border-radius:4px;"><span style="color:var(--accent);font-weight:700">${r.click_count || 0}</span> → <span style="color:var(--success);font-weight:700">${r.conversion_count || 0}</span></span></td>
+        <td style="font-weight:800;color:var(--accent)">+${r.referral_points||0}</td>
+        <td style="color:var(--text-muted);font-size:12px">${fmtDate(r.created_at)}</td>
+      </tr>`).join('');
+    } else {
+      quizBody.innerHTML = '<tr><td colspan="8" class="empty-state"><p>No quiz ticket referrals yet</p></td></tr>';
+    }
+
+    // All Referrals Summary
+    const allRefs = refs.referrals || [];
+    const memberRefCount = allRefs.filter(r => r.referral_type === 'member' || !r.referral_type).length;
+    const supporterRefCount = allRefs.filter(r => r.referral_type === 'supporter').length;
+    const quizRefCount = allRefs.filter(r => r.referral_type === 'quiz').length;
+    const totalClicks = allRefs.reduce((sum, r) => sum + (r.click_count || 0), 0);
+    const totalConversions = allRefs.reduce((sum, r) => sum + (r.conversion_count || 0), 0);
+    const totalPoints = allRefs.reduce((sum, r) => sum + (r.referral_points || 0), 0);
+    const conversionRate = totalClicks > 0 ? ((totalConversions / totalClicks) * 100).toFixed(1) : '0';
+    
+    // Get unique referrers
+    const referrersMap = {};
+    allRefs.forEach(r => {
+      if(!referrersMap[r.referrer_id]) {
+        referrersMap[r.referrer_id] = {
+          referrer_id: r.referrer_id,
+          referrer_member_id: r.referrer_member_id,
+          referrer_name: r.referrer_name,
+          member: 0, supporter: 0, quiz: 0, total_points: 0
+        };
+      }
+      if(r.referral_type === 'member' || !r.referral_type) referrersMap[r.referrer_id].member++;
+      else if(r.referral_type === 'supporter') referrersMap[r.referrer_id].supporter++;
+      else if(r.referral_type === 'quiz') referrersMap[r.referrer_id].quiz++;
+      referrersMap[r.referrer_id].total_points += (r.referral_points || 0);
+    });
+    
+    const topReferrers = Object.values(referrersMap).sort((a, b) => b.total_points - a.total_points).slice(0, 10);
+    const topBody = document.getElementById('topReferrersBody');
+    if(topReferrers.length){
+      topBody.innerHTML = topReferrers.map(ref => `<tr>
+        <td style="font-weight:700">${ref.referrer_member_id} <br><span style="color:var(--text-muted);font-size:11px">${ref.referrer_name||''}</span></td>
+        <td><span style="display:inline-block;background:rgba(99,102,241,.1);padding:4px 8px;border-radius:4px;font-weight:700;color:var(--accent)">${ref.member}</span></td>
+        <td><span style="display:inline-block;background:rgba(236,72,153,.1);padding:4px 8px;border-radius:4px;font-weight:700;color:var(--accent2)">${ref.supporter}</span></td>
+        <td><span style="display:inline-block;background:rgba(34,197,94,.1);padding:4px 8px;border-radius:4px;font-weight:700;color:var(--success)">${ref.quiz}</span></td>
+        <td style="font-weight:800;color:var(--accent)">${fmtN(ref.total_points)}</td>
+        <td><button class="btn btn-sm btn-info" onclick="viewMember('${ref.referrer_member_id}')"><i class="fa-solid fa-eye"></i> View</button></td>
+      </tr>`).join('');
+    } else {
+      topBody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>No referral data yet</p></td></tr>';
+    }
+
+    // Update summary stats
+    document.getElementById('totalReferralsCount').textContent = allRefs.length;
+    document.getElementById('memberRefCount').textContent = memberRefCount;
+    document.getElementById('supporterRefCount').textContent = supporterRefCount;
+    document.getElementById('quizRefCount').textContent = quizRefCount;
+    document.getElementById('totalClicksCount').textContent = totalClicks;
+    document.getElementById('conversionRate').textContent = conversionRate + '%';
+    document.getElementById('totalPointsEarned').textContent = fmtN(totalPoints);
+    document.getElementById('activeReferrersCount').textContent = topReferrers.length;
 
     // Tickets
     const tBody = document.getElementById('ticketsBody');
@@ -3384,7 +3667,28 @@ async function loadPointsActivity(){
     } else {
       tBody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>No tickets sold yet</p></td></tr>';
     }
-  } catch(e){ notify('Failed to load activity','error'); }
+  } catch(e){ 
+    console.error('Activity load error:', e);
+    notify('Failed to load activity','error'); 
+  }
+}
+
+function getStageBadge(status) {
+  const stages = {
+    'pending': '<span style="background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-hourglass-end"></i> Pending</span>',
+    'active': '<span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-check-circle"></i> Active</span>',
+    'expired': '<span style="background:#fee2e2;color:#991b1b;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-times-circle"></i> Expired</span>'
+  };
+  return stages[status] || stages['pending'];
+}
+
+function getStageQuizBadge(status) {
+  const stages = {
+    'pending': '<span style="background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-link"></i> Not Clicked</span>',
+    'active': '<span style="background:#dbeafe;color:#0c4a6e;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-mouse"></i> Clicked</span>',
+    'converted': '<span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:6px;font-weight:700;font-size:11px"><i class="fa-solid fa-check-circle"></i> Converted</span>'
+  };
+  return stages[status] || stages['pending'];
 }
 
 async function activateReferral(referredMemberId){
@@ -3553,6 +3857,7 @@ function renderQuizTickets(list){
       <div style="font-weight:700;font-size:12px">${t.seller_name || '—'}</div>
       <div style="font-size:11px;color:var(--text-muted)">${t.seller_member_id || '—'}</div>
     </td>
+    <td><span style="font-size:11px;padding:2px 7px;border-radius:4px;background:${t.sale_type==='direct'?'rgba(16,185,129,.12)':'rgba(99,102,241,.12)'};color:${t.sale_type==='direct'?'#059669':'var(--accent)'}">${t.sale_type_label || (t.sale_type==='direct'?'Direct':'Referral Link')}</span></td>
     <td style="font-weight:700;color:var(--accent)">+${t.points_earned || 0}</td>
     <td>${statusBadgeQt(t.ticket_status)}</td>
   </tr>`).join('');
@@ -3603,16 +3908,269 @@ document.getElementById('rpSubmit').addEventListener('click', async ()=>{
 document.getElementById('logoutBtn').addEventListener('click', ()=>{
   if(typeof FWF_Notify !== 'undefined'){
     FWF_Notify.confirm('Logout from admin panel?', async ()=>{
-      await AUTH.api('/api/auth/logout',{method:'POST'});
+      await AUTH.api('/api/auth/logout',{method:'POST'}).catch(()=>{});
+      sessionStorage.removeItem('admin_token');
       notify('Logged out','success');
       setTimeout(()=> location.href = '/', 1000);
     });
   } else {
     if(confirm('Logout?')){
-      AUTH.api('/api/auth/logout',{method:'POST'}).finally(()=> location.href = '/');
+      AUTH.api('/api/auth/logout',{method:'POST'}).catch(()=>{}).finally(()=>{
+        sessionStorage.removeItem('admin_token');
+        location.href = '/';
+      });
     }
   }
 });
+
+/* ============================================
+   COURSES ADMIN
+   ============================================ */
+let allAdminCourses = [];
+let chEditCourseId = null;   // courseId currently open in chapter editor
+
+async function loadCoursesAdmin() {
+  try {
+    const data = await AUTH.api('/api/admin/courses');
+    allAdminCourses = data.courses || [];
+    if (data.stats) {
+      document.getElementById('crsTotal').textContent    = data.stats.total;
+      document.getElementById('crsActive').textContent   = data.stats.active;
+      document.getElementById('crsChapters').textContent = data.stats.chapters;
+      document.getElementById('crsLinks').textContent    = data.stats.links;
+    }
+    renderCoursesList();
+  } catch(e) {
+    notify(e.message || 'Failed to load courses', 'error');
+  }
+}
+
+function renderCoursesList() {
+  const tbody = document.getElementById('crsTbody');
+  if (!allAdminCourses.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fa-solid fa-graduation-cap"></i><p>No courses yet</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = allAdminCourses.map(c => {
+    const chCount = (c.chapters || []).length;
+    const lkCount = (c.chapters || []).reduce((s, ch) => s + (ch.links || []).length, 0);
+    return `<tr>
+      <td>
+        <div style="font-weight:800;font-size:13px">${escHtml(c.title)}</div>
+        <div style="font-size:11px;color:var(--muted)">${escHtml(c.courseId)}</div>
+        <div style="font-size:11px;color:var(--muted)">${escHtml(c.desc || '')}</div>
+      </td>
+      <td><span style="font-size:18px;color:${escHtml(c.color||'#666')}"><i class="fa-solid ${escHtml(c.icon||'fa-book')}"></i></span></td>
+      <td style="font-weight:700">${c.weeks}w</td>
+      <td style="text-align:center">${chCount}</td>
+      <td style="text-align:center">${lkCount}</td>
+      <td>${c.active
+        ? '<span style="font-size:11px;font-weight:800;color:#22c55e;background:#22c55e15;padding:3px 10px;border-radius:8px">Active</span>'
+        : '<span style="font-size:11px;font-weight:800;color:#94a3b8;background:#94a3b815;padding:3px 10px;border-radius:8px">Hidden</span>'
+      }</td>
+      <td style="white-space:nowrap">
+        <button class="btn-icon" title="Edit course" onclick="openEditCourseModal('${escHtml(c.courseId)}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-icon" title="Manage chapters" onclick="openChapterPanel('${escHtml(c.courseId)}')"><i class="fa-solid fa-list-check"></i></button>
+        <button class="btn-icon" title="${c.active ? 'Hide from members' : 'Make active'}" onclick="toggleCourseActive('${escHtml(c.courseId)}',${!c.active})">
+          <i class="fa-solid ${c.active ? 'fa-toggle-on' : 'fa-toggle-off'}" style="color:${c.active ? '#22c55e' : '#94a3b8'}"></i>
+        </button>
+        <button class="btn-icon" title="Delete course" style="color:#ef4444" onclick="deleteCourse('${escHtml(c.courseId)}')"><i class="fa-solid fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function openAddCourseModal() {
+  document.getElementById('cfEditId').value = '';
+  document.getElementById('cfCourseId').value = '';
+  document.getElementById('cfCourseId').disabled = false;
+  document.getElementById('cfTitle').value = '';
+  document.getElementById('cfDesc').value = '';
+  document.getElementById('cfIcon').value = 'fa-book';
+  document.getElementById('cfColor').value = '#2563EB';
+  document.getElementById('cfWeeks').value = '4';
+  document.getElementById('cfOrder').value = '0';
+  document.getElementById('cfActive').checked = true;
+  document.getElementById('courseFormTitle').textContent = 'Add New Course';
+  document.getElementById('courseFormModal').style.display = 'flex';
+}
+
+function openEditCourseModal(courseId) {
+  const c = allAdminCourses.find(x => x.courseId === courseId);
+  if (!c) return;
+  document.getElementById('cfEditId').value = c.courseId;
+  document.getElementById('cfCourseId').value = c.courseId;
+  document.getElementById('cfCourseId').disabled = true;
+  document.getElementById('cfTitle').value = c.title;
+  document.getElementById('cfDesc').value = c.desc || '';
+  document.getElementById('cfIcon').value = c.icon || 'fa-book';
+  document.getElementById('cfColor').value = c.color || '#2563EB';
+  document.getElementById('cfWeeks').value = c.weeks || 4;
+  document.getElementById('cfOrder').value = c.order || 0;
+  document.getElementById('cfActive').checked = !!c.active;
+  document.getElementById('courseFormTitle').textContent = 'Edit Course';
+  document.getElementById('courseFormModal').style.display = 'flex';
+}
+
+function closeCourseFormModal() {
+  document.getElementById('courseFormModal').style.display = 'none';
+}
+
+async function saveCourseForm() {
+  const editId = document.getElementById('cfEditId').value;
+  const courseId = document.getElementById('cfCourseId').value.trim();
+  const title = document.getElementById('cfTitle').value.trim();
+  if (!title) return notify('Course title is required', 'error');
+  if (!editId && !courseId) return notify('Course ID is required', 'error');
+
+  const payload = {
+    title,
+    desc:   document.getElementById('cfDesc').value.trim(),
+    icon:   document.getElementById('cfIcon').value.trim() || 'fa-book',
+    color:  document.getElementById('cfColor').value,
+    weeks:  parseInt(document.getElementById('cfWeeks').value) || 4,
+    order:  parseInt(document.getElementById('cfOrder').value) || 0,
+    active: document.getElementById('cfActive').checked
+  };
+  if (!editId) payload.courseId = courseId;
+
+  try {
+    if (editId) {
+      await AUTH.api('/api/admin/courses/' + editId, { method: 'PUT', body: payload });
+      notify('Course updated!', 'success');
+    } else {
+      await AUTH.api('/api/admin/courses', { method: 'POST', body: payload });
+      notify('Course created!', 'success');
+    }
+    closeCourseFormModal();
+    loadCoursesAdmin();
+  } catch(e) { notify(e.message || 'Save failed', 'error'); }
+}
+
+async function toggleCourseActive(courseId, active) {
+  try {
+    await AUTH.api('/api/admin/courses/' + courseId, { method: 'PUT', body: { active } });
+    notify(active ? 'Course activated' : 'Course hidden', 'success');
+    loadCoursesAdmin();
+  } catch(e) { notify(e.message || 'Failed', 'error'); }
+}
+
+async function deleteCourse(courseId) {
+  if (!confirm(`Delete course "${courseId}"? This cannot be undone.`)) return;
+  try {
+    await AUTH.api('/api/admin/courses/' + courseId, { method: 'DELETE' });
+    notify('Course deleted', 'success');
+    if (chEditCourseId === courseId) closeChapterPanel();
+    loadCoursesAdmin();
+  } catch(e) { notify(e.message || 'Delete failed', 'error'); }
+}
+
+/* ---------- Chapter Manager ---------- */
+function openChapterPanel(courseId) {
+  const c = allAdminCourses.find(x => x.courseId === courseId);
+  if (!c) return;
+  chEditCourseId = courseId;
+  document.getElementById('chPanelTitle').textContent = c.title;
+  renderChapterEditor(JSON.parse(JSON.stringify(c.chapters || [])));
+  document.getElementById('crsChapterPanel').style.display = 'block';
+  document.getElementById('crsChapterPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeChapterPanel() {
+  chEditCourseId = null;
+  document.getElementById('crsChapterPanel').style.display = 'none';
+}
+
+// We store draft chapters in a JS array bound to the DOM editor
+let chDraftChapters = [];
+
+function renderChapterEditor(chapters) {
+  chDraftChapters = chapters;
+  const body = document.getElementById('chEditorBody');
+  if (!chDraftChapters.length) {
+    body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px">No chapters yet. Click "Add Chapter" to begin.</div>';
+    return;
+  }
+  body.innerHTML = chDraftChapters.map((ch, ci) => `
+    <div class="content-card" style="margin-bottom:12px;padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:11px;font-weight:800;color:var(--muted);background:var(--soft);padding:3px 8px;border-radius:6px">Ch ${ci+1}</span>
+        <input type="text" value="${escHtml(ch.title)}" onchange="chDraftChapters[${ci}].title=this.value"
+          class="form-input" style="flex:1;font-size:13px;font-weight:700" placeholder="Chapter title">
+        <button class="btn btn-ghost btn-sm" style="color:#ef4444" onclick="chRemoveChapter(${ci})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      <div id="linksArea_${ci}">
+        ${(ch.links || []).map((lk, li) => `
+          <div style="display:flex;gap:6px;margin-bottom:6px;align-items:center" id="linkRow_${ci}_${li}">
+            <select onchange="chDraftChapters[${ci}].links[${li}].type=this.value"
+              class="form-input" style="width:110px;font-size:11px;padding:6px 8px">
+              <option value="youtube" ${lk.type==='youtube'?'selected':''}>YouTube</option>
+              <option value="article" ${lk.type==='article'?'selected':''}>Article</option>
+              <option value="pdf"     ${lk.type==='pdf'    ?'selected':''}>PDF</option>
+              <option value="other"   ${lk.type==='other'  ?'selected':''}>Other</option>
+            </select>
+            <input type="text" value="${escHtml(lk.label)}" onchange="chDraftChapters[${ci}].links[${li}].label=this.value"
+              class="form-input" style="flex:1;font-size:12px" placeholder="Link label">
+            <input type="url" value="${escHtml(lk.url)}" onchange="chDraftChapters[${ci}].links[${li}].url=this.value"
+              class="form-input" style="flex:1.2;font-size:12px" placeholder="https://...">
+            <button class="btn-icon" style="color:#ef4444" onclick="chRemoveLink(${ci},${li})"><i class="fa-solid fa-times"></i></button>
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:6px;font-size:11px" onclick="chAddLink(${ci})">
+        <i class="fa-solid fa-plus"></i> Add Link
+      </button>
+    </div>`).join('');
+}
+
+function chAddChapter() {
+  chDraftChapters.push({ title: 'New Chapter', links: [] });
+  renderChapterEditor(chDraftChapters);
+}
+
+function chRemoveChapter(i) {
+  if (!confirm('Remove this chapter and all its links?')) return;
+  chDraftChapters.splice(i, 1);
+  renderChapterEditor(chDraftChapters);
+}
+
+function chAddLink(ci) {
+  if (!chDraftChapters[ci].links) chDraftChapters[ci].links = [];
+  chDraftChapters[ci].links.push({ label: '', url: '', type: 'youtube' });
+  renderChapterEditor(chDraftChapters);
+}
+
+function chRemoveLink(ci, li) {
+  chDraftChapters[ci].links.splice(li, 1);
+  renderChapterEditor(chDraftChapters);
+}
+
+async function saveChapters() {
+  if (!chEditCourseId) return;
+  // Validate: collect current values from DOM inputs before saving
+  // (onchange handlers update chDraftChapters as user types, but let's also read final values)
+  const chapterTitleInputs = document.querySelectorAll('#chEditorBody input[placeholder="Chapter title"]');
+  chDraftChapters.forEach((ch, ci) => {
+    if (chapterTitleInputs[ci]) ch.title = chapterTitleInputs[ci].value.trim();
+    (ch.links || []).forEach((lk, li) => {
+      const row = document.getElementById(`linkRow_${ci}_${li}`);
+      if (row) {
+        const inputs = row.querySelectorAll('input');
+        if (inputs[0]) lk.label = inputs[0].value.trim();
+        if (inputs[1]) lk.url = inputs[1].value.trim();
+      }
+    });
+    ch.links = (ch.links || []).filter(lk => lk.label || lk.url);
+  });
+  const valid = chDraftChapters.filter(ch => ch.title.trim());
+  try {
+    await AUTH.api('/api/admin/courses/' + chEditCourseId, { method: 'PUT', body: { chapters: valid } });
+    notify('Chapters saved!', 'success');
+    closeChapterPanel();
+    loadCoursesAdmin();
+  } catch(e) { notify(e.message || 'Save failed', 'error'); }
+}
 
 /* ============================================
    MARKETPLACE ADMIN
@@ -4151,7 +4709,7 @@ async function openParticipants(quizId, page=1){
   document.getElementById('modalParticipants').style.display = '';
   document.getElementById('pModalTitle').textContent = 'Participants — ' + quizId;
   document.getElementById('pModalSubtitle').textContent = 'Loading...';
-  document.getElementById('pModalBody').innerHTML = '<tr><td colspan="9" class="empty-state"><p><i class="fa-solid fa-spinner fa-spin"></i> Loading...</p></td></tr>';
+  document.getElementById('pModalBody').innerHTML = '<tr><td colspan="10" class="empty-state"><p><i class="fa-solid fa-spinner fa-spin"></i> Loading...</p></td></tr>';
   document.getElementById('pModalStats').innerHTML = '';
   await loadParticipantsPage(quizId, page);
 }
@@ -4182,7 +4740,7 @@ async function loadParticipantsPage(quizId, page=1){
     // Table
     const ps = data.participants;
     if(ps.length === 0){
-      document.getElementById('pModalBody').innerHTML = '<tr><td colspan="9" class="empty-state"><p>No participants found</p></td></tr>';
+      document.getElementById('pModalBody').innerHTML = '<tr><td colspan="10" class="empty-state"><p>No participants found</p></td></tr>';
     } else {
       const offset = (page-1)*50;
       document.getElementById('pModalBody').innerHTML = ps.map((p,i)=>{
@@ -4202,6 +4760,7 @@ async function loadParticipantsPage(quizId, page=1){
           <td>${payBadge}${p.amount_paid?' <small style="color:#64748b">₹'+p.amount_paid+'</small>':''}</td>
           <td>${stBadge}</td>
           <td style="font-weight:700;text-align:center;color:${p.score>0?'#1e40af':'#94a3b8'}">${p.score||0}</td>
+          <td style="font-size:11px;text-align:center;color:#0ea5e9">${p.speed_seconds ? (Math.floor(p.speed_seconds/60)>0 ? Math.floor(p.speed_seconds/60)+'m '+p.speed_seconds%60+'s' : p.speed_seconds%60+'s') : '—'}</td>
           <td style="font-size:11px;color:#64748b">${p.submitted_at ? new Date(p.submitted_at).toLocaleString('en-IN') : '—'}</td>
           <td style="font-size:11px;color:#64748b">
             ${p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : '—'}
@@ -4219,7 +4778,7 @@ async function loadParticipantsPage(quizId, page=1){
     }
     document.getElementById('pModalPagination').innerHTML = paginHtml;
   } catch(err){
-    document.getElementById('pModalBody').innerHTML = `<tr><td colspan="9" class="empty-state"><p style="color:#ef4444">Error: ${err.message}</p></td></tr>`;
+    document.getElementById('pModalBody').innerHTML = `<tr><td colspan="10" class="empty-state"><p style="color:#ef4444">Error: ${err.message}</p></td></tr>`;
   }
 }
 
@@ -4243,11 +4802,12 @@ async function relinkParticipation(enrollmentNumber){
   }
 }
 
-
+function exportParticipantsCSV(){
   if(!pParticipantsCache.length){ alert('No data to export'); return; }
-  const rows = [['#','Name','Member ID','Enrollment','Payment Status','Amount','Status','Score','Submitted At','Enrolled On']];
+  const rows = [['#','Name','Member ID','Enrollment','Payment Status','Amount','Status','Score','Time Taken','Submitted At','Enrolled On']];
   pParticipantsCache.forEach((p,i)=>{
-    rows.push([i+1, p.name||'', p.member_id||'', p.enrollment_number||'', p.payment_status||'', p.amount_paid||0, p.status||'', p.score||0,
+    const timeTaken = p.speed_seconds ? (Math.floor(p.speed_seconds/60)>0 ? Math.floor(p.speed_seconds/60)+'m '+p.speed_seconds%60+'s' : p.speed_seconds%60+'s') : '';
+    rows.push([i+1, p.name||'', p.member_id||'', p.enrollment_number||'', p.payment_status||'', p.amount_paid||0, p.status||'', p.score||0, timeTaken,
       p.submitted_at ? new Date(p.submitted_at).toLocaleString() : '', p.created_at ? new Date(p.created_at).toLocaleString() : '']);
   });
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');

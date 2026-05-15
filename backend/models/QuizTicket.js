@@ -1,18 +1,22 @@
 import mongoose from 'mongoose';
 
 const quizTicketSchema = new mongoose.Schema({
-  // Seller (FWF member who generated the link)
-  seller_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  // Seller (FWF member who generated the link; null for direct purchases)
+  seller_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
   seller_support_id: { type: String, unique: true, sparse: true }, // FWF-ST-XXXXX
 
   // Quiz reference
   quiz_ref: { type: String, index: true },          // quiz_id string e.g. "M2506"
   quiz_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
 
-  // Shareable token for the buyer link
-  token: { type: String, unique: true, index: true },
+  // Shareable token for the buyer link (null for direct purchases)
+  token: { type: String, unique: true, sparse: true, index: true },
 
-  // Buyer info (filled when seller generates link)
+  // How this ticket was created
+  sale_type: { type: String, enum: ['ticket_link', 'direct'], default: 'ticket_link' },
+
+  // Buyer info
+  buyer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true }, // for direct purchases
   buyer_name: { type: String },
   buyer_contact: { type: String },
   buyer_email: { type: String },
