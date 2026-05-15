@@ -269,6 +269,7 @@
       <div style="font-size:56px;margin-bottom:10px" id="resultEmoji">📝</div>
       <h2 style="font-size:22px;font-weight:900;margin-bottom:4px" id="resultTitle">Quiz Submitted!</h2>
       <p style="font-size:13px;opacity:.88" id="resultScore">-</p>
+      <p style="font-size:13px;opacity:.75;margin-top:4px" id="resultTime"></p>
     </div>
     <div class="qt-body">
       <div class="qt-enroll-id-box">
@@ -558,6 +559,15 @@ function showResult(data) {
   document.getElementById('resultScore').textContent = passed
     ? `Score: ${score}/${total} — आपने quiz pass कर लिया! 🎊`
     : `Score: ${score}/${total} — Pass के लिए ${passingScore}/${total} सही होने चाहिए थे`;
+
+  if (data.speed_seconds) {
+    const m = Math.floor(data.speed_seconds / 60);
+    const s = data.speed_seconds % 60;
+    const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
+    document.getElementById('resultTime').textContent = `⏱ Time taken: ${timeStr}`;
+  } else {
+    document.getElementById('resultTime').textContent = '';
+  }
 
   document.getElementById('resEnrollId').textContent = data.enrollment_number || _enrollmentNumber || '—';
 

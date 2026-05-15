@@ -2067,9 +2067,9 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <table class="data-table" style="min-width:800px">
           <thead><tr>
             <th>#</th><th>Name</th><th>Member ID</th><th>Enrollment No.</th>
-            <th>Payment</th><th>Status</th><th>Score</th><th>Submitted</th><th>Enrolled On</th>
+            <th>Payment</th><th>Status</th><th>Score</th><th>Time</th><th>Submitted</th><th>Enrolled On</th>
           </tr></thead>
-          <tbody id="pModalBody"><tr><td colspan="9" class="empty-state"><p>Loading...</p></td></tr></tbody>
+          <tbody id="pModalBody"><tr><td colspan="10" class="empty-state"><p>Loading...</p></td></tr></tbody>
         </table>
         <div id="pModalPagination" style="display:flex;justify-content:center;gap:8px;margin-top:14px"></div>
       </div>
@@ -4709,7 +4709,7 @@ async function openParticipants(quizId, page=1){
   document.getElementById('modalParticipants').style.display = '';
   document.getElementById('pModalTitle').textContent = 'Participants — ' + quizId;
   document.getElementById('pModalSubtitle').textContent = 'Loading...';
-  document.getElementById('pModalBody').innerHTML = '<tr><td colspan="9" class="empty-state"><p><i class="fa-solid fa-spinner fa-spin"></i> Loading...</p></td></tr>';
+  document.getElementById('pModalBody').innerHTML = '<tr><td colspan="10" class="empty-state"><p><i class="fa-solid fa-spinner fa-spin"></i> Loading...</p></td></tr>';
   document.getElementById('pModalStats').innerHTML = '';
   await loadParticipantsPage(quizId, page);
 }
@@ -4740,7 +4740,7 @@ async function loadParticipantsPage(quizId, page=1){
     // Table
     const ps = data.participants;
     if(ps.length === 0){
-      document.getElementById('pModalBody').innerHTML = '<tr><td colspan="9" class="empty-state"><p>No participants found</p></td></tr>';
+      document.getElementById('pModalBody').innerHTML = '<tr><td colspan="10" class="empty-state"><p>No participants found</p></td></tr>';
     } else {
       const offset = (page-1)*50;
       document.getElementById('pModalBody').innerHTML = ps.map((p,i)=>{
@@ -4760,6 +4760,7 @@ async function loadParticipantsPage(quizId, page=1){
           <td>${payBadge}${p.amount_paid?' <small style="color:#64748b">₹'+p.amount_paid+'</small>':''}</td>
           <td>${stBadge}</td>
           <td style="font-weight:700;text-align:center;color:${p.score>0?'#1e40af':'#94a3b8'}">${p.score||0}</td>
+          <td style="font-size:11px;text-align:center;color:#0ea5e9">${p.speed_seconds ? (Math.floor(p.speed_seconds/60)>0 ? Math.floor(p.speed_seconds/60)+'m '+p.speed_seconds%60+'s' : p.speed_seconds%60+'s') : '—'}</td>
           <td style="font-size:11px;color:#64748b">${p.submitted_at ? new Date(p.submitted_at).toLocaleString('en-IN') : '—'}</td>
           <td style="font-size:11px;color:#64748b">
             ${p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : '—'}
@@ -4777,7 +4778,7 @@ async function loadParticipantsPage(quizId, page=1){
     }
     document.getElementById('pModalPagination').innerHTML = paginHtml;
   } catch(err){
-    document.getElementById('pModalBody').innerHTML = `<tr><td colspan="9" class="empty-state"><p style="color:#ef4444">Error: ${err.message}</p></td></tr>`;
+    document.getElementById('pModalBody').innerHTML = `<tr><td colspan="10" class="empty-state"><p style="color:#ef4444">Error: ${err.message}</p></td></tr>`;
   }
 }
 
@@ -4803,9 +4804,10 @@ async function relinkParticipation(enrollmentNumber){
 
 function exportParticipantsCSV(){
   if(!pParticipantsCache.length){ alert('No data to export'); return; }
-  const rows = [['#','Name','Member ID','Enrollment','Payment Status','Amount','Status','Score','Submitted At','Enrolled On']];
+  const rows = [['#','Name','Member ID','Enrollment','Payment Status','Amount','Status','Score','Time Taken','Submitted At','Enrolled On']];
   pParticipantsCache.forEach((p,i)=>{
-    rows.push([i+1, p.name||'', p.member_id||'', p.enrollment_number||'', p.payment_status||'', p.amount_paid||0, p.status||'', p.score||0,
+    const timeTaken = p.speed_seconds ? (Math.floor(p.speed_seconds/60)>0 ? Math.floor(p.speed_seconds/60)+'m '+p.speed_seconds%60+'s' : p.speed_seconds%60+'s') : '';
+    rows.push([i+1, p.name||'', p.member_id||'', p.enrollment_number||'', p.payment_status||'', p.amount_paid||0, p.status||'', p.score||0, timeTaken,
       p.submitted_at ? new Date(p.submitted_at).toLocaleString() : '', p.created_at ? new Date(p.created_at).toLocaleString() : '']);
   });
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');

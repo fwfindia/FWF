@@ -4171,7 +4171,7 @@ app.post('/api/quiz-ticket/:token/enroll', async (req, res) => {
     const randomDigits = Math.floor(10000 + Math.random() * 90000);
     const enrollmentNumber = `FWF-${quiz.quiz_id}-${randomDigits}`;
 
-    // Create participation for buyer
+    // Create participation for buyer (quiz_started_at is set now — questions returned immediately)
     const participation = await QuizParticipation.create({
       quiz_id: quiz._id,
       quiz_ref: quiz.quiz_id,
@@ -4183,7 +4183,8 @@ app.post('/api/quiz-ticket/:token/enroll', async (req, res) => {
       payment_status: 'paid',
       amount_paid: ticket.ticket_price,
       referrer_id: ticket.seller_id,
-      status: 'enrolled'
+      status: 'enrolled',
+      quiz_started_at: new Date()
     });
 
     // Update quiz participant count
@@ -4250,10 +4251,15 @@ app.post('/api/quiz-ticket/:token/submit-quiz', async (req, res) => {
     const passing_score = Math.ceil(totalQ / 2);
     const passed = score >= passing_score;
 
+    const now = new Date();
+    const speedSeconds = participation.quiz_started_at
+      ? Math.max(1, Math.floor((now.getTime() - new Date(participation.quiz_started_at).getTime()) / 1000))
+      : null;
     participation.answers = scoredAnswers;
     participation.score = score;
+    participation.speed_seconds = speedSeconds;
     participation.quiz_submitted = true;
-    participation.submitted_at = new Date();
+    participation.submitted_at = now;
     participation.status = passed ? 'submitted' : 'failed';
     await participation.save();
 
@@ -4320,6 +4326,7 @@ app.post('/api/quiz-ticket/:token/submit-quiz', async (req, res) => {
       totalQuestions: totalQ,
       passing_score,
       passed,
+      speed_seconds: speedSeconds,
       enrollment_number: participation.enrollment_number,
       support_id: supportId,
       buyer_account: buyerAccount,
@@ -4734,7 +4741,7 @@ app.get('/api/admin/quiz/:quizId/participants', auth('admin'), async (req, res) 
       .sort({ created_at: -1 })
       .skip((page - 1) * limit)
       .limit(Number(limit))
-      .select('name member_id user_id enrollment_number payment_id amount_paid payment_status score quiz_submitted submitted_at status prize_won created_at answers')
+      .select('name member_id user_id enrollment_number payment_id amount_paid payment_status score speed_seconds quiz_submitted submitted_at status prize_won created_at answers')
       .lean();
     // Enrich with user mobile & email for admin contact
     const userIds = participants.map(p => p.user_id).filter(Boolean);
