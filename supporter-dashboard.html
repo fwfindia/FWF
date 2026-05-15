@@ -1900,8 +1900,8 @@ body.modal-open #fabDonate{ display:none !important; }
         <button class="btn btn-success" onclick="closeModal('redeemModal')" style="margin-top:20px">OK, Got it!</button>
       </div>
 
-      <!-- Form screen -->
-      <div id="redeemFormScreen" style="display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden">
+      <!-- Form screen (scrollable) -->
+      <div id="redeemFormScreen" style="flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain">
         <div class="modal-body">
           <div style="background:var(--accent-soft);padding:14px;border-radius:10px;margin-bottom:16px;text-align:center">
             <div style="font-size:12px;color:var(--text-muted);font-weight:700">Available Points</div>
@@ -1970,10 +1970,11 @@ body.modal-open #fabDonate{ display:none !important; }
             </select>
           </div>
         </div>
-        <div class="modal-actions">
-          <button class="btn btn-ghost" onclick="closeModal('redeemModal')">Cancel</button>
-          <button class="btn btn-success" id="submitRedeemBtn" onclick="submitRedeemRequest()"><i class="fa-solid fa-check"></i> Submit Request</button>
-        </div>
+      </div>
+      <!-- Actions pinned at bottom, outside scroll container -->
+      <div class="modal-actions" id="redeemModalActions">
+        <button class="btn btn-ghost" onclick="closeModal('redeemModal')">Cancel</button>
+        <button class="btn btn-success" id="submitRedeemBtn" onclick="submitRedeemRequest()"><i class="fa-solid fa-check"></i> Submit Request</button>
       </div>
     </div>
   </div>
@@ -3188,6 +3189,7 @@ function openRedeemModal(){
   // Show form, hide success
   document.getElementById('redeemFormScreen').style.display = '';
   document.getElementById('redeemSuccessScreen').style.display = 'none';
+  document.getElementById('redeemModalActions').style.display = '';
   openModal('redeemModal');
 }
 function updateRedeemAmount(){
@@ -3238,6 +3240,7 @@ async function submitRedeemRequest(){
     document.getElementById('redeemSuccessAmt').textContent = '₹' + (result.amount_inr || points * 10);
     document.getElementById('redeemFormScreen').style.display = 'none';
     document.getElementById('redeemSuccessScreen').style.display = '';
+    document.getElementById('redeemModalActions').style.display = 'none';
     memberData = null; loadWallet();
   } catch(e){ notify(e.message || 'Redemption failed', 'error'); }
   finally { btn.disabled = false; }
