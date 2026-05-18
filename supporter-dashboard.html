@@ -1901,7 +1901,7 @@ body.modal-open #fabDonate{ display:none !important; }
       </div>
 
       <!-- Form screen (scrollable) -->
-      <div id="redeemFormScreen" style="flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain">
+      <div id="redeemFormScreen" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain">
         <div class="modal-body">
           <div style="background:var(--accent-soft);padding:14px;border-radius:10px;margin-bottom:16px;text-align:center">
             <div style="font-size:12px;color:var(--text-muted);font-weight:700">Available Points</div>
@@ -4207,6 +4207,8 @@ async function openQuizPlay(quizId, enrollmentNum){
     window.submitQuizAnswers = async (qId) => {
       const unanswered = questions.filter((_,i) => answers[i] === undefined).length;
       const doSubmit = async () => {
+        const submitBtn = document.querySelector('#quizPlayActions button.btn-success');
+        if(submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
         try {
           const formattedAnswers = questions.map((q,i) => ({ q_no: q.q_no, selected: answers[i] ?? -1 }));
           const res = await AUTH.api('/api/member/quiz-submit', { method:'POST', body:{ quiz_id: qId, answers: formattedAnswers } });
@@ -4215,8 +4217,14 @@ async function openQuizPlay(quizId, enrollmentNum){
             quizLoaded = false; loadQuizPage();
             showQuizResult({ score: res.score, total: res.totalQuestions, passed: res.passed,
               enrollmentNumber: res.enrollment_number, resultDate: res.result_date });
-          } else { notify(res.error || 'Submit failed', 'error'); }
-        } catch(e){ notify('Submit failed','error'); }
+          } else {
+            if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '✓ Submit Quiz'; }
+            notify(res.error || 'Submit failed', 'error');
+          }
+        } catch(e){
+          if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '✓ Submit Quiz'; }
+          notify(e.message || 'Submit failed','error');
+        }
       };
       if(unanswered > 0){
         FWF_Notify.confirm(
