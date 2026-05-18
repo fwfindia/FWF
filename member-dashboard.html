@@ -919,12 +919,16 @@ textarea.form-input{ resize:vertical; min-height:80px; }
   padding:24px 28px;
   overflow-y:auto;
   flex:1;
+  min-height:0;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
 }
 .modal-actions{ 
   display:flex; gap:10px; justify-content:flex-end; 
   padding:20px 28px;
   border-top:1px solid var(--card-border);
   background:var(--bg-1);
+  flex-shrink:0;
 }
 .modal-overlay{
   position:fixed; inset:0; z-index:999;
@@ -5611,6 +5615,8 @@ async function openQuizPlay(quizId){
     window.submitQuizAnswers = async (qId) => {
       const unanswered = questions.filter((_,i) => answers[i] === undefined).length;
       if(unanswered > 0 && !confirm(`${unanswered} questions unanswered! Submit anyway?`)) return;
+      const submitBtn = document.querySelector('#quizPlayActions button.btn-success');
+      if(submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
       try {
         const formattedAnswers = questions.map((q,i) => ({ q_no: q.q_no, selected: answers[i] ?? -1 }));
         const res = await AUTH.api('/api/member/quiz-submit', {
@@ -5622,8 +5628,14 @@ async function openQuizPlay(quizId){
           document.getElementById('quizPlayModal').remove();
           quizLoaded = false;
           loadQuizPage();
-        } else { notify(res.error, 'error'); }
-      } catch(e){ notify('Submit failed','error'); }
+        } else {
+          if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Quiz'; }
+          notify(res.error, 'error');
+        }
+      } catch(e){
+        if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Quiz'; }
+        notify(e.message || 'Submit failed','error');
+      }
     };
 
     renderQuestion();
