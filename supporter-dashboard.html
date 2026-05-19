@@ -1883,8 +1883,8 @@ body.modal-open #fabDonate{ display:none !important; }
 
   <!-- Redeem Modal -->
   <div class="modal" id="redeemModal">
-    <div class="modal-content" style="max-width:540px">
-      <div class="modal-header">
+    <div class="modal-content" style="max-width:540px;display:block;overflow-y:auto">
+      <div class="modal-header" style="position:sticky;top:0;z-index:2">
         <h3><i class="fa-solid fa-gift"></i> Redeem Points</h3>
         <button class="modal-close" onclick="closeModal('redeemModal')">&times;</button>
       </div>
@@ -1900,8 +1900,8 @@ body.modal-open #fabDonate{ display:none !important; }
         <button class="btn btn-success" onclick="closeModal('redeemModal')" style="margin-top:20px">OK, Got it!</button>
       </div>
 
-      <!-- Form screen (scrollable) -->
-      <div id="redeemFormScreen" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain">
+      <!-- Form screen -->
+      <div id="redeemFormScreen">
         <div class="modal-body">
           <div style="background:var(--accent-soft);padding:14px;border-radius:10px;margin-bottom:16px;text-align:center">
             <div style="font-size:12px;color:var(--text-muted);font-weight:700">Available Points</div>
@@ -1971,8 +1971,7 @@ body.modal-open #fabDonate{ display:none !important; }
           </div>
         </div>
       </div>
-      <!-- Actions pinned at bottom, outside scroll container -->
-      <div class="modal-actions" id="redeemModalActions">
+      <div class="modal-actions" id="redeemModalActions" style="position:sticky;bottom:0">
         <button class="btn btn-ghost" onclick="closeModal('redeemModal')">Cancel</button>
         <button class="btn btn-success" id="submitRedeemBtn" onclick="submitRedeemRequest()"><i class="fa-solid fa-check"></i> Submit Request</button>
       </div>
