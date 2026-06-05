@@ -6379,7 +6379,7 @@ async function startServer() {
     console.log(`🚀 FWF backend running on http://localhost:${PORT}`);
     console.log(`📦 Database: MongoDB Atlas`);
     console.log(`🌐 Site served from: ${siteRoot}`);
-    console.log(`🏷️  Build: 2026-06-05-v5 (loan+quiz+index fixes)`);
+      console.log(`🏷️  Build: 2026-06-05-v6 (quiz ledger guard active)`);
     // ── Email config check ──
     const resendKey = process.env.RESEND_API_KEY;
     const mailFrom  = process.env.MAIL_FROM;
