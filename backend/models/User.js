@@ -25,15 +25,15 @@ const memberProjectSchema = new mongoose.Schema({
 }, { _id: false });
 
 const userSchema = new mongoose.Schema({
-  member_id: { type: String, required: true, unique: true, index: true },
+  member_id: { type: String, required: true, unique: true },
   name: { type: String, required: true },
-  mobile: { type: String, unique: true, sparse: true, index: true },
-  email: { type: String, unique: true, sparse: true, index: true },
+  mobile: { type: String, unique: true, sparse: true },
+  email: { type: String, unique: true, sparse: true },
   password_hash: { type: String, required: true },
   role: { type: String, enum: ['member', 'admin', 'supporter'], default: 'member', index: true },
   membership_active: { type: Boolean, default: false },
   first_login_done: { type: Boolean, default: false },
-  referral_code: { type: String, unique: true, sparse: true, index: true },
+  referral_code: { type: String, unique: true, sparse: true },
   referred_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   avatar_url: String,
   bio: String,
