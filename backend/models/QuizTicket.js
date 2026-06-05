@@ -10,7 +10,7 @@ const quizTicketSchema = new mongoose.Schema({
   quiz_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
 
   // Shareable token for the buyer link
-  token: { type: String, unique: true, index: true },
+  token: { type: String, unique: true },
 
   // Buyer info (filled when seller generates link)
   buyer_name: { type: String },
