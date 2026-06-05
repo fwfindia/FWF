@@ -591,6 +591,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         </button>
         <button class="nav-item" data-page="funds">
           <i class="fa-solid fa-piggy-bank"></i> Funds & Loans
+          <span class="nav-badge" id="loanPendingBadge" style="display:none;background:#8b5cf6">0</span>
         </button>
         <button class="nav-item" data-page="invoices">
           <i class="fa-solid fa-file-invoice"></i> Invoices
@@ -2314,31 +2315,9 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         <input type="number" class="form-input" id="alMoratorium" placeholder="0" min="0" value="0">
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Purpose / Project *</label>
-        <input type="text" class="form-input" id="alPurpose" placeholder="e.g. Agarbatti Unit setup">
-      </div>
-      <div class="form-group">
-        <label>Disbursement Date</label>
-        <input type="date" class="form-input" id="alDisbursedDate">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Payment Mode</label>
-        <select class="form-input" id="alMode">
-          <option value="bank_transfer">Bank Transfer</option>
-          <option value="upi">UPI</option>
-          <option value="cheque">Cheque</option>
-          <option value="cash">Cash</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Reference / UTR</label>
-        <input type="text" class="form-input" id="alRef" placeholder="Transaction reference">
-      </div>
+    <div class="form-group">
+      <label>Purpose / Project *</label>
+      <input type="text" class="form-input" id="alPurpose" placeholder="e.g. Agarbatti Unit setup, Tailoring machine, etc.">
     </div>
     <div class="form-group">
       <label>Notes / Agreement Terms</label>
@@ -2351,6 +2330,42 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('addLoanModal')">Cancel</button>
       <button class="btn btn-primary" id="alSubmit" onclick="submitLoanAgreement()"><i class="fa-solid fa-file-contract"></i> Create Agreement</button>
+    </div>
+  </div>
+</div>
+
+<!-- Disburse Loan Modal -->
+<div class="modal-overlay hidden" id="disburseModal">
+  <div class="modal-card" style="max-width:480px">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-money-bill-transfer"></i> Disburse Loan</h3>
+      <button class="modal-close" onclick="closeModal('disburseModal')">&times;</button>
+    </div>
+    <input type="hidden" id="disbLoanId">
+    <div id="disbLoanInfo" style="padding:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Actual Amount Transferred (₹) *</label>
+        <input type="number" class="form-input" id="disbAmount" min="1">
+      </div>
+      <div class="form-group">
+        <label>Payment Mode</label>
+        <select class="form-input" id="disbMode">
+          <option value="bank_transfer">Bank Transfer (NEFT/IMPS/RTGS)</option>
+          <option value="upi">UPI</option>
+          <option value="cheque">Cheque</option>
+          <option value="cash">Cash</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>UTR / Reference Number *</label>
+      <input type="text" class="form-input" id="disbUTR" placeholder="e.g. 506221234567890" style="font-family:monospace">
+      <small style="color:var(--text-muted);font-size:11px">This will be sent to the member as proof of transfer.</small>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('disburseModal')">Cancel</button>
+      <button class="btn btn-primary" id="disbSubmit" onclick="submitDisburse()"><i class="fa-solid fa-money-bill-transfer"></i> Confirm Disbursement</button>
     </div>
   </div>
 </div>
@@ -4625,22 +4640,6 @@ document.addEventListener('click', e => {
    LOAN AGREEMENT & REPAYMENT MANAGEMENT
    ============================================ */
 
-// In-memory store (client-side) — production would use API
-let _loanAgreements = JSON.parse(localStorage.getItem('fwf_loans') || '[]');
-let _loanRepayments = JSON.parse(localStorage.getItem('fwf_repayments') || '[]');
-
-function saveLoanData(){
-  localStorage.setItem('fwf_loans', JSON.stringify(_loanAgreements));
-  localStorage.setItem('fwf_repayments', JSON.stringify(_loanRepayments));
-}
-
-function genLoanId(){
-  return 'LN-' + Date.now().toString(36).toUpperCase();
-}
-function genRepayId(){
-  return 'RP-' + Date.now().toString(36).toUpperCase();
-}
-
 function calcLoanEMI(){
   const amt = parseFloat(document.getElementById('alAmount').value) || 0;
   const tenure = parseInt(document.getElementById('alTenure').value) || 0;
@@ -4660,89 +4659,118 @@ function switchLoanTab(tab){
   document.getElementById('loanRepaymentsTabBtn').className = isAgreements ? 'btn btn-ghost' : 'btn btn-primary';
 }
 
-function loadLoanAgreements(){
-  const tbody = document.getElementById('loanAgreementsBody');
-  updateLoanStats();
-  if(!_loanAgreements.length){
-    tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><i class="fa-solid fa-file-signature"></i><p>No loan agreements yet. Click "+ New Loan Agreement" to create one.</p></td></tr>';
-    return;
-  }
-  tbody.innerHTML = _loanAgreements.map(ln => {
-    const paid = _loanRepayments.filter(r => r.loanId === ln.id).reduce((s,r) => s + r.amount, 0);
-    const outstanding = Math.max(0, ln.amount - paid);
-    const pct = ln.amount > 0 ? Math.min(100, Math.round(paid/ln.amount*100)) : 0;
-    const statusColor = ln.status === 'active' ? 'var(--success)' : ln.status === 'closed' ? 'var(--text-muted)' : 'var(--warning)';
-    return `<tr>
-      <td style="font-weight:800;font-size:12px">${ln.id}</td>
-      <td><b>${ln.memberName || ln.memberId}</b><br><small style="color:var(--text-muted)">${ln.memberId}</small></td>
-      <td style="font-weight:800">₹${fmtN(ln.amount)}</td>
-      <td style="font-size:12px">${ln.purpose}</td>
-      <td>${ln.tenure} mo.</td>
-      <td style="font-weight:700;color:var(--accent)">₹${fmtN(ln.emi)}/mo</td>
-      <td style="font-size:12px">${ln.disbursedDate || '—'}</td>
-      <td>
-        <div style="font-size:12px;margin-bottom:4px">
-          <span style="color:var(--success)">Paid: ₹${fmtN(paid)}</span> &nbsp;|&nbsp;
-          <span style="color:var(--danger)">Due: ₹${fmtN(outstanding)}</span>
-        </div>
-        <div style="background:#e5e7eb;border-radius:99px;height:6px;overflow:hidden">
-          <div style="background:var(--success);width:${pct}%;height:100%;border-radius:99px"></div>
-        </div>
-        <small style="color:var(--text-muted)">${pct}% repaid</small>
-      </td>
-      <td><span style="font-weight:700;font-size:12px;color:${statusColor}">${ln.status.toUpperCase()}</span></td>
-      <td>
-        <div style="display:flex;gap:4px;flex-wrap:wrap">
-          <button class="btn btn-success" style="font-size:11px;padding:4px 10px" onclick="openRecordRepayment('${ln.id}')"><i class="fa-solid fa-plus"></i> EMI</button>
-          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="toggleLoanStatus('${ln.id}')">${ln.status === 'active' ? 'Close' : 'Reopen'}</button>
-          <button class="btn" style="font-size:11px;padding:4px 10px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteLoanAgreement('${ln.id}')"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
+// Status config
+const LOAN_STATUS_CFG = {
+  pending_acceptance: { label: 'Pending Acceptance', color: '#f59e0b', bg: '#fef3c7' },
+  accepted:           { label: 'Accepted',           color: '#3b82f6', bg: '#dbeafe' },
+  mandate_done:       { label: 'Mandate Done ⚡',    color: '#8b5cf6', bg: '#ede9fe' },
+  active:             { label: 'Active',             color: '#16a34a', bg: '#dcfce7' },
+  closed:             { label: 'Closed',             color: '#6b7280', bg: '#f3f4f6' },
+  rejected:           { label: 'Rejected',           color: '#dc2626', bg: '#fee2e2' },
+};
+function loanStatusBadge(status){
+  const c = LOAN_STATUS_CFG[status] || { label: status, color: '#6b7280', bg: '#f3f4f6' };
+  return `<span style="padding:3px 10px;border-radius:99px;font-size:11px;font-weight:800;background:${c.bg};color:${c.color}">${c.label}</span>`;
 }
 
-function loadLoanRepayments(){
+// Cache
+let _loanData = [];
+let _loanRepayData = [];
+
+async function loadLoanAgreements(){
+  const tbody = document.getElementById('loanAgreementsBody');
+  tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading...</p></td></tr>';
+  try {
+    const d = await AUTH.api('/api/admin/loans');
+    _loanData = d.loans || [];
+    updateLoanStats();
+    if(!_loanData.length){
+      tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><i class="fa-solid fa-file-signature"></i><p>No loan agreements yet.</p></td></tr>';
+      return;
+    }
+    tbody.innerHTML = _loanData.map(ln => {
+      const paid = ln.totalRepaid || 0;
+      const outstanding = Math.max(0, ln.amount - paid);
+      const pct = ln.amount > 0 ? Math.min(100, Math.round(paid/ln.amount*100)) : 0;
+      const canDisburse = ln.status === 'mandate_done';
+      const canEMI = ln.status === 'active';
+      const canClose = ln.status === 'active';
+      const canReopen = ln.status === 'closed';
+      return `<tr>
+        <td style="font-weight:800;font-size:12px">${ln.loanId}</td>
+        <td><b>${ln.memberName || ln.memberId}</b><br><small style="color:var(--text-muted)">${ln.memberId}</small></td>
+        <td style="font-weight:800">₹${fmtN(ln.amount)}</td>
+        <td style="font-size:12px">${ln.purpose}</td>
+        <td>${ln.tenure} mo.</td>
+        <td style="font-weight:700;color:var(--accent)">₹${fmtN(ln.emi)}/mo</td>
+        <td style="font-size:12px">${ln.disbursedAt ? new Date(ln.disbursedAt).toLocaleDateString('en-IN') : '—'}</td>
+        <td>
+          <div style="font-size:12px;margin-bottom:4px">
+            <span style="color:var(--success)">Paid: ₹${fmtN(paid)}</span> &nbsp;|&nbsp;
+            <span style="color:var(--danger)">Due: ₹${fmtN(outstanding)}</span>
+          </div>
+          <div style="background:#e5e7eb;border-radius:99px;height:6px;overflow:hidden">
+            <div style="background:var(--success);width:${pct}%;height:100%;border-radius:99px"></div>
+          </div>
+          <small style="color:var(--text-muted)">${pct}% repaid</small>
+        </td>
+        <td>${loanStatusBadge(ln.status)}</td>
+        <td>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            ${canDisburse ? `<button class="btn btn-primary" style="font-size:11px;padding:5px 10px" onclick="openDisburseModal('${ln.loanId}',${ln.amount},${ln.emi},'${ln.memberName||ln.memberId}')"><i class="fa-solid fa-money-bill-transfer"></i> Disburse</button>` : ''}
+            ${canEMI ? `<button class="btn btn-success" style="font-size:11px;padding:4px 10px" onclick="openRecordRepayment('${ln.loanId}',${ln.emi},'${(ln.memberName||'').replace(/'/g,"\\'")}',${paid},${outstanding})"><i class="fa-solid fa-plus"></i> EMI</button>` : ''}
+            ${canClose ? `<button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="setLoanStatus('${ln.loanId}','closed')">Close</button>` : ''}
+            ${canReopen ? `<button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="setLoanStatus('${ln.loanId}','active')">Reopen</button>` : ''}
+            <button class="btn" style="font-size:11px;padding:4px 10px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteLoanAgreement('${ln.loanId}')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+    // Check pending-action badge
+    loadLoanPendingBadge();
+  } catch(e){ notify('Failed to load loans: ' + e.message, 'error'); }
+}
+
+async function loadLoanRepayments(){
   const tbody = document.getElementById('loanRepaymentsBody');
   const filter = (document.getElementById('loanRepayFilter')?.value || '').toLowerCase();
-  const list = filter
-    ? _loanRepayments.filter(r => r.loanId.toLowerCase().includes(filter) || (r.memberName||'').toLowerCase().includes(filter) || (r.memberId||'').toLowerCase().includes(filter))
-    : _loanRepayments;
-  if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fa-solid fa-receipt"></i><p>No repayment records yet.</p></td></tr>';
-    return;
-  }
-  tbody.innerHTML = [...list].reverse().map(r => `<tr>
-    <td style="font-weight:800;font-size:12px">${r.id}</td>
-    <td style="font-weight:700">${r.loanId}</td>
-    <td><b>${r.memberName || r.memberId}</b></td>
-    <td style="font-weight:800;color:var(--success)">₹${fmtN(r.amount)}</td>
-    <td>${r.mode}</td>
-    <td style="font-size:12px">${r.ref || '—'}</td>
-    <td>${r.date}</td>
-    <td style="font-size:12px">${r.recordedBy || 'Admin'}</td>
-    <td>
-      <button class="btn" style="font-size:11px;padding:4px 10px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteRepayment('${r.id}')"><i class="fa-solid fa-trash"></i></button>
-    </td>
-  </tr>`).join('');
+  tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i></td></tr>';
+  try {
+    const url = '/api/admin/loans/all-repayments' + (filter ? '?q=' + encodeURIComponent(filter) : '');
+    const d = await AUTH.api(url);
+    _loanRepayData = d.repayments || [];
+    if(!_loanRepayData.length){
+      tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fa-solid fa-receipt"></i><p>No repayment records yet.</p></td></tr>';
+      return;
+    }
+    tbody.innerHTML = _loanRepayData.map(r => `<tr>
+      <td style="font-weight:800;font-size:12px">${r.repayId}</td>
+      <td style="font-weight:700">${r.loanId}</td>
+      <td><b>${r.memberName || r.memberId}</b></td>
+      <td style="font-weight:800;color:var(--success)">₹${fmtN(r.amount)}</td>
+      <td>${r.mode}</td>
+      <td style="font-size:12px">${r.utrRef || '—'}</td>
+      <td>${r.date ? new Date(r.date).toLocaleDateString('en-IN') : '—'}</td>
+      <td style="font-size:12px">${r.recordedBy || 'Admin'}</td>
+      <td>
+        <button class="btn" style="font-size:11px;padding:4px 10px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteLoanRepayment('${r.repayId}')"><i class="fa-solid fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+  } catch(e){ notify('Failed to load repayments: ' + e.message, 'error'); }
 }
 
 function updateLoanStats(){
-  const active = _loanAgreements.filter(l => l.status === 'active').length;
-  const disbursed = _loanAgreements.reduce((s,l) => s + l.amount, 0);
-  const repaid = _loanRepayments.reduce((s,r) => s + r.amount, 0);
-  // Overdue: active loans where last repayment > 35 days ago or no repayment in last month
+  const active = _loanData.filter(l => l.status === 'active').length;
+  const disbursed = _loanData.filter(l => ['active','closed','mandate_done'].includes(l.status)).reduce((s,l) => s + l.amount, 0);
+  const repaid = _loanData.reduce((s,l) => s + (l.totalRepaid||0), 0);
   let overdue = 0;
   const now = Date.now();
-  _loanAgreements.filter(l => l.status === 'active').forEach(ln => {
-    const lrps = _loanRepayments.filter(r => r.loanId === ln.id);
-    if(!lrps.length && ln.disbursedDate){
-      const disbDate = new Date(ln.disbursedDate).getTime();
-      const morDays = (ln.moratorium || 0) * 30 * 24 * 3600 * 1000;
-      if(now - disbDate - morDays > 40 * 24 * 3600 * 1000) overdue++;
-    } else if(lrps.length > 0){
-      const lastRp = Math.max(...lrps.map(r => new Date(r.date).getTime()));
-      if(now - lastRp > 40 * 24 * 3600 * 1000) overdue++;
+  _loanData.filter(l => l.status === 'active').forEach(ln => {
+    if(ln.disbursedAt){
+      const disbDate = new Date(ln.disbursedAt).getTime();
+      const morDays = (ln.moratorium||0) * 30 * 24 * 3600 * 1000;
+      const lastRpDate = ln.lastRepayDate ? new Date(ln.lastRepayDate).getTime() : disbDate;
+      if(now - Math.max(disbDate + morDays, lastRpDate) > 40 * 24 * 3600 * 1000) overdue++;
     }
   });
   document.getElementById('loanStatActive').textContent = active;
@@ -4751,7 +4779,15 @@ function updateLoanStats(){
   document.getElementById('loanStatOverdue').textContent = overdue;
 }
 
-function submitLoanAgreement(){
+async function loadLoanPendingBadge(){
+  try {
+    const d = await AUTH.api('/api/admin/loans/pending-action');
+    const badge = document.getElementById('loanPendingBadge');
+    if(badge) { badge.textContent = d.count; badge.style.display = d.count > 0 ? '' : 'none'; }
+  } catch(e){}
+}
+
+async function submitLoanAgreement(){
   const memberId = document.getElementById('alMemberId').value.trim();
   const memberName = document.getElementById('alMemberName').value.trim();
   const amount = parseFloat(document.getElementById('alAmount').value);
@@ -4759,124 +4795,120 @@ function submitLoanAgreement(){
   const emi = parseFloat(document.getElementById('alEMI').value) || Math.ceil(amount/tenure);
   const moratorium = parseInt(document.getElementById('alMoratorium').value) || 0;
   const purpose = document.getElementById('alPurpose').value.trim();
-  const disbursedDate = document.getElementById('alDisbursedDate').value;
-  const mode = document.getElementById('alMode').value;
-  const ref = document.getElementById('alRef').value.trim();
   const notes = document.getElementById('alNotes').value.trim();
-
-  if(!memberId || !amount || !tenure || !purpose){
-    notify('Please fill Member ID, Amount, Tenure and Purpose.', 'error'); return;
-  }
-
-  const loan = {
-    id: genLoanId(),
-    memberId, memberName, amount, tenure, emi, moratorium,
-    purpose, disbursedDate, mode, ref, notes,
-    status: 'active',
-    createdAt: new Date().toISOString()
-  };
-  _loanAgreements.push(loan);
-  saveLoanData();
-  closeModal('addLoanModal');
-  loadLoanAgreements();
-  notify(`Loan agreement ${loan.id} created for ${memberId}`, 'success');
-  // Clear form
-  ['alMemberId','alMemberName','alAmount','alTenure','alEMI','alMoratorium','alPurpose','alDisbursedDate','alRef','alNotes'].forEach(id => {
-    const el = document.getElementById(id); if(el) el.value = '';
-  });
+  if(!memberId || !amount || !tenure || !purpose){ notify('Please fill Member ID, Amount, Tenure and Purpose.', 'error'); return; }
+  const btn = document.getElementById('alSubmit');
+  btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    const d = await AUTH.api('/api/admin/loans', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ memberId, memberName, amount, tenure, emi, moratorium, purpose, notes }) });
+    if(!d.ok) throw new Error(d.error || 'Failed');
+    closeModal('addLoanModal');
+    notify(`Loan agreement ${d.loan.loanId} created for ${memberId}. Member notified by email.`, 'success');
+    ['alMemberId','alMemberName','alAmount','alTenure','alEMI','alMoratorium','alPurpose','alNotes'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    loadLoanAgreements();
+  } catch(e){ notify('Error: ' + e.message, 'error'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-file-contract"></i> Create Agreement';
 }
 
-function openRecordRepayment(loanId){
-  const ln = _loanAgreements.find(l => l.id === loanId);
-  if(!ln){ notify('Loan not found','error'); return; }
-  const paid = _loanRepayments.filter(r => r.loanId === loanId).reduce((s,r) => s + r.amount, 0);
-  const outstanding = Math.max(0, ln.amount - paid);
+function openDisburseModal(loanId, amount, emi, memberName){
+  document.getElementById('disbLoanId').value = loanId;
+  document.getElementById('disbLoanInfo').innerHTML = `<b>${loanId}</b> — ${memberName} &nbsp;|&nbsp; Amount: <b>₹${fmtN(amount)}</b> &nbsp;|&nbsp; EMI: <b>₹${fmtN(emi)}/mo</b>`;
+  document.getElementById('disbAmount').value = amount;
+  document.getElementById('disbUTR').value = '';
+  document.getElementById('disbMode').value = 'bank_transfer';
+  openModal('disburseModal');
+}
+
+async function submitDisburse(){
+  const loanId = document.getElementById('disbLoanId').value;
+  const utrNumber = document.getElementById('disbUTR').value.trim();
+  const disbursedAmount = parseFloat(document.getElementById('disbAmount').value);
+  const disbursedMode = document.getElementById('disbMode').value;
+  if(!utrNumber){ notify('UTR/Reference number is required', 'error'); return; }
+  const btn = document.getElementById('disbSubmit');
+  btn.disabled = true; btn.textContent = 'Processing…';
+  try {
+    const d = await AUTH.api(`/api/admin/loans/${loanId}/disburse`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ utrNumber, disbursedAmount, disbursedMode }) });
+    if(!d.ok) throw new Error(d.error || 'Failed');
+    closeModal('disburseModal');
+    notify(`Loan ${loanId} disbursed! Member notified by email.`, 'success');
+    loadLoanAgreements();
+  } catch(e){ notify('Error: ' + e.message, 'error'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-money-bill-transfer"></i> Confirm Disbursement';
+}
+
+function openRecordRepayment(loanId, emi, memberName, paid, outstanding){
   document.getElementById('rrLoanId').value = loanId;
   document.getElementById('rrLoanInfo').innerHTML =
-    `<b>${ln.id}</b> — ${ln.memberName || ln.memberId} &nbsp;|&nbsp; EMI: <b>₹${fmtN(ln.emi)}</b>/mo &nbsp;|&nbsp; Paid: <b style="color:var(--success)">₹${fmtN(paid)}</b> &nbsp;|&nbsp; Outstanding: <b style="color:var(--danger)">₹${fmtN(outstanding)}</b>`;
-  document.getElementById('rrAmount').value = ln.emi;
+    `<b>${loanId}</b> — ${memberName} &nbsp;|&nbsp; EMI: <b>₹${fmtN(emi)}</b>/mo &nbsp;|&nbsp; Paid: <b style="color:var(--success)">₹${fmtN(paid)}</b> &nbsp;|&nbsp; Outstanding: <b style="color:var(--danger)">₹${fmtN(outstanding)}</b>`;
+  document.getElementById('rrAmount').value = emi;
   document.getElementById('rrDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('rrRef').value = '';
   document.getElementById('rrRemarks').value = '';
   openModal('recordRepaymentModal');
 }
 
-function submitLoanRepayment(){
+async function submitLoanRepayment(){
   const loanId = document.getElementById('rrLoanId').value;
   const amount = parseFloat(document.getElementById('rrAmount').value);
   const date = document.getElementById('rrDate').value;
   const mode = document.getElementById('rrMode').value;
   const ref = document.getElementById('rrRef').value.trim();
   const remarks = document.getElementById('rrRemarks').value.trim();
-
-  if(!loanId || !amount || !date){
-    notify('Please fill Amount and Date.', 'error'); return;
-  }
-  const ln = _loanAgreements.find(l => l.id === loanId);
-  const rp = {
-    id: genRepayId(),
-    loanId, memberId: ln?.memberId || '', memberName: ln?.memberName || '',
-    amount, date, mode, ref, remarks,
-    recordedBy: 'Admin',
-    createdAt: new Date().toISOString()
-  };
-  _loanRepayments.push(rp);
-  // Auto-close loan if fully repaid
-  if(ln){
-    const totalPaid = _loanRepayments.filter(r => r.loanId === loanId).reduce((s,r) => s + r.amount, 0);
-    if(totalPaid >= ln.amount) ln.status = 'closed';
-  }
-  saveLoanData();
-  closeModal('recordRepaymentModal');
-  loadLoanAgreements();
-  loadLoanRepayments();
-  notify(`Repayment ₹${fmtN(amount)} recorded for ${loanId}`, 'success');
+  if(!loanId || !amount || !date){ notify('Please fill Amount and Date.', 'error'); return; }
+  const btn = document.getElementById('rrSubmit');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const d = await AUTH.api(`/api/admin/loans/${loanId}/repayment`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ amount, date, mode, utrRef: ref, remarks }) });
+    if(!d.ok) throw new Error(d.error || 'Failed');
+    closeModal('recordRepaymentModal');
+    notify(`Repayment ₹${fmtN(amount)} recorded for ${loanId}`, 'success');
+    loadLoanAgreements();
+    loadLoanRepayments();
+  } catch(e){ notify('Error: ' + e.message, 'error'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Record Payment';
 }
 
-function toggleLoanStatus(loanId){
-  const ln = _loanAgreements.find(l => l.id === loanId);
-  if(!ln) return;
-  ln.status = ln.status === 'active' ? 'closed' : 'active';
-  saveLoanData();
-  loadLoanAgreements();
-  notify(`Loan ${loanId} marked as ${ln.status}`, 'success');
+async function setLoanStatus(loanId, status){
+  const label = status === 'closed' ? 'Close' : 'Reopen';
+  if(!confirm(`${label} loan ${loanId}?`)) return;
+  try {
+    const d = await AUTH.api(`/api/admin/loans/${loanId}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status }) });
+    if(!d.ok) throw new Error(d.error || 'Failed');
+    notify(`Loan ${loanId} marked as ${status}`, 'success');
+    loadLoanAgreements();
+  } catch(e){ notify('Error: ' + e.message, 'error'); }
 }
 
-function deleteLoanAgreement(loanId){
-  if(!confirm(`Delete loan agreement ${loanId}? This also removes all its repayment records.`)) return;
-  _loanAgreements = _loanAgreements.filter(l => l.id !== loanId);
-  _loanRepayments = _loanRepayments.filter(r => r.loanId !== loanId);
-  saveLoanData();
-  loadLoanAgreements();
-  loadLoanRepayments();
-  notify('Loan agreement deleted.', 'success');
+async function deleteLoanAgreement(loanId){
+  if(!confirm(`Delete loan agreement ${loanId}? This also removes all repayment records.`)) return;
+  try {
+    const d = await AUTH.api(`/api/admin/loans/${loanId}`, { method:'DELETE' });
+    if(!d.ok) throw new Error(d.error || 'Failed');
+    notify('Loan agreement deleted.', 'success');
+    loadLoanAgreements();
+    loadLoanRepayments();
+  } catch(e){ notify('Error: ' + e.message, 'error'); }
 }
 
-function deleteRepayment(rpId){
+async function deleteLoanRepayment(repayId){
   if(!confirm('Delete this repayment record?')) return;
-  const rp = _loanRepayments.find(r => r.id === rpId);
-  _loanRepayments = _loanRepayments.filter(r => r.id !== rpId);
-  // Reopen loan if it was auto-closed
-  if(rp){
-    const ln = _loanAgreements.find(l => l.id === rp.loanId);
-    if(ln && ln.status === 'closed'){
-      const totalPaid = _loanRepayments.filter(r => r.loanId === rp.loanId).reduce((s,r) => s + r.amount, 0);
-      if(totalPaid < ln.amount) ln.status = 'active';
-    }
-  }
-  saveLoanData();
-  loadLoanRepayments();
-  updateLoanStats();
-  notify('Repayment record deleted.', 'success');
+  try {
+    const d = await AUTH.api(`/api/admin/loans/repayment/${repayId}`, { method:'DELETE' });
+    if(!d.ok) throw new Error(d.error || 'Failed');
+    notify('Repayment deleted.', 'success');
+    loadLoanAgreements();
+    loadLoanRepayments();
+  } catch(e){ notify('Error: ' + e.message, 'error'); }
 }
 
 document.getElementById('loanRepayFilter')?.addEventListener('input', loadLoanRepayments);
-// Initialize loan tab defaults when funds page opens
 document.querySelector('[data-page="funds"]')?.addEventListener('click', () => {
   setTimeout(() => { switchLoanTab('agreements'); }, 50);
 });
 
 loadDashboard();
+
 </script>
 
 <!-- ===== Approve Redeem Modal ===== -->

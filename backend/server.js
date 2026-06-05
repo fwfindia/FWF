@@ -34,6 +34,8 @@ import AppConfig from './models/AppConfig.js';
 import RedeemRequest from './models/RedeemRequest.js';
 import PhonePeDonationIntent from './models/PhonePeDonationIntent.js';
 import Course from './models/Course.js';
+import LoanAgreement from './models/LoanAgreement.js';
+import LoanRepayment from './models/LoanRepayment.js';
 import { syncReceiptToZoho, checkZohoConnection, getAuthUrl, exchangeCodeForTokens } from './lib/zoho.js';
 import { getTransporter, send80GReceipt, sendMemberWelcome, sendSupporterWelcome, sendDonationConfirmation, sendAdminAlert } from './lib/mailer.js';
 import { sendWhatsAppCredentials, sendWhatsAppDonation, sendQuizParticipationSms, sendQuizResultSms, sendDonationReceiptSms, sendDonationReceipt80GSms, sendSmsOtp } from './lib/msg91.js';
@@ -6038,6 +6040,294 @@ function receiptHTML(r) {
 </body>
 </html>`;
 }
+
+// Public: view receipt by token (no auth required)
+app.get('/receipt/:token', async (req, res) => {
+
+// ═══════════════════════════════════════════════════════════════
+// LOAN MANAGEMENT — Admin Routes
+// ═══════════════════════════════════════════════════════════════
+
+// Helper: generate short loan ID
+function genLoanId() { return 'LN-' + Math.random().toString(36).slice(2,8).toUpperCase(); }
+function genRepayId() { return 'RP-' + Math.random().toString(36).slice(2,8).toUpperCase(); }
+
+// GET /api/admin/loans — list all loan agreements
+app.get('/api/admin/loans', auth('admin'), async (req, res) => {
+  try {
+    const loans = await LoanAgreement.find().sort({ createdAt: -1 }).lean();
+    // Attach repayment totals
+    const repayments = await LoanRepayment.find().lean();
+    const repayMap = {};
+    repayments.forEach(r => {
+      repayMap[r.loanId] = (repayMap[r.loanId] || 0) + r.amount;
+    });
+    loans.forEach(l => { l.totalRepaid = repayMap[l.loanId] || 0; });
+    res.json({ ok: true, loans });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/admin/loans/pending-action — count loans needing admin action (mandate_done)
+app.get('/api/admin/loans/pending-action', auth('admin'), async (req, res) => {
+  try {
+    const count = await LoanAgreement.countDocuments({ status: 'mandate_done' });
+    res.json({ ok: true, count });
+  } catch(e) { res.json({ ok: true, count: 0 }); }
+});
+
+// POST /api/admin/loans — create new loan agreement
+app.post('/api/admin/loans', auth('admin'), async (req, res) => {
+  try {
+    const { memberId, memberName, amount, tenure, emi, moratorium, purpose, notes } = req.body;
+    if (!memberId || !amount || !tenure || !purpose) return res.status(400).json({ error: 'memberId, amount, tenure and purpose are required' });
+    // Look up member email/mobile
+    const member = await User.findOne({ member_id: memberId }).select('name email mobile').lean();
+    const loan = await LoanAgreement.create({
+      loanId: genLoanId(),
+      memberId,
+      memberName: memberName || member?.name || '',
+      memberEmail: member?.email || '',
+      memberMobile: member?.mobile || '',
+      amount: Number(amount),
+      tenure: Number(tenure),
+      emi: Number(emi) || Math.ceil(Number(amount) / Number(tenure)),
+      moratorium: Number(moratorium) || 0,
+      purpose,
+      notes: notes || '',
+      status: 'pending_acceptance',
+      createdBy: req.user.memberId || 'admin'
+    });
+    // Send email to member if email found
+    if (member?.email) {
+      try {
+        const transporter = await getTransporter();
+        await transporter.sendMail({
+          to: member.email,
+          subject: `FWF Loan Agreement Ready — ${loan.loanId}`,
+          html: `<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:24px">
+            <h2 style="color:#e07b39">Interest-Free Loan Agreement</h2>
+            <p>Dear ${loan.memberName},</p>
+            <p>FWF has prepared a <b>₹${Number(amount).toLocaleString('en-IN')}</b> interest-free loan agreement for you.</p>
+            <table style="width:100%;border-collapse:collapse;margin:16px 0">
+              <tr><td style="padding:6px 0;font-weight:600">Agreement #</td><td>${loan.loanId}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">Amount</td><td>₹${Number(amount).toLocaleString('en-IN')}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">Monthly EMI</td><td>₹${loan.emi.toLocaleString('en-IN')}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">Tenure</td><td>${tenure} months</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">Purpose</td><td>${purpose}</td></tr>
+            </table>
+            <p>Please log in to your member dashboard → <b>Loans & EMI</b> to review and accept the agreement.</p>
+            <a href="https://fwfindia.org/member/dashboard#loans" style="display:inline-block;padding:12px 28px;background:#e07b39;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">Review Agreement</a>
+            <p style="margin-top:20px;font-size:12px;color:#888">FWF — Foundation for Women's Future &nbsp;|&nbsp; fwfindia.org</p>
+          </div>`
+        });
+      } catch(mailErr) { console.warn('Loan email failed:', mailErr.message); }
+    }
+    res.json({ ok: true, loan });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// PATCH /api/admin/loans/:loanId/disburse — admin enters UTR and marks active
+app.patch('/api/admin/loans/:loanId/disburse', auth('admin'), async (req, res) => {
+  try {
+    const { utrNumber, disbursedAmount, disbursedMode } = req.body;
+    if (!utrNumber) return res.status(400).json({ error: 'UTR number is required' });
+    const loan = await LoanAgreement.findOneAndUpdate(
+      { loanId: req.params.loanId, status: 'mandate_done' },
+      { status: 'active', utrNumber, disbursedAmount: Number(disbursedAmount) || undefined, disbursedMode: disbursedMode || 'bank_transfer', disbursedBy: req.user.memberId || 'admin', disbursedAt: new Date() },
+      { new: true }
+    );
+    if (!loan) return res.status(404).json({ error: 'Loan not found or not in mandate_done state' });
+    // Notify member via email
+    if (loan.memberEmail) {
+      try {
+        const transporter = await getTransporter();
+        await transporter.sendMail({
+          to: loan.memberEmail,
+          subject: `FWF Loan Disbursed — ₹${(loan.disbursedAmount || loan.amount).toLocaleString('en-IN')} — ${loan.loanId}`,
+          html: `<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:24px">
+            <h2 style="color:#16a34a">✅ Loan Amount Disbursed!</h2>
+            <p>Dear ${loan.memberName},</p>
+            <p>Your loan of <b>₹${(loan.disbursedAmount || loan.amount).toLocaleString('en-IN')}</b> has been transferred.</p>
+            <table style="width:100%;border-collapse:collapse;margin:16px 0">
+              <tr><td style="padding:6px 0;font-weight:600">Agreement #</td><td>${loan.loanId}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">UTR / Reference</td><td>${utrNumber}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">Mode</td><td>${disbursedMode || 'bank_transfer'}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">Monthly EMI</td><td>₹${loan.emi.toLocaleString('en-IN')}</td></tr>
+            </table>
+            <p>Your first EMI is due next month. Please check the EMI schedule in your dashboard.</p>
+            <a href="https://fwfindia.org/member/dashboard#loans" style="display:inline-block;padding:12px 28px;background:#16a34a;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">View Loan Details</a>
+          </div>`
+        });
+      } catch(mailErr) { console.warn('Disburse email failed:', mailErr.message); }
+    }
+    res.json({ ok: true, loan });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// PATCH /api/admin/loans/:loanId/status — toggle active/closed
+app.patch('/api/admin/loans/:loanId/status', auth('admin'), async (req, res) => {
+  try {
+    const { status } = req.body;
+    const allowed = ['active', 'closed', 'rejected'];
+    if (!allowed.includes(status)) return res.status(400).json({ error: 'Invalid status' });
+    const loan = await LoanAgreement.findOneAndUpdate({ loanId: req.params.loanId }, { status, closedAt: status === 'closed' ? new Date() : undefined }, { new: true });
+    if (!loan) return res.status(404).json({ error: 'Loan not found' });
+    res.json({ ok: true, loan });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /api/admin/loans/:loanId — delete loan and all repayments
+app.delete('/api/admin/loans/:loanId', auth('admin'), async (req, res) => {
+  try {
+    await LoanAgreement.deleteOne({ loanId: req.params.loanId });
+    await LoanRepayment.deleteMany({ loanId: req.params.loanId });
+    res.json({ ok: true });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/admin/loans/:loanId/repayment — record a repayment
+app.post('/api/admin/loans/:loanId/repayment', auth('admin'), async (req, res) => {
+  try {
+    const { amount, date, mode, utrRef, remarks } = req.body;
+    if (!amount || !date) return res.status(400).json({ error: 'amount and date are required' });
+    const loan = await LoanAgreement.findOne({ loanId: req.params.loanId });
+    if (!loan) return res.status(404).json({ error: 'Loan not found' });
+    const rp = await LoanRepayment.create({
+      repayId: genRepayId(),
+      loanId: req.params.loanId,
+      memberId: loan.memberId,
+      memberName: loan.memberName,
+      amount: Number(amount),
+      date: new Date(date),
+      mode: mode || 'upi',
+      utrRef: utrRef || '',
+      remarks: remarks || '',
+      recordedBy: req.user.memberId || 'admin'
+    });
+    // Auto-close if fully repaid
+    const totalPaid = await LoanRepayment.aggregate([{ $match: { loanId: req.params.loanId } }, { $group: { _id: null, total: { $sum: '$amount' } } }]);
+    const paid = totalPaid[0]?.total || 0;
+    if (paid >= loan.amount) {
+      await LoanAgreement.updateOne({ loanId: req.params.loanId }, { status: 'closed', totalRepaid: paid, closedAt: new Date() });
+    } else {
+      await LoanAgreement.updateOne({ loanId: req.params.loanId }, { totalRepaid: paid });
+    }
+    res.json({ ok: true, repayment: rp });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/admin/loans/:loanId/repayments — list repayments for a loan
+app.get('/api/admin/loans/:loanId/repayments', auth('admin'), async (req, res) => {
+  try {
+    const repayments = await LoanRepayment.find({ loanId: req.params.loanId }).sort({ date: 1 }).lean();
+    res.json({ ok: true, repayments });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/admin/loans/repayments — list all repayments
+app.get('/api/admin/loans/all-repayments', auth('admin'), async (req, res) => {
+  try {
+    const filter = req.query.q ? { $or: [{ loanId: new RegExp(req.query.q,'i') }, { memberId: new RegExp(req.query.q,'i') }, { memberName: new RegExp(req.query.q,'i') }] } : {};
+    const repayments = await LoanRepayment.find(filter).sort({ createdAt: -1 }).lean();
+    res.json({ ok: true, repayments });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /api/admin/loans/repayment/:repayId — delete a repayment record
+app.delete('/api/admin/loans/repayment/:repayId', auth('admin'), async (req, res) => {
+  try {
+    const rp = await LoanRepayment.findOneAndDelete({ repayId: req.params.repayId });
+    if (!rp) return res.status(404).json({ error: 'Repayment not found' });
+    // Recalculate total and reopen if needed
+    const totalPaid = await LoanRepayment.aggregate([{ $match: { loanId: rp.loanId } }, { $group: { _id: null, total: { $sum: '$amount' } } }]);
+    const paid = totalPaid[0]?.total || 0;
+    const loan = await LoanAgreement.findOne({ loanId: rp.loanId });
+    if (loan) {
+      const newStatus = loan.status === 'closed' && paid < loan.amount ? 'active' : loan.status;
+      await LoanAgreement.updateOne({ loanId: rp.loanId }, { totalRepaid: paid, status: newStatus });
+    }
+    res.json({ ok: true });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// LOAN MANAGEMENT — Member Routes
+// ═══════════════════════════════════════════════════════════════
+
+// GET /api/member/loans — get member's loans
+app.get('/api/member/loans', auth('member'), async (req, res) => {
+  try {
+    const memberId = req.user.memberId;
+    const loans = await LoanAgreement.find({ memberId }).sort({ createdAt: -1 }).lean();
+    const repayments = await LoanRepayment.find({ memberId }).sort({ date: 1 }).lean();
+    res.json({ ok: true, loans, repayments });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// PATCH /api/member/loans/:loanId/accept — member accepts the agreement
+app.patch('/api/member/loans/:loanId/accept', auth('member'), async (req, res) => {
+  try {
+    const loan = await LoanAgreement.findOneAndUpdate(
+      { loanId: req.params.loanId, memberId: req.user.memberId, status: 'pending_acceptance' },
+      { status: 'accepted', acceptedAt: new Date() },
+      { new: true }
+    );
+    if (!loan) return res.status(404).json({ error: 'Loan not found or already processed' });
+    res.json({ ok: true, loan });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// PATCH /api/member/loans/:loanId/mandate — member sets up mandate (bank details)
+app.patch('/api/member/loans/:loanId/mandate', auth('member'), async (req, res) => {
+  try {
+    const { mandateBankName, mandateAccountNo, mandateIfsc, mandateAccountHolder, mandateType } = req.body;
+    if (!mandateAccountNo || !mandateIfsc) return res.status(400).json({ error: 'Account number and IFSC are required' });
+    const loan = await LoanAgreement.findOneAndUpdate(
+      { loanId: req.params.loanId, memberId: req.user.memberId, status: 'accepted' },
+      { status: 'mandate_done', mandateAt: new Date(), mandateBankName, mandateAccountNo, mandateIfsc, mandateAccountHolder, mandateType: mandateType || 'manual' },
+      { new: true }
+    );
+    if (!loan) return res.status(404).json({ error: 'Loan not found or not in accepted state' });
+    // Notify admin via email
+    try {
+      const transporter = await getTransporter();
+      const adminEmail = process.env.ADMIN_MAIL || process.env.SMTP_USER;
+      if (adminEmail) {
+        await transporter.sendMail({
+          to: adminEmail,
+          subject: `🔔 Mandate Setup Complete — ${loan.loanId} — Action Required`,
+          html: `<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:24px">
+            <h2 style="color:#e07b39">Mandate Setup Complete — Disburse Loan</h2>
+            <p>Member <b>${loan.memberName} (${loan.memberId})</b> has set up their mandate for loan <b>${loan.loanId}</b>.</p>
+            <table style="width:100%;border-collapse:collapse;margin:16px 0">
+              <tr><td style="padding:6px 0;font-weight:600">Bank</td><td>${mandateBankName || '—'}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">Account No</td><td>XXXX${(mandateAccountNo||'').slice(-4)}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">IFSC</td><td>${mandateIfsc}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">Account Holder</td><td>${mandateAccountHolder || loan.memberName}</td></tr>
+              <tr><td style="padding:6px 0;font-weight:600">Loan Amount</td><td>₹${loan.amount.toLocaleString('en-IN')}</td></tr>
+            </table>
+            <p>Please log in to the Admin Dashboard → Funds & Loans → Interest-Free Loans and click "Disburse" to transfer the funds.</p>
+            <a href="https://fwfindia.org/admin/dashboard#funds" style="display:inline-block;padding:12px 28px;background:#e07b39;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">Go to Admin Dashboard</a>
+          </div>`
+        });
+      }
+    } catch(mailErr) { console.warn('Mandate email failed:', mailErr.message); }
+    res.json({ ok: true, loan });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
+
+// PATCH /api/member/loans/:loanId/reject — member rejects the agreement
+app.patch('/api/member/loans/:loanId/reject', auth('member'), async (req, res) => {
+  try {
+    const loan = await LoanAgreement.findOneAndUpdate(
+      { loanId: req.params.loanId, memberId: req.user.memberId, status: 'pending_acceptance' },
+      { status: 'rejected' },
+      { new: true }
+    );
+    if (!loan) return res.status(404).json({ error: 'Loan not found or already processed' });
+    res.json({ ok: true, loan });
+  } catch(e) { captureError(e); res.status(500).json({ error: e.message }); }
+});
 
 // Public: view receipt by token (no auth required)
 app.get('/receipt/:token', async (req, res) => {

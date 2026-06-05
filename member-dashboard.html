@@ -5894,121 +5894,291 @@ document.addEventListener('click', e => {
 /* ============================================
    LOANS & EMI
    ============================================ */
-function loadMemberLoans(){
-  const memberId = window._memberData?.member_id || '';
-  // Read from same localStorage used by admin panel (shared via browser storage)
-  const allLoans = JSON.parse(localStorage.getItem('fwf_loans') || '[]');
-  const allRepayments = JSON.parse(localStorage.getItem('fwf_repayments') || '[]');
+// ──────────────────────────────────────────────
+// LOAN SYSTEM — API-based
+// ──────────────────────────────────────────────
+let _myLoans = [];
+let _myRepayments = [];
 
-  const myLoans = allLoans.filter(l => l.memberId === memberId || l.memberName === window._memberData?.name);
+const LOAN_STATUS_INFO = {
+  pending_acceptance: { icon: '📋', label: 'Pending Your Acceptance', color: '#f59e0b', bg: '#fef3c7', step: 1 },
+  accepted:           { icon: '✍️', label: 'Accepted — Setup Mandate', color: '#3b82f6', bg: '#dbeafe', step: 2 },
+  mandate_done:       { icon: '⏳', label: 'Awaiting Disbursement',    color: '#8b5cf6', bg: '#ede9fe', step: 3 },
+  active:             { icon: '✅', label: 'Active',                   color: '#16a34a', bg: '#dcfce7', step: 4 },
+  closed:             { icon: '🏁', label: 'Closed — Fully Repaid',    color: '#6b7280', bg: '#f3f4f6', step: 5 },
+  rejected:           { icon: '❌', label: 'Rejected',                 color: '#dc2626', bg: '#fee2e2', step: 0 },
+};
 
-  // Stats
-  const active = myLoans.filter(l => l.status === 'active').length;
-  const total = myLoans.reduce((s,l) => s + l.amount, 0);
-  const paid = allRepayments.filter(r => myLoans.find(l => l.id === r.loanId)).reduce((s,r) => s + r.amount, 0);
-  document.getElementById('myLoanActive').textContent = active;
-  document.getElementById('myLoanTotal').textContent = '₹' + fmtNum(total);
-  document.getElementById('myLoanPaid').textContent = '₹' + fmtNum(paid);
-  document.getElementById('myLoanOutstanding').textContent = '₹' + fmtNum(Math.max(0, total - paid));
-
-  // Loan cards
+async function loadMemberLoans(){
   const container = document.getElementById('myLoansContainer');
-  if(!myLoans.length){
-    container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted)">
-      <i class="fa-solid fa-file-contract" style="font-size:40px;margin-bottom:12px;opacity:.3"></i>
-      <p style="font-weight:700">No active loan agreements</p>
-      <p style="font-size:13px">Apply for an interest-free loan from the "Apply for Loan" tab.</p>
-    </div>`;
-    return;
-  }
-  container.innerHTML = myLoans.map(ln => {
-    const loanPaid = allRepayments.filter(r => r.loanId === ln.id).reduce((s,r) => s + r.amount, 0);
-    const outstanding = Math.max(0, ln.amount - loanPaid);
-    const pct = ln.amount > 0 ? Math.min(100, Math.round(loanPaid/ln.amount*100)) : 0;
-    const statusColor = ln.status === 'active' ? 'var(--success)' : 'var(--text-muted)';
-    return `<div style="border:1.5px solid var(--card-border);border-radius:14px;padding:16px 20px;margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-        <div>
-          <div style="font-weight:900;font-size:15px;margin-bottom:4px">${ln.id}</div>
-          <div style="font-size:12px;color:var(--text-muted)">${ln.disbursedDate ? 'Disbursed: ' + ln.disbursedDate : 'Pending disbursement'} &nbsp;|&nbsp; Purpose: ${ln.purpose}</div>
-        </div>
-        <span style="padding:4px 12px;border-radius:99px;font-size:11px;font-weight:800;background:${ln.status==='active'?'#dcfce7':'#f1f5f9'};color:${statusColor}">${ln.status.toUpperCase()}</span>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px">
-        <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:10px">
-          <div style="font-size:11px;color:var(--text-muted);font-weight:600">Loan Amount</div>
-          <div style="font-size:17px;font-weight:900">₹${fmtNum(ln.amount)}</div>
-        </div>
-        <div style="text-align:center;background:#f0fdf4;border-radius:10px;padding:10px">
-          <div style="font-size:11px;color:var(--text-muted);font-weight:600">Monthly EMI</div>
-          <div style="font-size:17px;font-weight:900;color:var(--success)">₹${fmtNum(ln.emi)}</div>
-        </div>
-        <div style="text-align:center;background:#fff7ed;border-radius:10px;padding:10px">
-          <div style="font-size:11px;color:var(--text-muted);font-weight:600">Tenure</div>
-          <div style="font-size:17px;font-weight:900;color:var(--accent)">${ln.tenure} mo.</div>
-        </div>
-        <div style="text-align:center;background:${outstanding>0?'#fef2f2':'#f0fdf4'};border-radius:10px;padding:10px">
-          <div style="font-size:11px;color:var(--text-muted);font-weight:600">Outstanding</div>
-          <div style="font-size:17px;font-weight:900;color:${outstanding>0?'var(--danger)':'var(--success)'}">₹${fmtNum(outstanding)}</div>
-        </div>
-      </div>
-      <div style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-          <span>Repayment Progress</span><span style="font-weight:700">${pct}% (₹${fmtNum(loanPaid)} of ₹${fmtNum(ln.amount)})</span>
-        </div>
-        <div style="background:#e5e7eb;border-radius:99px;height:8px">
-          <div style="background:var(--success);width:${pct}%;height:100%;border-radius:99px;transition:width .3s"></div>
-        </div>
-      </div>
-      ${ln.notes ? `<p style="font-size:12px;color:var(--text-muted);margin-top:8px"><i class="fa-solid fa-circle-info"></i> ${ln.notes}</p>` : ''}
-    </div>`;
-  }).join('');
+  container.innerHTML = `<div style="text-align:center;padding:32px"><i class="fa-solid fa-spinner fa-spin" style="font-size:28px;color:var(--accent)"></i></div>`;
+  try {
+    const d = await AUTH.api('/api/member/loans');
+    _myLoans = d.loans || [];
+    _myRepayments = d.repayments || [];
 
-  // EMI Schedule
-  renderEMISchedule(myLoans, allRepayments);
+    // Stats
+    const active = _myLoans.filter(l => l.status === 'active').length;
+    const total = _myLoans.filter(l => ['active','closed','mandate_done'].includes(l.status)).reduce((s,l) => s + l.amount, 0);
+    const paid = _myRepayments.reduce((s,r) => s + r.amount, 0);
+    const outstanding = _myLoans.filter(l => l.status === 'active').reduce((s,l) => s + Math.max(0, l.amount - (_myRepayments.filter(r=>r.loanId===l.loanId).reduce((ss,r)=>ss+r.amount,0))), 0);
+    document.getElementById('myLoanActive').textContent = active;
+    document.getElementById('myLoanTotal').textContent = '₹' + fmtNum(total);
+    document.getElementById('myLoanPaid').textContent = '₹' + fmtNum(paid);
+    document.getElementById('myLoanOutstanding').textContent = '₹' + fmtNum(outstanding);
+
+    if(!_myLoans.length){
+      container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted)">
+        <i class="fa-solid fa-file-contract" style="font-size:40px;margin-bottom:12px;opacity:.3"></i>
+        <p style="font-weight:700">No loan agreements yet</p>
+        <p style="font-size:13px">Apply for an interest-free loan from the "Apply for Loan" tab.</p>
+      </div>`;
+      return;
+    }
+    container.innerHTML = _myLoans.map(ln => renderLoanCard(ln)).join('');
+    renderEMISchedule(_myLoans, _myRepayments);
+  } catch(e){
+    container.innerHTML = `<div style="text-align:center;padding:32px;color:var(--danger)"><i class="fa-solid fa-triangle-exclamation"></i> ${e.message}</div>`;
+  }
+}
+
+function renderLoanCard(ln){
+  const si = LOAN_STATUS_INFO[ln.status] || { icon:'❓', label: ln.status, color:'#6b7280', bg:'#f3f4f6', step:0 };
+  const loanRepayments = _myRepayments.filter(r => r.loanId === ln.loanId);
+  const paid = loanRepayments.reduce((s,r) => s + r.amount, 0);
+  const outstanding = Math.max(0, ln.amount - paid);
+  const pct = ln.amount > 0 ? Math.min(100, Math.round(paid / ln.amount * 100)) : 0;
+
+  // Step progress bar
+  const steps = [
+    { key: 'pending_acceptance', label: '📋 Review' },
+    { key: 'accepted',           label: '✍️ Accept' },
+    { key: 'mandate_done',       label: '🏦 Mandate' },
+    { key: 'active',             label: '💸 Disbursed' },
+    { key: 'closed',             label: '🏁 Closed' },
+  ];
+  const currentStep = si.step;
+  const stepsHtml = steps.map((s, i) => {
+    const done = i < currentStep;
+    const current = i === currentStep - 1;
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+      <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;
+        background:${done ? '#16a34a' : current ? si.color : '#e5e7eb'};
+        color:${(done || current) ? '#fff' : '#9ca3af'}">${done ? '✓' : i + 1}</div>
+      <span style="font-size:10px;font-weight:600;color:${current ? si.color : (done ? '#16a34a' : '#9ca3af')};text-align:center">${s.label}</span>
+    </div>`;
+  }).join(`<div style="flex:1;height:2px;background:#e5e7eb;margin-top:13px;border-radius:2px"></div>`);
+
+  // Action buttons based on status
+  let actionBtn = '';
+  if(ln.status === 'pending_acceptance'){
+    actionBtn = `<div style="display:flex;gap:10px;margin-top:16px">
+      <button onclick="openAcceptModal('${ln.loanId}')" style="flex:1;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer">
+        <i class="fa-solid fa-signature"></i> Review & Accept Agreement
+      </button>
+      <button onclick="rejectLoan('${ln.loanId}')" style="padding:12px 16px;background:#fee2e2;color:#dc2626;border:1px solid #fecaca;border-radius:10px;font-weight:700;cursor:pointer">
+        Decline
+      </button>
+    </div>`;
+  } else if(ln.status === 'accepted'){
+    actionBtn = `<div style="margin-top:16px">
+      <button onclick="openMandateModal('${ln.loanId}')" style="width:100%;padding:12px;background:#3b82f6;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer">
+        <i class="fa-solid fa-landmark"></i> Setup Bank Mandate / Auto-Debit
+      </button>
+    </div>`;
+  } else if(ln.status === 'mandate_done'){
+    actionBtn = `<div style="margin-top:16px;padding:12px;background:#ede9fe;border-radius:10px;font-size:13px;font-weight:600;color:#7c3aed;text-align:center">
+      <i class="fa-solid fa-hourglass-half"></i> Mandate submitted! Admin is verifying and will transfer funds shortly.
+    </div>`;
+  }
+
+  // Mandate details card (shown after mandate_done)
+  let mandateInfo = '';
+  if(['mandate_done','active','closed'].includes(ln.status) && ln.mandateBankName){
+    mandateInfo = `<div style="margin-top:12px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12px">
+      <b><i class="fa-solid fa-landmark" style="color:#3b82f6"></i> Bank Mandate:</b>
+      ${ln.mandateBankName} &nbsp;|&nbsp; A/C: XXXX${(ln.mandateAccountNo||'').slice(-4)} &nbsp;|&nbsp; ${ln.mandateIfsc}
+    </div>`;
+  }
+
+  // Disbursement info (shown for active/closed)
+  let disburseInfo = '';
+  if(ln.status === 'active' || ln.status === 'closed'){
+    disburseInfo = `<div style="margin-top:12px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:12px">
+      <b><i class="fa-solid fa-check-circle" style="color:#16a34a"></i> Disbursed:</b>
+      ₹${fmtNum(ln.disbursedAmount || ln.amount)} on ${ln.disbursedAt ? new Date(ln.disbursedAt).toLocaleDateString('en-IN') : '—'}
+      &nbsp;|&nbsp; UTR: <code>${ln.utrNumber || '—'}</code>
+    </div>`;
+  }
+
+  return `<div style="border:2px solid ${si.color}30;border-radius:16px;padding:20px;margin-bottom:16px;background:#fff">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+      <div>
+        <div style="font-weight:900;font-size:16px;color:var(--text-primary)">${ln.loanId}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Purpose: ${ln.purpose}</div>
+      </div>
+      <span style="padding:5px 14px;border-radius:99px;font-size:12px;font-weight:800;background:${si.bg};color:${si.color}">${si.icon} ${si.label}</span>
+    </div>
+    <!-- Step progress -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:18px">${stepsHtml}</div>
+    <!-- Stats grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:${(ln.status==='active'||ln.status==='closed')?'12px':'0'}">
+      <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:10px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600">Loan Amount</div>
+        <div style="font-size:16px;font-weight:900">₹${fmtNum(ln.amount)}</div>
+      </div>
+      <div style="text-align:center;background:#f0fdf4;border-radius:10px;padding:10px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600">Monthly EMI</div>
+        <div style="font-size:16px;font-weight:900;color:#16a34a">₹${fmtNum(ln.emi)}</div>
+      </div>
+      <div style="text-align:center;background:#fff7ed;border-radius:10px;padding:10px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600">Tenure</div>
+        <div style="font-size:16px;font-weight:900;color:var(--accent)">${ln.tenure} mo.</div>
+      </div>
+      ${(ln.status==='active'||ln.status==='closed') ? `
+      <div style="text-align:center;background:${outstanding>0?'#fef2f2':'#f0fdf4'};border-radius:10px;padding:10px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600">Outstanding</div>
+        <div style="font-size:16px;font-weight:900;color:${outstanding>0?'#dc2626':'#16a34a'}">₹${fmtNum(outstanding)}</div>
+      </div>` : ''}
+    </div>
+    ${(ln.status==='active'||ln.status==='closed') ? `
+    <div style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span>Repayment Progress</span>
+        <span style="font-weight:700">${pct}% (₹${fmtNum(paid)} of ₹${fmtNum(ln.amount)})</span>
+      </div>
+      <div style="background:#e5e7eb;border-radius:99px;height:10px;overflow:hidden">
+        <div style="background:${pct===100?'#16a34a':'#3b82f6'};width:${pct}%;height:100%;border-radius:99px;transition:width .4s"></div>
+      </div>
+    </div>` : ''}
+    ${disburseInfo}
+    ${mandateInfo}
+    ${actionBtn}
+  </div>`;
+}
+
+// ── Accept Agreement Modal ──
+function openAcceptModal(loanId){
+  const ln = _myLoans.find(l => l.loanId === loanId);
+  if(!ln) return;
+  const el = document.getElementById('acceptLoanModal');
+  el.querySelector('#acceptLoanId').value = loanId;
+  el.querySelector('#acceptLoanInfo').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <tr><td style="padding:5px 0;font-weight:600;width:140px">Agreement #</td><td>${ln.loanId}</td></tr>
+      <tr><td style="padding:5px 0;font-weight:600">Loan Amount</td><td><b style="font-size:15px">₹${fmtNum(ln.amount)}</b></td></tr>
+      <tr><td style="padding:5px 0;font-weight:600">Monthly EMI</td><td><b>₹${fmtNum(ln.emi)}/month</b> (interest-free)</td></tr>
+      <tr><td style="padding:5px 0;font-weight:600">Tenure</td><td>${ln.tenure} months</td></tr>
+      ${ln.moratorium ? `<tr><td style="padding:5px 0;font-weight:600">Moratorium</td><td>${ln.moratorium} months (no EMI in this period)</td></tr>` : ''}
+      <tr><td style="padding:5px 0;font-weight:600">Purpose</td><td>${ln.purpose}</td></tr>
+      ${ln.notes ? `<tr><td style="padding:5px 0;font-weight:600">Terms</td><td>${ln.notes}</td></tr>` : ''}
+    </table>`;
+  el.querySelector('#acceptConfirmCheck').checked = false;
+  el.querySelector('#acceptSubmitBtn').disabled = true;
+  el.style.display = 'flex';
+}
+
+async function submitAcceptLoan(){
+  const loanId = document.getElementById('acceptLoanId').value;
+  const check = document.getElementById('acceptConfirmCheck').checked;
+  if(!check){ notify('Please tick the checkbox to confirm.', 'error'); return; }
+  const btn = document.getElementById('acceptSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Accepting…';
+  try {
+    const d = await AUTH.api(`/api/member/loans/${loanId}/accept`, { method: 'PATCH' });
+    if(!d.ok) throw new Error(d.error || 'Failed');
+    document.getElementById('acceptLoanModal').style.display = 'none';
+    notify('Agreement accepted! Now please setup your bank mandate.', 'success');
+    loadMemberLoans();
+  } catch(e){ notify('Error: ' + e.message, 'error'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-signature"></i> Accept Agreement';
+}
+
+// ── Mandate Setup Modal ──
+function openMandateModal(loanId){
+  const ln = _myLoans.find(l => l.loanId === loanId);
+  if(!ln) return;
+  document.getElementById('mandateLoanId').value = loanId;
+  document.getElementById('mandateLoanInfo').innerHTML = `<b>${ln.loanId}</b> — EMI ₹${fmtNum(ln.emi)}/mo for ${ln.tenure} months`;
+  document.getElementById('mandateLoanModal').style.display = 'flex';
+}
+
+async function submitMandate(){
+  const loanId = document.getElementById('mandateLoanId').value;
+  const accountNo = document.getElementById('mandateAccountNo').value.trim();
+  const ifsc = document.getElementById('mandateIfsc').value.trim().toUpperCase();
+  const bankName = document.getElementById('mandateBankName').value.trim();
+  const accountHolder = document.getElementById('mandateAccountHolder').value.trim();
+  const type = document.getElementById('mandateType').value;
+  if(!accountNo || !ifsc){ notify('Account number and IFSC are required.', 'error'); return; }
+  const btn = document.getElementById('mandateSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const d = await AUTH.api(`/api/member/loans/${loanId}/mandate`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mandateBankName: bankName, mandateAccountNo: accountNo, mandateIfsc: ifsc, mandateAccountHolder: accountHolder, mandateType: type })
+    });
+    if(!d.ok) throw new Error(d.error || 'Failed');
+    document.getElementById('mandateLoanModal').style.display = 'none';
+    notify('Mandate submitted! Admin will verify and transfer funds soon.', 'success');
+    loadMemberLoans();
+  } catch(e){ notify('Error: ' + e.message, 'error'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-landmark"></i> Submit Mandate';
+}
+
+async function rejectLoan(loanId){
+  if(!confirm('Are you sure you want to decline this loan agreement?')) return;
+  try {
+    const d = await AUTH.api(`/api/member/loans/${loanId}/reject`, { method: 'PATCH' });
+    if(!d.ok) throw new Error(d.error || 'Failed');
+    notify('Loan agreement declined.', 'success');
+    loadMemberLoans();
+  } catch(e){ notify('Error: ' + e.message, 'error'); }
 }
 
 function renderEMISchedule(myLoans, allRepayments){
   const container = document.getElementById('myEMISchedule');
-  const activeLoans = myLoans.filter(l => l.status === 'active' && l.disbursedDate);
+  const activeLoans = myLoans.filter(l => l.status === 'active' && l.disbursedAt);
   if(!activeLoans.length){
     container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted)">
       <i class="fa-solid fa-calendar-days" style="font-size:40px;margin-bottom:12px;opacity:.3"></i>
       <p style="font-weight:700">No EMI schedule available</p>
-      <p style="font-size:13px">Your repayment schedule will appear here once a loan is approved and disbursed.</p>
+      <p style="font-size:13px">Your repayment schedule will appear here once a loan is disbursed.</p>
     </div>`;
     return;
   }
   let html = '';
   activeLoans.forEach(ln => {
-    const startDate = new Date(ln.disbursedDate);
+    const startDate = new Date(ln.disbursedAt);
     startDate.setMonth(startDate.getMonth() + (ln.moratorium || 0) + 1);
-    const loanRepayments = allRepayments.filter(r => r.loanId === ln.id);
+    const loanRepayments = allRepayments.filter(r => r.loanId === ln.loanId);
     let paidSoFar = 0;
     html += `<div style="margin-bottom:20px">
-      <h4 style="font-weight:800;margin-bottom:10px"><i class="fa-solid fa-file-contract" style="color:var(--accent)"></i> ${ln.id} — ${ln.purpose}</h4>
+      <h4 style="font-weight:800;margin-bottom:10px"><i class="fa-solid fa-file-contract" style="color:var(--accent)"></i> ${ln.loanId} — ${ln.purpose}</h4>
       <div class="table-wrap"><table class="data-table">
         <thead><tr><th>EMI #</th><th>Due Date</th><th>Amount</th><th>Status</th></tr></thead>
         <tbody>`;
     for(let i = 1; i <= Math.min(ln.tenure, 12); i++){
       const dueDate = new Date(startDate);
       dueDate.setMonth(dueDate.getMonth() + i - 1);
-      const dueDateStr = dueDate.toISOString().split('T')[0];
+      const dueDateStr = dueDate.toLocaleDateString('en-IN');
       const isPaid = paidSoFar + ln.emi <= loanRepayments.reduce((s,r)=>s+r.amount,0);
       if(isPaid) paidSoFar += ln.emi;
       const isOverdue = !isPaid && dueDate < new Date();
       const statusTag = isPaid
-        ? `<span style="color:var(--success);font-weight:700"><i class="fa-solid fa-check-circle"></i> Paid</span>`
+        ? `<span style="color:#16a34a;font-weight:700"><i class="fa-solid fa-check-circle"></i> Paid</span>`
         : isOverdue
-          ? `<span style="color:var(--danger);font-weight:700"><i class="fa-solid fa-triangle-exclamation"></i> Overdue</span>`
-          : `<span style="color:var(--warning);font-weight:700"><i class="fa-solid fa-clock"></i> Upcoming</span>`;
+          ? `<span style="color:#dc2626;font-weight:700"><i class="fa-solid fa-triangle-exclamation"></i> Overdue</span>`
+          : `<span style="color:#f59e0b;font-weight:700"><i class="fa-solid fa-clock"></i> Upcoming</span>`;
       html += `<tr style="${isOverdue?'background:#fef2f2':isPaid?'background:#f0fdf4':''}">
         <td>${i}</td><td>${dueDateStr}</td>
         <td style="font-weight:700">₹${fmtNum(ln.emi)}</td>
         <td>${statusTag}</td>
       </tr>`;
     }
-    if(ln.tenure > 12) html += `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);font-size:12px;padding:8px">... ${ln.tenure - 12} more EMIs (contact admin for full schedule)</td></tr>`;
+    if(ln.tenure > 12) html += `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);font-size:12px;padding:8px">... ${ln.tenure - 12} more EMIs</td></tr>`;
     html += `</tbody></table></div></div>`;
   });
   container.innerHTML = html;
@@ -6016,7 +6186,6 @@ function renderEMISchedule(myLoans, allRepayments){
 
 function fmtNum(n){ return (n||0).toLocaleString('en-IN'); }
 
-// Live EMI preview on apply form
 document.getElementById('applyLoanAmount')?.addEventListener('input', previewApplyEMI);
 document.getElementById('applyLoanTenure')?.addEventListener('change', previewApplyEMI);
 function previewApplyEMI(){
@@ -6041,33 +6210,30 @@ async function submitLoanApplication(){
   const desc = document.getElementById('applyLoanDesc')?.value.trim();
   const msg = document.getElementById('applyLoanMsg');
   const btn = document.getElementById('applyLoanBtn');
-
   if(!amount || !purpose || !desc){
     if(msg){ msg.style.color='var(--danger)'; msg.textContent = 'Please fill all required fields.'; }
     return;
   }
   btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
   try {
-    // Submit via support ticket API as a workaround (loan API endpoint not yet live)
     await AUTH.api('/api/member/support-ticket', {
       method: 'POST',
-      body: {
-        category: 'loan_application',
-        subject: `Loan Application — ₹${fmtNum(amount)} for ${purpose}`,
-        message: `Loan Amount: ₹${amount}\nTenure: ${tenure} months\nEMI: ₹${Math.ceil(amount/tenure)}/month\nPurpose: ${purpose}\nExpected Income: ${income ? '₹'+income+'/month' : 'Not specified'}\n\nDescription:\n${desc}`
-      }
+      body: { category: 'loan_application', subject: `Loan Application — ₹${fmtNum(amount)} for ${purpose}`, message: `Loan Amount: ₹${amount}\nTenure: ${tenure} months\nEMI: ₹${Math.ceil(amount/tenure)}/month\nPurpose: ${purpose}\nExpected Income: ${income ? '₹'+income+'/month' : 'Not specified'}\n\nDescription:\n${desc}` }
     });
     if(msg){ msg.style.color='var(--success)'; msg.innerHTML = '<i class="fa-solid fa-check-circle"></i> Application submitted! Admin team will review within 3–5 working days.'; }
-    // Clear form
-    ['applyLoanAmount','applyLoanPurpose','applyLoanIncome','applyLoanDesc'].forEach(id => {
-      const el = document.getElementById(id); if(el) el.value = '';
-    });
+    ['applyLoanAmount','applyLoanPurpose','applyLoanIncome','applyLoanDesc'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('applyLoanEMIPreview').style.display = 'none';
   } catch(e){
-    if(msg){ msg.style.color='var(--danger)'; msg.textContent = e.message || 'Submission failed. Please try WhatsApp support.'; }
+    if(msg){ msg.style.color='var(--danger)'; msg.textContent = e.message || 'Submission failed.'; }
   } finally {
     btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Application';
   }
+}
+
+    if(ln.tenure > 12) html += `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);font-size:12px;padding:8px">... ${ln.tenure - 12} more EMIs (contact admin for full schedule)</td></tr>`;
+    html += `</tbody></table></div></div>`;
+  });
+  container.innerHTML = html;
 }
 
 /* ============================================
@@ -6077,6 +6243,87 @@ loadDashboard();
 loadStoreCategories();
 renderCourses();
 </script>
+
+<!-- ===== Accept Loan Agreement Modal ===== -->
+<div id="acceptLoanModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:540px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;max-height:90vh;overflow-y:auto">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1">
+      <h3 style="margin:0;font-size:17px"><i class="fa-solid fa-file-signature" style="color:var(--accent)"></i> Loan Agreement</h3>
+      <button onclick="document.getElementById('acceptLoanModal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280">&times;</button>
+    </div>
+    <div style="padding:20px 24px">
+      <input type="hidden" id="acceptLoanId">
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:16px" id="acceptLoanInfo"></div>
+      <div style="background:#fef9c3;border:1.5px solid #fde047;border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px">
+        <b><i class="fa-solid fa-circle-info" style="color:#ca8a04"></i> Interest-Free Loan Terms:</b><br>
+        • यह loan पूरी तरह interest-free है<br>
+        • EMI समय पर जमा करना अनिवार्य है<br>
+        • Default होने पर FWF membership suspend की जा सकती है<br>
+        • Loan only approved livelihood project के लिए use करें
+      </div>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:18px;font-size:13px">
+        <input type="checkbox" id="acceptConfirmCheck" onchange="const b=document.getElementById('acceptSubmitBtn');b.disabled=!this.checked;b.style.opacity=this.checked?'1':'.5'" style="margin-top:2px;width:16px;height:16px;flex-shrink:0">
+        <span>मैं उपरोक्त सभी शर्तों को समझता/समझती हूँ और इस loan agreement को स्वीकार करता/करती हूँ।</span>
+      </label>
+      <div style="display:flex;gap:10px">
+        <button onclick="document.getElementById('acceptLoanModal').style.display='none'" style="flex:1;padding:12px;background:#f3f4f6;color:#374151;border:none;border-radius:10px;font-weight:700;cursor:pointer">Cancel</button>
+        <button id="acceptSubmitBtn" onclick="submitAcceptLoan()" disabled style="flex:2;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;transition:.2s;opacity:.5">
+          <i class="fa-solid fa-signature"></i> Accept Agreement
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Mandate Setup Modal ===== -->
+<div id="mandateLoanModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="margin:0;font-size:17px"><i class="fa-solid fa-landmark" style="color:#3b82f6"></i> Setup Bank Mandate</h3>
+      <button onclick="document.getElementById('mandateLoanModal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280">&times;</button>
+    </div>
+    <div style="padding:20px 24px">
+      <input type="hidden" id="mandateLoanId">
+      <div id="mandateLoanInfo" style="background:#dbeafe;border:1px solid #93c5fd;border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;font-weight:600"></div>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:14px">Please provide your bank account details. EMIs will be auto-deducted from this account every month.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Account Holder Name *</label>
+          <input type="text" id="mandateAccountHolder" class="form-input" placeholder="As per bank records" style="width:100%;box-sizing:border-box">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Bank Name</label>
+          <input type="text" id="mandateBankName" class="form-input" placeholder="e.g. SBI, HDFC" style="width:100%;box-sizing:border-box">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Account Number *</label>
+          <input type="text" id="mandateAccountNo" class="form-input" placeholder="Bank account number" style="width:100%;box-sizing:border-box;font-family:monospace">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">IFSC Code *</label>
+          <input type="text" id="mandateIfsc" class="form-input" placeholder="e.g. SBIN0001234" style="width:100%;box-sizing:border-box;font-family:monospace;text-transform:uppercase">
+        </div>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Repayment Mode</label>
+        <select id="mandateType" class="form-input" style="width:100%">
+          <option value="manual">Manual (pay via UPI/NEFT each month)</option>
+          <option value="nach">NACH Auto-Debit</option>
+          <option value="upi">UPI Auto-Pay</option>
+        </select>
+      </div>
+      <div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:10px;font-size:12px;margin-bottom:16px">
+        <i class="fa-solid fa-lock" style="color:#ca8a04"></i> Your bank details are encrypted and stored securely. Only used for EMI collection.
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="document.getElementById('mandateLoanModal').style.display='none'" style="flex:1;padding:12px;background:#f3f4f6;color:#374151;border:none;border-radius:10px;font-weight:700;cursor:pointer">Cancel</button>
+        <button id="mandateSubmitBtn" onclick="submitMandate()" style="flex:2;padding:12px;background:#3b82f6;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer">
+          <i class="fa-solid fa-landmark"></i> Submit Mandate
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ===== Course Detail Modal ===== -->
 <div id="courseDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
