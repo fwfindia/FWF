@@ -893,7 +893,6 @@ textarea.form-input{ resize:vertical; min-height:80px; }
             <option value="refunded">Refunded</option>
           </select>
           <button class="btn btn-ghost" onclick="loadMembershipFees()"><i class="fa-solid fa-refresh"></i> Refresh</button>
-          <button class="btn btn-primary" onclick="openModal('addFeeModal')"><i class="fa-solid fa-plus"></i> Add Fee Record</button>
         </div>
       </div>
 
@@ -2411,66 +2410,7 @@ textarea.form-input{ resize:vertical; min-height:80px; }
     </div>
   </div>
 </div>
-  <div class="modal-card">
-    <div class="modal-head">
-      <h3><i class="fa-solid fa-indian-rupee-sign"></i> Add Fee Record</h3>
-      <button class="modal-close" onclick="closeModal('addFeeModal')">&times;</button>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Member ID *</label>
-        <input type="text" class="form-input" id="afMemberId" placeholder="e.g. FWF-000001">
-      </div>
-      <div class="form-group">
-        <label>Amount (₹) *</label>
-        <input type="number" class="form-input" id="afAmount" placeholder="200" min="1">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Fee Type</label>
-        <select class="form-input" id="afType">
-          <option value="joining">Joining Fee</option>
-          <option value="renewal">Renewal</option>
-          <option value="upgrade">Upgrade</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Payment Mode</label>
-        <select class="form-input" id="afMode">
-          <option value="upi">UPI</option>
-          <option value="bank_transfer">Bank Transfer</option>
-          <option value="cash">Cash</option>
-          <option value="cheque">Cheque</option>
-          <option value="online">Online</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Payment Reference / UTR</label>
-        <input type="text" class="form-input" id="afRef" placeholder="UTR / Reference number">
-      </div>
-      <div class="form-group">
-        <label>Status</label>
-        <select class="form-input" id="afStatus">
-          <option value="pending">Pending</option>
-          <option value="verified">Verified</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea class="form-input" id="afNotes" placeholder="Optional notes..." rows="2"></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('addFeeModal')">Cancel</button>
-      <button class="btn btn-primary" id="afSubmit"><i class="fa-solid fa-plus"></i> Add Record</button>
-    </div>
-  </div>
-</div>
+
 
 <!-- Update Fee Status Modal -->
 <div class="modal-overlay hidden" id="updateFeeModal">
@@ -3069,34 +3009,6 @@ document.getElementById('feeFilter')?.addEventListener('change', e => {
   else renderFees(allFees.filter(f => f.status === val));
 });
 
-// Add Fee Record
-document.getElementById('afSubmit')?.addEventListener('click', async ()=>{
-  const memberId = document.getElementById('afMemberId').value.trim();
-  const amount = document.getElementById('afAmount').value;
-  if(!memberId || !amount){ notify('Member ID and Amount required','error'); return; }
-  
-  try{
-    const res = await AUTH.api('/api/admin/membership-fee', {
-      method:'POST',
-      body: {
-        memberId,
-        amount: parseFloat(amount),
-        feeType: document.getElementById('afType').value,
-        paymentMode: document.getElementById('afMode').value,
-        paymentRef: document.getElementById('afRef').value.trim() || null,
-        status: document.getElementById('afStatus').value,
-        notes: document.getElementById('afNotes').value.trim() || null
-      }
-    });
-    notify('Fee record added: ' + res.txnId, 'success');
-    closeModal('addFeeModal');
-    document.getElementById('afMemberId').value = '';
-    document.getElementById('afAmount').value = '';
-    document.getElementById('afRef').value = '';
-    document.getElementById('afNotes').value = '';
-    loadMembershipFees();
-  } catch(e){ notify('Failed to add: ' + (e.message||'error'), 'error'); }
-});
 
 // Open Update Fee Modal
 function openUpdateFee(txnId){
