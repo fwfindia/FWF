@@ -1152,7 +1152,7 @@ app.post('/api/pay/check-member', async (req, res) => {
   res.json({ ok: true });
 });
 
-// Create Razorpay Subscription (monthly ₹500 — UPI AutoPay mandate)
+// Create Razorpay Subscription (monthly ₹200 — UPI AutoPay mandate)
 app.post('/api/pay/create-subscription', async (req, res) => {
   try {
     const { name, email, mobile } = req.body || {};
@@ -1170,7 +1170,7 @@ app.post('/api/pay/create-subscription', async (req, res) => {
       const plan = await razorpay.plans.create({
         period: 'monthly',
         interval: 1,
-        item: { name: 'FWF Monthly Membership', amount: 50000, currency: 'INR', description: 'Foundris Welfare Foundation — monthly membership fee' },
+        item: { name: 'FWF Monthly Membership', amount: 20000, currency: 'INR', description: 'Foundris Welfare Foundation — monthly membership fee' },
         notes: { org: 'FWF' }
       });
       planId = plan.id;
@@ -1459,7 +1459,7 @@ app.post('/api/pay/membership', async (req, res) => {
       txn_id:      razorpay_payment_id,
       member_id:   memberId,
       member_name: name,
-      amount:      500,
+      amount:      200,
       fee_type:    'joining',
       payment_mode: 'razorpay',
       payment_ref:  razorpay_subscription_id || razorpay_order_id || '',
@@ -1476,7 +1476,7 @@ app.post('/api/pay/membership', async (req, res) => {
         const newUser  = await User.findOne({ member_id: memberId }).select('_id role');
         if (referrer && newUser) {
           const REFERRAL_PCT = REFERRAL_POINTS_PERCENT || 50; // % of payment as points
-          const pointsRupees = 500 * (REFERRAL_PCT / 100);
+          const pointsRupees = 200 * (REFERRAL_PCT / 100);
           const points = amountToPoints(pointsRupees);
           referralPoints = points;
           
@@ -1488,7 +1488,7 @@ app.post('/api/pay/membership', async (req, res) => {
             referred_user_id: newUser._id,
             referral_type:    referralType,
             status:           'active',
-            payment_amount:   500,
+            payment_amount:   200,
             referral_points:  points,
             activated_at:     new Date()
           });
@@ -1504,7 +1504,7 @@ app.post('/api/pay/membership', async (req, res) => {
             user_id:     referrer._id,
             points,
             type:        'referral',
-            description: `Referral: ${memberId} paid ₹500 → ${points} points`
+            description: `Referral: ${memberId} paid ₹200 → ${points} points`
           });
           await User.updateOne({ _id: newUser._id }, { referred_by: referrer._id });
         }
@@ -1525,8 +1525,8 @@ app.post('/api/pay/membership', async (req, res) => {
       customerName: name,
       customerEmail: email,
       customerMobile: mobile,
-      lineItems: [{ name: 'FWF Membership Fee', description: 'Joining fee — Annual Membership (FWF India)', amount: 500, quantity: 1 }],
-      total: 500,
+      lineItems: [{ name: 'FWF Membership Fee', description: 'Joining fee — Monthly Membership (FWF India)', amount: 200, quantity: 1 }],
+      total: 200,
       razorpayPaymentId: razorpay_payment_id,
       razorpayOrderId: razorpay_order_id,
       razorpaySubscriptionId: razorpay_subscription_id,
@@ -1545,7 +1545,7 @@ app.post('/api/pay/membership', async (req, res) => {
     // Admin alert (non-blocking)
     sendAdminAlert({
       subject: `New Member via Payment: ${memberId} — ${name}`,
-      rows: [['Member ID', memberId], ['Name', name], ['Mobile', mobile], ['Email', email], ['Amount', '₹500'], ['Payment ID', razorpay_payment_id]]
+      rows: [['Member ID', memberId], ['Name', name], ['Mobile', mobile], ['Email', email], ['Amount', '₹200'], ['Payment ID', razorpay_payment_id]]
     }).catch(() => {});
 
     res.json({ ok: true, memberId, password: plain, paymentId: razorpay_payment_id, subscriptionId: razorpay_subscription_id, referralPoints });
@@ -1599,7 +1599,7 @@ app.post('/api/pay/upgrade-to-member', auth('supporter'), async (req, res) => {
       txn_id:       razorpay_payment_id,
       member_id:    memberId,
       member_name:  supporter.name,
-      amount:       500,
+      amount:       200,
       fee_type:     'joining',
       payment_mode: 'razorpay',
       payment_ref:  razorpay_order_id,
@@ -1626,7 +1626,7 @@ app.post('/api/pay/upgrade-to-member', auth('supporter'), async (req, res) => {
         ['Name', supporter.name],
         ['Mobile', supporter.mobile],
         ['Email', supporter.email],
-        ['Amount', '₹500'],
+        ['Amount', '₹200'],
         ['Payment ID', razorpay_payment_id]
       ]
     }).catch(() => {});
@@ -2165,7 +2165,7 @@ app.post('/api/member/activate-referral', auth('admin'), async (req, res) => {
   const referred = await User.findOne({ member_id: referredMemberId }).select('referred_by');
   if (!referred || !referred.referred_by) return res.status(400).json({ error: 'No referral found' });
 
-  const amt = parseFloat(paymentAmount) || 500;
+  const amt = parseFloat(paymentAmount) || 200;
   const pointsRupees = amt * (REFERRAL_POINTS_PERCENT / 100);
   const points = amountToPoints(pointsRupees);
 
