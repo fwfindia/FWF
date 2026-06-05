@@ -5882,18 +5882,22 @@ async function autoDrawResults() {
       // Update winner participation
       await QuizParticipation.updateOne({ _id: luckyOne._id }, { status: 'won', prize_won: prizeAmount });
 
-      // Credit prize to winner's points ledger
+      // Credit prize to winner's points ledger (non-fatal — quiz draw continues even if this fails)
       if (prizeAmount > 0 && user) {
-        await PointsLedger.create({
-          user_id: user._id,
-          type: 'quiz_prize',
-          points: prizeAmount,
-          description: `🎉 Lucky Draw Winner — ${quiz.title}`,
-          reference_id: quiz.quiz_id
-        });
-        await User.findByIdAndUpdate(user._id, {
-          $inc: { wallet_balance: prizeAmount, lifetime_earned: prizeAmount }
-        });
+        try {
+          await PointsLedger.create({
+            user_id: user._id,
+            type: 'quiz_prize',
+            points: prizeAmount,
+            description: `🎉 Lucky Draw Winner — ${quiz.title}`,
+            reference_id: String(quiz.quiz_id)
+          });
+          await User.findByIdAndUpdate(user._id, {
+            $inc: { wallet_balance: prizeAmount, lifetime_earned: prizeAmount }
+          });
+        } catch(ledgerErr) {
+          console.warn(`⚠️ PointsLedger credit failed for quiz ${quiz.quiz_id}:`, ledgerErr.message);
+        }
       }
 
       // Mark others as lost
@@ -5902,6 +5906,7 @@ async function autoDrawResults() {
         { status: 'lost' }
       );
 
+      // Always mark quiz as result_declared so it isn't re-processed on next run
       quiz.winners = [winner];
       quiz.status = 'result_declared';
       await quiz.save();
