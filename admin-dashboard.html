@@ -738,16 +738,6 @@ textarea.form-input{ resize:vertical; min-height:80px; }
         </table>
       </div>
     </div>
-    <div class="content-card" style="margin-top:16px">
-      <h3><i class="fa-solid fa-envelope-circle-check"></i> Email System Test</h3>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <input type="email" id="testEmailAddr" placeholder="Enter email to test" style="flex:1;min-width:220px;padding:10px 14px;border:1px solid var(--brd);border-radius:8px;font-size:14px">
-        <button onclick="sendTestEmail()" style="padding:10px 22px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">
-          <i class="fa-solid fa-paper-plane"></i> Send Test Email
-        </button>
-        <span id="testEmailResult" style="font-size:13px;font-weight:600"></span>
-      </div>
-    </div>
   </div>
 
   <!-- ===================== MEMBERS PAGE ===================== -->
@@ -4333,7 +4323,7 @@ async function relinkParticipation(enrollmentNumber){
   }
 }
 
-
+function exportParticipantsCSV(){
   if(!pParticipantsCache.length){ alert('No data to export'); return; }
   const rows = [['#','Name','Member ID','Enrollment','Payment Status','Amount','Status','Score','Submitted At','Enrolled On']];
   pParticipantsCache.forEach((p,i)=>{
