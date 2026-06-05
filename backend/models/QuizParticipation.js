@@ -37,7 +37,6 @@ const quizParticipationSchema = new mongoose.Schema({
 // One user can participate in a quiz only once
 quizParticipationSchema.index({ quiz_id: 1, user_id: 1 }, { unique: true });
 quizParticipationSchema.index({ user_id: 1, created_at: -1 });
-quizParticipationSchema.index({ enrollment_number: 1 });
 quizParticipationSchema.index({ referred_by: 1 });
 
 export default mongoose.model('QuizParticipation', quizParticipationSchema);

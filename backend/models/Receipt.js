@@ -60,7 +60,6 @@ const receiptSchema = new mongoose.Schema({
 receiptSchema.index({ member_id: 1, created_at: -1 });
 receiptSchema.index({ payment_txn_id: 1 });
 receiptSchema.index({ razorpay_payment_id: 1 });
-receiptSchema.index({ token: 1 });
 receiptSchema.index({ type: 1, created_at: -1 });
 receiptSchema.index({ is_80g: 1 });
 

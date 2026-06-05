@@ -10,7 +10,7 @@ const quizTicketSchema = new mongoose.Schema({
   quiz_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
 
   // Shareable token for the buyer link (null for direct purchases)
-  token: { type: String, unique: true, sparse: true, index: true },
+  token: { type: String, unique: true, sparse: true },
 
   // How this ticket was created
   sale_type: { type: String, enum: ['ticket_link', 'direct'], default: 'ticket_link' },
