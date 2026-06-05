@@ -5,12 +5,12 @@ const pointsLedgerSchema = new mongoose.Schema({
   points: { type: Number, required: true },
   type: { 
     type: String, 
-    enum: ['donation', 'referral', 'quiz', 'social_task', 'redeem', 'adjustment'], 
+    enum: ['donation', 'referral', 'quiz', 'quiz_prize', 'social_task', 'redeem', 'adjustment', 'loan_repayment'], 
     required: true,
     index: true 
   },
   description: String,
-  reference_id: mongoose.Schema.Types.ObjectId,
+  reference_id: { type: String, default: null },
   created_at: { type: Date, default: Date.now }
 }, { 
   timestamps: { createdAt: 'created_at', updatedAt: false }
