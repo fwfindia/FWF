@@ -4574,11 +4574,11 @@ app.post('/api/admin/quiz/:quizId/override-winner', auth('admin'), async (req, r
     if (oldWinner?.user_id) {
       try {
         await User.findByIdAndUpdate(oldWinner.user_id, {
-          $inc: { wallet_balance: -prizeAmount, lifetime_earned: -prizeAmount }
+          $inc: { 'wallet.balance_inr': -prizeAmount, 'wallet.lifetime_earned_inr': -prizeAmount }
         });
         await PointsLedger.create({
           user_id: oldWinner.user_id,
-          type: 'quiz_prize_reversed',
+          type: 'adjustment',
           points: -prizeAmount,
           description: `🔄 Winner overridden — ${quiz.title} (Admin)`,
           reference_id: String(quiz.quiz_id)
@@ -4603,7 +4603,7 @@ app.post('/api/admin/quiz/:quizId/override-winner', auth('admin'), async (req, r
           reference_id: String(quiz.quiz_id)
         });
         await User.findByIdAndUpdate(newWinnerUser._id, {
-          $inc: { wallet_balance: prizeAmount, lifetime_earned: prizeAmount }
+          $inc: { 'wallet.balance_inr': prizeAmount, 'wallet.lifetime_earned_inr': prizeAmount }
         });
       } catch(e) { console.warn('New winner wallet credit failed:', e.message); }
     }
