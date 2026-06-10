@@ -4551,6 +4551,88 @@ app.post('/api/admin/quiz-draw/:quizId', auth('admin'), async (req, res) => {
   }
 });
 
+// Admin: Override winner of a declared quiz
+// Body: { enrollmentNumber: 'FWF-M2605-99641' }
+app.post('/api/admin/quiz/:quizId/override-winner', auth('admin'), async (req, res) => {
+  try {
+    const { enrollmentNumber } = req.body;
+    if (!enrollmentNumber) return res.status(400).json({ error: 'enrollmentNumber is required' });
+
+    const quiz = await Quiz.findOne({ quiz_id: req.params.quizId });
+    if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
+    if (quiz.status !== 'result_declared') return res.status(400).json({ error: 'Quiz result has not been declared yet' });
+
+    // Find the new winner
+    const newWinnerPart = await QuizParticipation.findOne({ enrollment_number: enrollmentNumber });
+    if (!newWinnerPart) return res.status(404).json({ error: 'Participant not found with that enrollment number' });
+    if (newWinnerPart.quiz_ref !== quiz.quiz_id) return res.status(400).json({ error: 'Participant does not belong to this quiz' });
+
+    const prizeAmount = quiz.prizes?.first || 0;
+
+    // Reverse old winner wallet credit
+    const oldWinner = quiz.winners?.[0];
+    if (oldWinner?.user_id) {
+      try {
+        await User.findByIdAndUpdate(oldWinner.user_id, {
+          $inc: { wallet_balance: -prizeAmount, lifetime_earned: -prizeAmount }
+        });
+        await PointsLedger.create({
+          user_id: oldWinner.user_id,
+          type: 'quiz_prize_reversed',
+          points: -prizeAmount,
+          description: `🔄 Winner overridden — ${quiz.title} (Admin)`,
+          reference_id: String(quiz.quiz_id)
+        });
+      } catch(e) { console.warn('Old winner wallet reversal failed:', e.message); }
+    }
+    // Reset old winner participation
+    await QuizParticipation.updateMany(
+      { quiz_ref: quiz.quiz_id, status: 'won' },
+      { status: 'lost', prize_won: 0 }
+    );
+
+    // Credit new winner
+    const newWinnerUser = await User.findById(newWinnerPart.user_id).lean();
+    if (prizeAmount > 0 && newWinnerUser) {
+      try {
+        await PointsLedger.create({
+          user_id: newWinnerUser._id,
+          type: 'quiz_prize',
+          points: prizeAmount,
+          description: `🎉 Lucky Draw Winner (Admin Override) — ${quiz.title}`,
+          reference_id: String(quiz.quiz_id)
+        });
+        await User.findByIdAndUpdate(newWinnerUser._id, {
+          $inc: { wallet_balance: prizeAmount, lifetime_earned: prizeAmount }
+        });
+      } catch(e) { console.warn('New winner wallet credit failed:', e.message); }
+    }
+    await QuizParticipation.updateOne({ _id: newWinnerPart._id }, { status: 'won', prize_won: prizeAmount });
+
+    const newWinner = {
+      rank: 1,
+      user_id: newWinnerPart.user_id,
+      member_id: newWinnerUser?.member_id || newWinnerPart.member_id || '',
+      name: newWinnerUser?.name || newWinnerPart.name || 'Unknown',
+      enrollment_number: newWinnerPart.enrollment_number,
+      prize_amount: prizeAmount,
+      score: newWinnerPart.score || 0
+    };
+    quiz.winners = [newWinner];
+    await quiz.save();
+
+    addBreadcrumb('admin', 'Quiz winner overridden', {
+      quizId: quiz.quiz_id, oldWinner: oldWinner?.member_id, newWinner: newWinner.member_id
+    });
+    console.log(`🔄 Quiz ${quiz.quiz_id}: Winner overridden from ${oldWinner?.member_id} to ${newWinner.member_id} by admin`);
+
+    res.json({ ok: true, message: `Winner changed to ${newWinner.name} (${newWinner.member_id})`, winner: newWinner });
+  } catch (err) {
+    captureError(err, { context: 'admin-quiz-override-winner' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Admin: get all quizzes
 app.get('/api/admin/quizzes', auth('admin'), async (req, res) => {
   try {

@@ -4041,11 +4041,31 @@ async function loadResultsHistory(){
         <td>${winnerHtml}</td>
         <td style="font-weight:700;color:#166534">${prizeHtml}</td>
         <td style="font-weight:700;color:#6366f1">${q.total_participants||0}</td>
-        <td><button onclick="openParticipants('${q.quiz_id}')" style="background:#ede9fe;color:#6d28d9;border:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">👥 Members</button></td>
+        <td style="white-space:nowrap">
+          <button onclick="openParticipants('${q.quiz_id}')" style="background:#ede9fe;color:#6d28d9;border:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:4px">👥 Members</button>
+          <button onclick="overrideWinner('${q.quiz_id}')" style="background:#fff1f2;color:#be123c;border:1px solid #fecdd3;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✏️ Change Winner</button>
+        </td>
       </tr>`;
     }).join('');
   } catch(err){
     document.getElementById('frResultsBody').innerHTML = `<tr><td colspan="8" class="empty-state"><p style="color:#ef4444">Error: ${err.message}</p></td></tr>`;
+  }
+}
+
+async function overrideWinner(quizId){
+  const enrollment = prompt(`Quiz ${quizId} — New winner ka Enrollment Number daalo:\n(e.g. FWF-M2605-99641)`);
+  if(!enrollment || !enrollment.trim()) return;
+  if(!confirm(`Winner badla jayega enrollment: ${enrollment.trim()}\nKya aap sure hain?`)) return;
+  try {
+    const data = await AUTH.api(`/api/admin/quiz/${quizId}/override-winner`, {
+      method: 'POST',
+      body: JSON.stringify({ enrollmentNumber: enrollment.trim() })
+    });
+    if(!data.ok) throw new Error(data.error || 'Failed');
+    alert(`✅ ${data.message}`);
+    loadResultsHistory();
+  } catch(err){
+    alert('❌ Error: ' + err.message);
   }
 }
 
