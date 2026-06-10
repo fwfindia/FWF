@@ -4059,7 +4059,7 @@ async function overrideWinner(quizId){
   try {
     const data = await AUTH.api(`/api/admin/quiz/${quizId}/override-winner`, {
       method: 'POST',
-      body: JSON.stringify({ enrollmentNumber: enrollment.trim() })
+      body: { enrollmentNumber: enrollment.trim() }
     });
     if(!data.ok) throw new Error(data.error || 'Failed');
     alert(`✅ ${data.message}`);

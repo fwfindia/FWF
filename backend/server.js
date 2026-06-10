@@ -4618,18 +4618,19 @@ app.post('/api/admin/quiz/:quizId/override-winner', auth('admin'), async (req, r
       prize_amount: prizeAmount,
       score: newWinnerPart.score || 0
     };
-    quiz.winners = [newWinner];
-    await quiz.save();
 
-    addBreadcrumb('admin', 'Quiz winner overridden', {
-      quizId: quiz.quiz_id, oldWinner: oldWinner?.member_id, newWinner: newWinner.member_id
-    });
+    // Use atomic updateOne to avoid stale document / version conflicts
+    await Quiz.updateOne(
+      { quiz_id: req.params.quizId },
+      { $set: { winners: [newWinner] } }
+    );
+
     console.log(`🔄 Quiz ${quiz.quiz_id}: Winner overridden from ${oldWinner?.member_id} to ${newWinner.member_id} by admin`);
-
     res.json({ ok: true, message: `Winner changed to ${newWinner.name} (${newWinner.member_id})`, winner: newWinner });
   } catch (err) {
-    captureError(err, { context: 'admin-quiz-override-winner' });
-    res.status(500).json({ error: err.message });
+    console.error('❌ Override winner error:', err.message);
+    // Safe error response — do NOT call captureError here (it can throw and escape catch)
+    if (!res.headersSent) res.status(500).json({ error: err.message || 'Override winner failed' });
   }
 });
 
