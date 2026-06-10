@@ -4841,11 +4841,15 @@ app.post('/api/admin/quiz-auto-draw', auth('admin'), async (req, res) => {
 // Admin: Quiz scheduler health check
 app.get('/api/admin/quiz-scheduler-status', auth('admin'), async (req, res) => {
   try {
+    // Run auto-draw first so statuses are always up-to-date when admin loads the page
+    await autoDrawResults();
+    await autoCreateQuizzes();
+
     const now = new Date();
     const activeQuizzes = await Quiz.find({ status: { $in: ['upcoming', 'active'] } })
       .select('quiz_id title type status start_date end_date result_date entry_fee prizes total_participants total_collection').lean();
     const closedPending = await Quiz.find({ status: 'closed', 'winners.0': { $exists: false } })
-      .select('quiz_id title type result_date').lean();
+      .select('quiz_id title type result_date total_participants total_collection').lean();
     const recentResults = await Quiz.find({ status: 'result_declared' })
       .sort({ result_date: -1 }).limit(5)
       .select('quiz_id title type winners result_date').lean();
@@ -5823,7 +5827,18 @@ async function autoCreateQuizzes() {
 async function autoDrawResults() {
   try {
     const now = new Date();
-    // Find quizzes where result_date has passed and status is still 'active' or 'closed'
+
+    // STEP 1: Close all quizzes whose enrollment window has passed
+    // (must run BEFORE the results loop so newly-closed quizzes are included)
+    const closeResult = await Quiz.updateMany(
+      { end_date: { $lte: now }, status: 'active' },
+      { $set: { status: 'closed' } }
+    );
+    if (closeResult.modifiedCount > 0) {
+      console.log(`🔒 Auto-closed ${closeResult.modifiedCount} quiz(zes) past end_date`);
+    }
+
+    // STEP 2: Find quizzes where result_date has passed and status is still 'active' or 'closed'
     const readyQuizzes = await Quiz.find({
       result_date: { $lte: now },
       status: { $in: ['active', 'closed'] },
@@ -5919,12 +5934,6 @@ async function autoDrawResults() {
 
       console.log(`🏆 Quiz ${quiz.quiz_id}: Result declared by performance ranking. Winner: ${winner.name} (₹${prizeAmount})`);
     }
-
-    // Also close quizzes past end_date that are still 'active'
-    await Quiz.updateMany(
-      { end_date: { $lt: now }, status: 'active' },
-      { $set: { status: 'closed' } }
-    );
   } catch(err) {
     console.error('❌ Auto-draw results error:', err.message);
     captureError(err, { context: 'auto-draw-results' });
