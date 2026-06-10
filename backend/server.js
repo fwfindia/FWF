@@ -37,7 +37,7 @@ import Course from './models/Course.js';
 import LoanAgreement from './models/LoanAgreement.js';
 import LoanRepayment from './models/LoanRepayment.js';
 import { syncReceiptToZoho, checkZohoConnection, getAuthUrl, exchangeCodeForTokens } from './lib/zoho.js';
-import { getTransporter, send80GReceipt, sendMemberWelcome, sendSupporterWelcome, sendDonationConfirmation, sendAdminAlert } from './lib/mailer.js';
+import { getTransporter, send80GReceipt, sendMemberWelcome, sendSupporterWelcome, sendDonationConfirmation, sendAdminAlert, sendQuizWinnerEmail } from './lib/mailer.js';
 import { sendWhatsAppCredentials, sendWhatsAppDonation, sendQuizParticipationSms, sendQuizResultSms, sendDonationReceiptSms, sendDonationReceipt80GSms, sendSmsOtp } from './lib/msg91.js';
 
 dotenv.config();
@@ -4535,12 +4535,23 @@ app.post('/api/admin/quiz-draw/:quizId', auth('admin'), async (req, res) => {
     quiz.status = 'result_declared';
     await quiz.save();
 
-    // Non-blocking SMS to winner
+    // Non-blocking SMS + Email to winner
     if (luckyOne.user_id) {
-      const winnerUser = await User.findById(luckyOne.user_id).select('mobile').lean();
+      const winnerUser = await User.findById(luckyOne.user_id).select('mobile email').lean();
       if (winnerUser?.mobile) {
         sendQuizResultSms({ mobile: winnerUser.mobile, name: luckyOne.name, quizId: quiz.quiz_id })
-          .catch(e => console.error('\u26a0\ufe0f Quiz result SMS failed:', e.message));
+          .catch(e => console.error('⚠️ Quiz result SMS failed:', e.message));
+      }
+      if (winnerUser?.email) {
+        sendQuizWinnerEmail({
+          name: luckyOne.name,
+          email: winnerUser.email,
+          memberId: winner.member_id,
+          quizTitle: quiz.title,
+          quizId: quiz.quiz_id,
+          prizeAmount,
+          enrollmentNumber: winner.enrollment_number
+        }).catch(e => console.error('⚠️ Winner email (manual draw):', e.message));
       }
     }
 
@@ -4625,7 +4636,24 @@ app.post('/api/admin/quiz/:quizId/override-winner', auth('admin'), async (req, r
       { $set: { winners: [newWinner] } }
     );
 
-    console.log(`🔄 Quiz ${quiz.quiz_id}: Winner overridden from ${oldWinner?.member_id} to ${newWinner.member_id} by admin`);
+    // Non-blocking SMS + Email to new winner
+    if (newWinnerUser?.mobile) {
+      sendQuizResultSms({ mobile: newWinnerUser.mobile, name: newWinner.name, quizId: quiz.quiz_id })
+        .catch(e => console.error('⚠️ Override winner SMS failed:', e.message));
+    }
+    if (newWinnerUser?.email) {
+      sendQuizWinnerEmail({
+        name: newWinner.name,
+        email: newWinnerUser.email,
+        memberId: newWinner.member_id,
+        quizTitle: quiz.title,
+        quizId: quiz.quiz_id,
+        prizeAmount,
+        enrollmentNumber: newWinner.enrollment_number
+      }).catch(e => console.error('⚠️ Override winner email failed:', e.message));
+    }
+
+    console.log(`🔄 Quiz ${quiz.quiz_id}: Winner overridden from ${oldWinner?.member_id} to ${newWinner.member_id} by admin — notifications sent`);
     res.json({ ok: true, message: `Winner changed to ${newWinner.name} (${newWinner.member_id})`, winner: newWinner });
   } catch (err) {
     console.error('❌ Override winner error:', err.message);
@@ -6009,13 +6037,24 @@ async function autoDrawResults() {
       quiz.status = 'result_declared';
       await quiz.save();
 
-      // Send SMS to lucky draw winner
+      // Send SMS + Email to winner (non-blocking)
       if (user?.mobile) {
         sendQuizResultSms({ mobile: user.mobile, name: winner.name, quizId: quiz.quiz_id })
           .catch(e => console.error('⚠️ SMS quiz result (auto-draw):', e.message));
       }
+      if (user?.email) {
+        sendQuizWinnerEmail({
+          name: winner.name,
+          email: user.email,
+          memberId: winner.member_id,
+          quizTitle: quiz.title,
+          quizId: quiz.quiz_id,
+          prizeAmount,
+          enrollmentNumber: winner.enrollment_number
+        }).catch(e => console.error('⚠️ Winner email (auto-draw):', e.message));
+      }
 
-      console.log(`🏆 Quiz ${quiz.quiz_id}: Result declared by performance ranking. Winner: ${winner.name} (₹${prizeAmount})`);
+      console.log(`🏆 Quiz ${quiz.quiz_id}: Result declared. Winner: ${winner.name} (₹${prizeAmount}) — notifications sent`);
     }
   } catch(err) {
     console.error('❌ Auto-draw results error:', err.message);
@@ -6471,7 +6510,7 @@ async function startServer() {
     console.log(`🚀 FWF backend running on http://localhost:${PORT}`);
     console.log(`📦 Database: MongoDB Atlas`);
     console.log(`🌐 Site served from: ${siteRoot}`);
-      console.log(`🏷️  Build: 2026-06-10-v7 (override-winner endpoint active)`);
+      console.log(`🏷️  Build: 2026-06-10-v8 (winner email+SMS notifications active)`);
     // ── Email config check ──
     const resendKey = process.env.RESEND_API_KEY;
     const mailFrom  = process.env.MAIL_FROM;

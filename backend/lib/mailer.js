@@ -390,6 +390,61 @@ export async function sendDonationConfirmation({ name, email, amount, donationId
 /**
  * Send a simple admin notification email.
  */
+/**
+ * Send quiz winner congratulations email.
+ * @param {Object} params
+ */
+export async function sendQuizWinnerEmail({ name, email, memberId, quizTitle, quizId, prizeAmount, rank = 1, enrollmentNumber }) {
+  if (!email) return null;
+  const transporter = getTransporter();
+  const prize = Number(prizeAmount).toLocaleString('en-IN');
+  return transporter.sendMail({
+    from: process.env.MAIL_FROM,
+    to: email,
+    subject: `🎉 Congratulations! You won ₹${prize} in ${quizTitle}`,
+    html: `
+    <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb">
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:40px 32px;text-align:center">
+        <div style="font-size:56px;margin-bottom:8px">🏆</div>
+        <h1 style="color:#fff;margin:0;font-size:26px;font-weight:800">You Won!</h1>
+        <p style="color:#c4b5fd;margin:8px 0 0;font-size:15px">Congratulations on winning the Lucky Draw</p>
+      </div>
+      <!-- Body -->
+      <div style="padding:32px">
+        <p style="color:#374151;font-size:15px;margin:0 0 20px">Dear <strong>${name}</strong>,</p>
+        <p style="color:#374151;font-size:15px;margin:0 0 24px">
+          We are thrilled to inform you that you have been selected as the <strong>Lucky Winner</strong> of the FWF Quiz Draw! 🎊
+        </p>
+        <!-- Prize Box -->
+        <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;border-radius:12px;padding:24px;text-align:center;margin:0 0 24px">
+          <p style="color:#166534;font-size:13px;font-weight:700;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">Prize Amount</p>
+          <p style="color:#15803d;font-size:42px;font-weight:900;margin:0">₹${prize}</p>
+          <p style="color:#166534;font-size:12px;margin:6px 0 0">Credited to your FWF Wallet</p>
+        </div>
+        <!-- Details Table -->
+        <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:24px">
+          ${infoRow('Quiz', quizTitle, '#f9fafb')}
+          ${infoRow('Quiz ID', quizId)}
+          ${infoRow('Enrollment No.', enrollmentNumber || '—', '#f9fafb')}
+          ${infoRow('Member ID', memberId)}
+          ${infoRow('Rank', `#${rank} 🥇`)}
+        </table>
+        <p style="color:#6b7280;font-size:13px;line-height:1.6;margin:0 0 24px">
+          Your prize amount has been credited to your FWF wallet. Log in to your member dashboard to view your wallet balance and redeem your winnings.
+        </p>
+        <div style="text-align:center;margin-bottom:8px">
+          <a href="https://fwfindia.org/member/dashboard#wallet"
+             style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px">
+            View My Wallet 💰
+          </a>
+        </div>
+      </div>
+      ${emailFooter('#7c3aed')}
+    </div>`
+  });
+}
+
 export async function sendAdminAlert({ subject, rows = [], extra = '' }) {
   const to = process.env.ADMIN_EMAIL || process.env.SMTP_USER;
   if (!to) return;
