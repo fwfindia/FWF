@@ -94,3 +94,37 @@ async function networkFirst(req) {
     return offline || new Response('<h1>You are offline</h1>', { headers: { 'Content-Type': 'text/html' } });
   }
 }
+
+// ── Push Notifications ────────────────────────────────────
+self.addEventListener('push', e => {
+  let data = { title: 'FWF', body: 'You have a new notification', icon: '/assets/images/logo.png', url: '/app/dashboard' };
+  try { if (e.data) data = { ...data, ...e.data.json() }; } catch {}
+
+  e.waitUntil(
+    self.registration.showNotification(data.title, {
+      body:    data.body,
+      icon:    data.icon || '/assets/images/logo.png',
+      badge:   '/assets/images/logo.png',
+      tag:     data.tag || 'fwf-notification',
+      data:    { url: data.url || '/app/dashboard' },
+      vibrate: [200, 100, 200],
+      requireInteraction: !!data.requireInteraction
+    })
+  );
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const targetUrl = e.notification.data?.url || '/app/dashboard';
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const client of list) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
+});

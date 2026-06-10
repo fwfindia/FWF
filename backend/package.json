@@ -19,7 +19,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.0",
     "razorpay": "^2.9.6",
-    "resend": "^6.9.3"
+    "resend": "^6.9.3",
+    "web-push": "^3.6.7"
   },
   "overrides": {
     "axios": ">=1.15.0"

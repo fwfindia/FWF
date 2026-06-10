@@ -36,6 +36,8 @@ import PhonePeDonationIntent from './models/PhonePeDonationIntent.js';
 import Course from './models/Course.js';
 import LoanAgreement from './models/LoanAgreement.js';
 import LoanRepayment from './models/LoanRepayment.js';
+import PushSubscription from './models/PushSubscription.js';
+import webpush from 'web-push';
 import { syncReceiptToZoho, checkZohoConnection, getAuthUrl, exchangeCodeForTokens } from './lib/zoho.js';
 import { getTransporter, send80GReceipt, sendMemberWelcome, sendSupporterWelcome, sendDonationConfirmation, sendAdminAlert, sendQuizWinnerEmail } from './lib/mailer.js';
 import { sendWhatsAppCredentials, sendWhatsAppDonation, sendQuizParticipationSms, sendQuizResultSms, sendDonationReceiptSms, sendDonationReceipt80GSms, sendSmsOtp } from './lib/msg91.js';
@@ -53,6 +55,18 @@ app.use(requestHandler);
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) { console.error('❌ JWT_SECRET is required'); process.exit(1); }
+
+// ── Web Push (VAPID) ──────────────────────────────────────────────────────────
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    `mailto:${process.env.VAPID_CONTACT || 'support@fwfindia.org'}`,
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+  console.log('✅ VAPID keys configured');
+} else {
+  console.warn('⚠️  VAPID keys not set — web push notifications disabled. Run: node -e "const wp=require(\'web-push\');const k=wp.generateVAPIDKeys();console.log(JSON.stringify(k))"');
+}
 const ORG_PREFIX = process.env.ORG_PREFIX || 'FWF';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT === 'production';
 const AUTH_COOKIE_OPTIONS = {
@@ -4553,6 +4567,14 @@ app.post('/api/admin/quiz-draw/:quizId', auth('admin'), async (req, res) => {
           enrollmentNumber: winner.enrollment_number
         }).catch(e => console.error('⚠️ Winner email (manual draw):', e.message));
       }
+      // Push notification
+      sendPushToUser(luckyOne.user_id, {
+        title: `🏆 You Won ₹${Number(prizeAmount).toLocaleString('en-IN')}!`,
+        body: `Congratulations! You are the lucky winner of ${quiz.title}. Prize credited to your wallet.`,
+        icon: '/assets/images/logo.png',
+        tag: `quiz-win-${quiz.quiz_id}`,
+        url: '/app/dashboard#wallet'
+      }).catch(() => {});
     }
 
     res.json({ ok: true, winners: [winner], totalParticipants: participants.length, rule: 'highest_score_then_speed_then_earliest_submission' });
@@ -4652,6 +4674,16 @@ app.post('/api/admin/quiz/:quizId/override-winner', auth('admin'), async (req, r
         enrollmentNumber: newWinner.enrollment_number
       }).catch(e => console.error('⚠️ Override winner email failed:', e.message));
     }
+    // Push notification
+    if (newWinnerPart.user_id) {
+      sendPushToUser(newWinnerPart.user_id, {
+        title: `🏆 You Won ₹${Number(prizeAmount).toLocaleString('en-IN')}!`,
+        body: `Congratulations! You are the lucky winner of ${quiz.title}. Prize credited to your wallet.`,
+        icon: '/assets/images/logo.png',
+        tag: `quiz-win-${quiz.quiz_id}`,
+        url: '/app/dashboard#wallet'
+      }).catch(() => {});
+    }
 
     console.log(`🔄 Quiz ${quiz.quiz_id}: Winner overridden from ${oldWinner?.member_id} to ${newWinner.member_id} by admin — notifications sent`);
     res.json({ ok: true, message: `Winner changed to ${newWinner.name} (${newWinner.member_id})`, winner: newWinner });
@@ -4659,6 +4691,101 @@ app.post('/api/admin/quiz/:quizId/override-winner', auth('admin'), async (req, r
     console.error('❌ Override winner error:', err.message);
     // Safe error response — do NOT call captureError here (it can throw and escape catch)
     if (!res.headersSent) res.status(500).json({ error: err.message || 'Override winner failed' });
+  }
+});
+
+// ========================
+// WEB PUSH NOTIFICATIONS
+// ========================
+
+/**
+ * Send a push notification to a user by user_id.
+ * Non-blocking — call with .catch()
+ */
+async function sendPushToUser(userId, payload) {
+  if (!process.env.VAPID_PUBLIC_KEY) return; // VAPID not configured
+  try {
+    const subs = await PushSubscription.find({ user_id: userId }).lean();
+    for (const sub of subs) {
+      try {
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: sub.keys },
+          JSON.stringify(payload)
+        );
+      } catch (pushErr) {
+        // 410 Gone = subscription expired/revoked → clean up
+        if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
+          await PushSubscription.deleteOne({ _id: sub._id });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('⚠️ sendPushToUser error:', err.message);
+  }
+}
+
+// Save / update push subscription (called from client after permission granted)
+app.post('/api/push/subscribe', auth('member'), async (req, res) => {
+  try {
+    const { endpoint, keys } = req.body;
+    if (!endpoint || !keys?.p256dh || !keys?.auth) {
+      return res.status(400).json({ error: 'Invalid subscription object' });
+    }
+    const userAgent = req.headers['user-agent']?.substring(0, 200);
+    await PushSubscription.findOneAndUpdate(
+      { endpoint },
+      { user_id: req.user.uid, member_id: req.user.memberId, endpoint, keys, user_agent: userAgent, updated_at: new Date() },
+      { upsert: true, new: true }
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    captureError(err, { context: 'push-subscribe' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Remove push subscription (called when user denies / logs out)
+app.post('/api/push/unsubscribe', auth('member'), async (req, res) => {
+  try {
+    const { endpoint } = req.body;
+    if (endpoint) {
+      await PushSubscription.deleteOne({ endpoint, user_id: req.user.uid });
+    } else {
+      // Remove all subscriptions for this user
+      await PushSubscription.deleteMany({ user_id: req.user.uid });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Return VAPID public key so client can subscribe
+app.get('/api/push/vapid-key', (req, res) => {
+  if (!process.env.VAPID_PUBLIC_KEY) {
+    return res.status(503).json({ error: 'Push notifications not configured' });
+  }
+  res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+});
+
+// Admin: send test push notification to a member
+app.post('/api/admin/push/test', auth('admin'), async (req, res) => {
+  try {
+    const { memberId } = req.body;
+    if (!memberId) return res.status(400).json({ error: 'memberId required' });
+    const user = await User.findOne({ member_id: memberId }).select('_id name').lean();
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    await sendPushToUser(user._id, {
+      title: 'FWF Test Notification 🔔',
+      body: `Hello ${user.name}! Push notifications are working.`,
+      icon: '/assets/images/logo.png',
+      badge: '/assets/images/logo.png',
+      tag: 'fwf-test',
+      url: '/app/dashboard'
+    });
+    res.json({ ok: true, message: 'Push sent' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -6053,6 +6180,16 @@ async function autoDrawResults() {
           enrollmentNumber: winner.enrollment_number
         }).catch(e => console.error('⚠️ Winner email (auto-draw):', e.message));
       }
+      // Push notification
+      if (winner.user_id) {
+        sendPushToUser(winner.user_id, {
+          title: `🏆 You Won ₹${Number(prizeAmount).toLocaleString('en-IN')}!`,
+          body: `Congratulations! You are the lucky winner of ${quiz.title}. Prize credited to your wallet.`,
+          icon: '/assets/images/logo.png',
+          tag: `quiz-win-${quiz.quiz_id}`,
+          url: '/app/dashboard#wallet'
+        }).catch(() => {});
+      }
 
       console.log(`🏆 Quiz ${quiz.quiz_id}: Result declared. Winner: ${winner.name} (₹${prizeAmount}) — notifications sent`);
     }
@@ -6510,7 +6647,7 @@ async function startServer() {
     console.log(`🚀 FWF backend running on http://localhost:${PORT}`);
     console.log(`📦 Database: MongoDB Atlas`);
     console.log(`🌐 Site served from: ${siteRoot}`);
-      console.log(`🏷️  Build: 2026-06-10-v8 (winner email+SMS notifications active)`);
+      console.log(`🏷️  Build: 2026-06-10-v9 (web push notifications active)`);
     // ── Email config check ──
     const resendKey = process.env.RESEND_API_KEY;
     const mailFrom  = process.env.MAIL_FROM;
